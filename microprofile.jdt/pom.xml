@@ -10,14 +10,13 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <tycho.version>1.6.0</tycho.version>
+    <tycho.version>1.7.0</tycho.version>
     <tycho.extras.version>${tycho.version}</tycho.extras.version>
-    <tycho.scmUrl>scm:git:https://github.com/redhat-developer/quarkus-ls</tycho.scmUrl>
+    <tycho.scmUrl>scm:git:https://github.com/eclipse/lsp4mp</tycho.scmUrl>
     <tycho.generateSourceReferences>true</tycho.generateSourceReferences>
     <jdt.ls.version>0.52.1.20200318153300</jdt.ls.version>
     <tycho.test.platformArgs />
     <tycho.test.jvmArgs>-Xmx512m ${tycho.test.platformArgs}</tycho.test.jvmArgs>
-
 
     <!-- Code coverage -->
     <jacoco.version>0.7.9</jacoco.version>
@@ -25,7 +24,6 @@
     <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
     <jacoco.destFile>${project.build.directory}/jacoco.exec</jacoco.destFile>
     <sonar.jacoco.reportPath>${jacoco.destFile}</sonar.jacoco.reportPath>
-    <skipDeployToJBossOrg>true</skipDeployToJBossOrg>
     <surefire.timeout>600</surefire.timeout>
   </properties>
 
@@ -100,7 +98,7 @@
             <useUIHarness>false</useUIHarness>
             <argLine>${tycho.test.jvmArgs}</argLine>
             <!-- kill test JVM if tests take more than 1 minute (60 seconds) to finish -->
-	    <forkedProcessTimeoutInSeconds>${surefire.timeout}</forkedProcessTimeoutInSeconds>
+	          <forkedProcessTimeoutInSeconds>${surefire.timeout}</forkedProcessTimeoutInSeconds>
           </configuration>
         </plugin>
       </plugins>
@@ -167,91 +165,83 @@
       </build>
     </profile>
 		<profile>
-			<id>deploy-to-jboss.org</id>
-			<activation>
-				<property>
-					<name>skipDeployToJBossOrg</name>
-					<value>false</value>
-				</property>
-			</activation>
-			<properties>
-				<jbosstoolsRelengPublishVersion>4.9.0-SNAPSHOT</jbosstoolsRelengPublishVersion>
-				<deployScriptDir>${project.build.directory}/releng-scripts/sources</deployScriptDir>
-				<deployScript>${deployScriptDir}/publish/rsync.sh</deployScript>
-				<deploySourceFolder>${project.build.directory}/repository</deploySourceFolder>
-				<filemgmtJbossOrg>10.5.105.197</filemgmtJbossOrg>
-				<deployDestination>tools@${filemgmtJbossOrg}:downloads_htdocs/jbosstools</deployDestination>
-				<deployTargetFolder>vscode/snapshots/builds/microprofile-jdt/${BUILD_TIMESTAMP}-B${BUILD_NUMBER}/all/repo/</deployTargetFolder>
-				<deployNumbuildstokeep>2</deployNumbuildstokeep>
-				<deployNumbuildstolink>2</deployNumbuildstolink>
-				<deployThreshholdwhendelete>2</deployThreshholdwhendelete>
-				<maven.deploy.skip>true</maven.deploy.skip>
-				<skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
-			</properties>
+			<id>eclipse-sign</id>
 			<build>
 				<plugins>
 					<plugin>
-						<artifactId>maven-dependency-plugin</artifactId>
+						<groupId>org.eclipse.tycho</groupId>
+						<artifactId>target-platform-configuration</artifactId>
+						<version>${tycho-version}</version>
+						<configuration>
+							<includePackedArtifacts>true</includePackedArtifacts>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.eclipse.tycho.extras</groupId>
+						<artifactId>tycho-pack200a-plugin</artifactId>
+						<version>${tycho-extras-version}</version>
 						<executions>
 							<execution>
-								<id>deploy-releng-scripts</id>
+								<id>pack200-normalize</id>
 								<goals>
-									<goal>unpack</goal>
+									<goal>normalize</goal>
 								</goals>
-								<phase>deploy</phase>
-								<configuration>
-									<artifactItems>
-										<artifactItem>
-											<groupId>org.jboss.tools.releng</groupId>
-											<artifactId>jbosstools-releng-publish</artifactId>
-											<version>${jbosstoolsRelengPublishVersion}</version>
-											<type>tar.gz</type>
-											<outputDirectory>${deployScriptDir}</outputDirectory>
-										</artifactItem>
-									</artifactItems>
-									<skip>${skipDeployToJBossOrg}</skip>
-								</configuration>
 							</execution>
 						</executions>
 					</plugin>
 					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>exec-maven-plugin</artifactId>
-						<version>1.3.2</version>
-						<configuration>
-							<executable>${deployScript}</executable>
-						</configuration>
+						<groupId>org.eclipse.cbi.maven.plugins</groupId>
+						<artifactId>eclipse-jarsigner-plugin</artifactId>
+						<version>1.1.4</version>
 						<executions>
 							<execution>
-								<id>deploy-snapshot-build</id>
+								<id>sign</id>
 								<goals>
-									<goal>exec</goal>
+									<goal>sign</goal>
 								</goals>
-								<phase>deploy</phase>
-								<configuration>
-									<arguments>
-										<arg>-DESTINATION</arg>
-										<arg>${deployDestination}</arg>
-										<arg>-s</arg>
-										<arg>${deploySourceFolder}</arg>
-										<arg>-t</arg>
-										<arg>${deployTargetFolder}</arg>
-										<arg>-k</arg>
-										<arg>${deployNumbuildstokeep}</arg>
-										<arg>-l</arg>
-										<arg>${deployNumbuildstolink}</arg>
-										<arg>-a</arg>
-										<arg>${deployThreshholdwhendelete}</arg>
-									</arguments>
-									<skip>${skipDeployToJBossOrg}</skip>
-								</configuration>
 							</execution>
 						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.eclipse.tycho.extras</groupId>
+						<artifactId>tycho-pack200b-plugin</artifactId>
+						<version>${tycho-extras-version}</version>
+						<executions>
+							<execution>
+								<id>pack200-pack</id>
+								<goals>
+									<goal>pack</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.eclipse.tycho</groupId>
+						<artifactId>tycho-p2-plugin</artifactId>
+						<version>${tycho-version}</version>
+						<executions>
+							<execution>
+								<id>p2-metadata</id>
+								<goals>
+									<goal>p2-metadata</goal>
+								</goals>
+								<phase>package</phase>
+							</execution>
+						</executions>
+						<configuration>
+							<defaultP2Metadata>false</defaultP2Metadata>
+						</configuration>
 					</plugin>
 				</plugins>
 			</build>
 		</profile>
 	  </profiles>
+  <pluginRepositories>
+		<pluginRepository>
+			<id>cbi-release</id>
+			<url>https://repo.eclipse.org/content/repositories/cbi-releases/</url>
+		</pluginRepository>
+	</pluginRepositories>
   <modules>
     <module>org.eclipse.lsp4mp.jdt.core</module>
     <module>org.eclipse.lsp4mp.jdt.test</module>

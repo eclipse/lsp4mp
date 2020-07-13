@@ -17,20 +17,11 @@
 		</license>
 	</licenses>
 	<scm>
-		<connection>scm:git:git@github.com:redhat-developer/quarkus-ls.git</connection>
-		<developerConnection>scm:git:git@github.com:redhat-developer/quarkus-ls.git</developerConnection>
-		<url>https://github.com/redhat-developer/quarkus-ls</url>
+		<connection>scm:git:git@github.com:eclipse/lsp4mp.git</connection>
+		<developerConnection>scm:git:git@github.com:eclipse/lsp4mp.git</developerConnection>
+		<url>https://github.com/eclipse/lsp4mp</url>
 		<tag>${project.version}</tag>
 	</scm>
-
-	<developers>
-		<developer>
-			<id>team</id>
-			<name>Red Hat Developer</name>
-			<organization>Red Hat</organization>
-			<organizationUrl>https://www.redhat.com</organizationUrl>
-		</developer>
-	</developers>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -39,13 +30,11 @@
 		<maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
 		<dev.build.timestamp>${maven.build.timestamp}</dev.build.timestamp>
 		<lsp4j.version>0.9.0</lsp4j.version>
-		<jboss.releases.repo.id>jboss-releases-repository</jboss.releases.repo.id>
-		<jboss.releases.repo.url>https://repository.jboss.org/nexus/service/local/staging/deploy/maven2/</jboss.releases.repo.url>
-		<jboss.snapshots.repo.id>jboss-snapshots-repository</jboss.snapshots.repo.id>
-		<jboss.snapshots.repo.url>https://repository.jboss.org/nexus/content/repositories/snapshots/</jboss.snapshots.repo.url>
-		<jbossNexus>https://repository.jboss.org</jbossNexus>
+		<releases.repo.id>eclipse-releases-repository</releases.repo.id>
+		<releases.repo.url>https://repo.eclipse.org/content/repositories/lsp4mp-releases/</releases.repo.url>
+		<snapshots.repo.id>eclipse-snapshots-repository</snapshots.repo.id>
+		<snapshots.repo.url>https://repo.eclipse.org/content/repositories/lsp4mp-snapshots/</snapshots.repo.url>
 	</properties>
-
 	<build>
 		<resources>
 			<resource>
@@ -67,7 +56,7 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>
-				<version>3.0.0</version>
+				<version>3.2.0</version>
 				<executions>
 					<execution>
 						<id>parse-version</id>
@@ -114,7 +103,7 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-source-plugin</artifactId>
-				<version>3.1.0</version>
+				<version>3.2.0</version>
 				<executions>
 					<execution>
 						<goals>
@@ -122,16 +111,6 @@
 						</goals>
 					</execution>
 				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.sonatype.plugins</groupId>
-				<artifactId>nexus-staging-maven-plugin</artifactId>
-				<version>1.6.8</version>
-				<extensions>true</extensions>
-				<configuration>
-					<nexusUrl>${jbossNexus}/nexus/</nexusUrl>
-					<serverId>${jboss.releases.repo.id}</serverId>
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>
@@ -167,14 +146,14 @@
 	
 	<distributionManagement>
  		<repository>
-			<id>${jboss.releases.repo.id}</id>
-			<name>JBoss Releases Repository</name>
- 			<url>${jboss.releases.repo.url}</url>
+			<id>${releases.repo.id}</id>
+			<name>Eclipse Releases Repository</name>
+ 			<url>${releases.repo.url}</url>
 		</repository>
 		<snapshotRepository>
-			<id>${jboss.snapshots.repo.id}</id>
-			<name>JBoss Snapshots Repository</name>
-			<url>${jboss.snapshots.repo.url}</url>
+			<id>${snapshots.repo.id}</id>
+			<name>Eclipse Snapshots Repository</name>
+			<url>${snapshots.repo.url}</url>
 		</snapshotRepository>
 	</distributionManagement>	
 </project>

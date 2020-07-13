@@ -11,8 +11,4 @@
 	<artifactId>org.eclipse.lsp4mp.jdt.site</artifactId>
 	<packaging>eclipse-repository</packaging>
 	<name>microprofile.jdt.ls :: update site</name>
-
-	<properties>
-		<skipDeployToJBossOrg>false</skipDeployToJBossOrg>
-	</properties>
 </project>
