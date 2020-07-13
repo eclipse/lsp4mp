@@ -30,9 +30,9 @@
 		<maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
 		<dev.build.timestamp>${maven.build.timestamp}</dev.build.timestamp>
 		<lsp4j.version>0.9.0</lsp4j.version>
-		<releases.repo.id>eclipse-releases-repository</releases.repo.id>
+		<releases.repo.id>repo.eclipse.org</releases.repo.id>
 		<releases.repo.url>https://repo.eclipse.org/content/repositories/lsp4mp-releases/</releases.repo.url>
-		<snapshots.repo.id>eclipse-snapshots-repository</snapshots.repo.id>
+		<snapshots.repo.id>repo.eclipse.org</snapshots.repo.id>
 		<snapshots.repo.url>https://repo.eclipse.org/content/repositories/lsp4mp-snapshots/</snapshots.repo.url>
 	</properties>
 	<build>
