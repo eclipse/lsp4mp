@@ -22,8 +22,7 @@ pipeline {
       steps {
         sshagent ( ['projects-storage.eclipse.org-bot-ssh']) {
           sh '''
-            VERSION=`grep 'Bundle-Version: ' microprofile.jdt/org.eclipse.lsp4mp.jdt.core/target/MANIFEST.MF | cut -d":" -f2 | tr -d '[:space:]'`
-            echo $VERSION
+            VERSION=`grep -o '[0-9].*[0-9]' microprofile.jdt/org.eclipse.lsp4mp.jdt.core/target/maven-archiver/pom.properties`
             targetDir=/home/data/httpd/download.eclipse.org/lsp4mp/snapshots/$VERSION
             ssh genie.lsp4mp@projects-storage.eclipse.org rm -rf $targetDir
             ssh genie.lsp4mp@projects-storage.eclipse.org mkdir -p $targetDir
@@ -36,7 +35,7 @@ pipeline {
     stage("Build LSP4MP Language Server"){
       steps {
         withMaven {
-          sh 'cd microprofile.ls/org.eclipse.lsp4mp.ls && ./mvnw clean verify -B -Dcbi.jarsigner.skip=false && ../..'
+          sh 'cd microprofile.ls/org.eclipse.lsp4mp.ls && ./mvnw clean verify -B -Dcbi.jarsigner.skip=false && cd ../..'
         }
       }
     }
