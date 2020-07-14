@@ -79,9 +79,7 @@ class MicroProfileValidator {
 	private void validateProperty(Property property) {
 		String propertyNameWithProfile = property.getPropertyNameWithProfile();
 		if (propertyNameWithProfile != null && !propertyNameWithProfile.isEmpty()) {
-			// Validate Syntax property
-			validateSyntaxProperty(propertyNameWithProfile, property);
-			// Validate Duplicate property
+			validateNoEqualsAfterProperty(propertyNameWithProfile, property);
 			validateDuplicateProperty(propertyNameWithProfile, property);
 		}
 
@@ -89,16 +87,15 @@ class MicroProfileValidator {
 		if (propertyName != null && !propertyName.isEmpty()) {
 			ItemMetadata metadata = MicroProfilePropertiesUtils.getProperty(propertyName, projectInfo);
 			if (metadata == null) {
-				// Validate Unknown property
 				validateUnknownProperty(propertyNameWithProfile, property);
 			} else {
-				// Validate property Value
 				validatePropertyValue(propertyNameWithProfile, metadata, property);
+				validateWildCardProperty(propertyNameWithProfile, metadata, property);
 			}
 		}
 	}
 
-	private void validateSyntaxProperty(String propertyName, Property property) {
+	private void validateNoEqualsAfterProperty(String propertyName, Property property) {
 		DiagnosticSeverity severity = validationSettings.getSyntax().getDiagnosticSeverity(propertyName);
 		if (severity == null) {
 			// The syntax validation must be ignored for this property name
@@ -158,6 +155,34 @@ class MicroProfileValidator {
 
 		if (errorMessage != null) {
 			addDiagnostic(errorMessage, property.getValue(), severity, ValidationType.value.name());
+		}
+	}
+
+	/**
+	 * Adds a "Contains unexpected wildcard" diagnostic if:
+	 * 
+	 * 1. The property does not come from source
+	 * 2. The property metadata contains a wildcard
+	 * 3. The corresponding property key in application.properties contains a wildcard 
+	 * 
+	 * In this case the corresponding property key should not have a wildcard
+	 * 
+	 * @param propertyKey the property key as it appears in application.properties
+	 * @param metadata    the corresponding property metadata
+	 * @param property    the property node
+	 */
+	private void validateWildCardProperty(String propertyKey, ItemMetadata metadata, Property property) {
+		DiagnosticSeverity severity = validationSettings.getSyntax().getDiagnosticSeverity(propertyKey);
+		if (severity == null) {
+			// The syntax validation must be ignored for this property name
+			return;
+		}
+		if (Boolean.TRUE.equals(metadata.getSource()) || !metadata.getName().contains("*")) {
+			return;
+		}
+		if (propertyKey.contains("*")) {
+			addDiagnostic("Contains unexpected wildcard", property.getKey(), DiagnosticSeverity.Error,
+					ValidationType.syntax.name());
 		}
 	}
 

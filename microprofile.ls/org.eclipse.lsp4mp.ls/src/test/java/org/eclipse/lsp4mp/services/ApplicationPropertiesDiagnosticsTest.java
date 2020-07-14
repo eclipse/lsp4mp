@@ -15,6 +15,7 @@ import static org.eclipse.lsp4mp.services.MicroProfileAssert.testDiagnosticsFor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.lsp4j.DiagnosticSeverity;
@@ -25,7 +26,6 @@ import org.eclipse.lsp4mp.commons.metadata.ItemHint;
 import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
 import org.eclipse.lsp4mp.commons.metadata.ItemHint.ValueHint;
 import org.eclipse.lsp4mp.ls.commons.BadLocationException;
-import org.eclipse.lsp4mp.services.ValidationType;
 import org.eclipse.lsp4mp.settings.MicroProfileValidationSettings;
 import org.eclipse.lsp4mp.settings.MicroProfileValidationTypeSettings;
 import org.junit.Test;
@@ -745,5 +745,43 @@ public class ApplicationPropertiesDiagnosticsTest {
 		testDiagnosticsFor(value, getDefaultMicroProfileProjectInfo(), settings, //
 				d(0, 0, 2, 4, "Unknown property 'qu.application.name'",
 						DiagnosticSeverity.Warning, ValidationType.unknown));
+	}
+
+	@Test
+	public void validateWildcardExists() throws BadLocationException {
+		String value = "quarkus.log.category.*.level=DEBUG";
+		MicroProfileValidationSettings settings = new MicroProfileValidationSettings();
+		testDiagnosticsFor(value, getDefaultMicroProfileProjectInfo(), settings,
+				d(0, 0, 28, "Contains unexpected wildcard",
+						DiagnosticSeverity.Error, ValidationType.syntax));
+	}
+
+	@Test
+	public void validateWildcardExistsMappedProperty() throws BadLocationException {
+		String value = "quarkus.log.category.{*}.level=DEBUG";
+		MicroProfileValidationSettings settings = new MicroProfileValidationSettings();
+		testDiagnosticsFor(value, getDefaultMicroProfileProjectInfo(), settings,
+				d(0, 0, 30, "Contains unexpected wildcard",
+						DiagnosticSeverity.Error, ValidationType.syntax));
+	}
+
+	@Test
+	public void validateWildcardExistsIndexedProperty() throws BadLocationException {
+		String value = "openshift.init-containers[*].image=my-image";
+		MicroProfileValidationSettings settings = new MicroProfileValidationSettings();
+		testDiagnosticsFor(value, getDefaultMicroProfileProjectInfo(), settings,
+				d(0, 0, 34, "Contains unexpected wildcard", DiagnosticSeverity.Error, ValidationType.syntax));
+	}
+
+	@Test
+	public void validateWildcardExistsUserProperty() throws BadLocationException {
+		MicroProfileProjectInfo projectInfo = new MicroProfileProjectInfo();
+		ItemMetadata metadata = new ItemMetadata();
+		metadata.setName("greeting.message.*");
+		metadata.setSource(Boolean.TRUE);
+		projectInfo.setProperties(Collections.singletonList(metadata));
+		String value = "greeting.message.* = hello";
+		MicroProfileValidationSettings settings = new MicroProfileValidationSettings();
+		testDiagnosticsFor(value, projectInfo, settings);
 	}
 }
