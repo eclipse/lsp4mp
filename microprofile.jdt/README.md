@@ -1,3 +1,3 @@
 # microprofile-jdt-ls-extension
 
-jdt.ls extension providing MicroProfile support
+[jdt.ls](https://github.com/eclipse/eclipse.jdt.ls) extension providing MicroProfile support
