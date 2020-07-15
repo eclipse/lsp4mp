@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * The quarkus project properties change event.
+ * The MicroProfile project properties change event.
  * 
  * @author Angelo ZERR
  *

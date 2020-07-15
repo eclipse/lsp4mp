@@ -19,15 +19,15 @@ import org.eclipse.lsp4j.services.WorkspaceService;
  */
 public class MicroProfileWorkspaceService implements WorkspaceService {
 
-	private final MicroProfileLanguageServer quarkusLanguageServer;
+	private final MicroProfileLanguageServer microprofileLanguageServer;
 
-	public MicroProfileWorkspaceService(MicroProfileLanguageServer quarkusLanguageServer) {
-		this.quarkusLanguageServer = quarkusLanguageServer;
+	public MicroProfileWorkspaceService(MicroProfileLanguageServer microprofileLanguageServer) {
+		this.microprofileLanguageServer = microprofileLanguageServer;
 	}
 
 	@Override
 	public void didChangeConfiguration(DidChangeConfigurationParams params) {
-		quarkusLanguageServer.updateSettings(params.getSettings());
+		microprofileLanguageServer.updateSettings(params.getSettings());
 	}
 
 	@Override

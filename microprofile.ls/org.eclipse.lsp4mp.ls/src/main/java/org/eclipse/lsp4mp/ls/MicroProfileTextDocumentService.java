@@ -64,12 +64,12 @@ public class MicroProfileTextDocumentService implements TextDocumentService {
 	private final JavaTextDocumentService javaTextDocumentService;
 	private SharedSettings sharedSettings;
 
-	public MicroProfileTextDocumentService(MicroProfileLanguageServer quarkusLanguageServer) {
+	public MicroProfileTextDocumentService(MicroProfileLanguageServer microprofileLanguageServer) {
 		textDocumentServicesMap = new HashMap<>();
 		this.sharedSettings = new SharedSettings();
-		applicationPropertiesTextDocumentService = new ApplicationPropertiesTextDocumentService(quarkusLanguageServer,
+		applicationPropertiesTextDocumentService = new ApplicationPropertiesTextDocumentService(microprofileLanguageServer,
 				sharedSettings);
-		javaTextDocumentService = new JavaTextDocumentService(quarkusLanguageServer, sharedSettings);
+		javaTextDocumentService = new JavaTextDocumentService(microprofileLanguageServer, sharedSettings);
 		textDocumentServicesMap.put("properties", applicationPropertiesTextDocumentService);
 		textDocumentServicesMap.put("java", javaTextDocumentService);
 	}
