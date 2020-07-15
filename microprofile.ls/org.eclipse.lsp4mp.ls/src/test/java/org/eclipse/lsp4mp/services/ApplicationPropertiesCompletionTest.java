@@ -92,6 +92,12 @@ public class ApplicationPropertiesCompletionTest {
 	}
 
 	@Test
+	public void completionOnValueEndOfLine() throws BadLocationException {
+		String value = "quarkus.log.console.async.overflow=|\n";
+		testCompletionFor(value, true, c("block", "block", r(0, 35, 35)), c("discard", "discard", r(0, 35, 35)));
+	}
+
+	@Test
 	public void completionOnValueOnPropertyValue() throws BadLocationException {
 		String value = "quarkus.log.console.async.overflow=BLO| ";
 		testCompletionFor(value, true, c("block", "block", r(0, 35, 39)));
@@ -288,6 +294,15 @@ public class ApplicationPropertiesCompletionTest {
 		// to fix it, quarkus-values-rules.json defines the Level enumerations
 		String value = "quarkus.log.file.level=| ";
 		testCompletionFor(value, true, c("OFF", "OFF", r(0, 23, 24)), c("SEVERE", "SEVERE", r(0, 23, 24)));
+	}
+
+	@Test
+	public void completionOnValueForLevelBasedOnRuleWithNewline() throws BadLocationException {
+		// quarkus.log.file.level has 'java.util.logging.Level' which has no
+		// enumeration
+		// to fix it, quarkus-values-rules.json defines the Level enumerations
+		String value = "quarkus.log.file.level=|\n";
+		testCompletionFor(value, true, c("OFF", "OFF", r(0, 23, 23)), c("SEVERE", "SEVERE", r(0, 23, 23)));
 	}
 
 	@Test

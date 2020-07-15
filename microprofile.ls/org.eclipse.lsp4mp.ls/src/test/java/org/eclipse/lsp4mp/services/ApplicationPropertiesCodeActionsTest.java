@@ -25,7 +25,6 @@ import org.eclipse.lsp4mp.ls.commons.BadLocationException;
 import org.eclipse.lsp4mp.ls.commons.client.CommandKind;
 import org.eclipse.lsp4mp.ls.commons.client.ConfigurationItemEdit;
 import org.eclipse.lsp4mp.ls.commons.client.ConfigurationItemEditType;
-import org.eclipse.lsp4mp.services.ValidationType;
 import org.junit.Test;
 
 /**
