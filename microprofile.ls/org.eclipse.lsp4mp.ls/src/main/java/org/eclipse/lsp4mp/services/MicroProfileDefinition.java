@@ -121,7 +121,10 @@ public class MicroProfileDefinition {
 	private static MicroProfilePropertyDefinitionParams getPropertyDefinitionParams(PropertiesModel document,
 			ItemMetadata item, MicroProfileProjectInfo projectInfo, Node node) {
 
-		if (node.getNodeType() != NodeType.PROPERTY_KEY && node.getNodeType() != NodeType.PROPERTY_VALUE) {
+		if (node.getNodeType() != NodeType.PROPERTY_KEY
+				&& node.getNodeType() != NodeType.PROPERTY_VALUE
+				&& node.getNodeType() != NodeType.PROPERTY_VALUE_EXPRESSION
+				&& node.getNodeType() != NodeType.PROPERTY_VALUE_LITERAL) {
 			return null;
 		}
 
@@ -136,6 +139,9 @@ public class MicroProfileDefinition {
 			sourceField = item.getSourceField();
 			break;
 		}
+		case PROPERTY_VALUE_EXPRESSION:
+		case PROPERTY_VALUE_LITERAL:
+			node = node.getParent(); // HACK:
 		case PROPERTY_VALUE: {
 			sourceType = item.getHintType();
 			sourceField = ((PropertyValue) node).getValue();
@@ -183,6 +189,9 @@ public class MicroProfileDefinition {
 			return (PropertyKey) node;
 		case PROPERTY_VALUE:
 			return ((Property) node.getParent()).getKey();
+		case PROPERTY_VALUE_EXPRESSION:
+		case PROPERTY_VALUE_LITERAL:
+			return ((Property) node.getParent().getParent()).getKey();
 		default:
 			return null;
 		}

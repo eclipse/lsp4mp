@@ -44,7 +44,9 @@ import org.eclipse.lsp4mp.model.Node;
 import org.eclipse.lsp4mp.model.Node.NodeType;
 import org.eclipse.lsp4mp.model.PropertiesModel;
 import org.eclipse.lsp4mp.model.Property;
+import org.eclipse.lsp4mp.model.PropertyGraph;
 import org.eclipse.lsp4mp.model.PropertyKey;
+import org.eclipse.lsp4mp.model.PropertyValueExpression;
 import org.eclipse.lsp4mp.model.values.ValuesRulesManager;
 import org.eclipse.lsp4mp.settings.MicroProfileCompletionSettings;
 import org.eclipse.lsp4mp.settings.MicroProfileFormattingSettings;
@@ -97,11 +99,23 @@ class MicroProfileCompletions {
 		case COMMENTS:
 			// no completions
 			break;
+
+		case PROPERTY_VALUE_EXPRESSION:
+			PropertyValueExpression propExpr = (PropertyValueExpression) node;
+			if (offset == propExpr.getStart() || (propExpr.isClosed() && propExpr.getEnd() == offset)) {
+				collectPropertyValueSuggestions(node, document, projectInfo, valuesRulesManager, completionSettings, list);
+			} else {
+				collectPropertyValueExpressionSuggestions(node, document, projectInfo, valuesRulesManager, completionSettings, list);
+			}
+			break;
+
 		case ASSIGN:
 		case PROPERTY_VALUE:
+		case PROPERTY_VALUE_LITERAL:
 			// completion on property value
 			collectPropertyValueSuggestions(node, document, projectInfo, valuesRulesManager, completionSettings, list);
 			break;
+
 		default:
 			// completion on property key
 			collectPropertyKeySuggestions(offset, node, document, projectInfo, valuesRulesManager, completionSettings,
@@ -351,11 +365,21 @@ class MicroProfileCompletions {
 			MicroProfileProjectInfo projectInfo, ValuesRulesManager valuesRulesManager,
 			MicroProfileCompletionSettings completionSettings, CompletionList list) {
 
-		Node parent = node.getParent();
-		if (parent != null && parent.getNodeType() != Node.NodeType.PROPERTY) {
-			return;
+		Property property = null;
+
+		switch (node.getNodeType()) {
+			case ASSIGN:
+			case PROPERTY_VALUE:
+				property = (Property) node.getParent();
+				break;
+			case PROPERTY_VALUE_LITERAL:
+			case PROPERTY_VALUE_EXPRESSION:
+				property = (Property) node.getParent().getParent();
+				break;
+			default:
+				assert false;
 		}
-		Property property = (Property) parent;
+
 		String propertyName = property.getPropertyName();
 
 		ItemMetadata item = MicroProfilePropertiesUtils.getProperty(propertyName, projectInfo);
@@ -368,6 +392,28 @@ class MicroProfileCompletions {
 					list.getItems()
 							.add(getValueCompletionItem(e, item.getConverterKinds(), node, model, markdownSupported));
 				}
+			}
+		}
+	}
+
+	private static void collectPropertyValueExpressionSuggestions(Node node,
+		PropertiesModel model, MicroProfileProjectInfo projectInfo, ValuesRulesManager valuesRulesManager,
+		MicroProfileCompletionSettings completionSettings, CompletionList list) {
+
+		PropertyGraph graph = new PropertyGraph(node.getOwnerModel());
+
+		// Find properties that won't make a circular dependency and suggest them for completion
+		String completionPropertyName = ((Property) node.getParent().getParent()).getPropertyKey();
+		List<String> independentProperties = graph.getIndependentProperties(completionPropertyName);
+		// Add all independent properties as completion items
+		for (String independentProperty : independentProperties) {
+			list.getItems().add(getPropertyCompletionItem(independentProperty, (PropertyValueExpression) node, model));
+		}
+		// Add all properties not referenced in the properties file as completion options
+		for (ItemMetadata candidateCompletion : projectInfo.getProperties()) {
+			String candidateCompletionName = candidateCompletion.getName();
+			if (!graph.hasNode(candidateCompletionName)) {
+				list.getItems().add(getPropertyCompletionItem(candidateCompletionName, (PropertyValueExpression) node, model));
 			}
 		}
 	}
@@ -412,6 +458,24 @@ class MicroProfileCompletions {
 		completionItem.setDocumentation(DocumentationUtils.getDocumentation(item, markdownSupported));
 
 		return completionItem;
+	}
+
+	/**
+	 * Make a completion item for a property given its metadata
+	 *
+	 * @param property the metadata of the property to create a completion item for
+	 */
+	private static CompletionItem getPropertyCompletionItem(String propertyName, PropertyValueExpression propertyValueExpression, PropertiesModel model) {
+		String completionText = "${" + propertyName + "}";
+		CompletionItem completionItem = new CompletionItem(completionText);
+		completionItem.setKind(CompletionItemKind.Value);
+		try {
+			Range range = new Range(model.getDocument().positionAt(propertyValueExpression.getStart()), model.getDocument().positionAt(propertyValueExpression.getEnd()));
+			completionItem.setTextEdit(new TextEdit(range, completionText));
+			return completionItem;
+		} catch (BadLocationException e) {
+			return null;
+		}
 	}
 
 	private static void collectSnippetSuggestions(int completionOffset, Node node, PropertiesModel document,

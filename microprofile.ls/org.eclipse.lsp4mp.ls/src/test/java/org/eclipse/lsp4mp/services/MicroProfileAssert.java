@@ -74,7 +74,7 @@ import com.google.gson.GsonBuilder;
 
 /**
  * MicroProfile assert
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -146,6 +146,14 @@ public class MicroProfileAssert {
 	public static void testCompletionFor(String value, boolean snippetSupport, String fileURI, Integer expectedCount,
 			MicroProfileProjectInfo projectInfo, CompletionItem... expectedItems) throws BadLocationException {
 		testCompletionFor(value, snippetSupport, false, fileURI, expectedCount, projectInfo, expectedItems);
+	}
+
+	public static void testCompletionFor(String value, MicroProfileProjectInfo projectInfo, CompletionItem... expectedItems) throws BadLocationException {
+		testCompletionFor(value, true, false, null, expectedItems.length, projectInfo, expectedItems);
+	}
+
+	public static void testCompletionFor(String value, MicroProfileProjectInfo projectInfo, Integer expectedCount) throws BadLocationException {
+		testCompletionFor(value, true, null, expectedCount, projectInfo);
 	}
 
 	public static void testCompletionFor(String value, boolean snippetSupport, boolean insertSpacing, String fileURI,
@@ -231,6 +239,10 @@ public class MicroProfileAssert {
 					DocumentationUtils.getDocumentationTextFromEither(match.getDocumentation()));
 		}
 
+	}
+
+	public static CompletionItem c(String newText, Range range) {
+		return c(newText, newText, range);
 	}
 
 	public static CompletionItem c(String label, String newText, Range range) {

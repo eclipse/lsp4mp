@@ -13,6 +13,8 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.model;
 
+import java.util.List;
+
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4mp.ls.commons.BadLocationException;
 import org.eclipse.lsp4mp.ls.commons.TextDocument;
@@ -123,6 +125,32 @@ public class PropertiesModel extends Node {
 		@Override
 		public void blankLine(ParseContext context) {
 
+		}
+
+		@Override
+		public void startPropertyValueLiteral(ParseContext context) {
+			Node valLiteral = new PropertyValueLiteral();
+			valLiteral.setStart(context.getLocationOffset());
+			property.getValue().addNode(valLiteral);
+		}
+
+		@Override
+		public void endPropertyValueLiteral(ParseContext context) {
+			List<Node> propFragments = property.getValue().getChildren();
+			propFragments.get(propFragments.size() - 1).setEnd(context.getLocationOffset());
+		}
+
+		@Override
+		public void startPropertyValueExpression(ParseContext context) {
+			Node expression = new PropertyValueExpression();
+			expression.setStart(context.getLocationOffset());
+			property.getValue().addNode(expression);
+		}
+
+		@Override
+		public void endPropertyValueExpression(ParseContext context) {
+			List<Node> propFragments = property.getValue().getChildren();
+			propFragments.get(propFragments.size() - 1).setEnd(context.getLocationOffset());
 		}
 	}
 

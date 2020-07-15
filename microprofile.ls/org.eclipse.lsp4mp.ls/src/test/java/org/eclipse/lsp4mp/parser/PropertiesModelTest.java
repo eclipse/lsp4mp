@@ -12,13 +12,15 @@ package org.eclipse.lsp4mp.parser;
 import org.eclipse.lsp4mp.model.Node;
 import org.eclipse.lsp4mp.model.PropertiesModel;
 import org.eclipse.lsp4mp.model.Property;
+import org.eclipse.lsp4mp.model.PropertyValueExpression;
+import org.eclipse.lsp4mp.model.PropertyValueLiteral;
 import org.eclipse.lsp4mp.model.Node.NodeType;
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
  * Test for {@link PropertiesModel} parser.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -96,7 +98,7 @@ public class PropertiesModelTest {
 		assertModel(model, text.length(), 2);
 
 		Node firstProperty = model.getChildren().get(0);
-		assertProperty(firstProperty, 0, 181, 0, 32, "mp.openapi.schema.java.util.Date", 33, 35, 181, 
+		assertProperty(firstProperty, 0, 181, 0, 32, "mp.openapi.schema.java.util.Date", 33, 35, 181,
 				"{ " +
 				"\"name\": \"EpochMillis\" " +
 				"\"type\": \"number\", " +
@@ -214,6 +216,102 @@ public class PropertiesModelTest {
 		assertProperty(property, 0, 36, 0, 34, "mp.opentracing.server.skip-pattern", 34, 35, 36, "\\");
 	}
 
+	@Test
+	public void parsePropertyExpression() {
+		String text = //
+				"mp.openstracking.server.skip = http://${ip.address}:${port}";
+		PropertiesModel model = PropertiesModel.parse(text, "application.properties");
+		Property property = (Property) model.getChildren().get(0);
+		assertPropertyValue(property, new MockNode(31, 38, NodeType.PROPERTY_VALUE_LITERAL),
+				new MockNode(38, 51, NodeType.PROPERTY_VALUE_EXPRESSION),
+				new MockNode(51, 52, NodeType.PROPERTY_VALUE_LITERAL),
+				new MockNode(52, 59, NodeType.PROPERTY_VALUE_EXPRESSION));
+	}
+
+	@Test
+	public void parseMultiplePropertyExpression() {
+		String text = //
+				"mp.openstracking.server.skip = http://${ip.address}:${port}\n" + //
+						"quarkus.made.up.property=${port}${port}${port}\n";
+		PropertiesModel model = PropertiesModel.parse(text, "application.properties");
+		Property property0 = (Property) model.getChildren().get(0);
+		Property property1 = (Property) model.getChildren().get(1);
+		assertPropertyValue(property0, new MockNode(31, 38, NodeType.PROPERTY_VALUE_LITERAL),
+				new MockNode(38, 51, NodeType.PROPERTY_VALUE_EXPRESSION),
+				new MockNode(51, 52, NodeType.PROPERTY_VALUE_LITERAL),
+				new MockNode(52, 59, NodeType.PROPERTY_VALUE_EXPRESSION));
+		assertPropertyValue(property1, new MockNode(85, 92, NodeType.PROPERTY_VALUE_EXPRESSION),
+				new MockNode(92, 99, NodeType.PROPERTY_VALUE_EXPRESSION),
+				new MockNode(99, 106, NodeType.PROPERTY_VALUE_EXPRESSION));
+	}
+
+	@Test
+	public void parseContinuedLinePropertyExpression() {
+		String text = //
+				"mp.openstacktracking.server.skip = \\\n" + //
+						"  http://\\\n" + //
+						"  ${ip.address}:${port}\n\n\n";
+		PropertiesModel model = PropertiesModel.parse(text, "application.properties");
+		Property property = (Property) model.getChildren().get(0);
+		assertPropertyValue(property, new MockNode(35, 50, NodeType.PROPERTY_VALUE_LITERAL),
+				new MockNode(50, 63, NodeType.PROPERTY_VALUE_EXPRESSION),
+				new MockNode(63, 64, NodeType.PROPERTY_VALUE_LITERAL),
+				new MockNode(64, 71, NodeType.PROPERTY_VALUE_EXPRESSION));
+	}
+
+	@Test
+	public void crossLinePropertyExpression() {
+		String text = //
+				"mp.openstacktracking.server.skip = ${http.\\\n" + //
+				"  port}";
+		PropertiesModel model = PropertiesModel.parse(text, "application.properties");
+		Property property = (Property) model.getChildren().get(0);
+		assertPropertyValue(property,
+				new MockNode(35, 51, NodeType.PROPERTY_VALUE_EXPRESSION));
+	}
+
+	@Test
+	public void parseTrailingPropertyLiteral() {
+		String text = "mp.openstracking.server.skip = ${test}:9090\n" + //
+				"quarkus.made.up.property=${test}:90\\\n" + //
+				"00";
+		PropertiesModel model = PropertiesModel.parse(text, "application.properties");
+		Property property0 = (Property) model.getChildren().get(0);
+		Property property1 = (Property) model.getChildren().get(1);
+		assertPropertyValue(property0, new MockNode(31, 38, NodeType.PROPERTY_VALUE_EXPRESSION),
+				new MockNode(38, 43, NodeType.PROPERTY_VALUE_LITERAL));
+		assertPropertyValue(property1, new MockNode(69, 76, NodeType.PROPERTY_VALUE_EXPRESSION),
+				new MockNode(76, 83, NodeType.PROPERTY_VALUE_LITERAL));
+	}
+
+	@Test
+	public void parsePropertyExpressionDefaultValueUnimplemented() {
+		String text = "property.one = ${property.two:default-value}\n" + //
+				"property.two = hello";
+		PropertiesModel model = PropertiesModel.parse(text, "microprofile-config.properties");
+		Property property0 = (Property) model.getChildren().get(0);
+		assertPropertyValue(property0, //
+				new MockNode(15, 44, NodeType.PROPERTY_VALUE_EXPRESSION));
+		PropertyValueExpression pve = (PropertyValueExpression) property0.getValue().getChildren().get(0);
+		Assert.assertEquals("property.two:default-value", pve.getReferencedPropertyName());
+	}
+
+	@Test
+	public void parsePropertyExpressionNestedUnimplemented() {
+		String text = "property.one = ${property.${property.three}}\n" + //
+				"property.two = hello\n" + //
+				"property.three = two";
+		PropertiesModel model = PropertiesModel.parse(text, "microprofile-config.properties");
+		Property property0 = (Property) model.getChildren().get(0);
+		assertPropertyValue(property0, //
+				new MockNode(15, 43, NodeType.PROPERTY_VALUE_EXPRESSION),
+				new MockNode(43, 44, NodeType.PROPERTY_VALUE_LITERAL));
+		PropertyValueExpression pve = (PropertyValueExpression) property0.getValue().getChildren().get(0);
+		PropertyValueLiteral pvl = (PropertyValueLiteral) property0.getValue().getChildren().get(1);
+		Assert.assertEquals("property.${property.three", pve.getReferencedPropertyName());
+		Assert.assertEquals("}", pvl.getText());
+	}
+
 	private static void assertComments(Node comments, int expectedStart, int expectedEnd, String expectedText) {
 		Assert.assertEquals(comments.getNodeType(), NodeType.COMMENTS);
 		Assert.assertEquals(expectedText, comments.getText());
@@ -269,6 +367,10 @@ public class PropertiesModelTest {
 
 	}
 
+	private static void assertPropertyValue(Property property, MockNode... propertyValueParts) {
+		Assert.assertArrayEquals(propertyValueParts, property.getValue().getChildren().toArray());
+	}
+
 	private static void assertModel(Node model, int expectedEnd, int expectedChildren) {
 		NodeType expectedNodeType = NodeType.DOCUMENT;
 		int expectedStart = 0;
@@ -278,5 +380,27 @@ public class PropertiesModelTest {
 		Assert.assertEquals(expectedEnd, model.getEnd());
 		Assert.assertEquals(expectedChildren, model.getChildren().size());
 	}
+
+	private class MockNode {
+
+		private int start, end;
+		private NodeType type;
+
+		public MockNode(int start, int end, NodeType type) {
+			this.start = start;
+			this.end = end;
+			this.type = type;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (!(other instanceof Node))
+				return false;
+			Node otherNode = (Node) other;
+			return this.type == otherNode.getNodeType() && this.start == otherNode.getStart()
+					&& this.end == otherNode.getEnd();
+		}
+	}
+
 
 }

@@ -46,7 +46,7 @@ public class ServerCapabilitiesConstants {
 	public static final String CODE_LENS_ID = UUID.randomUUID().toString();
 
 	public static final CompletionOptions DEFAULT_COMPLETION_OPTIONS = new CompletionOptions(false,
-			Arrays.asList(".", "%", "=" /* triggered characters for properties file */ ,
+			Arrays.asList(".", "%", "=", "$" /* triggered characters for properties file */ ,
 					"@" /* triggered characters for java snippets annotation */));
 
 	public static final CodeLensOptions DEFAULT_CODELENS_OPTIONS = new CodeLensOptions();
