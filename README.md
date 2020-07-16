@@ -37,6 +37,8 @@ In Java files, you will benefit with:
 
 ## Getting started
 
+JDK 11 is required to build the language server and the `eclipse.jdt.ls` extension.
+
 1. Clone this repository
 2. Open the folder in your terminal / command line
 3. Run ./buildAll.sh (OSX, Linux) or buildAll.bat (Windows)
