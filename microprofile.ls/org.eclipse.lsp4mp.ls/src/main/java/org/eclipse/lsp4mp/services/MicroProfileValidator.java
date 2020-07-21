@@ -208,19 +208,32 @@ class MicroProfileValidator {
 			}
 		}
 
-		if ((metadata.isIntegerType() && !isIntegerString(value)) || (metadata.isFloatType() && !isFloatString(value))
-				|| (metadata.isBooleanType() && !isBooleanString(value))
+		if (metadata.isBooleanType() && !isBooleanString(value)) {
+			return "Type mismatch: " + metadata.getType() + " expected. By default, this value will be interpreted as 'false'";
+		}
+
+		if ((metadata.isIntegerType() && !isIntegerString(value)
+				|| (metadata.isFloatType() && !isFloatString(value))
 				|| (metadata.isDoubleType() && !isDoubleString(value))
 				|| (metadata.isLongType() && !isLongString(value)) || (metadata.isShortType() && !isShortString(value))
 				|| (metadata.isBigDecimalType() && !isBigDecimalString(value))
-				|| (metadata.isBigIntegerType() && !isBigIntegerString(value))) {
+				|| (metadata.isBigIntegerType() && !isBigIntegerString(value)))) {
 			return "Type mismatch: " + metadata.getType() + " expected";
 		}
 		return null;
 	}
 
 	private static boolean isBooleanString(String str) {
-		return "true".equals(str) || "false".equals(str);
+		if (str == null) {
+			return false;
+		}
+		String strUpper = str.toUpperCase();
+		return "TRUE".equals(strUpper)
+				|| "FALSE".equals(strUpper)
+				|| "Y".equals(strUpper)
+				|| "YES".equals(strUpper)
+				|| "1".equals(strUpper)
+				|| "ON".equals(strUpper);
 	}
 
 	private static boolean isIntegerString(String str) {

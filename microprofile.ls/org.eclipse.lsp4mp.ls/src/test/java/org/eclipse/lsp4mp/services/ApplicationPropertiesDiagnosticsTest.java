@@ -414,7 +414,11 @@ public class ApplicationPropertiesDiagnosticsTest {
 	public void validateBooleanNoError() throws BadLocationException {
 
 		String value = "quarkus.http.cors  =   \n" + //
-				"quarkus.arc.auto-inject-fields=false\n" + //
+				"quarkus.arc.auto-inject-fields=falSE\n" + //
+				"quarkus.arc.remove-final-for-proxyable-methods = YeS\n" + //
+				"quarkus.banner.enabled = ON\n" + //
+				"quarkus.datasource.health.enabled=Y\n" + //
+				"quarkus.datasource.jdbc.detect-statement-leaks=1\n" + //
 				"quarkus.ssl.native = true\n" + //
 				"MP_Fault_Tolerance_Metrics_Enabled=false";
 
@@ -432,11 +436,11 @@ public class ApplicationPropertiesDiagnosticsTest {
 
 		MicroProfileValidationSettings settings = new MicroProfileValidationSettings();
 		testDiagnosticsFor(value, getDefaultMicroProfileProjectInfo(), settings,
-				d(0, 23, 30, "Type mismatch: boolean expected", DiagnosticSeverity.Error, ValidationType.value),
-				d(1, 31, 35, "Type mismatch: boolean expected", DiagnosticSeverity.Error, ValidationType.value),
-				d(2, 21, 26, "Type mismatch: java.util.Optional<java.lang.Boolean> expected", DiagnosticSeverity.Error,
+				d(0, 23, 30, "Type mismatch: boolean expected. By default, this value will be interpreted as 'false'", DiagnosticSeverity.Error, ValidationType.value),
+				d(1, 31, 35, "Type mismatch: boolean expected. By default, this value will be interpreted as 'false'", DiagnosticSeverity.Error, ValidationType.value),
+				d(2, 21, 26, "Type mismatch: java.util.Optional<java.lang.Boolean> expected. By default, this value will be interpreted as 'false'", DiagnosticSeverity.Error,
 						ValidationType.value),
-				d(3, 35, 38, "Type mismatch: java.lang.Boolean expected", DiagnosticSeverity.Error,
+				d(3, 35, 38, "Type mismatch: java.lang.Boolean expected. By default, this value will be interpreted as 'false'", DiagnosticSeverity.Error,
 						ValidationType.value));
 	}
 
