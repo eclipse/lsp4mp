@@ -205,7 +205,7 @@ public class ApplicationPropertiesCodeActionsTest {
 	@Test
 	public void codeActionsForUnknownBoolean() throws BadLocationException {
 		String value = "quarkus.http.cors=fals";
-		Diagnostic d = d(0, 18, 22, "Type mismatch: boolean expected", DiagnosticSeverity.Error, ValidationType.value);
+		Diagnostic d = d(0, 18, 22, "Type mismatch: boolean expected. By default, this value will be interpreted as 'false'", DiagnosticSeverity.Error, ValidationType.value);
 
 		testDiagnosticsFor(value, d);
 		testCodeActionsFor(value, d, ca("Did you mean 'false'?", te(0, 18, 0, 22, "false"), d));
