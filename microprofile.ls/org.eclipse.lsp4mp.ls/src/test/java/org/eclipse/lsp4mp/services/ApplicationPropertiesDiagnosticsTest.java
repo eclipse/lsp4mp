@@ -22,17 +22,16 @@ import org.eclipse.lsp4mp.commons.JavaVersion;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.metadata.ConverterKind;
 import org.eclipse.lsp4mp.commons.metadata.ItemHint;
-import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
 import org.eclipse.lsp4mp.commons.metadata.ItemHint.ValueHint;
+import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
 import org.eclipse.lsp4mp.ls.commons.BadLocationException;
-import org.eclipse.lsp4mp.services.ValidationType;
 import org.eclipse.lsp4mp.settings.MicroProfileValidationSettings;
 import org.eclipse.lsp4mp.settings.MicroProfileValidationTypeSettings;
 import org.junit.Test;
 
 /**
  * Test with diagnostics in 'application.properties' file.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -182,7 +181,7 @@ public class ApplicationPropertiesDiagnosticsTest {
 						DiagnosticSeverity.Error, ValidationType.unknown),
 				d(4, 0, 17, "Unknown property 'com.mycompany.foo'",
 						DiagnosticSeverity.Error, ValidationType.unknown));
-		
+
 		// com.mycompany.remoteServices.MyServiceClient/**/foo --> all errors
 		// for 'MyServiceClient' properties ending with path 'foo' are ignored
 		unknown.setExcluded(new String[] { "com.mycompany.remoteServices.MyServiceClient/**/foo" });
@@ -500,7 +499,7 @@ public class ApplicationPropertiesDiagnosticsTest {
 		projectInfo.setProperties(properties);
 
 		MicroProfileValidationSettings settings = new MicroProfileValidationSettings();
-		
+
 		String value = "quarkus.BigDecimal=12\n" + //
 				"quarkus.Optional.BigDecimal=12";
 		testDiagnosticsFor(value, projectInfo, settings);
@@ -522,7 +521,7 @@ public class ApplicationPropertiesDiagnosticsTest {
 		testDiagnosticsFor(value, projectInfo, settings,
 				d(0, 19, 30, "Type mismatch: java.math.BigDecimal expected", DiagnosticSeverity.Error, ValidationType.value),
 				d(1, 28, 39, "Type mismatch: java.util.Optional<java.math.BigDecimal> expected", DiagnosticSeverity.Error, ValidationType.value));
-		
+
 		value = "quarkus.BigDecimal=true\n" + //
 				"quarkus.Optional.BigDecimal=true";
 		testDiagnosticsFor(value, projectInfo, settings,
@@ -545,7 +544,7 @@ public class ApplicationPropertiesDiagnosticsTest {
 		projectInfo.setProperties(properties);
 
 		MicroProfileValidationSettings settings = new MicroProfileValidationSettings();
-		
+
 		String value = "quarkus.BigInteger=12\n" + //
 				"quarkus.Optional.BigInteger=12";
 		testDiagnosticsFor(value, projectInfo, settings);
@@ -559,7 +558,7 @@ public class ApplicationPropertiesDiagnosticsTest {
 		testDiagnosticsFor(value, projectInfo, settings,
 				d(0, 19, 30, "Type mismatch: java.math.BigInteger expected", DiagnosticSeverity.Error, ValidationType.value),
 				d(1, 28, 39, "Type mismatch: java.util.Optional<java.math.BigInteger> expected", DiagnosticSeverity.Error, ValidationType.value));
-		
+
 		value = "quarkus.BigInteger=true\n" + //
 				"quarkus.Optional.BigInteger=true";
 		testDiagnosticsFor(value, projectInfo, settings,
@@ -585,7 +584,10 @@ public class ApplicationPropertiesDiagnosticsTest {
 				"quarkus.http.port=${value_two}\n" + //
 				"quarkus.ssl.native=    ${value-three}";
 		MicroProfileValidationSettings settings = new MicroProfileValidationSettings();
-		testDiagnosticsFor(value, getDefaultMicroProfileProjectInfo(), settings);
+		testDiagnosticsFor(value, getDefaultMicroProfileProjectInfo(), settings, //
+				d(0, 22, 31, "Unknown referenced property 'value.one'", DiagnosticSeverity.Error, ValidationType.expression), //
+				d(1, 20, 29, "Unknown referenced property 'value_two'", DiagnosticSeverity.Error, ValidationType.expression), //
+				d(2, 25, 36, "Unknown referenced property 'value-three'", DiagnosticSeverity.Error, ValidationType.expression));
 	}
 
 	@Test
@@ -699,7 +701,7 @@ public class ApplicationPropertiesDiagnosticsTest {
 
 		String value = "mp.opentracing.server.skip-pattern=/foo|/bar.*";
 		testDiagnosticsFor(value, projectInfo, settings);
-		
+
 		String ls = System.lineSeparator();
 		value = "mp.opentracing.server.skip-pattern=(";
 
@@ -711,23 +713,23 @@ public class ApplicationPropertiesDiagnosticsTest {
 		testDiagnosticsFor(value, projectInfo, settings, //
 				d(0, 35, 36, "Unclosed character class near index 0" + ls + "[" + ls + "^" + ls + "",
 						DiagnosticSeverity.Error, ValidationType.value));
-		
+
 		value = "mp.opentracing.server.skip-pattern=\\";
 		testDiagnosticsFor(value, projectInfo, settings, //
 				d(0, 35, 36, "Unexpected internal error near index 1" + ls + "\\" + ls + "",
 						DiagnosticSeverity.Error, ValidationType.value));
 
 		value = "mp.opentracing.server.skip-pattern={";
-		
+
 		StringBuilder message = new StringBuilder("Illegal repetition");
 		if (JavaVersion.CURRENT > 12) {
 			message.append(" near index 1");
 		}
 		message.append(ls).append("{").append(ls);
-		
+
 		testDiagnosticsFor(value, projectInfo, settings, //
 				d(0, 35, 36, message.toString(),
-						DiagnosticSeverity.Error, ValidationType.value));			
+						DiagnosticSeverity.Error, ValidationType.value));
 	}
 
 	@Test
@@ -750,4 +752,64 @@ public class ApplicationPropertiesDiagnosticsTest {
 				d(0, 0, 2, 4, "Unknown property 'qu.application.name'",
 						DiagnosticSeverity.Warning, ValidationType.unknown));
 	}
+
+	@Test
+	public void validatePropertyFilePropertyInPropertyExpression() {
+		String value = "test.property = hello\n" + //
+				"other.property = ${test.property}";
+		testDiagnosticsFor(value, //
+				d(0, 0, 13, "Unknown property 'test.property'", DiagnosticSeverity.Warning, ValidationType.unknown), //
+				d(1, 0, 14, "Unknown property 'other.property'", DiagnosticSeverity.Warning, ValidationType.unknown));
+	}
+
+	@Test
+	public void undefinedPropertyInPropertyExpression() {
+		String value = "test.property = ${doesnt.exist.property}";
+		testDiagnosticsFor(value, //
+				d(0, 0, 13, "Unknown property 'test.property'", DiagnosticSeverity.Warning, ValidationType.unknown), //
+				d(0, 18, 39, "Unknown referenced property 'doesnt.exist.property'", DiagnosticSeverity.Error, ValidationType.expression));
+	}
+
+	@Test
+	public void validateMicroProfilePropertyInPropertyExpression() {
+		String value = "test.property = ${mp.opentracing.server.skip-pattern}";
+		testDiagnosticsFor(value, //
+				d(0, 0, 13, "Unknown property 'test.property'", DiagnosticSeverity.Warning, ValidationType.unknown));
+	}
+
+	@Test
+	public void validateUnclosedPropertyExpression() {
+		String value = "test.property = hello\n" + //
+				"other.property = ${test.property";
+		testDiagnosticsFor(value, //
+				d(0, 0, 13, "Unknown property 'test.property'", DiagnosticSeverity.Warning, ValidationType.unknown), //
+				d(1, 0, 14, "Unknown property 'other.property'", DiagnosticSeverity.Warning, ValidationType.unknown), //
+				d(1, 17, 32, "Missing '}'", DiagnosticSeverity.Error, ValidationType.syntax));
+	}
+
+	@Test
+	public void validateUnknownPropertyInPropertyExpressionAndMissingBrace() {
+		String value = "test.property = ${other.property";
+		testDiagnosticsFor(value, //
+				d(0, 0, 13, "Unknown property 'test.property'", DiagnosticSeverity.Warning, ValidationType.unknown), //
+				d(0, 18, 32, "Unknown referenced property 'other.property'", DiagnosticSeverity.Error, ValidationType.expression), //
+				d(0, 16, 32, "Missing '}'", DiagnosticSeverity.Error, ValidationType.syntax));
+	}
+
+	@Test
+	public void validateMultipleInvalidPropertyExpressions() {
+		String value = "property.one = hello\n" + //
+				"property.two = ${property.on}\n" + //
+				"property.three = ${property.tw}\n" + //
+				"property.four = ${property.th}\n";
+		testDiagnosticsFor(value, //
+				d(0, 0, 12, "Unknown property 'property.one'", DiagnosticSeverity.Warning, ValidationType.unknown), //
+				d(1, 0, 12, "Unknown property 'property.two'", DiagnosticSeverity.Warning, ValidationType.unknown), //
+				d(1, 17, 28, "Unknown referenced property 'property.on'", DiagnosticSeverity.Error, ValidationType.expression), //
+				d(2, 0, 14, "Unknown property 'property.three'", DiagnosticSeverity.Warning, ValidationType.unknown), //
+				d(2, 19, 30, "Unknown referenced property 'property.tw'", DiagnosticSeverity.Error, ValidationType.expression), //
+				d(3, 0, 13, "Unknown property 'property.four'", DiagnosticSeverity.Warning, ValidationType.unknown), //
+				d(3, 18, 29, "Unknown referenced property 'property.th'", DiagnosticSeverity.Error, ValidationType.expression));
+	}
+
 }

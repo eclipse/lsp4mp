@@ -32,6 +32,7 @@ public class MicroProfileValidationSettings {
 	private static final MicroProfileValidationTypeSettings DEFAULT_DUPLICATE;
 	private static final MicroProfileValidationTypeSettings DEFAULT_VALUE;
 	private static final MicroProfileValidationTypeSettings DEFAULT_REQUIRED;
+	private static final MicroProfileValidationTypeSettings DEFAULT_EXPRESSION;
 
 	static {
 		DEFAULT_SYNTAX = new MicroProfileValidationTypeSettings();
@@ -44,6 +45,8 @@ public class MicroProfileValidationSettings {
 		DEFAULT_VALUE.setSeverity(Severity.error.name());
 		DEFAULT_REQUIRED = new MicroProfileValidationTypeSettings();
 		DEFAULT_REQUIRED.setSeverity(Severity.none.name());
+		DEFAULT_EXPRESSION = new MicroProfileValidationTypeSettings();
+		DEFAULT_EXPRESSION.setSeverity(Severity.error.name());
 		DEFAULT = new MicroProfileValidationSettings();
 		DEFAULT.updateDefault();
 	}
@@ -57,6 +60,7 @@ public class MicroProfileValidationSettings {
 	private MicroProfileValidationTypeSettings duplicate;
 	private MicroProfileValidationTypeSettings value;
 	private MicroProfileValidationTypeSettings required;
+	private MicroProfileValidationTypeSettings expression;
 
 	public MicroProfileValidationSettings() {
 		setEnabled(true);
@@ -171,6 +175,16 @@ public class MicroProfileValidationSettings {
 		this.updated = false;
 	}
 
+	public MicroProfileValidationTypeSettings getExpression() {
+		updateDefault();
+		return expression;
+	}
+
+	public void setExpression(MicroProfileValidationTypeSettings expression) {
+		this.expression = expression;
+		this.updated = false;
+	}
+
 	/**
 	 * Update each kind of validation settings with default value if not defined.
 	 */
@@ -183,6 +197,7 @@ public class MicroProfileValidationSettings {
 		setDuplicate(duplicate != null ? duplicate : DEFAULT_DUPLICATE);
 		setValue(value != null ? value : DEFAULT_VALUE);
 		setRequired(required != null ? required : DEFAULT_REQUIRED);
+		setExpression(expression != null ? expression : DEFAULT_EXPRESSION);
 		updated = true;
 	}
 
@@ -198,5 +213,6 @@ public class MicroProfileValidationSettings {
 		this.setDuplicate(newValidation.getDuplicate());
 		this.setRequired(newValidation.getRequired());
 		this.setValue(newValidation.getValue());
+		this.setExpression(newValidation.getExpression());
 	}
 }

@@ -24,7 +24,7 @@ import org.eclipse.lsp4mp.ls.commons.CodeActionFactory;
  */
 public enum ValidationType {
 
-	syntax, unknown, duplicate, value, required, requiredValue;
+	syntax, unknown, duplicate, value, required, requiredValue, expression;
 
 	/**
 	 * Returns true if the given code matches the validation type and false
