@@ -70,4 +70,34 @@ public class PropertyValueExpression extends Node {
 		return text.charAt(text.length() - 1) == '}';
 	}
 
+	/**
+	 * Returns the offset of the start of the referenced property name,
+	 * or the offset after the `$` if no property is referenced.
+	 * 
+	 * @return the offset of the start of the referenced property name,
+	 * or the offset after the `$` if no property is referenced.
+	 */
+	public int getReferenceStartOffset() {
+		String propName = getReferencedPropertyName();
+		if (propName == null) {
+			return getStart() + 1;
+		}
+		return getStart() + getText().indexOf(propName);
+	}
+
+	/**
+	 * Returns the offset of the end of the referenced property name,
+	 * or the offset after the `$` if no property is referenced.
+	 * 
+	 * @return the offset of the end of the referenced property name,
+	 * or the offset after the `$` if no property is referenced.
+	 */
+	public int getReferenceEndOffset() {
+		String propName = getReferencedPropertyName();
+		if (propName == null) {
+			return getStart() + 1;
+		}
+		return getStart() + getText().indexOf(propName) + propName.length();
+	}
+
 }
