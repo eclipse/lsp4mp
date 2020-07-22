@@ -20,11 +20,13 @@ import org.junit.Test;
 
 /**
  * Test with definition in 'application.properties' file.
- * 
+ *
  * @author Angelo ZERR
  *
  */
 public class ApplicationPropertiesDefinitionTest {
+
+	private static final String PROPERTY_DOCUMENT_NAME = "/microprofile.properties";
 
 	@Test
 	public void definitionOnComments() throws BadLocationException, InterruptedException, ExecutionException {
@@ -87,5 +89,74 @@ public class ApplicationPropertiesDefinitionTest {
 	public void noDefinitionOnValue() throws BadLocationException, InterruptedException, ExecutionException {
 		String value = "quarkus.datasource.driver=XXX|X";
 		testDefinitionFor(value);
+	}
+
+	@Test
+	public void noDefinitionOnValueBoundaries() throws BadLocationException, InterruptedException, ExecutionException {
+		String value = "quarkus.datasource.driver=|XXXX";
+		testDefinitionFor(value);
+		value = "quarkus.datasource.driver=XXXX|";
+		testDefinitionFor(value);
+	}
+
+	@Test
+	public void definitionOnPropertyValueExpression() throws BadLocationException, InterruptedException, ExecutionException {
+		String value = "test.property = value\n" + //
+				"other.property = ${test.prop|erty}";
+		testDefinitionFor(value, PROPERTY_DOCUMENT_NAME, ll(
+			PROPERTY_DOCUMENT_NAME, r(1, 19, 32), r(0, 0, 13)
+		));
+	}
+
+	@Test
+	public void noDefinitionOnUndefinedProperty() throws BadLocationException, InterruptedException, ExecutionException {
+		String value = "test.property = ${other.prop|erty}";
+		testDefinitionFor(value);
+	}
+
+	@Test
+	public void noDefinitionOnJustDollarSign() throws BadLocationException, InterruptedException, ExecutionException {
+		String value = "test.property = $|";
+		testDefinitionFor(value);
+	}
+
+	@Test
+	public void definitionOnUnclosedPropertyValueExpression() throws BadLocationException, InterruptedException, ExecutionException {
+		String value = "test.property = value\n" + //
+				"other.property = ${test.|property";
+		testDefinitionFor(value, PROPERTY_DOCUMENT_NAME, ll(
+			PROPERTY_DOCUMENT_NAME, r(1, 19, 32), r(0, 0, 13)
+		));
+	}
+
+	@Test
+	public void noDefinitionAfterPropertyValueExpression() throws BadLocationException, InterruptedException, ExecutionException {
+		String value = "test.property = value\n" + //
+				"other.property = $test.|property";
+		testDefinitionFor(value);
+	}
+
+	@Test
+	public void goToNoProfilePropertyValueExpression() throws BadLocationException, InterruptedException, ExecutionException {
+		String value = "other.property = ${test.prop|erty}\n" + //
+				"%dev.test.property=hi\n" + //
+				"%prop.test.property=hello\n" + //
+				"test.property=salutations";
+		testDefinitionFor(value, PROPERTY_DOCUMENT_NAME, //
+				ll(PROPERTY_DOCUMENT_NAME, r(0, 19, 32), r(1, 0, 18)), //
+				ll(PROPERTY_DOCUMENT_NAME, r(0, 19, 32), r(2, 0, 19)), //
+				ll(PROPERTY_DOCUMENT_NAME, r(0, 19, 32), r(3, 0, 13) //
+		));
+	}
+
+	@Test
+	public void goToDevProfilePropertyValueExpression() throws BadLocationException, InterruptedException, ExecutionException {
+		String value = "other.property = ${%dev.test.prop|erty}\n" + //
+				"%dev.test.property=hi\n" + //
+				"%prop.test.property=hello\n" + //
+				"test.property=salutations";
+		testDefinitionFor(value, PROPERTY_DOCUMENT_NAME, ll(
+			PROPERTY_DOCUMENT_NAME, r(0, 19, 37), r(1, 0, 18)
+		));
 	}
 }

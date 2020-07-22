@@ -442,18 +442,24 @@ public class MicroProfileAssert {
 
 	public static void testDefinitionFor(String value, LocationLink... expected)
 			throws BadLocationException, InterruptedException, ExecutionException {
-		testDefinitionFor(value, getDefaultMicroProfileProjectInfo(),
+		testDefinitionFor(value, null, expected);
+	}
+
+	public static void testDefinitionFor(String value, String documentName, LocationLink... expected)
+			throws BadLocationException, InterruptedException, ExecutionException {
+		
+		testDefinitionFor(value, documentName, getDefaultMicroProfileProjectInfo(),
 				getDefaultMicroProfilePropertyDefinitionProvider(), expected);
 	}
 
-	public static void testDefinitionFor(String value, MicroProfileProjectInfo projectInfo,
+	public static void testDefinitionFor(String value, String documentName, MicroProfileProjectInfo projectInfo,
 			MicroProfilePropertyDefinitionProvider definitionProvider, LocationLink... expected)
 			throws BadLocationException, InterruptedException, ExecutionException {
 		int offset = value.indexOf('|');
 		value = value.substring(0, offset) + value.substring(offset + 1);
 
 		MicroProfileLanguageService languageService = new MicroProfileLanguageService();
-		PropertiesModel document = parse(value, null);
+		PropertiesModel document = parse(value, documentName);
 		Position position = document.positionAt(offset);
 
 		Either<List<? extends Location>, List<? extends LocationLink>> actual = languageService

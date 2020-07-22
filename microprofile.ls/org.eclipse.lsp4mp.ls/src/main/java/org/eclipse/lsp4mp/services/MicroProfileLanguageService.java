@@ -15,6 +15,7 @@ package org.eclipse.lsp4mp.services;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionContext;
@@ -150,7 +151,17 @@ public class MicroProfileLanguageService {
 			PropertiesModel document, Position position, MicroProfileProjectInfo projectInfo,
 			MicroProfilePropertyDefinitionProvider provider, boolean definitionLinkSupport) {
 		updateProperties(projectInfo, document);
-		return definition.findDefinition(document, position, projectInfo, provider, definitionLinkSupport);
+		CompletableFuture<List<LocationLink>> definitionLocationLinks = definition.findDefinition(document, position, projectInfo, provider);
+		if (definitionLinkSupport) {
+			return definitionLocationLinks.thenApply((List<LocationLink> resolvedLinks) -> {
+				return Either.forRight(resolvedLinks);
+			});
+		}
+		return definitionLocationLinks.thenApply((List<LocationLink> resolvedLinks) -> {
+			return Either.forLeft(resolvedLinks.stream().map((link) -> {
+				return new Location(link.getTargetUri(), link.getTargetRange());
+			}).collect(Collectors.toList()));
+		});
 	}
 
 	/**
