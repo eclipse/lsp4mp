@@ -17,10 +17,13 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import java.util.stream.Collectors;
 
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
@@ -33,6 +36,7 @@ import org.eclipse.lsp4mp.model.Node;
 import org.eclipse.lsp4mp.model.Node.NodeType;
 import org.eclipse.lsp4mp.model.PropertiesModel;
 import org.eclipse.lsp4mp.model.Property;
+import org.eclipse.lsp4mp.model.PropertyValueExpression;
 import org.eclipse.lsp4mp.model.values.ValuesRulesManager;
 import org.eclipse.lsp4mp.settings.MicroProfileValidationSettings;
 import org.eclipse.lsp4mp.utils.MicroProfilePropertiesUtils;
@@ -56,6 +60,7 @@ class MicroProfileValidator {
 
 	private final MicroProfileValidationSettings validationSettings;
 	private final Map<String, List<Property>> existingProperties;
+	private Set<String> allProperties;
 
 	public MicroProfileValidator(MicroProfileProjectInfo projectInfo, ValuesRulesManager valuesRulesManager,
 			List<Diagnostic> diagnostics, MicroProfileValidationSettings validationSettings) {
@@ -64,10 +69,12 @@ class MicroProfileValidator {
 		this.diagnostics = diagnostics;
 		this.validationSettings = validationSettings;
 		this.existingProperties = new HashMap<String, List<Property>>();
+		this.allProperties = null; // to be lazily init
 	}
 
 	public void validate(PropertiesModel document, CancelChecker cancelChecker) {
 		List<Node> nodes = document.getChildren();
+
 		for (Node node : nodes) {
 			if (cancelChecker != null) {
 				cancelChecker.checkCanceled();
@@ -100,6 +107,7 @@ class MicroProfileValidator {
 				// Validate property Value
 				validatePropertyValue(propertyNameWithProfile, metadata, property);
 			}
+			validatePropertyValueExpressions(property);
 		}
 	}
 
@@ -167,6 +175,61 @@ class MicroProfileValidator {
 	}
 
 	/**
+	 * Validates the property value expressions (${other.property}) of the given
+	 * property.
+	 *
+	 * Checks if the property expression is closed, and if the referenced property
+	 * exists.
+	 *
+	 * @param property      The property to validate
+	 * @param allProperties A list of all the properties defined in the property
+	 *                      file and in the project info
+	 */
+	private void validatePropertyValueExpressions(Property property) {
+		if (property.getValue() == null) {
+			return;
+		}
+		DiagnosticSeverity expressionSeverity = validationSettings.getExpression()
+				.getDiagnosticSeverity(property.getPropertyName());
+		DiagnosticSeverity syntaxSeverity = validationSettings.getSyntax()
+				.getDiagnosticSeverity(property.getPropertyName());
+		if (expressionSeverity == null || syntaxSeverity == null) {
+			return;
+		}
+		for (Node child : property.getValue().getChildren()) {
+			if (child != null && child.getNodeType() == NodeType.PROPERTY_VALUE_EXPRESSION) {
+				PropertyValueExpression propValExpr = (PropertyValueExpression) child;
+				if (expressionSeverity != null) {
+					if (allProperties == null) {
+						// Collect names of all properties defined in the configuration file and the
+						// project information
+						allProperties = new HashSet<>();
+						allProperties.addAll(projectInfo.getProperties().stream().map((ItemMetadata info) -> {
+							return info.getName();
+						}).collect(Collectors.toList()));
+						allProperties.addAll(property.getOwnerModel().getChildren().stream().filter(n -> {
+							return n.getNodeType() == NodeType.PROPERTY;
+						}).map(prop -> {
+							return ((Property) prop).getPropertyNameWithProfile();
+						}).collect(Collectors.toList()));
+					}
+					String refdProp = propValExpr.getReferencedPropertyName();
+					if (!allProperties.contains(refdProp)) {
+						Range range = PositionUtils.createAdjustedRange(propValExpr, 2, propValExpr.isClosed()? -1 : 0);
+						if (range != null) {
+							addDiagnostic("Unknown referenced property '" + refdProp + "'", range, expressionSeverity,
+									ValidationType.expression.name());
+						}
+					}
+				}
+				if (syntaxSeverity != null && !propValExpr.isClosed()) {
+					addDiagnostic("Missing '}'", propValExpr, syntaxSeverity, ValidationType.syntax.name());
+				}
+			}
+		}
+	}
+
+	/**
 	 * Returns an error message only if <code>value</code> is an invalid enum for
 	 * the property defined by <code>metadata</code>
 	 *
@@ -209,11 +272,11 @@ class MicroProfileValidator {
 		}
 
 		if (metadata.isBooleanType() && !isBooleanString(value)) {
-			return "Type mismatch: " + metadata.getType() + " expected. By default, this value will be interpreted as 'false'";
+			return "Type mismatch: " + metadata.getType()
+					+ " expected. By default, this value will be interpreted as 'false'";
 		}
 
-		if ((metadata.isIntegerType() && !isIntegerString(value)
-				|| (metadata.isFloatType() && !isFloatString(value))
+		if ((metadata.isIntegerType() && !isIntegerString(value) || (metadata.isFloatType() && !isFloatString(value))
 				|| (metadata.isDoubleType() && !isDoubleString(value))
 				|| (metadata.isLongType() && !isLongString(value)) || (metadata.isShortType() && !isShortString(value))
 				|| (metadata.isBigDecimalType() && !isBigDecimalString(value))
@@ -228,12 +291,8 @@ class MicroProfileValidator {
 			return false;
 		}
 		String strUpper = str.toUpperCase();
-		return "TRUE".equals(strUpper)
-				|| "FALSE".equals(strUpper)
-				|| "Y".equals(strUpper)
-				|| "YES".equals(strUpper)
-				|| "1".equals(strUpper)
-				|| "ON".equals(strUpper);
+		return "TRUE".equals(strUpper) || "FALSE".equals(strUpper) || "Y".equals(strUpper) || "YES".equals(strUpper)
+				|| "1".equals(strUpper) || "ON".equals(strUpper);
 	}
 
 	private static boolean isIntegerString(String str) {
@@ -374,6 +433,10 @@ class MicroProfileValidator {
 
 	private void addDiagnostic(String message, Node node, DiagnosticSeverity severity, String code) {
 		Range range = PositionUtils.createRange(node);
+		addDiagnostic(message, range, severity, code);
+	}
+
+	private void addDiagnostic(String message, Range range, DiagnosticSeverity severity, String code) {
 		diagnostics.add(new Diagnostic(range, message, severity, MICROPROFILE_DIAGNOSTIC_SOURCE, code));
 	}
 

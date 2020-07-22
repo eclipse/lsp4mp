@@ -32,4 +32,22 @@ public class PositionUtils {
 		return PositionUtils.createRange(node.getStart(), node.getEnd(), node.getDocument());
 	}
 
+	/**
+	 * Create a range for the given node and adjust the beginning and ending by the indicated amount of characters
+	 *
+	 * @param beginAdjust Amount of characters to move the start of the range forward by (negative values supported for going backwards)
+	 * @param endAdjust Amount of characters to move the end of the range forward by (negative values supported for going backwards)
+	 * @return A range for the given node where the beginning and ending of the range are adjusted by the given amount of characters
+	 */
+	public static Range createAdjustedRange(Node node, int beginAdjust, int endAdjust) {
+		Range range = createRange(node);
+		TextDocument doc = node.getDocument();
+		try {
+			return createRange(doc.offsetAt(range.getStart()) + beginAdjust, doc.offsetAt(range.getEnd()) + endAdjust,
+					doc);
+		} catch (BadLocationException e) {
+			return null;
+		}
+	}
+
 }
