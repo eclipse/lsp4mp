@@ -24,7 +24,7 @@ import org.junit.Test;
 
 /**
  * Test with completion in 'application.properties' file.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -149,7 +149,7 @@ public class ApplicationPropertiesCompletionTest {
 						+ "The default profile when not running in development or test mode." + System.lineSeparator()), //
 				c("test", "%test", r(0, 0, 1), "test" + System.lineSeparator() + System.lineSeparator()
 						+ "Profile activated when running tests." + System.lineSeparator()));
-		
+
 		value = "%st|\n" + //
 				"%staging.property=123";
 		testCompletionFor(value, true, 4, c("staging", "%staging", r(0, 0, 3)), //
@@ -350,5 +350,17 @@ public class ApplicationPropertiesCompletionTest {
 		String value = "|";
 		testCompletionFor(value, true, 1, projectInfo, c("price.string", "price.string=${0:Price: \\${price\\}}", r(0, 0, 0)));
 		testCompletionFor(value, false, 1, projectInfo, c("price.string", "price.string=Price: ${price}", r(0, 0, 0)));
+	}
+
+	@Test
+	public void completionBetweenPropertyNameAndEquals() throws BadLocationException {
+		String value = "quarkus.http.cors|=";
+		testCompletionFor(value, true, 0);
+	}
+
+	@Test
+	public void completionAfterJustEquals() throws BadLocationException {
+		String value = "quarkus.http.cors = |";
+		testCompletionFor(value, true, 2);
 	}
 }
