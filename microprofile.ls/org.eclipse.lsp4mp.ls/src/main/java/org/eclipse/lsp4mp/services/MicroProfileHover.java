@@ -28,10 +28,13 @@ import org.eclipse.lsp4mp.commons.metadata.ItemHint.ValueHint;
 import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
 import org.eclipse.lsp4mp.ls.commons.BadLocationException;
 import org.eclipse.lsp4mp.model.Node;
+import org.eclipse.lsp4mp.model.Node.NodeType;
 import org.eclipse.lsp4mp.model.PropertiesModel;
 import org.eclipse.lsp4mp.model.Property;
+import org.eclipse.lsp4mp.model.PropertyGraph;
 import org.eclipse.lsp4mp.model.PropertyKey;
 import org.eclipse.lsp4mp.model.PropertyValue;
+import org.eclipse.lsp4mp.model.PropertyValueExpression;
 import org.eclipse.lsp4mp.model.values.ValuesRulesManager;
 import org.eclipse.lsp4mp.settings.MicroProfileHoverSettings;
 import org.eclipse.lsp4mp.utils.DocumentationUtils;
@@ -72,28 +75,29 @@ class MicroProfileHover {
 		}
 
 		switch (node.getNodeType()) {
-		case COMMENTS:
-			// no hover documentation
-			return null;
-		case PROPERTY_VALUE_LITERAL:
-		case PROPERTY_VALUE_EXPRESSION:
-			// no hover documentation
-			return getPropertyValueHover(node.getParent(), projectInfo, valuesRulesManager, hoverSettings);
-		case PROPERTY_VALUE:
-			// no hover documentation
-			return getPropertyValueHover(node, projectInfo, valuesRulesManager, hoverSettings);
-		case PROPERTY_KEY:
-			PropertyKey key = (PropertyKey) node;
-			if (key.isBeforeProfile(offset)) {
-				// hover documentation on profile
-				return getProfileHover(key, hoverSettings);
-			} else {
-				// hover documentation on property key
-				return getPropertyKeyHover(key, projectInfo, hoverSettings);
-			}
+			case COMMENTS:
+				// no hover documentation
+				return null;
+			case PROPERTY_VALUE_EXPRESSION:
+				return getPropertyValueExpressionHover(node, projectInfo, hoverSettings);
+			case PROPERTY_VALUE_LITERAL:
+				// no hover documentation
+				return getPropertyValueHover(node.getParent(), projectInfo, valuesRulesManager, hoverSettings);
+			case PROPERTY_VALUE:
+				// no hover documentation
+				return getPropertyValueHover(node, projectInfo, valuesRulesManager, hoverSettings);
+			case PROPERTY_KEY:
+				PropertyKey key = (PropertyKey) node;
+				if (key.isBeforeProfile(offset)) {
+					// hover documentation on profile
+					return getProfileHover(key, hoverSettings);
+				} else {
+					// hover documentation on property key
+					return getPropertyKeyHover(key, projectInfo, hoverSettings);
+				}
 
-		default:
-			return null;
+			default:
+				return null;
 		}
 	}
 
@@ -139,15 +143,32 @@ class MicroProfileHover {
 		String propertyName = key.getPropertyName();
 
 		ItemMetadata item = MicroProfilePropertiesUtils.getProperty(propertyName, projectInfo);
+		PropertyValue valueNode = ((Property) key.getParent()).getValue();
+		String propertyValue = null;
+
+		if (valueNode != null) {
+			PropertyGraph graph = new PropertyGraph(key.getOwnerModel());
+			String resolved = valueNode.getResolvedValue(graph, projectInfo);
+			if (resolved != null) {
+				propertyValue = resolved;
+			} else {
+				propertyValue = valueNode.getValue();
+			}
+			if (propertyValue != null && propertyValue.isBlank()) {
+				propertyValue = null;
+			}
+		}
+
 		if (item != null) {
-			// MicroProfile property, found, display her documentation as hover
-			MarkupContent markupContent = DocumentationUtils.getDocumentation(item, key.getProfile(),
+			// MicroProfile property found, display the documentation as hover
+			MarkupContent markupContent = DocumentationUtils.getDocumentation(item, key.getProfile(), propertyValue,
 					markdownSupported);
 			Hover hover = new Hover();
 			hover.setContents(markupContent);
 			hover.setRange(PositionUtils.createRange(key));
 			return hover;
 		}
+
 		return null;
 	}
 
@@ -182,6 +203,52 @@ class MicroProfileHover {
 			return hover;
 		}
 		return null;
+	}
+
+	private static Hover getPropertyValueExpressionHover(Node node, MicroProfileProjectInfo projectInfo,
+			MicroProfileHoverSettings hoverSettings) {
+		PropertyValueExpression propValExpr = (PropertyValueExpression) node;
+		String referencedProp = propValExpr.getReferencedPropertyName();
+		if (referencedProp == null) {
+			return null;
+		}
+
+		PropertyGraph graph = new PropertyGraph(node.getOwnerModel());
+
+		if (graph.isAcyclic()) {
+			String resolvedValue = propValExpr.getResolvedValue(graph, projectInfo);
+			if (resolvedValue != null && !resolvedValue.isBlank()) {
+				return createHover(resolvedValue, node);
+			}
+		}
+
+		// Check property file for the value
+		for (Node modelChild : node.getOwnerModel().getChildren()) {
+			if (modelChild.getNodeType() == NodeType.PROPERTY) {
+				Property otherProperty = (Property) modelChild;
+				if (referencedProp.equals(otherProperty.getPropertyNameWithProfile())
+						&& otherProperty.getPropertyValue() != null && !otherProperty.getPropertyValue().isEmpty()) {
+					return createHover(otherProperty.getPropertyValue(), node);
+				}
+			}
+		}
+		// Check project info for the default value
+		ItemMetadata projectProp = MicroProfilePropertiesUtils.getProperty(referencedProp, projectInfo);
+		if (projectProp != null && projectProp.getDefaultValue() != null) {
+			return createHover(projectProp.getDefaultValue(), node);
+		}
+		// Fail
+		return null;
+	}
+
+	private static Hover createHover(String content, Node range) {
+		Hover hover = new Hover();
+		MarkupContent markedUp = new MarkupContent();
+		markedUp.setKind(MarkupKind.PLAINTEXT);
+		markedUp.setValue(content);
+		hover.setContents(markedUp);
+		hover.setRange(PositionUtils.createRange(range));
+		return hover;
 	}
 
 	/**
