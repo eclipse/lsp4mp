@@ -98,6 +98,11 @@ class MicroProfileCompletions {
 			// no completions
 			break;
 		case ASSIGN:
+			// Only collect if on right side of =
+			if (offset >= node.getEnd()) {
+				collectPropertyValueSuggestions(node, document, projectInfo, valuesRulesManager, completionSettings, list);
+			}
+			break;
 		case PROPERTY_VALUE:
 			// completion on property value
 			collectPropertyValueSuggestions(node, document, projectInfo, valuesRulesManager, completionSettings, list);
