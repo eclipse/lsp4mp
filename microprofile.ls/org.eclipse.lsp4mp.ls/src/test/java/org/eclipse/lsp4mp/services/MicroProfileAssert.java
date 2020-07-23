@@ -321,6 +321,12 @@ public class MicroProfileAssert {
 
 	// ------------------- Hover assert
 
+	public static void assertNoHover(String value) throws BadLocationException {
+		MicroProfileHoverSettings hoverSettings = new MicroProfileHoverSettings();
+		hoverSettings.setCapabilities(new HoverCapabilities(Arrays.asList(MarkupKind.MARKDOWN), false));
+		assertHover(value, null, getDefaultMicroProfileProjectInfo(), hoverSettings, null, null);
+	}
+
 	public static void assertHoverMarkdown(String value, String expectedHoverLabel, Integer expectedHoverOffset)
 			throws BadLocationException {
 

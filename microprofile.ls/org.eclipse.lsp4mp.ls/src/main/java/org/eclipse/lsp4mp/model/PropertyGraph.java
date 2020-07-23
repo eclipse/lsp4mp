@@ -20,9 +20,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.google.common.base.Optional;
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Graph;
 import com.google.common.graph.GraphBuilder;
+import com.google.common.graph.Graphs;
 import com.google.common.graph.MutableGraph;
 import com.google.common.graph.Traverser;
 
@@ -35,6 +37,7 @@ import org.eclipse.lsp4mp.model.Node.NodeType;
 public class PropertyGraph {
 
 	private Graph<String> graph;
+	private Optional<Boolean> acyclic;
 
 	/**
 	 * Build a PropertyGraph for the given properties model
@@ -43,6 +46,7 @@ public class PropertyGraph {
 	 */
 	public PropertyGraph(PropertiesModel model) {
 		MutableGraph<String> graph = GraphBuilder.directed().allowsSelfLoops(true).build();
+		acyclic = Optional.absent();
 		// Add nodes
 		for (Node modelChild : model.getChildren()) {
 			if (modelChild.getNodeType() == NodeType.PROPERTY) {
@@ -125,6 +129,20 @@ public class PropertyGraph {
 			mutableReversed.putEdge(edge.nodeV(), edge.nodeU());
 		}
 		return mutableReversed;
+	}
+
+	/**
+	 * Returns true if the graph is acyclic, and false if it has a cycle.
+	 *
+	 * Uses lazy loading to speed up subsequent calls
+	 *
+	 * @return true if the graph is acyclic, and false if it has a cycle.
+	 */
+	public boolean isAcyclic() {
+		if (!acyclic.isPresent()) {
+			acyclic = Optional.of(!Graphs.hasCycle(graph));
+		}
+		return acyclic.get();
 	}
 
 }

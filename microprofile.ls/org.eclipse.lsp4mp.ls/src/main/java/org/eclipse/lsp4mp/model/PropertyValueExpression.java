@@ -13,6 +13,10 @@
  *******************************************************************************/
 package org.eclipse.lsp4mp.model;
 
+import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
+import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
+import org.eclipse.lsp4mp.utils.MicroProfilePropertiesUtils;
+
 /**
  * Represents a portion of the property value that refers to the value of
  * another property.
@@ -37,6 +41,41 @@ public class PropertyValueExpression extends Node {
 	public String getValue() {
 		String text = getText(true);
 		return text != null ? text.trim() : null;
+	}
+
+	/**
+	 * The resolved value of this reference, or null if the value cannot be
+	 * resolved.
+	 *
+	 * Resolves references recursively, or fails if null if a circular dependency
+	 * exists or if a undefined property is referenced.
+	 *
+	 * @param graph       The dependencies between properties as a graph
+	 * @param projectInfo the project information
+	 * @return The recursively resolved value of this property expression, or null
+	 *         if a circular dependency exists.
+	 */
+	public String getResolvedValue(PropertyGraph graph, MicroProfileProjectInfo projectInfo) {
+		if (!graph.isAcyclic()) {
+			return null;
+		}
+		String referenceName = getReferencedPropertyName();
+		if (referenceName != null) {
+			for (Node modelChild : getOwnerModel().getChildren()) {
+				if (modelChild.getNodeType() == NodeType.PROPERTY) {
+					Property property = (Property) modelChild;
+					if (referenceName.equals(property.getPropertyNameWithProfile())) {
+						return property.getResolvedPropertyValue(graph, projectInfo);
+					}
+				}
+			}
+		}
+		// Check project info for the default value
+		ItemMetadata projectProp = MicroProfilePropertiesUtils.getProperty(referenceName, projectInfo);
+		if (projectProp != null) {
+			return projectProp.getDefaultValue();
+		}
+		return null;
 	}
 
 	/**

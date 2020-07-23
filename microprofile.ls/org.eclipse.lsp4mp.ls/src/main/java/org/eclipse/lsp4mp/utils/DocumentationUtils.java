@@ -36,11 +36,12 @@ public class DocumentationUtils {
 	 *
 	 * @param item     the MicroProfile property.
 	 * @param profile  the profile
+	 * @param value    the value of the property, or null if it is not known
 	 * @param markdown true if documentation must be formatted as markdown and false
 	 *                 otherwise.
 	 * @return the documentation of the given MicroProfile property.
 	 */
-	public static MarkupContent getDocumentation(ItemMetadata item, String profile, boolean markdown) {
+	public static MarkupContent getDocumentation(ItemMetadata item, String profile, String value, boolean markdown) {
 
 		StringBuilder documentation = new StringBuilder();
 
@@ -70,6 +71,9 @@ public class DocumentationUtils {
 
 		// Default value
 		addParameter("Default", item.getDefaultValue(), documentation, markdown);
+
+		// Value
+		addParameter("Value", value, documentation, markdown);
 
 		// Config Phase
 		addParameter("Phase", getPhaseLabel(item.getPhase()), documentation, markdown);

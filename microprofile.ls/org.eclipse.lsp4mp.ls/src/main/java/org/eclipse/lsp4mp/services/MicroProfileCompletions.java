@@ -245,7 +245,7 @@ class MicroProfileCompletions {
 			item.setTextEdit(textEdit);
 
 			item.setInsertTextFormat(snippetsSupported ? InsertTextFormat.Snippet : InsertTextFormat.PlainText);
-			item.setDocumentation(DocumentationUtils.getDocumentation(property, profile, markdownSupported));
+			item.setDocumentation(DocumentationUtils.getDocumentation(property, profile, null, markdownSupported));
 			list.getItems().add(item);
 		}
 	}
