@@ -39,7 +39,7 @@ public class SnippetsBuilder {
 		snippets.append("${");
 		snippets.append(index);
 		snippets.append(":");
-		snippets.append(text);
+		snippets.append(escape(text));
 		snippets.append("}");
 	}
 
@@ -65,6 +65,10 @@ public class SnippetsBuilder {
 		}
 		snippets.append("|");
 		snippets.append("}");
+	}
+
+	private static String escape(String text) {
+		return text.replace("$", "\\$").replace("}", "\\}");
 	}
 
 }
