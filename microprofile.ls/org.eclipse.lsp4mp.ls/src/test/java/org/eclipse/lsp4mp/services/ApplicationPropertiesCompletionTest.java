@@ -14,6 +14,7 @@ import static org.eclipse.lsp4mp.services.MicroProfileAssert.r;
 import static org.eclipse.lsp4mp.services.MicroProfileAssert.testCompletionFor;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
@@ -211,13 +212,13 @@ public class ApplicationPropertiesCompletionTest {
 
 		projectInfo.setProperties(properties);
 
-		testCompletionFor(value, false, null, 2, projectInfo, c("quarkus.http.cors", "quarkus.http.cors=", r(0, 0, 0)),
+		testCompletionFor(value, false, 2, projectInfo, c("quarkus.http.cors", "quarkus.http.cors=", r(0, 0, 0)),
 				c("quarkus.application.name", "quarkus.application.name=", r(0, 0, 0)));
 
 		value = "quarkus.http.cors=false\r\n" + //
 				"|";
 
-		testCompletionFor(value, false, null, 1, projectInfo,
+		testCompletionFor(value, false, 1, projectInfo,
 				c("quarkus.application.name", "quarkus.application.name=", r(1, 0, 0)));
 
 	}
@@ -240,7 +241,7 @@ public class ApplicationPropertiesCompletionTest {
 
 		projectInfo.setProperties(properties);
 
-		testCompletionFor(value, false, null, 1, projectInfo,
+		testCompletionFor(value, false, 1, projectInfo,
 				c("quarkus.http.cors", "%prod.quarkus.http.cors=", r(1, 0, 6)));
 	}
 
@@ -260,13 +261,13 @@ public class ApplicationPropertiesCompletionTest {
 
 		projectInfo.setProperties(properties);
 
-		testCompletionFor(value, false, null, 2, projectInfo, c("quarkus.http.cors", "quarkus.http.cors=", r(0, 0, 0)),
+		testCompletionFor(value, false, 2, projectInfo, c("quarkus.http.cors", "quarkus.http.cors=", r(0, 0, 0)),
 				c("quarkus.application.name", "quarkus.application.name=", r(0, 0, 0)));
 
 		value = "quarkus.http.cors=false\r\n" + //
 				"%dev.|";
 
-		testCompletionFor(value, false, null, 2, projectInfo,
+		testCompletionFor(value, false, 2, projectInfo,
 				c("quarkus.http.cors", "%dev.quarkus.http.cors=", r(1, 0, 5)),
 				c("quarkus.application.name", "%dev.quarkus.application.name=", r(1, 0, 5)));
 
@@ -274,7 +275,7 @@ public class ApplicationPropertiesCompletionTest {
 				"%dev.quarkus.application.name\r\n" + //
 				"%prod.|";
 
-		testCompletionFor(value, false, null, 2, projectInfo,
+		testCompletionFor(value, false, 2, projectInfo,
 				c("quarkus.http.cors", "%prod.quarkus.http.cors=", r(2, 0, 6)),
 				c("quarkus.application.name", "%prod.quarkus.application.name=", r(2, 0, 6)));
 
@@ -297,4 +298,42 @@ public class ApplicationPropertiesCompletionTest {
 				c("quarkus.http.cors", "quarkus.http.cors = ${1|false,true|}", r(0, 0, 0)));
 	}
 
+	@Test
+	public void completionDefaultValueContainsDollarSign() throws BadLocationException {
+		MicroProfileProjectInfo projectInfo = new MicroProfileProjectInfo();
+		ItemMetadata metadata = new ItemMetadata();
+		metadata.setName("price.string");
+		metadata.setDefaultValue("Price: $10");
+		projectInfo.setProperties(Collections.singletonList(metadata));
+
+		String value = "|";
+		testCompletionFor(value, true, 1, projectInfo, c("price.string", "price.string=${0:Price: \\$10}", r(0, 0, 0)));
+		testCompletionFor(value, false, 1, projectInfo, c("price.string", "price.string=Price: $10", r(0, 0, 0)));
+	}
+
+	@Test
+	public void completionDefaultValueContainsBraces() throws BadLocationException {
+		MicroProfileProjectInfo projectInfo = new MicroProfileProjectInfo();
+		ItemMetadata metadata = new ItemMetadata();
+		metadata.setName("price.string");
+		metadata.setDefaultValue("Price: {10}");
+		projectInfo.setProperties(Collections.singletonList(metadata));
+
+		String value = "|";
+		testCompletionFor(value, true, 1, projectInfo, c("price.string", "price.string=${0:Price: {10\\}}", r(0, 0, 0)));
+		testCompletionFor(value, false, 1, projectInfo, c("price.string", "price.string=Price: {10}", r(0, 0, 0)));
+	}
+
+	@Test
+	public void completionDefaultValueContainsDollarSignAndBraces() throws BadLocationException {
+		MicroProfileProjectInfo projectInfo = new MicroProfileProjectInfo();
+		ItemMetadata metadata = new ItemMetadata();
+		metadata.setName("price.string");
+		metadata.setDefaultValue("Price: ${price}");
+		projectInfo.setProperties(Collections.singletonList(metadata));
+
+		String value = "|";
+		testCompletionFor(value, true, 1, projectInfo, c("price.string", "price.string=${0:Price: \\${price\\}}", r(0, 0, 0)));
+		testCompletionFor(value, false, 1, projectInfo, c("price.string", "price.string=Price: ${price}", r(0, 0, 0)));
+	}
 }

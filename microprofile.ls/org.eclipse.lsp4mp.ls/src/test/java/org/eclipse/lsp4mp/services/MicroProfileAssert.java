@@ -135,9 +135,14 @@ public class MicroProfileAssert {
 				getDefaultMicroProfileProjectInfo(), expectedItems);
 	}
 
-	public static void testCompletionFor(String value, boolean snippetSupport, String fileURI, Integer expectedCount,
+	public static void testCompletionFor(String value, boolean snippetSupport, Integer expectedCount,
 			MicroProfileProjectInfo projectInfo, CompletionItem... expectedItems) throws BadLocationException {
 		testCompletionFor(value, snippetSupport, false, null, expectedCount, projectInfo, expectedItems);
+	}
+
+	public static void testCompletionFor(String value, boolean snippetSupport, String fileURI, Integer expectedCount,
+			MicroProfileProjectInfo projectInfo, CompletionItem... expectedItems) throws BadLocationException {
+		testCompletionFor(value, snippetSupport, false, fileURI, expectedCount, projectInfo, expectedItems);
 	}
 
 	public static void testCompletionFor(String value, boolean snippetSupport, boolean insertSpacing, String fileURI,
