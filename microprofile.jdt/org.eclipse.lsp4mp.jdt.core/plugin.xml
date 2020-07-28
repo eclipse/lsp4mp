@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.5"?>
 <plugin>
-   
+
    <extension-point id="propertiesProviders" 
 					name="%propertiesProviders.name"
 					schema="schema/propertiesProviders.exsd" />
@@ -11,7 +11,7 @@
    <extension-point id="projectLabelProviders" 
                     name="%projectLabelProviders.name" 
                     schema="schema/projectLabelProviders.exsd"/>
-   
+
    <!-- Delegate command handler for application.properties file -->
    <extension point="org.eclipse.jdt.ls.core.delegateCommandHandler">
       <delegateCommandHandler class="org.eclipse.lsp4mp.jdt.internal.core.ls.MicroProfileDelegateCommandHandler">
@@ -29,7 +29,7 @@
             <command id="microprofile/java/hover"/>
        </delegateCommandHandler>
    </extension>
-  
+
    <!-- Delegate command handler for Java project types -->
    <extension point="org.eclipse.jdt.ls.core.delegateCommandHandler">
       <delegateCommandHandler class="org.eclipse.lsp4mp.jdt.internal.core.ls.JavaProjectDelegateCommandHandler">
@@ -45,12 +45,12 @@
    </extension>
 
    <!-- Microprofile Config support -->
-   
+
    <extension point="org.eclipse.lsp4mp.jdt.core.propertiesProviders">
       <!-- Properties provider from the MicroProfile @ConfigProperty annotation -->
       <provider class="org.eclipse.lsp4mp.jdt.internal.config.properties.MicroProfileConfigPropertyProvider" />
    </extension>
-   
+
    <extension point="org.eclipse.lsp4mp.jdt.core.javaFeatureParticipants">
        <!-- Java hover for the MicroProfile @ConfigProperty annotation -->
       <hover class="org.eclipse.lsp4mp.jdt.internal.config.java.MicroProfileConfigHoverParticipant" />   
@@ -64,35 +64,35 @@
    </extension>
 
    <!-- Microprofile Fault Tolerance support -->
-   
+
    <extension point="org.eclipse.lsp4mp.jdt.core.propertiesProviders">
       <!-- Properties provider from the MicroProfile Fault Tolerance annotations -->
       <provider class="org.eclipse.lsp4mp.jdt.internal.faulttolerance.properties.MicroProfileFaultToleranceProvider" />
    </extension>
-   
+
    <!-- Microprofile LRA support -->
-   
+
    <extension point="org.eclipse.lsp4mp.jdt.core.propertiesProviders">
       <!-- Properties provider for MicroProfile LRA -->
       <provider class="org.eclipse.lsp4mp.jdt.internal.lra.properties.MicroProfileLRAProvider" />
    </extension>
-   
+
    <!-- Microprofile Metrics support -->
-   
+
    <extension point="org.eclipse.lsp4mp.jdt.core.propertiesProviders">
       <!-- Properties provider for MicroProfile Metrics -->
       <provider class="org.eclipse.lsp4mp.jdt.internal.metrics.properties.MicroProfileMetricsProvider" />
    </extension>
-   
+
    <!-- Microprofile OpenTracing support -->
-   
+
    <extension point="org.eclipse.lsp4mp.jdt.core.propertiesProviders">
       <!-- Properties provider for MicroProfile OpenTracing -->
       <provider class="org.eclipse.lsp4mp.jdt.internal.opentracing.properties.MicroProfileOpenTracingProvider" />     
    </extension>
-   
+
    <!-- Microprofile OpenAPI support -->
-   
+
    <extension point="org.eclipse.lsp4mp.jdt.core.propertiesProviders">
       <!-- Properties provider for the MicroProfile OpenAPI -->
       <provider class="org.eclipse.lsp4mp.jdt.internal.openapi.properties.MicroProfileOpenAPIProvider" />
@@ -105,7 +105,7 @@
    </extension>
 
    <!-- Microprofile Health support -->
-   
+
    <extension point="org.eclipse.lsp4mp.jdt.core.javaFeatureParticipants">
       <!-- Java diagnostics for the MicroProfile Health -->
       <diagnostics class="org.eclipse.lsp4mp.jdt.internal.health.java.MicroProfileHealthDiagnosticsParticipant" />
@@ -117,14 +117,21 @@
                   targetDiagnostic="microprofile-health#HealthAnnotationMissing"
                   class="org.eclipse.lsp4mp.jdt.internal.health.java.HealthAnnotationMissingQuickFix" />
    </extension>
-   
+
+   <!-- Microprofile Reactive Messaging support -->
+
+   <extension point="org.eclipse.lsp4mp.jdt.core.propertiesProviders">
+      <!-- Properties provider from the MicroProfileReactive Messaging @Connector, @ConnectorAttribute, @Incoming, @Outgoing annotations -->
+      <provider class="org.eclipse.lsp4mp.jdt.internal.reactivemessaging.properties.MicroProfileReactiveMessagingProvider" />
+   </extension>
+
    <!-- Microprofile RestClient support -->
-   
+
    <extension point="org.eclipse.lsp4mp.jdt.core.propertiesProviders">
       <!-- Properties provider from the MicroProfile @RegisterRestClient annotation -->
       <provider class="org.eclipse.lsp4mp.jdt.internal.restclient.properties.MicroProfileRegisterRestClientProvider" />
    </extension>
-   
+
    <extension point="org.eclipse.lsp4mp.jdt.core.javaFeatureParticipants">
       <!-- Java URL codeLens for RestClient -->   
       <codeLens class="org.eclipse.lsp4mp.jdt.internal.restclient.java.MicroProfileRestClientCodeLensParticipant" />
@@ -146,7 +153,7 @@
    </extension>
 
    <!-- JAX-RS support -->
-   
+
    <extension point="org.eclipse.lsp4mp.jdt.core.javaFeatureParticipants">
       <!-- Java URL codeLens for JAX-RS -->
       <codeLens class="org.eclipse.lsp4mp.jdt.internal.jaxrs.java.JaxRsCodeLensParticipant" />   

@@ -7,25 +7,24 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lsp4mp.ls;
+package org.eclipse.lsp4mp.extensions;
 
 import java.util.ArrayList;
 
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.metadata.ItemHint;
-import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
 import org.eclipse.lsp4mp.commons.metadata.ItemHint.ValueHint;
-import org.eclipse.lsp4mp.ls.MicroProfileProjectInfoCache.MicroProfileProjectInfoWrapper;
+import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Test with {@link MicroProfileProjectInfoWrapper}.
+ * Test with {@link ExtendedMicroProfileProjectInfo}.
  * 
  * @author Angelo ZERR
  *
  */
-public class MicroProfileProjectInfoWrapperTest {
+public class ExtendedMicroProfileProjectInfoTest {
 
 	@Test
 	public void expand() {
@@ -56,7 +55,7 @@ public class MicroProfileProjectInfoWrapperTest {
 		value.setSourceType("org.acme.restclient.StreetsService");
 		hint.getValues().add(value);
 
-		MicroProfileProjectInfoWrapper wrapper = new MicroProfileProjectInfoWrapper(info);
+		ExtendedMicroProfileProjectInfo wrapper = new ExtendedMicroProfileProjectInfo(info);
 		Assert.assertEquals(2, wrapper.getProperties().size());
 
 		ItemMetadata first = wrapper.getProperties().get(0);
