@@ -1,0 +1,54 @@
+{
+  "MicroProfile readiness check": {
+    "prefix": "mpreadiness",
+    "body": [
+      "package ${1:packagename};",
+      "",
+      "import org.eclipse.microprofile.health.HealthCheck;",
+      "import org.eclipse.microprofile.health.HealthCheckResponse;",
+      "import org.eclipse.microprofile.health.Readiness;",
+      "",
+      "import javax.enterprise.context.ApplicationScoped;",
+      "",
+      "@Readiness",
+      "@ApplicationScoped",
+      "public class ${TM_FILENAME_BASE} implements HealthCheck {",
+      "",
+      "\t@Override",
+      "\tpublic HealthCheckResponse call() {",
+      "\t\treturn HealthCheckResponse.named(${TM_FILENAME_BASE}.class.getSimpleName()).withData(\"ready\",true).up().build();",
+      "\t}",
+      "}"
+    ],
+    "context": {
+      "type": "org.eclipse.microprofile.health.Readiness"
+    },
+    "description": "MicroProfile Health readiness check"
+  },
+  "MicroProfile liveness check": {
+    "prefix": "mpliveness",
+    "body": [
+      "package ${1:packagename};",
+      "",
+      "import org.eclipse.microprofile.health.HealthCheck;",
+      "import org.eclipse.microprofile.health.HealthCheckResponse;",
+      "import org.eclipse.microprofile.health.Liveness;",
+      "",
+      "import javax.enterprise.context.ApplicationScoped;",
+      "",
+      "@Liveness",
+      "@ApplicationScoped",
+      "public class ${TM_FILENAME_BASE} implements HealthCheck {",
+      "",
+      "\t@Override",
+      "\tpublic HealthCheckResponse call() {",
+      "\t\treturn HealthCheckResponse.named(${TM_FILENAME_BASE}.class.getSimpleName()).withData(\"live\",true).up().build();",
+      "\t}",
+      "}"
+    ],
+    "context": {
+      "type": "org.eclipse.microprofile.health.Liveness"
+    },
+    "description": "MicroProfile Health liveness check"
+  }
+}

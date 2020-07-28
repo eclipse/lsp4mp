@@ -96,6 +96,31 @@ public class JavaTextDocumentSnippetRegistryTest {
 		Assert.assertTrue("Project has org.eclipse.microprofile.faulttolerance.Fallback type", match2);
 	}
 
+	@Test
+	public void mpHealthSnippets() {
+		Optional<Snippet> readinessSnippet = findByPrefix("mpreadiness", registry);
+		Assert.assertTrue("Tests has mpreadiness Java snippets", readinessSnippet.isPresent());
+
+		ISnippetContext<?> readinessContext = readinessSnippet.get().getContext();
+		Assert.assertNotNull("mpreadiness snippet has context", readinessContext);
+		Assert.assertTrue("mpreadiness snippet context is Java context", readinessContext instanceof SnippetContextForJava);
+
+		ProjectLabelInfoEntry readinessProjectInfo = new ProjectLabelInfoEntry("", new ArrayList<>());
+		boolean match = ((SnippetContextForJava) readinessContext).isMatch(readinessProjectInfo);
+		Assert.assertFalse("Project has no org.eclipse.microprofile.health.Readiness type", match);
+
+		ProjectLabelInfoEntry readinessProjectInfo2 = new ProjectLabelInfoEntry("",
+				Arrays.asList("org.eclipse.microprofile.health.Readiness"));
+		boolean match2 = ((SnippetContextForJava) readinessContext).isMatch(readinessProjectInfo2);
+		Assert.assertTrue("Project has org.eclipse.microprofile.health.Readiness type", match2);
+
+		Optional<Snippet> livenessSnippet = findByPrefix("mpliveness", registry);
+		Assert.assertTrue("Tests has mpliveness Java snippets", livenessSnippet.isPresent());
+		
+		ISnippetContext<?> livenessContext = livenessSnippet.get().getContext();
+		Assert.assertNotNull("mpliveness snippet has context", livenessContext);
+	}
+
 	private static Optional<Snippet> findByPrefix(String prefix, SnippetRegistry registry) {
 		return registry.getSnippets().stream().filter(snippet -> snippet.getPrefixes().contains(prefix)).findFirst();
 	}
