@@ -9,6 +9,7 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.services;
 
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,6 +48,7 @@ import org.eclipse.lsp4j.jsonrpc.json.adapters.EnumTypeAdapter;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
+import org.eclipse.lsp4mp.extensions.ExtendedMicroProfileProjectInfo;
 import org.eclipse.lsp4mp.ls.MockMicroProfilePropertyDefinitionProvider;
 import org.eclipse.lsp4mp.ls.api.MicroProfilePropertyDefinitionProvider;
 import org.eclipse.lsp4mp.ls.commons.BadLocationException;
@@ -56,8 +58,6 @@ import org.eclipse.lsp4mp.ls.commons.client.CommandKind;
 import org.eclipse.lsp4mp.ls.commons.client.CommandKindCapabilities;
 import org.eclipse.lsp4mp.ls.commons.snippets.TextDocumentSnippetRegistry;
 import org.eclipse.lsp4mp.model.PropertiesModel;
-import org.eclipse.lsp4mp.services.MicroProfileLanguageService;
-import org.eclipse.lsp4mp.services.ValidationType;
 import org.eclipse.lsp4mp.settings.MicroProfileCommandCapabilities;
 import org.eclipse.lsp4mp.settings.MicroProfileCompletionSettings;
 import org.eclipse.lsp4mp.settings.MicroProfileFormattingSettings;
@@ -88,11 +88,14 @@ public class MicroProfileAssert {
 
 	public static MicroProfileProjectInfo getDefaultMicroProfileProjectInfo() {
 		if (DEFAULT_PROJECT == null) {
-			DEFAULT_PROJECT = createGson().fromJson(
-					new InputStreamReader(MicroProfileAssert.class.getResourceAsStream("all-quarkus-properties.json")),
-					MicroProfileProjectInfo.class);
+			DEFAULT_PROJECT = load(MicroProfileAssert.class.getResourceAsStream("all-quarkus-properties.json"));
 		}
 		return DEFAULT_PROJECT;
+	}
+
+	public static MicroProfileProjectInfo load(InputStream input) {
+		return new ExtendedMicroProfileProjectInfo(
+				createGson().fromJson(new InputStreamReader(input), ExtendedMicroProfileProjectInfo.class));
 	}
 
 	private static Gson createGson() {

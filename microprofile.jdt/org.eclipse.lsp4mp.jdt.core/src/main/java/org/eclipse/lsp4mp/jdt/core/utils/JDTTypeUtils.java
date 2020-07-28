@@ -188,6 +188,8 @@ public class JDTTypeUtils {
 			return getSourceType((IField) javaElement);
 		case IJavaElement.METHOD:
 			return getSourceType((IMethod) javaElement);
+		case IJavaElement.TYPE:
+			return getSourceType((IType) javaElement);
 		default:
 			return null;
 		}
@@ -203,6 +205,16 @@ public class JDTTypeUtils {
 	 */
 	public static String getSourceType(ILocalVariable member) {
 		return getSourceType(member.getDeclaringMember());
+	}
+
+	/**
+	 * Returns the source type of the given <code>type</code> and null otherwise
+	 * 
+	 * @param type the type
+	 * @return the source type of the given <code>type</code> and null otherwise
+	 */
+	public static String getSourceType(IType type) {
+		return getPropertyType(type, null);
 	}
 
 	/**

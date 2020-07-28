@@ -1,0 +1,80 @@
+{
+	"properties": [
+		{
+			"type": "org.eclipse.microprofile.reactive.messaging.spi.Connector",
+			"sourceMethod": "process(I)D",
+			"required": true,
+			"phase": 0,
+			"name": "mp.messaging.incoming.prices.connector",
+			"sourceType": "org.acme.kafka.PriceConverter",
+			"source": true
+		},
+		{
+			"type": "org.eclipse.microprofile.reactive.messaging.spi.Connector",
+			"sourceMethod": "process(I)D",
+			"required": true,
+			"phase": 0,
+			"name": "mp.messaging.outgoing.my-data-stream.connector",
+			"sourceType": "org.acme.kafka.PriceConverter",
+			"source": true
+		},
+		{
+			"type": "org.eclipse.microprofile.reactive.messaging.spi.Connector",
+			"sourceMethod": "generate()QFlowable\u003cQInteger;\u003e;",
+			"required": true,
+			"phase": 0,
+			"name": "mp.messaging.outgoing.generated-price.connector",
+			"sourceType": "org.acme.kafka.PriceGenerator",
+			"source": true
+		},
+		{
+			"type": "int",
+			"sourceField": "defaultBufferSize",
+			"defaultValue": "128",
+			"required": false,
+			"phase": 0,
+			"name": "mp.messaging.emitter.default-buffer-size",
+			"sourceType": "io.smallrye.reactive.messaging.extension.MediatorManager"
+		},
+		{
+			"type": "java.lang.String",
+			"required": true,
+			"phase": 0,
+			"name": "mp.messaging.incoming.${smallrye-kafka}.topic",
+			"description": "The consumed / populated Kafka topic. If not set, the channel name is used",
+			"sourceType": "io.smallrye.reactive.messaging.kafka.KafkaConnector"
+		},
+		{
+			"type": "java.lang.String",
+			"defaultValue": "localhost:9092",
+			"required": false,
+			"phase": 0,
+			"name": "mp.messaging.incoming.${smallrye-kafka}.bootstrap.servers",
+			"description": "A comma-separated list of host:port to use for establishing the initial connection to the Kafka cluster.",
+			"sourceType": "io.smallrye.reactive.messaging.kafka.KafkaConnector"
+		},
+		{
+			"type": "java.lang.String",
+			"required": true,
+			"phase": 0,
+			"name": "mp.messaging.outgoing.${smallrye-kafka}.topic",
+			"description": "The consumed / populated Kafka topic. If not set, the channel name is used",
+			"sourceType": "io.smallrye.reactive.messaging.kafka.KafkaConnector"
+		}
+	],
+	"hints": [
+		{
+			"values": [
+				{
+					"value": "smallrye-kafka",
+					"sourceType": "io.smallrye.reactive.messaging.kafka.KafkaConnector"
+				},
+				{
+					"value": "smallrye-amqp",
+					"sourceType": "io.smallrye.reactive.messaging.amqp.AmqpConnector"
+				}
+			],
+			"name": "${mp.messaging.connector.binary}"
+		}
+	]
+}

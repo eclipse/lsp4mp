@@ -112,3 +112,28 @@ To add external snippets (like Quarkus snippets) an implementation of `ISnippetR
  * [Java Quarkus snippets loader](https://github.com/redhat-developer/quarkus-ls/tree/master/quarkus.ls.ext/com.redhat.quarkus.ls/src/main/java/com/redhat/quarkus/snippets).
  * [JSON Quarkus snippet](https://github.com/redhat-developer/quarkus-ls/tree/master/quarkus.ls.ext/com.redhat.quarkus.ls/src/main/resources/com/redhat/quarkus/snippets).
  * Java Quarkus snippets loader must be declared in [META-INF/services/org.eclipse.lsp4mp.ls.commons.snippets.ISnippetRegistryLoader](https://github.com/redhat-developer/quarkus-ls/blob/master/quarkus.ls.ext/com.redhat.quarkus.ls/src/main/resources/META-INF/services/org.eclipse.lsp4mp.ls.commons.snippets.ISnippetRegistryLoader) 
+
+ Managing complex properties
+-------
+
+The properties available in `microprofile-config.properties` come from the external component (ex: MicroProfile JDT LS extension). In some case a property 
+cannot be computed on the external component and must be computed on MicroProfile LS side.
+
+An example of this is the MicroProfile Reactive Messaging properties. Some properties are computed according to the value of a property declared in `microprofile-config.properties`. 
+In the sample [Configuring the Kafka connector](https://quarkus.io/guides/kafka#configuring-the-kafka-connector), you have these properties
+
+```
+mp.messaging.outgoing.generated-price.connector=smallrye-kafka
+mp.messaging.outgoing.generated-price.topic=prices
+```
+
+The `topic` attribute for `mp.messaging.outgoing.generated-price.topic` comes from `smallrye-kafka` which is configured with 
+`mp.messaging.outgoing.generated-price.connector=smallrye-kafka`. 
+
+In other words, `mp.messaging.outgoing.generated-price.topic` exists only 
+if there is the declaration `mp.messaging.outgoing.generated-price.connector=smallrye-kafka` 
+
+The `mp.messaging.outgoing.generated-price.topic` property cannot be computed on the external component side because it depends on the value of 
+`mp.messaging.outgoing.generated-price.connector`. The comput	tion is done on MicroProfile LS side with custom builder by using Java SPI [ItemMetadataProviderFactory](/src/main/java/org/eclipse/lsp4mp/extensions/ItemMetadataProviderFactory).
+
+Please see the [sample of MicroProfile Reactive Messaging](/src/main/java/org/eclipse/lsp4mp/extensions/reactivemessaging).

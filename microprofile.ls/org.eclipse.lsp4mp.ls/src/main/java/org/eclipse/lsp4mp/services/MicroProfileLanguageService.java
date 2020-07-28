@@ -31,6 +31,7 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
+import org.eclipse.lsp4mp.extensions.ExtendedMicroProfileProjectInfo;
 import org.eclipse.lsp4mp.ls.api.MicroProfilePropertyDefinitionProvider;
 import org.eclipse.lsp4mp.model.PropertiesModel;
 import org.eclipse.lsp4mp.model.values.ValuesRulesManager;
@@ -85,6 +86,7 @@ public class MicroProfileLanguageService {
 	public CompletionList doComplete(PropertiesModel document, Position position, MicroProfileProjectInfo projectInfo,
 			MicroProfileCompletionSettings completionSettings, MicroProfileFormattingSettings formattingSettings,
 			CancelChecker cancelChecker) {
+		updateProperties(projectInfo, document);
 		return completions.doComplete(document, position, projectInfo, getValuesRulesManager(), completionSettings,
 				formattingSettings, cancelChecker);
 	}
@@ -100,6 +102,7 @@ public class MicroProfileLanguageService {
 	 */
 	public Hover doHover(PropertiesModel document, Position position, MicroProfileProjectInfo projectInfo,
 			MicroProfileHoverSettings hoverSettings) {
+		updateProperties(projectInfo, document);
 		return hover.doHover(document, position, projectInfo, getValuesRulesManager(), hoverSettings);
 	}
 
@@ -143,6 +146,7 @@ public class MicroProfileLanguageService {
 	public CompletableFuture<Either<List<? extends Location>, List<? extends LocationLink>>> findDefinition(
 			PropertiesModel document, Position position, MicroProfileProjectInfo projectInfo,
 			MicroProfilePropertyDefinitionProvider provider, boolean definitionLinkSupport) {
+		updateProperties(projectInfo, document);
 		return definition.findDefinition(document, position, projectInfo, provider, definitionLinkSupport);
 	}
 
@@ -186,6 +190,7 @@ public class MicroProfileLanguageService {
 	 */
 	public List<Diagnostic> doDiagnostics(PropertiesModel document, MicroProfileProjectInfo projectInfo,
 			MicroProfileValidationSettings validationSettings, CancelChecker cancelChecker) {
+		updateProperties(projectInfo, document);
 		return diagnostics.doDiagnostics(document, projectInfo, getValuesRulesManager(), validationSettings,
 				cancelChecker);
 	}
@@ -206,6 +211,7 @@ public class MicroProfileLanguageService {
 	public List<CodeAction> doCodeActions(CodeActionContext context, Range range, PropertiesModel document,
 			MicroProfileProjectInfo projectInfo, MicroProfileFormattingSettings formattingSettings,
 			MicroProfileCommandCapabilities commandCapabilities) {
+		updateProperties(projectInfo, document);
 		return codeActions.doCodeActions(context, range, document, projectInfo, getValuesRulesManager(),
 				formattingSettings, commandCapabilities);
 	}
@@ -218,4 +224,11 @@ public class MicroProfileLanguageService {
 	private ValuesRulesManager getValuesRulesManager() {
 		return valuesRulesManager;
 	}
+
+	private void updateProperties(MicroProfileProjectInfo projectInfo, PropertiesModel document) {
+		if (projectInfo instanceof ExtendedMicroProfileProjectInfo) {
+			((ExtendedMicroProfileProjectInfo) projectInfo).updateCustomProperties(document);
+		}
+	}
+
 }

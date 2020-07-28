@@ -148,6 +148,9 @@ public class MicroProfileDefinition {
 				ValueHint realValue = itemHint.getValue(sourceField, item.getConverterKinds());
 				if (realValue != null) {
 					sourceField = realValue.getValue();
+					if (realValue.getSourceType() != null) {
+						sourceType = realValue.getSourceType();
+					}
 				}
 			}
 			break;
