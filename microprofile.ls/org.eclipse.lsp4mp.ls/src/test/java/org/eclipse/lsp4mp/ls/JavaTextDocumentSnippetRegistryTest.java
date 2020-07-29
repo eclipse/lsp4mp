@@ -40,6 +40,25 @@ public class JavaTextDocumentSnippetRegistryTest {
 	}
 
 	@Test
+	public void jaxrsSnippets() {
+		Optional<Snippet> jaxrsSnippet = findByPrefix("jaxrc", registry);
+		Assert.assertTrue("Tests has jaxrc Java snippets", jaxrsSnippet.isPresent());
+
+		ISnippetContext<?> context = jaxrsSnippet.get().getContext();
+		Assert.assertNotNull("jaxrc snippet has context", context);
+		Assert.assertTrue("jaxrc snippet context is Java context", context instanceof SnippetContextForJava);
+
+		ProjectLabelInfoEntry projectInfo = new ProjectLabelInfoEntry("", new ArrayList<>());
+		boolean match = ((SnippetContextForJava) context).isMatch(projectInfo);
+		Assert.assertFalse("Project has no javax.ws.rs.GET type", match);
+
+		ProjectLabelInfoEntry projectInfo2 = new ProjectLabelInfoEntry("",
+				Arrays.asList("javax.ws.rs.GET"));
+		boolean match2 = ((SnippetContextForJava) context).isMatch(projectInfo2);
+		Assert.assertTrue("Project has javax.ws.rs.GET type", match2);
+	}
+
+	@Test
 	public void mpMetricsSnippets() {
 		Optional<Snippet> metricSnippet = findByPrefix("@Metric", registry);
 		Assert.assertTrue("Tests has @Metric Java snippets", metricSnippet.isPresent());
