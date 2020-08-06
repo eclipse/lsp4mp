@@ -35,6 +35,8 @@ import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.DidSaveTextDocumentParams;
 import org.eclipse.lsp4j.DocumentFormattingParams;
+import org.eclipse.lsp4j.DocumentHighlight;
+import org.eclipse.lsp4j.DocumentHighlightParams;
 import org.eclipse.lsp4j.DocumentRangeFormattingParams;
 import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.DocumentSymbolParams;
@@ -263,6 +265,13 @@ public class ApplicationPropertiesTextDocumentService extends AbstractTextDocume
 						}) //
 						.collect(Collectors.toList());
 			});
+		});
+	}
+
+	@Override
+	public CompletableFuture<List<? extends DocumentHighlight>> documentHighlight(DocumentHighlightParams params) {
+		return getPropertiesModel(params.getTextDocument(), (cancelChecker, document) -> {
+			return getMicroProfileLanguageService().findDocumentHighlight(document, params.getPosition());
 		});
 	}
 
