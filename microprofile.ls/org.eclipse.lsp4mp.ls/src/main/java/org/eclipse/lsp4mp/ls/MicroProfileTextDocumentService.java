@@ -33,6 +33,8 @@ import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.DidSaveTextDocumentParams;
 import org.eclipse.lsp4j.DocumentFormattingParams;
+import org.eclipse.lsp4j.DocumentHighlight;
+import org.eclipse.lsp4j.DocumentHighlightParams;
 import org.eclipse.lsp4j.DocumentRangeFormattingParams;
 import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.DocumentSymbolParams;
@@ -199,6 +201,15 @@ public class MicroProfileTextDocumentService implements TextDocumentService {
 		TextDocumentService service = getTextDocumentService(params.getTextDocument());
 		if (service != null) {
 			return service.codeLens(params);
+		}
+		return CompletableFuture.completedFuture(null);
+	}
+
+	@Override
+	public CompletableFuture<List<? extends DocumentHighlight>> documentHighlight(DocumentHighlightParams params) {
+		TextDocumentService service = getTextDocumentService(params.getTextDocument());
+		if (service != null) {
+			return service.documentHighlight(params);
 		}
 		return CompletableFuture.completedFuture(null);
 	}

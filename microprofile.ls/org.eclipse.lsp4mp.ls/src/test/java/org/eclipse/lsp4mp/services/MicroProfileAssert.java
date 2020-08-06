@@ -28,6 +28,7 @@ import org.eclipse.lsp4j.CompletionItemCapabilities;
 import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
+import org.eclipse.lsp4j.DocumentHighlight;
 import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.HoverCapabilities;
@@ -152,7 +153,8 @@ public class MicroProfileAssert {
 		testCompletionFor(value, true, false, null, expectedItems.length, projectInfo, expectedItems);
 	}
 
-	public static void testCompletionFor(String value, MicroProfileProjectInfo projectInfo, Integer expectedCount) throws BadLocationException {
+	public static void testCompletionFor(String value, MicroProfileProjectInfo projectInfo, Integer expectedCount)
+			throws BadLocationException {
 		testCompletionFor(value, true, null, expectedCount, projectInfo);
 	}
 
@@ -672,6 +674,21 @@ public class MicroProfileAssert {
 				+ edits.stream().map(edit -> edit.getNewText()).collect(Collectors.joining(""))
 				+ value.substring(formatEnd);
 		Assert.assertEquals(expected, formatted);
+	}
+
+	// ------------------- Document Highlight Assert
+
+	public static void assertDocumentHighlight(String value, Range... expected) throws BadLocationException {
+		int offset = value.indexOf("|");
+		value = value.substring(0, offset) + value.substring(offset + 1);
+		TextDocument document = new TextDocument(value, "application.properties");
+		PropertiesModel model = parse(value, null);
+		MicroProfileLanguageService languageService = new MicroProfileLanguageService();
+		Object[] actual = languageService.findDocumentHighlight(model, document.positionAt(offset)).stream().map(dh -> {
+			return dh.getRange();
+		}).collect(Collectors.toList()).toArray();
+
+		Assert.assertArrayEquals(expected, actual);
 	}
 
 	private static PropertiesModel parse(String text, String uri) {

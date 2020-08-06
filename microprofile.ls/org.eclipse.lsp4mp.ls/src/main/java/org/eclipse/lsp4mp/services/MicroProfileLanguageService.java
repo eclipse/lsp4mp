@@ -20,6 +20,7 @@ import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.DocumentHighlight;
 import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Location;
@@ -56,6 +57,7 @@ public class MicroProfileLanguageService {
 	private final MicroProfileDiagnostics diagnostics;
 	private final MicroProfileFormatter formatter;
 	private final MicroProfileCodeActions codeActions;
+	private final MicroProfileDocumentHighlight documentHighlight;
 	private final ValuesRulesManager valuesRulesManager;
 
 	public MicroProfileLanguageService() {
@@ -70,6 +72,7 @@ public class MicroProfileLanguageService {
 		this.diagnostics = new MicroProfileDiagnostics();
 		this.formatter = new MicroProfileFormatter();
 		this.codeActions = new MicroProfileCodeActions();
+		this.documentHighlight = new MicroProfileDocumentHighlight();
 		this.valuesRulesManager = valuesRulesManger;
 	}
 
@@ -214,6 +217,10 @@ public class MicroProfileLanguageService {
 		updateProperties(projectInfo, document);
 		return codeActions.doCodeActions(context, range, document, projectInfo, getValuesRulesManager(),
 				formattingSettings, commandCapabilities);
+	}
+
+	public List<? extends DocumentHighlight> findDocumentHighlight(PropertiesModel document, Position position) {
+		return documentHighlight.findDocumentHighlight(document, position);
 	}
 
 	/**
