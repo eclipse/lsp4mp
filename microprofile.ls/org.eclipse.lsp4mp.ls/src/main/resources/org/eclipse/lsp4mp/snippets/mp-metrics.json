@@ -37,7 +37,8 @@
     "body": [
       "@Gauge(",
       "\tname = \"${1:name}\",",
-      "\tdescription = \"${2:description}\"",
+      "\tdescription = \"${2:description}\",",
+      "\tunit = ${3|MetricUnits.NONE,MetricUnits.BYTES,MetricUnits.SECONDS,MetricUnits.PERCENT,\"\"|}",
       ")"
     ],
     "description": "Denotes a gauge, which samples the value of the annotated object.",
