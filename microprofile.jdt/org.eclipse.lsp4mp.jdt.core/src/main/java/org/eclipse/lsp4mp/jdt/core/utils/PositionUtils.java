@@ -47,4 +47,5 @@ public class PositionUtils {
 		ISourceRange sourceRange = type.getNameRange();
 		return utils.toRange(openable, sourceRange.getOffset(), sourceRange.getLength());
 	}
+	
 }

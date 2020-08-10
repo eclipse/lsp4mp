@@ -20,11 +20,24 @@ import static org.eclipse.lsp4mp.jdt.internal.core.MicroProfileAssert.assertProp
 import static org.eclipse.lsp4mp.jdt.internal.core.MicroProfileAssert.h;
 import static org.eclipse.lsp4mp.jdt.internal.core.MicroProfileAssert.p;
 import static org.eclipse.lsp4mp.jdt.internal.core.MicroProfileAssert.vh;
+import static org.eclipse.lsp4mp.jdt.internal.core.java.MicroProfileForJavaAssert.assertJavaDiagnostics;
+import static org.eclipse.lsp4mp.jdt.internal.core.java.MicroProfileForJavaAssert.d;
 
+import java.util.Arrays;
+
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.DiagnosticSeverity;
+import org.eclipse.lsp4mp.commons.DocumentFormat;
+import org.eclipse.lsp4mp.commons.MicroProfileJavaDiagnosticsParams;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.MicroProfilePropertiesScope;
 import org.eclipse.lsp4mp.jdt.core.BasePropertiesManagerTest;
+import org.eclipse.lsp4mp.jdt.core.utils.IJDTUtils;
 import org.eclipse.lsp4mp.jdt.internal.faulttolerance.MicroProfileFaultToleranceConstants;
+import org.eclipse.lsp4mp.jdt.internal.faulttolerance.java.MicroProfileFaultToleranceErrorCode;
 import org.junit.Test;
 
 /**
@@ -108,6 +121,38 @@ public class MicroProfileFaultToleranceTest extends BasePropertiesManagerTest {
 		);
 
 		assertHintsDuplicate(infoFromClasspath);
+	}
+
+	@Test
+	public void fallbackMethodsMissing() throws Exception {
+		IJavaProject javaProject = loadMavenProject(MavenProjectName.microprofile_fault_tolerance);
+		IJDTUtils utils = JDT_UTILS;
+
+		MicroProfileJavaDiagnosticsParams diagnosticsParams = new MicroProfileJavaDiagnosticsParams();
+		IFile javaFile = javaProject.getProject()
+				.getFile(new Path("src/main/java/org/acme/FaultTolerantResource.java"));
+		diagnosticsParams.setUris(Arrays.asList(javaFile.getLocation().toFile().toURI().toString()));
+		diagnosticsParams.setDocumentFormat(DocumentFormat.Markdown);
+
+		Diagnostic d = d(14, 31, 36,
+				"The referenced fallback method 'aaa' does not exist",
+				DiagnosticSeverity.Error, MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE,
+				MicroProfileFaultToleranceErrorCode.FALLBACK_METHOD_DOES_NOT_EXIST);
+		assertJavaDiagnostics(diagnosticsParams, utils, //
+				d);
+	}
+	
+	@Test
+	public void fallbackMethodValidationFaultTolerant() throws Exception {
+		IJavaProject javaProject = loadMavenProject(MavenProjectName.microprofile_fault_tolerance);
+		IJDTUtils utils = JDT_UTILS;
+
+		MicroProfileJavaDiagnosticsParams diagnosticsParams = new MicroProfileJavaDiagnosticsParams();
+		IFile javaFile = javaProject.getProject()
+				.getFile(new Path("src/main/java/org/acme/OtherFaultTolerantResource.java"));
+		diagnosticsParams.setUris(Arrays.asList(javaFile.getLocation().toFile().toURI().toString()));
+		diagnosticsParams.setDocumentFormat(DocumentFormat.Markdown);
+		assertJavaDiagnostics(diagnosticsParams, utils);
 	}
 
 }
