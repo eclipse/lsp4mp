@@ -19,9 +19,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.NodeFinder;
-import org.eclipse.jdt.internal.core.manipulation.dom.ASTResolving;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.WorkspaceEdit;
@@ -44,7 +42,6 @@ public class JavaCodeActionContext extends AbtractJavaContext implements IInvoca
 
 	private final MicroProfileJavaCodeActionParams params;
 	private NodeFinder fNodeFinder;
-	private CompilationUnit fASTRoot;
 
 	public JavaCodeActionContext(ITypeRoot typeRoot, int selectionOffset, int selectionLength, IJDTUtils utils,
 			MicroProfileJavaCodeActionParams params) {
@@ -81,21 +78,6 @@ public class JavaCodeActionContext extends AbtractJavaContext implements IInvoca
 	@Override
 	public int getSelectionOffset() {
 		return selectionOffset;
-	}
-
-	@Override
-	public CompilationUnit getASTRoot() {
-		if (fASTRoot == null) {
-			fASTRoot = ASTResolving.createQuickFixAST(getCompilationUnit(), null);
-		}
-		return fASTRoot;
-	}
-
-	/**
-	 * @param root The ASTRoot to set.
-	 */
-	public void setASTRoot(CompilationUnit root) {
-		fASTRoot = root;
 	}
 
 	@Override

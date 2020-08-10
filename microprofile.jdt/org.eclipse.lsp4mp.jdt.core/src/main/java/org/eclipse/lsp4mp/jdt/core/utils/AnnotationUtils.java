@@ -13,10 +13,17 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.core.utils;
 
+import static org.eclipse.lsp4mp.jdt.internal.faulttolerance.MicroProfileFaultToleranceConstants.FALLBACK_METHOD_FALLBACK_ANNOTATION_MEMBER;
+
 import org.eclipse.jdt.core.IAnnotatable;
 import org.eclipse.jdt.core.IAnnotation;
 import org.eclipse.jdt.core.IMemberValuePair;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.dom.Annotation;
+import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.MemberValuePair;
+import org.eclipse.jdt.core.dom.NormalAnnotation;
+import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
 
 /**
  * Java annotations utilities.
@@ -67,6 +74,19 @@ public class AnnotationUtils {
 	}
 
 	/**
+	 * Returns true if the given annotation match the given annotation name and
+	 * false otherwise.
+	 * 
+	 * @param annotation     the annotation.
+	 * @param annotationName the annotation name.
+	 * @return true if the given annotation match the given annotation name and
+	 *         false otherwise.
+	 */
+	public static boolean isMatchAnnotation(Annotation annotation, String annotationName) {
+		return annotationName.endsWith(annotation.getTypeName().getFullyQualifiedName());
+	}
+
+	/**
 	 * Returns the value of the given member name of the given annotation.
 	 *
 	 * @param annotation the annotation.
@@ -80,6 +100,33 @@ public class AnnotationUtils {
 				return pair.getValue() != null ? pair.getValue().toString() : null;
 			}
 		}
+		return null;
+	}
+
+	/**
+	 * Returns the expression for the value of the given member name of the given annotation.
+	 * 
+	 * @param annotation the annotation.
+	 * @param memberName the member name.
+	 * @return the expression for the value of the given member name of the given annotation.
+	 * @throws JavaModelException
+	 */
+	public static Expression getAnnotationMemberValueExpression(Annotation annotation, String memberName)
+			throws JavaModelException {
+		if (annotation instanceof NormalAnnotation) {
+			NormalAnnotation normalAnnotation = (NormalAnnotation) annotation;
+			for (Object pair : normalAnnotation.values()) {
+				MemberValuePair castPair = (MemberValuePair) pair;
+				if (FALLBACK_METHOD_FALLBACK_ANNOTATION_MEMBER.equals(castPair.getName().toString())) {
+					return castPair.getValue();
+				}
+			}
+			return null;
+		} else if (annotation instanceof SingleMemberAnnotation) {
+			SingleMemberAnnotation singleMemberAnnotation = (SingleMemberAnnotation) annotation;
+			return singleMemberAnnotation.getProperty(memberName) != null ? singleMemberAnnotation.getValue() : null;
+		}
+		// MarkerAnnotation has no members
 		return null;
 	}
 

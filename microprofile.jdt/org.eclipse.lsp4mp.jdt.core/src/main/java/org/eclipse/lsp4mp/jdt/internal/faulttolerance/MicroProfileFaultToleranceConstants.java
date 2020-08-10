@@ -37,7 +37,11 @@ public class MicroProfileFaultToleranceConstants {
 	public static final String RETRY_ANNOTATION = "org.eclipse.microprofile.faulttolerance.Retry";
 
 	public static final String TIMEOUT_ANNOTATION = "org.eclipse.microprofile.faulttolerance.Timeout";
+	
+	// MicroProfile Fault Tolerance annotation member keys
 
+	public static final String FALLBACK_METHOD_FALLBACK_ANNOTATION_MEMBER = "fallbackMethod";
+	
 	// MP_Fault_Tolerance_NonFallback_Enabled
 
 	public static final String MP_FAULT_TOLERANCE_NON_FALLBACK_ENABLED = "MP_Fault_Tolerance_NonFallback_Enabled";
@@ -58,5 +62,7 @@ public class MicroProfileFaultToleranceConstants {
 			"In order to prevent from any unexpected behaviours, the property `MP_Fault_Tolerance_NonFallback_Enabled` will only be read on application starting.\r\n"
 			+ //
 			"Any dynamic changes afterwards will be ignored until  the application restarting.";
+	
+	public static final String DIAGNOSTIC_SOURCE = "microprofile-faulttolerance";
 
 }

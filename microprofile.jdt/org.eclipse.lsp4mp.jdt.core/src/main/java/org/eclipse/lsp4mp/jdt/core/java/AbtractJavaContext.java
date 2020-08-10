@@ -16,8 +16,11 @@ package org.eclipse.lsp4mp.jdt.core.java;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.ITypeRoot;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.internal.core.manipulation.dom.ASTResolving;
 import org.eclipse.lsp4mp.jdt.core.utils.IJDTUtils;
 
 /**
@@ -35,11 +38,14 @@ public abstract class AbtractJavaContext {
 	private final IJDTUtils utils;
 
 	private Map<String, Object> cache;
+	
+	private CompilationUnit fASTRoot;
 
 	public AbtractJavaContext(String uri, ITypeRoot typeRoot, IJDTUtils utils) {
 		this.uri = uri;
 		this.typeRoot = typeRoot;
 		this.utils = utils;
+		this.fASTRoot = null;
 	}
 
 	public String getUri() {
@@ -85,6 +91,20 @@ public abstract class AbtractJavaContext {
 			return null;
 		}
 		return cache.get(key);
+	}
+	
+	public CompilationUnit getASTRoot() {
+		if (fASTRoot == null) {
+			fASTRoot = ASTResolving.createQuickFixAST((ICompilationUnit) getTypeRoot(), null);
+		}
+		return fASTRoot;
+	}
+	
+	/**
+	 * @param root The ASTRoot to set.
+	 */
+	public void setASTRoot(CompilationUnit root) {
+		fASTRoot = root;
 	}
 
 }
