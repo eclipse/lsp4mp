@@ -55,7 +55,6 @@ public class MicroProfileCapabilityManager {
 	private final LanguageClient languageClient;
 
 	private ClientCapabilitiesWrapper clientWrapper;
-	private TextDocumentRegistrationOptions formattingRegistrationOptions;
 
 	private final List<IMicroProfileRegistrationConfiguration> registrationConfigurations;
 	private boolean registrationConfigurationsInitialized;
@@ -106,18 +105,15 @@ public class MicroProfileCapabilityManager {
 			 */
 			registerCapability(FORMATTING_ID, TEXT_DOCUMENT_FORMATTING, getFormattingRegistrationOptions());
 		}
-		if (this.getClientCapabilities().isFormattingDynamicRegistered()) {
+		if (this.getClientCapabilities().isRangeFormattingDynamicRegistered()) {
 			registerCapability(RANGE_FORMATTING_ID, TEXT_DOCUMENT_RANGE_FORMATTING, getFormattingRegistrationOptions());
 		}
 	}
 
 	private TextDocumentRegistrationOptions getFormattingRegistrationOptions() {
-		if (formattingRegistrationOptions == null) {
-			List<DocumentFilter> documentSelector = new ArrayList<>();
-			documentSelector.add(new DocumentFilter("microprofile-properties", null, null));
-			formattingRegistrationOptions = new TextDocumentRegistrationOptions(documentSelector);
-		}
-		return formattingRegistrationOptions;
+		List<DocumentFilter> documentSelector = new ArrayList<>();
+		documentSelector.add(new DocumentFilter("microprofile-properties", null, null));
+		return new TextDocumentRegistrationOptions(documentSelector);
 	}
 
 	public void setClientCapabilities(ClientCapabilities clientCapabilities,
