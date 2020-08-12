@@ -26,6 +26,15 @@ import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
 public interface IPropertiesCollector {
 
 	/**
+	 * Defines the strategy for merging properties
+	 */
+	enum MergingStrategy {
+		REPLACE,
+		FORCE,
+		IGNORE_IF_EXISTS
+	}
+
+	/**
 	 * Add item metadata.
 	 *
 	 * @param name          the property name
@@ -72,5 +81,17 @@ public interface IPropertiesCollector {
 	 *
 	 * @param metadata the metadata to merge
 	 */
-	void merge(ConfigurationMetadata metadata);
+	default void merge(ConfigurationMetadata metadata) {
+		merge(metadata, MergingStrategy.FORCE);
+	}
+
+	/**
+	 * Merges the properties and hints from <code>metadata</code>
+	 * to the current <code>ConfigurationMetadata</code> instance
+	 * according to the specified merging strategy
+	 *
+	 * @param metadata the metadata to merge
+	 * @param merging stategy to use
+	 */
+	void merge(ConfigurationMetadata metadata, MergingStrategy mergingStrategy);
 }

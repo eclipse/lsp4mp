@@ -171,7 +171,14 @@
                   class="org.eclipse.lsp4mp.jdt.internal.restclient.java.RegisterRestClientAnnotationMissingQuickFix" />
    </extension>
 
-   <!-- MicroProfile GraphQL Support -->
+   <!-- MicroProfile JWT Support -->
+
+   <extension point="org.eclipse.lsp4mp.jdt.core.propertiesProviders">
+      <!-- Properties provider for MicroProfile JWT -->
+      <provider class="org.eclipse.lsp4mp.jdt.internal.jwt.properties.MicroProfileJWTProvider" />
+   </extension> 
+
+    <!-- MicroProfile GraphQL Support -->
    
    <extension point="org.eclipse.lsp4mp.jdt.core.propertiesProviders">
       <!-- Properties provider for MicroProfile GraphQL -->
