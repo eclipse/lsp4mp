@@ -29,6 +29,7 @@ import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.lsp4j.jsonrpc.json.adapters.EnumTypeAdapter;
 import org.eclipse.lsp4mp.commons.metadata.ConfigurationMetadata;
+import org.eclipse.lsp4mp.jdt.core.IPropertiesCollector.MergingStrategy;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -61,7 +62,7 @@ public abstract class AbstractStaticPropertiesProvider extends AbstractPropertie
 	}
 
 	@Override
-	public final void beginSearch(SearchContext context, IProgressMonitor monitor) {
+	public final void endSearch(SearchContext context, IProgressMonitor monitor) {
 		if (isAdaptedFor(context, monitor)) {
 			collectStaticProperties(context, monitor);
 		}
@@ -92,7 +93,7 @@ public abstract class AbstractStaticPropertiesProvider extends AbstractPropertie
 			}
 		}
 		if (metadata != null) {
-			context.getCollector().merge(metadata);
+			context.getCollector().merge(metadata, MergingStrategy.IGNORE_IF_EXISTS);
 		}
 	}
 
