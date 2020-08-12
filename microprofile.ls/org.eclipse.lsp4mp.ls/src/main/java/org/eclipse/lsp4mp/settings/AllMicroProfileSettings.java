@@ -15,9 +15,9 @@ import org.eclipse.lsp4mp.utils.JSONUtility;
 import com.google.gson.annotations.JsonAdapter;
 
 /**
- * Represents all settings under the 'microprofile' key
+ * Represents all settings under the 'quarkus' key
  * 
- * { 'microprofile': {...} }
+ * { 'quarkus': {...} }
  */
 public class AllMicroProfileSettings {
 
@@ -33,20 +33,20 @@ public class AllMicroProfileSettings {
 	}
 
 	@JsonAdapter(JsonElementTypeAdapter.Factory.class)
-	private Object microprofile;
+	private Object quarkus;
 
 	/**
-	 * @return the microprofile
+	 * @return the quarkus
 	 */
-	public Object getMicroProfile() {
-		return microprofile;
+	public Object getQuarkus() {
+		return quarkus;
 	}
 
 	/**
-	 * @param microprofile the microprofile to set
+	 * @param quarkus the quarkus to set
 	 */
-	public void setMicroProfile(Object microprofile) {
-		this.microprofile = microprofile;
+	public void setQuarkus(Object quarkus) {
+		this.quarkus = quarkus;
 	}
 
 	public static Object getMicroProfileToolsSettings(Object initializationOptionsSettings) {
@@ -54,7 +54,7 @@ public class AllMicroProfileSettings {
 		if (rootSettings == null) {
 			return null;
 		}
-		ToolsSettings microprofileSettings = JSONUtility.toModel(rootSettings.getMicroProfile(), ToolsSettings.class);
-		return microprofileSettings != null ? microprofileSettings.getTools() : null;
+		ToolsSettings quarkusSettings = JSONUtility.toModel(rootSettings.getQuarkus(), ToolsSettings.class);
+		return quarkusSettings != null ? quarkusSettings.getTools() : null;
 	}
 }
