@@ -1,8 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2019 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -22,22 +26,22 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.MicroProfilePropertyDefinitionParams;
 import org.eclipse.lsp4mp.commons.metadata.ItemHint;
-import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
 import org.eclipse.lsp4mp.commons.metadata.ItemHint.ValueHint;
+import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
 import org.eclipse.lsp4mp.ls.api.MicroProfilePropertyDefinitionProvider;
 import org.eclipse.lsp4mp.ls.commons.BadLocationException;
 import org.eclipse.lsp4mp.model.Node;
+import org.eclipse.lsp4mp.model.Node.NodeType;
 import org.eclipse.lsp4mp.model.PropertiesModel;
 import org.eclipse.lsp4mp.model.Property;
 import org.eclipse.lsp4mp.model.PropertyKey;
 import org.eclipse.lsp4mp.model.PropertyValue;
-import org.eclipse.lsp4mp.model.Node.NodeType;
 import org.eclipse.lsp4mp.utils.MicroProfilePropertiesUtils;
 import org.eclipse.lsp4mp.utils.PositionUtils;
 
 /**
  * The MicroProfile definition.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -49,7 +53,7 @@ public class MicroProfileDefinition {
 	 * Returns as promise the Java field definition location of the property at the
 	 * given <code>position</code> of the given application.properties
 	 * <code>document</code>.
-	 * 
+	 *
 	 * @param document              the properties model.
 	 * @param position              the position where definition was triggered
 	 * @param projectInfo           the MicroProfile project info

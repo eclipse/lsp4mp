@@ -1,13 +1,16 @@
-/**
- *  Copyright (c) 2018 Angelo ZERR.
- *  All rights reserved. This program and the accompanying materials
- *  are made available under the terms of the Eclipse Public License v2.0
- *  which accompanies this distribution, and is available at
- *  http://www.eclipse.org/legal/epl-v20.html
- *
- *  Contributors:
- *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
- */
+/*******************************************************************************
+* Copyright (c) 2018 Red Hat Inc. and others.
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
+*
+* Contributors:
+*     Red Hat Inc. - initial API and implementation
+*******************************************************************************/
 package org.eclipse.lsp4mp.ls.commons;
 
 import java.util.Collection;
@@ -27,7 +30,7 @@ public class TextDocuments<T extends TextDocument> {
 
 	private final Map<String, T> documents;
 
-	private boolean incremental = true; //default on
+	private boolean incremental = true; // default on
 
 	public TextDocuments() {
 		documents = new HashMap<>();
@@ -35,7 +38,7 @@ public class TextDocuments<T extends TextDocument> {
 
 	/**
 	 * Set the incremental support.
-	 * 
+	 *
 	 * @param incremental
 	 */
 	public void setIncremental(boolean incremental) {
@@ -48,7 +51,7 @@ public class TextDocuments<T extends TextDocument> {
 	/**
 	 * Returns true if text document is managed in incremental mode and false
 	 * otherwise.
-	 * 
+	 *
 	 * @return true if text document is managed in incremental mode and false
 	 *         otherwise.
 	 */
@@ -112,7 +115,7 @@ public class TextDocuments<T extends TextDocument> {
 
 	/**
 	 * Returns the all opened documents.
-	 * 
+	 *
 	 * @return the all opened documents.
 	 */
 	public Collection<T> all() {

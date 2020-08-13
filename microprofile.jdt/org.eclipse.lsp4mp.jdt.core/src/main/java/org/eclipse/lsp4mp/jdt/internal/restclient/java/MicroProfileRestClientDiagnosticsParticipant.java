@@ -1,10 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2020 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
 *
-* SPDX-License-Identifier: EPL-2.0
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -47,7 +49,7 @@ import org.eclipse.lsp4mp.jdt.internal.restclient.MicroProfileRestClientErrorCod
 /**
  *
  * MicroProfile RestClient Diagnostics:
- * 
+ *
  * <ul>
  * <li>Diagnostic 1: Field on current type has Inject and RestClient annotations
  * but corresponding interface does not have RegisterRestClient annotation</li>
@@ -64,14 +66,14 @@ import org.eclipse.lsp4mp.jdt.internal.restclient.MicroProfileRestClientErrorCod
  * annotations but corresponding interface has RegisterRestClient
  * annotation</li>
  * </ul>
- * 
+ *
  * <p>
  * Those rules comes from
  * https://github.com/MicroShed/microprofile-language-server/blob/8f3401852d2b82310f49cd41ec043f5b541944a9/src/main/java/com/microprofile/lsp/internal/diagnostic/MicroProfileDiagnostic.java#L75
  * </p>
- * 
+ *
  * @author Angelo ZERR
- * 
+ *
  * @See https://github.com/eclipse/microprofile-rest-client
  *
  */

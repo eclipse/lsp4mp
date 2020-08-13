@@ -1,8 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2019 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -11,7 +15,7 @@ package org.eclipse.lsp4mp.model;
 
 /**
  * The property node
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -23,7 +27,7 @@ public class Property extends Node {
 
 	/**
 	 * Returns the node key and null otherwise.
-	 * 
+	 *
 	 * @return the node key and null otherwise.
 	 */
 	public PropertyKey getKey() {
@@ -37,7 +41,7 @@ public class Property extends Node {
 
 	/**
 	 * Returns the node value and null otherwise.
-	 * 
+	 *
 	 * @return the node value and null otherwise.
 	 */
 	public PropertyValue getValue() {
@@ -51,7 +55,7 @@ public class Property extends Node {
 
 	/**
 	 * Returns the delimiter assign and null otherwise.
-	 * 
+	 *
 	 * @return the delimiter assign and null otherwise.
 	 */
 	public Node getDelimiterAssign() {
@@ -65,7 +69,7 @@ public class Property extends Node {
 
 	/**
 	 * Returns the property key (profile + property name) and null otherwise.
-	 * 
+	 *
 	 * @return the property key (profile + property name) and null otherwise.
 	 */
 	public String getPropertyKey() {
@@ -78,12 +82,12 @@ public class Property extends Node {
 
 	/**
 	 * Returns the profile of the property key and null otherwise.
-	 * 
+	 *
 	 * <ul>
 	 * <li>'%dev.key' will return 'dev'.</li>
 	 * <li>'key' will return null.</li>
 	 * </ul>
-	 * 
+	 *
 	 * @return the profile of the property key and null otherwise.
 	 */
 	public String getProfile() {
@@ -97,21 +101,17 @@ public class Property extends Node {
 	/**
 	 * Returns the property name without the profile of the property key and null
 	 * otherwise.
-	 * 
-	 * For multiline property names, this method returns the property name
-	 * with the backslashes and newlines removed.
-	 * 
+	 *
+	 * For multiline property names, this method returns the property name with the
+	 * backslashes and newlines removed.
+	 *
 	 * <ul>
 	 * <li>'%dev.' will return null.</li>
 	 * <li>'%dev.key' will return 'key'.</li>
 	 * <li>'key' will return 'key'.</li>
-	 * <li>
-	 *   'key1.\
-	 *    key2.\
-	 *    key3' will return 'key1.key2.key3'
-	 * </li>
+	 * <li>'key1.\ key2.\ key3' will return 'key1.key2.key3'</li>
 	 * </ul>
-	 * 
+	 *
 	 * @return the property name without the profile of the property key and null
 	 *         otherwise.
 	 */
@@ -126,21 +126,17 @@ public class Property extends Node {
 	/**
 	 * Returns the property name with the profile of the property key and null
 	 * otherwise.
-	 * 
-	 * For multiline property names, this method returns the property name
-	 * with the profile, with backslashes and newlines removed.
-	 * 
+	 *
+	 * For multiline property names, this method returns the property name with the
+	 * profile, with backslashes and newlines removed.
+	 *
 	 * <ul>
 	 * <li>'%dev.' will return '%dev.'.</li>
 	 * <li>'%dev.key' will return '%dev.key'.</li>
 	 * <li>'key' will return 'key'.</li>
-	 * <li>
-	 *   '%dev.\'
-	 *   'key1.\
-	 *    key2' will return '%dev.key1.key2'
-	 * </li>
+	 * <li>'%dev.\' 'key1.\ key2' will return '%dev.key1.key2'</li>
 	 * </ul>
-	 * 
+	 *
 	 * @return the property name with the profile of the property key and null
 	 *         otherwise.
 	 */
@@ -154,10 +150,10 @@ public class Property extends Node {
 
 	/**
 	 * Returns the property value and null otherwise.
-	 * 
-	 * For multiline property values, this method returns the property value
-	 * with backslashes and newlines removed.
-	 * 
+	 *
+	 * For multiline property values, this method returns the property value with
+	 * backslashes and newlines removed.
+	 *
 	 * @return the property value and null otherwise.
 	 */
 	public String getPropertyValue() {

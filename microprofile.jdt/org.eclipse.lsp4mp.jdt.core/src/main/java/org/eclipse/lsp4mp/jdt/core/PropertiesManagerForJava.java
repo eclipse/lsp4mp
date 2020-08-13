@@ -1,8 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2019 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -46,7 +50,7 @@ import org.eclipse.lsp4mp.jdt.internal.core.java.hover.JavaHoverDefinition;
 
 /**
  * JDT quarkus manager for Java files.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -66,7 +70,7 @@ public class PropertiesManagerForJava {
 
 	/**
 	 * Returns the codeAction list according the given codeAction parameters.
-	 * 
+	 *
 	 * @param params  the codeAction parameters
 	 * @param utils   the utilities class
 	 * @param monitor the monitor
@@ -80,7 +84,7 @@ public class PropertiesManagerForJava {
 
 	/**
 	 * Returns the codelens list according the given codelens parameters.
-	 * 
+	 *
 	 * @param params  the codelens parameters
 	 * @param utils   the utilities class
 	 * @param monitor the monitor
@@ -126,7 +130,7 @@ public class PropertiesManagerForJava {
 
 	/**
 	 * Returns diagnostics for the given uris list.
-	 * 
+	 *
 	 * @param params the diagnostics parameters
 	 * @param utils  the utilities class
 	 * @return diagnostics for the given uris list.
@@ -181,7 +185,7 @@ public class PropertiesManagerForJava {
 
 	/**
 	 * Returns the hover information according to the given <code>params</code>
-	 * 
+	 *
 	 * @param params  the hover parameters
 	 * @param utils   the utilities class
 	 * @param monitor the monitor
@@ -195,11 +199,11 @@ public class PropertiesManagerForJava {
 		if (typeRoot == null) {
 			return null;
 		}
-		
+
 		Position hoverPosition = params.getPosition();
 		int hoveredOffset = utils.toOffset(typeRoot.getBuffer(), hoverPosition.getLine(), hoverPosition.getCharacter());
 		IJavaElement hoverElement = getHoveredElement(typeRoot, hoveredOffset);
-		
+
 		DocumentFormat documentFormat = params.getDocumentFormat();
 		List<Hover> hovers = new ArrayList<>();
 		collectHover(uri, typeRoot, hoverElement, utils, hoverPosition, documentFormat, hovers, monitor);
@@ -212,16 +216,16 @@ public class PropertiesManagerForJava {
 		// TODO : aggregate the hover
 		return hovers.get(0);
 	}
-	
+
 	/**
 	 * Returns the hovered element from the given <code>typeRoot</code>
 	 * and <code>offset</code>. Returns null otherwise
-	 * 
+	 *
 	 * @param typeRoot the typeRoot
 	 * @param offset   the offset representing the hover location
 	 * @return the hovered element from the given <code>typeRoot</code>
 	 * and <code>offset</code>. Returns null otherwise
-	 * @throws JavaModelException 
+	 * @throws JavaModelException
 	 */
 	private IJavaElement getHoveredElement(ITypeRoot typeRoot, int offset) throws JavaModelException {
 		IJavaElement hoverElement = typeRoot.getElementAt(offset);
@@ -233,14 +237,14 @@ public class PropertiesManagerForJava {
 		}
 		return hoverElement;
 	}
-	
+
 	/**
 	 * Returns the parameter element from the given <code>method</code> that
 	 * contains the given <code>offset</code>.
-	 * 
+	 *
 	 * Returns the given <code>method</code> if the correct parameter
 	 * element cannot be found
-	 * 
+	 *
 	 * @param method the method
 	 * @param offset the offset
 	 * @return the parameter element from the given <code>method</code> that

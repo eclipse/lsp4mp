@@ -1,8 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2019 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -34,7 +38,6 @@ import org.eclipse.lsp4mp.commons.ClasspathKind;
 import org.eclipse.lsp4mp.commons.DocumentFormat;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.MicroProfilePropertiesScope;
-import org.eclipse.lsp4mp.jdt.core.PropertiesManager;
 import org.eclipse.lsp4mp.jdt.core.utils.IJDTUtils;
 import org.eclipse.lsp4mp.jdt.internal.core.JavaUtils;
 import org.eclipse.lsp4mp.jdt.internal.core.JobHelpers;
@@ -44,7 +47,7 @@ import org.junit.BeforeClass;
 
 /**
  * Base class for testing {@link PropertiesManager}.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -52,7 +55,7 @@ public class BasePropertiesManagerTest {
 
 	private static final Logger LOGGER = Logger.getLogger(BasePropertiesManagerTest.class.getSimpleName());
 	private static Level oldLevel;
-	
+
 	protected static IJDTUtils JDT_UTILS = JDTUtilsLSImpl.getInstance();
 
 	public enum MavenProjectName {
@@ -89,7 +92,7 @@ public class BasePropertiesManagerTest {
 			return name;
 		}
 	}
-	
+
 	public enum GradleProjectName {
 
 		empty_gradle_project("empty-gradle-project"), //
@@ -117,7 +120,7 @@ public class BasePropertiesManagerTest {
 	public static void tearDown() {
 		LOGGER.setLevel(oldLevel);
 	}
-	
+
 	protected static void setJDTUtils(IJDTUtils newUtils) {
 		JDT_UTILS = newUtils;
 	}
@@ -139,7 +142,7 @@ public class BasePropertiesManagerTest {
 		// Load existing "hibernate-orm-resteasy" maven project
 		return loadJavaProject(mavenProject.getName(), "maven");
 	}
-	
+
 	public static IJavaProject loadGradleProject(GradleProjectName gradleProject) throws CoreException, Exception {
 		return loadJavaProject(gradleProject.getName(), "gradle");
 	}
@@ -147,7 +150,7 @@ public class BasePropertiesManagerTest {
 	public static IJavaProject loadMavenProjectFromSubFolder(MavenProjectName mavenProject, String subFolder) throws Exception {
 		return loadJavaProject(mavenProject.getName(), java.nio.file.Paths.get("maven", subFolder).toString());
 	}
-	
+
 	private static IJavaProject loadJavaProject(String projectName, String parentDirName) throws CoreException, Exception {
 		// Move project to working directory
 		File projectFolder = copyProjectToWorkingDirectory(projectName, parentDirName);
@@ -155,7 +158,7 @@ public class BasePropertiesManagerTest {
 		IPath path = new Path(new File(projectFolder, "/.project").getAbsolutePath());
 		IProjectDescription description = ResourcesPlugin.getWorkspace().loadProjectDescription(path);
 		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(description.getName());
-		
+
 		if (!project.exists()) {
 			project.create(description, null);
 			project.open(null);
@@ -230,7 +233,7 @@ public class BasePropertiesManagerTest {
 		}
 		createFile(file, content);
 	}
-	
+
 	protected static void saveFile(String configFileName, String content, IJavaProject javaProject)
 			throws JavaModelException, IOException {
 		IPath output = javaProject.getOutputLocation();
@@ -238,7 +241,7 @@ public class BasePropertiesManagerTest {
 				.toFile();
 		updateFile(file, content);
 	}
-	
+
 	protected static void deleteFile(String configFileName, IJavaProject javaProject)
 			throws JavaModelException, IOException {
 		IPath output = javaProject.getOutputLocation();

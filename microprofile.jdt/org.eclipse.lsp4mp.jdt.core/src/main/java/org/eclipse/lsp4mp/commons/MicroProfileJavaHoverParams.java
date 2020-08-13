@@ -1,10 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2020 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
 *
-* SPDX-License-Identifier: EPL-2.0
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -15,7 +17,7 @@ import org.eclipse.lsp4j.Position;
 
 /**
  * MicroProfile Java hover parameters.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -38,7 +40,7 @@ public class MicroProfileJavaHoverParams {
 
 	/**
 	 * Returns the java file uri.
-	 * 
+	 *
 	 * @return the java file uri.
 	 */
 	public String getUri() {
@@ -47,7 +49,7 @@ public class MicroProfileJavaHoverParams {
 
 	/**
 	 * Set the java file uri.
-	 * 
+	 *
 	 * @param uri the java file uri.
 	 */
 	public void setUri(String uri) {
@@ -56,7 +58,7 @@ public class MicroProfileJavaHoverParams {
 
 	/**
 	 * Returns the hover position
-	 * 
+	 *
 	 * @return the hover position
 	 */
 	public Position getPosition() {
@@ -65,7 +67,7 @@ public class MicroProfileJavaHoverParams {
 
 	/**
 	 * Sets the hover position
-	 * 
+	 *
 	 * @param position the hover position
 	 */
 	public void setPosition(Position position) {

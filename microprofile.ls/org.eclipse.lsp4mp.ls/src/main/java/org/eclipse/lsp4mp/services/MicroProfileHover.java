@@ -1,8 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2019 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -20,8 +24,8 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.metadata.ConfigurationMetadata;
 import org.eclipse.lsp4mp.commons.metadata.ItemHint;
-import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
 import org.eclipse.lsp4mp.commons.metadata.ItemHint.ValueHint;
+import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
 import org.eclipse.lsp4mp.ls.commons.BadLocationException;
 import org.eclipse.lsp4mp.model.Node;
 import org.eclipse.lsp4mp.model.PropertiesModel;
@@ -43,7 +47,7 @@ class MicroProfileHover {
 
 	/**
 	 * Returns Hover object for the currently hovered token
-	 * 
+	 *
 	 * @param document           the properties model document
 	 * @param position           the hover position
 	 * @param projectInfo        the MicroProfile project information
@@ -92,10 +96,10 @@ class MicroProfileHover {
 	/**
 	 * Returns the documentation hover for the property key's profile, for the
 	 * property key represented by <code>key</code>
-	 * 
+	 *
 	 * Returns null if property key represented by <code>key</code> does not have a
 	 * profile
-	 * 
+	 *
 	 * @param key           the property key
 	 * @param hoverSettings the hover settings
 	 * @return the documentation hover for the property key's profile
@@ -117,7 +121,7 @@ class MicroProfileHover {
 	/**
 	 * Returns the documentation hover for property key represented by the property
 	 * key <code>key</code>
-	 * 
+	 *
 	 * @param key           the property key
 	 * @param offset        the hover offset
 	 * @param projectInfo   the MicroProfile project information
@@ -146,7 +150,7 @@ class MicroProfileHover {
 	/**
 	 * Returns the documentation hover for property key represented by the property
 	 * key <code>node</code>
-	 * 
+	 *
 	 * @param node          the property key node
 	 * @param projectInfo   the MicroProfile project information
 	 * @param hoverSettings the hover settings
@@ -165,7 +169,8 @@ class MicroProfileHover {
 		ItemMetadata item = MicroProfilePropertiesUtils.getProperty(propertyName, projectInfo);
 		ValueHint enumItem = getValueHint(propertyValue, item, projectInfo, valuesRulesManager, value.getOwnerModel());
 		if (enumItem != null) {
-			// MicroProfile property enumeration item, found, display its documentation as hover
+			// MicroProfile property enumeration item, found, display its documentation as
+			// hover
 			MarkupContent markupContent = DocumentationUtils.getDocumentation(enumItem, markdownSupported);
 			Hover hover = new Hover();
 			hover.setContents(markupContent);
@@ -178,7 +183,7 @@ class MicroProfileHover {
 	/**
 	 * Returns the hover range covering the %profilename in <code>key</code> Returns
 	 * range of <code>key</code> if <code>key</code> does not provide a profile
-	 * 
+	 *
 	 * @param key the property key
 	 * @return the hover range covering the %profilename in <code>key</code>
 	 */

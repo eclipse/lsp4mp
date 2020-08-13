@@ -1,8 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2019 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -13,18 +17,18 @@ import org.eclipse.lsp4mp.utils.JSONUtility;
 
 /**
  * Class to hold all settings from the client side.
- * 
- * 
+ *
+ *
  * This class is created through the deserialization of a JSON object. Each
  * internal setting must be represented by a class and have:
- * 
+ *
  * 1) A constructor with no parameters
- * 
+ *
  * 2) The JSON key/parent for the settings must have the same name as a
  * variable.
- * 
+ *
  * eg: {"symbols" : {...}, "validation" : {...}}
- * 
+ *
  */
 public class MicroProfileGeneralClientSettings {
 
@@ -38,7 +42,7 @@ public class MicroProfileGeneralClientSettings {
 
 	/**
 	 * Returns the symbols settings.
-	 * 
+	 *
 	 * @return the symbols settings.
 	 */
 	public MicroProfileSymbolSettings getSymbols() {
@@ -47,7 +51,7 @@ public class MicroProfileGeneralClientSettings {
 
 	/**
 	 * Set the symbols settings.
-	 * 
+	 *
 	 * @param symbols the symbols settings.
 	 */
 	public void setSymbols(MicroProfileSymbolSettings symbols) {
@@ -56,7 +60,7 @@ public class MicroProfileGeneralClientSettings {
 
 	/**
 	 * Returns the validation settings.
-	 * 
+	 *
 	 * @return the validation settings.
 	 */
 	public MicroProfileValidationSettings getValidation() {
@@ -65,7 +69,7 @@ public class MicroProfileGeneralClientSettings {
 
 	/**
 	 * Set the validation settings.
-	 * 
+	 *
 	 * @param validation the validation settings.
 	 */
 	public void setValidation(MicroProfileValidationSettings validation) {
@@ -74,7 +78,7 @@ public class MicroProfileGeneralClientSettings {
 
 	/**
 	 * Returns the formatting settings
-	 * 
+	 *
 	 * @return the formatting settings
 	 */
 	public MicroProfileFormattingSettings getFormatting() {
@@ -83,7 +87,7 @@ public class MicroProfileGeneralClientSettings {
 
 	/**
 	 * Sets the formatting settings
-	 * 
+	 *
 	 * @param formatting the formatting settings
 	 */
 	public void setFormatting(MicroProfileFormattingSettings formatting) {
@@ -92,7 +96,7 @@ public class MicroProfileGeneralClientSettings {
 
 	/**
 	 * Returns the code lens settings.
-	 * 
+	 *
 	 * @return the code lens settings.
 	 */
 	public MicroProfileCodeLensSettings getCodeLens() {
@@ -101,7 +105,7 @@ public class MicroProfileGeneralClientSettings {
 
 	/**
 	 * Sets the code lens settings.
-	 * 
+	 *
 	 * @param codeLens the code lens settings.
 	 */
 	public void setCodeLens(MicroProfileCodeLensSettings codeLens) {
@@ -110,11 +114,12 @@ public class MicroProfileGeneralClientSettings {
 
 	/**
 	 * Returns the general settings from the given initialization options
-	 * 
+	 *
 	 * @param initializationOptionsSettings the initialization options
 	 * @return the general settings from the given initialization options
 	 */
-	public static MicroProfileGeneralClientSettings getGeneralMicroProfileSettings(Object initializationOptionsSettings) {
+	public static MicroProfileGeneralClientSettings getGeneralMicroProfileSettings(
+			Object initializationOptionsSettings) {
 		return JSONUtility.toModel(initializationOptionsSettings, MicroProfileGeneralClientSettings.class);
 	}
 }

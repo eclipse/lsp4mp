@@ -1,10 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2019 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
 *
-* SPDX-License-Identifier: EPL-2.0
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -17,13 +19,13 @@ import java.util.List;
 
 /**
  * MicroProfile properties scope. MicroProfile properties can be changed when:
- * 
+ *
  * <ul>
  * <li>{@link #dependencies}: a dependency changed (ex : add, remove a new JAR
  * to a given project)</li>
  * <li>{@link #sources}: a Java source changed.</li>
  * </ul>
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -56,7 +58,7 @@ public enum MicroProfilePropertiesScope {
 
 	/**
 	 * Returns true if the given scopes is only sources and false otherwise.
-	 * 
+	 *
 	 * @param scopes
 	 * @return true if the given scopes is only sources and false otherwise.
 	 */

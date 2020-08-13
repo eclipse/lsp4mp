@@ -1,13 +1,16 @@
 /*******************************************************************************
- * Copyright (c) 2017 Red Hat Inc. and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v2.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v20.html
- *
- * Contributors:
- *     Red Hat Inc. - initial API and implementation
- *******************************************************************************/
+* Copyright (c) 2017 Red Hat Inc. and others.
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
+*
+* Contributors:
+*     Red Hat Inc. - initial API and implementation
+*******************************************************************************/
 package org.eclipse.lsp4mp.ls.commons;
 
 import java.io.IOException;
@@ -19,10 +22,10 @@ import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.google.common.io.Closeables;
+
 import org.eclipse.lsp4j.jsonrpc.MessageConsumer;
 import org.eclipse.lsp4j.services.LanguageServer;
-
-import com.google.common.io.Closeables;
 
 /**
  * Watches the parent process PID and invokes exit if it is no longer available.
@@ -34,7 +37,7 @@ public final class ParentProcessWatcher implements Runnable, Function<MessageCon
 	private static final Logger LOGGER = Logger.getLogger(ParentProcessWatcher.class.getName());
 	private static final boolean isJava1x = System.getProperty("java.version").startsWith("1.");
 	private static final boolean isWindows = System.getProperty("os.name").toLowerCase().indexOf("win") >= 0;
-	
+
 	/**
 	 * Exit code returned when XML Language Server is forced to exit.
 	 */
@@ -97,7 +100,8 @@ public final class ParentProcessWatcher implements Runnable, Function<MessageCon
 				finished = process.waitFor(POLL_DELAY_SECS, TimeUnit.SECONDS); // wait for the process to stop
 			}
 			if (isWindows && finished && process.exitValue() > 1) {
-				// the tasklist command should return 0 (parent process exists) or 1 (parent process doesn't exist)
+				// the tasklist command should return 0 (parent process exists) or 1 (parent
+				// process doesn't exist)
 				LOGGER.warning("The tasklist command: '" + command + "' returns " + process.exitValue());
 				return true;
 			}
@@ -110,9 +114,11 @@ public final class ParentProcessWatcher implements Runnable, Function<MessageCon
 				if (!finished) {
 					process.destroyForcibly();
 				}
-				// Terminating or destroying the Process doesn't close the process handle on Windows. 
-				// It is only closed when the Process object is garbage collected (in its finalize() method).
-				// On Windows, when the Java LS is idle, we need to explicitly request a GC, 
+				// Terminating or destroying the Process doesn't close the process handle on
+				// Windows.
+				// It is only closed when the Process object is garbage collected (in its
+				// finalize() method).
+				// On Windows, when the Java LS is idle, we need to explicitly request a GC,
 				// to prevent an accumulation of zombie processes, as finalize() will be called.
 				if (isWindows) {
 					// Java >= 9 doesn't close the handle when the process is garbage collected
@@ -134,9 +140,9 @@ public final class ParentProcessWatcher implements Runnable, Function<MessageCon
 
 	@Override
 	public MessageConsumer apply(final MessageConsumer consumer) {
-		//inject our own consumer to refresh the timestamp
+		// inject our own consumer to refresh the timestamp
 		return message -> {
-			lastActivityTime=System.currentTimeMillis();
+			lastActivityTime = System.currentTimeMillis();
 			consumer.consume(message);
 		};
 	}

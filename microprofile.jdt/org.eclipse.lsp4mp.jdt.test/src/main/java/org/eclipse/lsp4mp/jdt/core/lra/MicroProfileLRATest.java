@@ -1,8 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2020 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -20,7 +24,7 @@ import org.junit.Test;
 
 /**
  * Test the availability of the MicroProfile LRA properties
- * 
+ *
  * @author David Kwon
  *
  */
@@ -34,7 +38,7 @@ public class MicroProfileLRATest extends BasePropertiesManagerTest {
 
 		assertProperties(infoFromClasspath,
 
-				p("microprofile-lra-api", "mp.lra.propagation.active", "java.lang.String", 
+				p("microprofile-lra-api", "mp.lra.propagation.active", "java.lang.String",
 						"When a JAX-RS endpoint, or the containing class, is not "
 						+ "annotated with `@LRA`, but it is called on a MicroProfile "
 						+ "LRA compliant runtime, the system will propagate the LRA "

@@ -1,8 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2019 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -92,7 +96,7 @@ public class ApplicationPropertiesTextDocumentService extends AbstractTextDocume
 
 	/**
 	 * Update shared settings from the client capabilities.
-	 * 
+	 *
 	 * @param capabilities the client capabilities
 	 */
 	public void updateClientCapabilities(ClientCapabilities capabilities) {
@@ -286,7 +290,8 @@ public class ApplicationPropertiesTextDocumentService extends AbstractTextDocume
 			}
 			// then get the Properties model document
 			return getPropertiesModel(document, (cancelChecker, model) -> {
-				// then return do validation by using the MicroProfile project information and the
+				// then return do validation by using the MicroProfile project information and
+				// the
 				// Properties model document
 				List<Diagnostic> diagnostics = getMicroProfileLanguageService().doDiagnostics(model, projectInfo,
 						getSharedSettings().getValidationSettings(), cancelChecker);
@@ -299,7 +304,7 @@ public class ApplicationPropertiesTextDocumentService extends AbstractTextDocume
 
 	/**
 	 * Returns the text document from the given uri.
-	 * 
+	 *
 	 * @param uri the uri
 	 * @return the text document from the given uri.
 	 */
@@ -310,7 +315,7 @@ public class ApplicationPropertiesTextDocumentService extends AbstractTextDocume
 	/**
 	 * Returns the properties model for a given uri in a future and then apply the
 	 * given function.
-	 * 
+	 *
 	 * @param <R>
 	 * @param documentIdentifier the document identifier.
 	 * @param code               a bi function that accepts a {@link CancelChecker}
@@ -327,7 +332,7 @@ public class ApplicationPropertiesTextDocumentService extends AbstractTextDocume
 	/**
 	 * Returns the properties model for a given uri in a future and then apply the
 	 * given function.
-	 * 
+	 *
 	 * @param <R>
 	 * @param documentIdentifier the document identifier.
 	 * @param code               a bi function that accepts a {@link CancelChecker}
@@ -380,7 +385,7 @@ public class ApplicationPropertiesTextDocumentService extends AbstractTextDocume
 
 	/**
 	 * Updates MicroProfile formatting settings configured from the client.
-	 * 
+	 *
 	 * @param newFormatting the new MicroProfile formatting settings
 	 */
 	public void updateFormattingSettings(MicroProfileFormattingSettings newFormatting) {

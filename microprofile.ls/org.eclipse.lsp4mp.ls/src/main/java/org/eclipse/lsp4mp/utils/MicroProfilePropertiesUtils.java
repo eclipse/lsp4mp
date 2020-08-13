@@ -1,8 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2019 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -15,8 +19,8 @@ import java.util.function.BiConsumer;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.metadata.ConfigurationMetadata;
 import org.eclipse.lsp4mp.commons.metadata.ItemHint;
-import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
 import org.eclipse.lsp4mp.commons.metadata.ItemHint.ValueHint;
+import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
 import org.eclipse.lsp4mp.ls.commons.SnippetsBuilder;
 import org.eclipse.lsp4mp.model.PropertiesModel;
 import org.eclipse.lsp4mp.model.values.ValuesRulesManager;
@@ -24,7 +28,7 @@ import org.eclipse.lsp4mp.services.QuarkusModel;
 
 /**
  * MicroProfile project information utilities.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -63,7 +67,7 @@ public class MicroProfilePropertiesUtils {
 
 		/**
 		 * Returns the formatted property name
-		 * 
+		 *
 		 * @return the formatted property name
 		 */
 		public String getPropertyName() {
@@ -72,7 +76,7 @@ public class MicroProfilePropertiesUtils {
 
 		/**
 		 * Returns the mapped and index array parameter count.
-		 * 
+		 *
 		 * @return the mapped and index array parameter count.
 		 */
 		public int getParameterCount() {
@@ -82,7 +86,7 @@ public class MicroProfilePropertiesUtils {
 
 	/**
 	 * Returns the enums values according the property type.
-	 * 
+	 *
 	 * @param property           the property
 	 * @param projectInfo
 	 * @param valuesRulesManager
@@ -105,12 +109,14 @@ public class MicroProfilePropertiesUtils {
 	}
 
 	/**
-	 * Returns the MicroProfile property from the given property name and null otherwise.
-	 * 
+	 * Returns the MicroProfile property from the given property name and null
+	 * otherwise.
+	 *
 	 * @param propertyName the property name
-	 * @param info         the MicroProfile project information which hosts the MicroProfile
-	 *                     properties.
-	 * @return the MicroProfile property from the given property name and null otherwise.
+	 * @param info         the MicroProfile project information which hosts the
+	 *                     MicroProfile properties.
+	 * @return the MicroProfile property from the given property name and null
+	 *         otherwise.
 	 */
 	public static ItemMetadata getProperty(String propertyName, MicroProfileProjectInfo info) {
 		Collection<ItemMetadata> properties = info.getProperties();
@@ -129,15 +135,15 @@ public class MicroProfilePropertiesUtils {
 	/**
 	 * Returns true if the given property name matches the given pattern and false
 	 * otherwise.
-	 * 
+	 *
 	 * The pattern can be:
-	 * 
+	 *
 	 * <ul>
 	 * <li>a simple pattern: it means that pattern is equals to the property
 	 * name</li>
 	 * <li>a map pattern: pattern which contains {*}.
 	 * </ul>
-	 * 
+	 *
 	 * @param propertyName the property name
 	 * @param pattern      the pattern
 	 * @return true if the given property name matches the given pattern and false
@@ -231,7 +237,7 @@ public class MicroProfilePropertiesUtils {
 	/**
 	 * Returns true if the given property name is a mapped property and false
 	 * otherwise.
-	 * 
+	 *
 	 * @param propertyName the property name
 	 * @return true if the given property name is a mapped property and false
 	 *         otherwise.
@@ -243,7 +249,7 @@ public class MicroProfilePropertiesUtils {
 	/**
 	 * Returns true if the given property name is a index array property and false
 	 * otherwise.
-	 * 
+	 *
 	 * @param propertyName the property name
 	 * @return true if the given property name is a index array property and false
 	 *         otherwise.

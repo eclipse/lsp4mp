@@ -1,8 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2019 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -38,7 +42,7 @@ import org.eclipse.lsp4mp.settings.MicroProfileValidationSettings;
 
 /**
  * The MicroProfile language service.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -70,7 +74,7 @@ public class MicroProfileLanguageService {
 
 	/**
 	 * Returns completion list for the given position
-	 * 
+	 *
 	 * @param document           the properties model document
 	 * @param position           the position where completion was triggered
 	 * @param projectInfo        the MicroProfile project information
@@ -87,7 +91,7 @@ public class MicroProfileLanguageService {
 
 	/**
 	 * Returns Hover object for the currently hovered token
-	 * 
+	 *
 	 * @param document      the properties model document
 	 * @param position      the hover position
 	 * @param projectInfo   the MicroProfile project information
@@ -101,7 +105,7 @@ public class MicroProfileLanguageService {
 
 	/**
 	 * Returns symbol information list for the given properties model.
-	 * 
+	 *
 	 * @param document      the properties model document
 	 * @param cancelChecker the cancel checker
 	 * @return symbol information list for the given properties model.
@@ -112,7 +116,7 @@ public class MicroProfileLanguageService {
 
 	/**
 	 * Returns document symbol list for the given properties model.
-	 * 
+	 *
 	 * @param document      the properties model document
 	 * @param cancelChecker the cancel checker
 	 * @return document symbol list for the given properties model.
@@ -125,7 +129,7 @@ public class MicroProfileLanguageService {
 	 * Returns as promise the Java field definition location of the property at the
 	 * given <code>position</code> of the given application.properties
 	 * <code>document</code>.
-	 * 
+	 *
 	 * @param document              the properties model.
 	 * @param position              the position where definition was triggered
 	 * @param projectInfo           the MicroProfile project info
@@ -145,7 +149,7 @@ public class MicroProfileLanguageService {
 	/**
 	 * Returns a <code>List<TextEdit></code> that formats the application.properties
 	 * file represented by <code>document</code>
-	 * 
+	 *
 	 * @param document           the properties model
 	 * @param formattingSettings the client's formatting settings
 	 * @return a <code>List<TextEdit></code> that formats the application.properties
@@ -159,7 +163,7 @@ public class MicroProfileLanguageService {
 	/**
 	 * Returns a <code>List<TextEdit></code> that formats the application.properties
 	 * file represented by <code>document</code>, for the given <code>range</code>
-	 * 
+	 *
 	 * @param document           the properties model
 	 * @param range              the range specifying the lines to format
 	 * @param formattingSettings the client's formatting settings
@@ -173,7 +177,7 @@ public class MicroProfileLanguageService {
 	/**
 	 * Validate the given application.properties <code>document</code> by using the
 	 * given MicroProfile properties metadata <code>projectInfo</code>.
-	 * 
+	 *
 	 * @param document           the properties model.
 	 * @param projectInfo        the MicroProfile project info.
 	 * @param validationSettings the validation settings.
@@ -190,7 +194,7 @@ public class MicroProfileLanguageService {
 	 * Returns code actions for the given diagnostics of the application.properties
 	 * <code>document</code> by using the given MicroProfile properties metadata
 	 * <code>projectInfo</code>.
-	 * 
+	 *
 	 * @param context             the code action context
 	 * @param range               the range
 	 * @param document            the properties model.
@@ -208,7 +212,7 @@ public class MicroProfileLanguageService {
 
 	/**
 	 * Returns the manager for values rules.
-	 * 
+	 *
 	 * @return the manager for values rules.
 	 */
 	private ValuesRulesManager getValuesRulesManager() {

@@ -1,8 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2019 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -16,15 +20,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
-import org.eclipse.lsp4mp.commons.metadata.ItemHint.ValueHint;
-import org.eclipse.lsp4mp.model.PropertiesModel;
-
 import com.google.gson.Gson;
+
+import org.eclipse.lsp4mp.commons.metadata.ItemHint.ValueHint;
+import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
+import org.eclipse.lsp4mp.model.PropertiesModel;
 
 /**
  * Values rules manager.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -81,7 +85,7 @@ public class ValuesRulesManager {
 	/**
 	 * Returns the values {@link ValueHint} from the given metadata property and
 	 * null otherwise.
-	 * 
+	 *
 	 * @param metadata the metadata property to match
 	 * @param model    the properties model
 	 * @return the values {@link ValueHint} from the given metadata property and
@@ -99,7 +103,7 @@ public class ValuesRulesManager {
 	/**
 	 * Returns true if the given value is valid for the given metadata property and
 	 * false otherwise.
-	 * 
+	 *
 	 * @param metadata      the metadata property to match
 	 * @param model         the properties model
 	 * @param propertyValue the property value to validate
@@ -108,13 +112,13 @@ public class ValuesRulesManager {
 	 */
 	public boolean isValidEnum(ItemMetadata metadata, PropertiesModel model, String propertyValue) {
 		List<ValueHint> enums = getValues(metadata, model);
-		return enums == null || getValueHint(propertyValue, metadata, model) != null; 
+		return enums == null || getValueHint(propertyValue, metadata, model) != null;
 	}
 
 	/**
 	 * Returns the {@link ValueHint} from the given property value for the given
 	 * metadata property and null otherwise.
-	 * 
+	 *
 	 * @param metadata the metadata property to match
 	 * @param model    the properties model
 	 * @return the {@link ValueHint} from the given property value for the given
@@ -124,7 +128,7 @@ public class ValuesRulesManager {
 		List<ValueHint> enums = getValues(metadata, model);
 		return getValue(propertyValue, enums);
 	}
-	
+
 	private ValueHint getValue(String value, List<ValueHint> values) {
 		if (values == null || value == null) {
 			return null;

@@ -1,8 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2019 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -26,8 +30,8 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.metadata.ConverterKind;
-import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
 import org.eclipse.lsp4mp.commons.metadata.ItemHint.ValueHint;
+import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
 import org.eclipse.lsp4mp.ls.commons.BadLocationException;
 import org.eclipse.lsp4mp.ls.commons.CodeActionFactory;
 import org.eclipse.lsp4mp.ls.commons.TextDocument;
@@ -47,7 +51,7 @@ import org.eclipse.lsp4mp.utils.StringUtils;
 
 /**
  * The MicroProfile code actions
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -61,7 +65,7 @@ class MicroProfileCodeActions {
 	 * Returns code actions for the given diagnostics of the application.properties
 	 * <code>document</code> by using the given MicroProfile properties metadata
 	 * <code>projectInfo</code>.
-	 * 
+	 *
 	 * @param context             the code action context
 	 * @param range               the range
 	 * @param document            the properties model.
@@ -93,11 +97,11 @@ class MicroProfileCodeActions {
 	/**
 	 * Creation code action for 'unknown' property by searching similar name from
 	 * the known MicroProfile properties.
-	 * 
+	 *
 	 * <p>
 	 * LIMITATION: mapped property are not supported.
 	 * </p>
-	 * 
+	 *
 	 * @param diagnostic          the diagnostic
 	 * @param document            the properties model.
 	 * @param projectInfo         the MicroProfile project info
@@ -139,8 +143,8 @@ class MicroProfileCodeActions {
 	 * Create code action for suggesting similar known enum values for unknown enum
 	 * values. If no enum values are similar, code actions are created for each
 	 * possible enum value.
-	 * 
-	 * 
+	 *
+	 *
 	 * Code action(s) are created only if the property contained within the
 	 * <code>diagnostic</code> range expects an enum value
 	 *
@@ -216,7 +220,7 @@ class MicroProfileCodeActions {
 	/**
 	 * Create a code action that adds <code>propertyName</code> to user's unknown
 	 * validation excluded array
-	 * 
+	 *
 	 * @param propertyName the property name to add to array for code action
 	 * @param diagnostic   the corresponding unknown property diagnostic
 	 * @param document     the properties model
@@ -241,7 +245,7 @@ class MicroProfileCodeActions {
 	 * Returns a code action for <code>diagnostic</code> that causes
 	 * <code>item</code> to be added to
 	 * <code>quarkus.tools.validation.unknown.excluded</code> client configuration
-	 * 
+	 *
 	 * @param item       the item to add to the client configuration array
 	 * @param diagnostic the diagnostic for the <code>CodeAction</code>
 	 * @return a code action that causes <code>item</code> to be added to
@@ -265,7 +269,7 @@ class MicroProfileCodeActions {
 	/**
 	 * Create a code action that inserts all missing required properties and equals
 	 * signs if there are more than one missing required properties.
-	 * 
+	 *
 	 * @param diagnostics        the diagnostics, one for each missing required
 	 *                           property
 	 * @param document           the properties model
@@ -315,9 +319,9 @@ class MicroProfileCodeActions {
 
 	/**
 	 * Returns true if <code>propertyName</code> has a parent key, false otherwise
-	 * 
+	 *
 	 * For example, the parent key for "quarkus.http.cors" is "quarkus.http"
-	 * 
+	 *
 	 * @param propertyName the property name to check
 	 * @return true if <code>propertyName</code> has a parent key, false otherwise
 	 */
@@ -327,9 +331,9 @@ class MicroProfileCodeActions {
 
 	/**
 	 * Returns the parent key for <code>propertyName</code>
-	 * 
+	 *
 	 * For example, the parent key for "quarkus.http.cors" is "quarkus.http"
-	 * 
+	 *
 	 * @param propertyName the property name
 	 * @return the parent key for <code>propertyName</code>
 	 */
@@ -340,7 +344,7 @@ class MicroProfileCodeActions {
 	/**
 	 * Returns the <code>Position</code> to insert the missing required code action
 	 * property into
-	 * 
+	 *
 	 * @param textDocument the text document
 	 * @return the <code>Position</code> to insert the missing required code action
 	 *         property into
@@ -366,7 +370,7 @@ class MicroProfileCodeActions {
 	/**
 	 * Returns the missing required property name from
 	 * <code>diagnosticMessage</code>
-	 * 
+	 *
 	 * @param diagnosticMessage the diagnostic message containing the property name
 	 *                          in single quotes
 	 * @return the missing required property name from

@@ -1,8 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2020 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -20,7 +24,7 @@ import org.junit.Test;
 
 /**
  * Test the availability of the MicroProfile Metrics properties
- * 
+ *
  * @author David Kwon
  *
  */
@@ -34,7 +38,7 @@ public class MicroProfileMetricsTest extends BasePropertiesManagerTest {
 
 		assertProperties(infoFromClasspath,
 
-				p("microprofile-metrics-api", "mp.metrics.tags", "java.lang.String", 
+				p("microprofile-metrics-api", "mp.metrics.tags", "java.lang.String",
 						"List of tag values.\r\n"
 						+ "Tag values set through `mp.metrics.tags` MUST escape equal symbols `=` and commas `,` with a backslash `\\`.",
 						true, null, null, null, 0, null),

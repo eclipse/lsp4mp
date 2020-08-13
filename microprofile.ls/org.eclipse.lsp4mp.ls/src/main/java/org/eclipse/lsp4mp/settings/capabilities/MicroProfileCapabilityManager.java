@@ -1,15 +1,16 @@
-/**
- *  Copyright (c) 2019-2020 Red Hat, Inc. and others.
- *  All rights reserved. This program and the accompanying materials
- *  are made available under the terms of the Eclipse Public License v2.0
- *  which accompanies this distribution, and is available at
- *  http://www.eclipse.org/legal/epl-v20.html
- *
- * SPDX-License-Identifier: EPL-2.0
- *
- *  Contributors:
- *  Red Hat Inc. - initial API and implementation
- */
+/*******************************************************************************
+* Copyright (c) 2019-2020 Red Hat Inc. and others.
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
+*
+* Contributors:
+*     Red Hat Inc. - initial API and implementation
+*******************************************************************************/
 package org.eclipse.lsp4mp.settings.capabilities;
 
 import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.CODE_ACTION_ID;
@@ -152,7 +153,7 @@ public class MicroProfileCapabilityManager {
 
 	/**
 	 * Returns list of registration configuration contributed with Java SPI.
-	 * 
+	 *
 	 * @return list of registration configuration contributed with Java SPI.
 	 */
 	private List<IMicroProfileRegistrationConfiguration> getRegistrationConfigurations() {

@@ -1,8 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2019 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -15,7 +19,7 @@ import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
 
 /**
  * Properties collector API.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -23,7 +27,7 @@ public interface IPropertiesCollector {
 
 	/**
 	 * Add item metadata.
-	 * 
+	 *
 	 * @param name          the property name
 	 * @param type          the property type.
 	 * @param description   the property description.
@@ -44,7 +48,7 @@ public interface IPropertiesCollector {
 
 	/**
 	 * Returns true if the given hint exists and false otherwise.
-	 * 
+	 *
 	 * @param hint the hint name.
 	 * @return true if the given hint exists and false otherwise.
 	 */
@@ -52,11 +56,11 @@ public interface IPropertiesCollector {
 
 	/**
 	 * Returns the item hint for the given hint name.
-	 * 
+	 *
 	 * <p>
 	 * If the item hint doesn't exists, the collector creates it.
 	 * </p>
-	 * 
+	 *
 	 * @param hint the hint name.
 	 * @return the item hint for the given hint name.
 	 */
@@ -65,7 +69,7 @@ public interface IPropertiesCollector {
 	/**
 	 * Merges the properties and hints from <code>metadata</code>
 	 * to the current <code>ConfigurationMetadata</code> instance
-	 * 
+	 *
 	 * @param metadata the metadata to merge
 	 */
 	void merge(ConfigurationMetadata metadata);

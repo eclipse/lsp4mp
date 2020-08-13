@@ -1,10 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2020 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
 *
-* SPDX-License-Identifier: EPL-2.0
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -20,7 +22,7 @@ import org.eclipse.lsp4mp.jdt.core.utils.IJDTUtils;
 
 /**
  * Abstract class for Java context for a given compilation unit.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -55,11 +57,11 @@ public abstract class AbtractJavaContext {
 	public IJDTUtils getUtils() {
 		return utils;
 	}
-	
+
 
 	/**
 	 * Associates the specified value with the specified key in the cache.
-	 * 
+	 *
 	 * @param key   the key.
 	 * @param value the value.
 	 */
@@ -73,7 +75,7 @@ public abstract class AbtractJavaContext {
 	/**
 	 * Returns the value to which the specified key is mapped, or {@code null} if
 	 * this map contains no mapping for the key.
-	 * 
+	 *
 	 * @param key the key.
 	 * @return the value to which the specified key is mapped, or {@code null} if
 	 *         this map contains no mapping for the key.

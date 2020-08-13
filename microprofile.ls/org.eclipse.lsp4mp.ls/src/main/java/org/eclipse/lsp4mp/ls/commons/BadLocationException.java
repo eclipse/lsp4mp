@@ -17,7 +17,7 @@ package org.eclipse.lsp4mp.ls.commons;
  * This class is not intended to be serialized.
  * </p>
  * 
- *  This class is a copy/paste of org.eclipse.jface.text.BadLocationException.
+ * This class is a copy/paste of org.eclipse.jface.text.BadLocationException.
  */
 public class BadLocationException extends Exception {
 

@@ -1,8 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2019 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -32,7 +36,7 @@ import org.junit.Test;
 
 /**
  * JDT Quarkus manager test for hover in Java file.
- * 
+ *
  *
  */
 public class JavaHoverTest extends BasePropertiesManagerTest {
@@ -47,12 +51,12 @@ public class JavaHoverTest extends BasePropertiesManagerTest {
 
 	@Test
 	public void configPropertyNameHover() throws Exception {
-		
+
 		javaProject = loadMavenProject(MavenProjectName.config_hover);
 		IProject project = javaProject.getProject();
 		IFile javaFile = project.getFile(new Path("src/main/java/org/acme/config/GreetingResource.java"));
 		String javaFileUri = javaFile.getLocation().toFile().toURI().toString();
-		
+
 		saveFile(JDTMicroProfileProject.APPLICATION_PROPERTIES_FILE,
 				"greeting.message = hello\r\n" + "greeting.name = quarkus\r\n" + "greeting.number = 100", javaProject);
 		// Position(14, 40) is the character after the | symbol:
@@ -105,12 +109,12 @@ public class JavaHoverTest extends BasePropertiesManagerTest {
 
 	@Test
 	public void configPropertyNameYaml() throws Exception {
-		
+
 		javaProject = loadMavenProject(MavenProjectName.config_hover);
 		IProject project = javaProject.getProject();
 		IFile javaFile = project.getFile(new Path("src/main/java/org/acme/config/GreetingResource.java"));
 		String javaFileUri = javaFile.getLocation().toFile().toURI().toString();
-		
+
 		saveFile(JDTMicroProfileProject.APPLICATION_YAML_FILE,
 				"greeting:\n" + "  message: message from yaml\n" + "  number: 2001", javaProject);
 
@@ -134,10 +138,10 @@ public class JavaHoverTest extends BasePropertiesManagerTest {
 		info = getActualHover(new Position(26, 33), javaFileUri);
 		assertHover("greeting.number", "100", 26, 28, 43, info);
 	}
-	
+
 	@Test
 	public void configPropertyNameMethod() throws Exception {
-		
+
 		javaProject = loadMavenProject(MavenProjectName.config_quickstart);
 		IProject project = javaProject.getProject();
 		IFile javaFile = project.getFile(new Path("src/main/java/org/acme/config/GreetingMethodResource.java"));
@@ -161,10 +165,10 @@ public class JavaHoverTest extends BasePropertiesManagerTest {
 		info = getActualHover(new Position(32, 58), javaFileUri);
 		assertHover("greeting.method.name", null, 32, 48, 68, info);
 	}
-	
+
 	@Test
 	public void configPropertyNameConstructor() throws Exception {
-		
+
 		javaProject = loadMavenProject(MavenProjectName.config_quickstart);
 		IProject project = javaProject.getProject();
 		IFile javaFile = project.getFile(new Path("src/main/java/org/acme/config/GreetingConstructorResource.java"));

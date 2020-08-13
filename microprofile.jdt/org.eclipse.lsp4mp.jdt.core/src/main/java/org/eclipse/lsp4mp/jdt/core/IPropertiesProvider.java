@@ -1,8 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2019 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -16,7 +20,7 @@ import org.eclipse.jdt.core.search.SearchPattern;
 
 /**
  * Properties provider API.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -24,7 +28,7 @@ public interface IPropertiesProvider {
 
 	/**
 	 * Begin the building scope.
-	 * 
+	 *
 	 * @param context the search building scope
 	 * @param monitor the progress monitor
 	 */
@@ -35,7 +39,7 @@ public interface IPropertiesProvider {
 	/**
 	 * Contribute to the classpath to add extra JARs in classpath (ex : deployment
 	 * JARs for Quarkus).
-	 * 
+	 *
 	 * @param context the building scope context.
 	 * @param monitor the progress monitor.
 	 * @throws JavaModelException
@@ -47,7 +51,7 @@ public interface IPropertiesProvider {
 
 	/**
 	 * End the building scope.
-	 * 
+	 *
 	 * @param context the building scope context.
 	 * @param monitor the progress monitor.
 	 */
@@ -57,7 +61,7 @@ public interface IPropertiesProvider {
 
 	/**
 	 * Begin the search.
-	 * 
+	 *
 	 * @param context the search context
 	 * @param monitor the progress monitor
 	 */
@@ -67,14 +71,14 @@ public interface IPropertiesProvider {
 
 	/**
 	 * Create the Java search pattern.
-	 * 
+	 *
 	 * @return the Java search pattern.
 	 */
 	SearchPattern createSearchPattern();
 
 	/**
 	 * Collect properties from the given Java search match.
-	 * 
+	 *
 	 * @param match   the java search match.
 	 * @param context the search context.
 	 * @param monitor the progress monitor.
@@ -83,7 +87,7 @@ public interface IPropertiesProvider {
 
 	/**
 	 * End the search.
-	 * 
+	 *
 	 * @param context the search context
 	 * @param monitor the progress monitor
 	 */

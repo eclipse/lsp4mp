@@ -1,10 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2019 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
 *
-* SPDX-License-Identifier: EPL-2.0
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -15,7 +17,7 @@ import java.util.List;
 
 /**
  * MicroProfile project information parameters.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -36,7 +38,7 @@ public class MicroProfileProjectInfoParams {
 
 	/**
 	 * Returns the uri of the application.properties file.
-	 * 
+	 *
 	 * @return the uri of the application.properties file.
 	 */
 	public String getUri() {
@@ -45,7 +47,7 @@ public class MicroProfileProjectInfoParams {
 
 	/**
 	 * Set the uri of the application.properties file.
-	 * 
+	 *
 	 * @param uri the uri of the application.properties file.
 	 */
 	public void setUri(String uri) {
@@ -54,7 +56,7 @@ public class MicroProfileProjectInfoParams {
 
 	/**
 	 * Returns the search scope to collect the MicroProfile properties.
-	 * 
+	 *
 	 * @return the search scope to collect the MicroProfile properties.
 	 */
 	public List<MicroProfilePropertiesScope> getScopes() {
@@ -63,7 +65,7 @@ public class MicroProfileProjectInfoParams {
 
 	/**
 	 * Set the search scope to collect the MicroProfile properties.
-	 * 
+	 *
 	 * @param scope the search scope to collect the MicroProfile properties.
 	 */
 	public void setScopes(List<MicroProfilePropertiesScope> scopes) {
@@ -72,7 +74,7 @@ public class MicroProfileProjectInfoParams {
 
 	/**
 	 * Set the document format for description.
-	 * 
+	 *
 	 * @param documentFormat the document format for description.
 	 */
 	public void setDocumentFormat(DocumentFormat documentFormat) {
@@ -81,7 +83,7 @@ public class MicroProfileProjectInfoParams {
 
 	/**
 	 * Returns the document format for description.
-	 * 
+	 *
 	 * @return the document format for description.
 	 */
 	public DocumentFormat getDocumentFormat() {

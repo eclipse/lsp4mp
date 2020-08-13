@@ -1,8 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2020 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -46,7 +50,7 @@ import com.google.gson.GsonBuilder;
 /**
  * Generator to generate JSON properties and definitions used for Junit test of
  * MicroProfile LS.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -99,21 +103,21 @@ public class GenerateAllPropertiesAndDefinition extends BasePropertiesManagerTes
 
 	/**
 	 * This method generates the
-	 * 
+	 *
 	 * <ul>
 	 * <li>all-quarkus-properties.json used for Junit test in MicroProfile LS ->
 	 * https://github.com/redhat-developer/quarkus-ls/blob/master/microprofile.ls/org.eclipse.lsp4mp.ls/src/test/resources/com/redhat/microprofile/services/all-quarkus-properties.json</li>
 	 * </ul>
-	 * 
+	 *
 	 * <p>
 	 * To generate this file:
 	 * </p>
-	 * 
+	 *
 	 * <ul>
 	 * <li>Uncomment @Ignore</li>
 	 * <li>Start the method with JUnit PDE Run</li>
 	 * </ul>
-	 * 
+	 *
 	 * @throws JavaModelException
 	 * @throws CoreException
 	 * @throws Exception
@@ -126,23 +130,23 @@ public class GenerateAllPropertiesAndDefinition extends BasePropertiesManagerTes
 
 	/**
 	 * This method generates the
-	 * 
+	 *
 	 * <ul>
 	 * <li>all-quarkus-properties.json used for Junit test in MicroProfile LS ->
 	 * https://github.com/redhat-developer/quarkus-ls/blob/master/microprofile.ls/org.eclipse.lsp4mp.ls/src/test/resources/com/redhat/microprofile/services/all-quarkus-properties.json</li>
 	 * <li>all-quarkus-definitions.json used for Junit test in MicroProfile LS ->
 	 * https://github.com/redhat-developer/quarkus-ls/blob/master/microprofile.ls/org.eclipse.lsp4mp.ls/src/test/resources/com/redhat/microprofile/services/all-quarkus-definitions.json</li>
 	 * </ul>
-	 * 
+	 *
 	 * <p>
 	 * To generate those files:
 	 * </p>
-	 * 
+	 *
 	 * <ul>
 	 * <li>Uncomment @Ignore</li>
 	 * <li>Start the method with JUnit PDE Run</li>
 	 * </ul>
-	 * 
+	 *
 	 * @throws JavaModelException
 	 * @throws CoreException
 	 * @throws Exception

@@ -1,8 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2019 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -19,7 +23,7 @@ import org.eclipse.lsp4mp.commons.MicroProfilePropertiesChangeEvent;
 
 /**
  * MicroProfile language server API.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -59,12 +63,12 @@ public interface MicroProfileLanguageServerAPI extends LanguageServer {
 
 	/**
 	 * Notification for MicroProfile properties changed which occurs when:
-	 * 
+	 *
 	 * <ul>
 	 * <li>classpath (java sources and dependencies) changed</li>
 	 * <li>only java sources changed</li>
 	 * </ul>
-	 * 
+	 *
 	 * @param event the MicroProfile properties change event which gives the
 	 *              information if changed comes from classpath or java sources.
 	 */
@@ -74,7 +78,7 @@ public interface MicroProfileLanguageServerAPI extends LanguageServer {
 	/**
 	 * Returns the Json Schema for the MicroProfile properties of the given
 	 * application.yaml URI.
-	 * 
+	 *
 	 * @param params the application.yaml URI
 	 * @return the Json Schema for the MicroProfile properties of the given
 	 *         application.yaml URI.

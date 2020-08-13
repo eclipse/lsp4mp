@@ -1,3 +1,16 @@
+/*******************************************************************************
+* Copyright (c) 2020 Red Hat Inc. and others.
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
+*
+* Contributors:
+*     Red Hat Inc. - initial API and implementation
+*******************************************************************************/
 package org.eclipse.lsp4mp.jdt.core;
 
 import java.io.File;
@@ -22,11 +35,11 @@ import com.google.gson.GsonBuilder;
 
 /**
  * Abstract class for static properties provider.
- * 
+ *
  * Static properties are properties that should be available when a certain
  * class is present in the classpath. As a result, no search patterns are
  * required.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -57,7 +70,7 @@ public abstract class AbstractStaticPropertiesProvider extends AbstractPropertie
 	/**
 	 * Returns true if static properties must be collected for the given context and
 	 * false otherwise.
-	 * 
+	 *
 	 * @param context the building scope context
 	 * @param monitor the progress monitor
 	 * @return
@@ -66,7 +79,7 @@ public abstract class AbstractStaticPropertiesProvider extends AbstractPropertie
 
 	/**
 	 * Collect static properties from the given context
-	 * 
+	 *
 	 * @param context the building scope context
 	 * @param monitor the progress monitor
 	 */
@@ -86,7 +99,7 @@ public abstract class AbstractStaticPropertiesProvider extends AbstractPropertie
 	/**
 	 * Returns a <code>ConfigurationMetadata</code> instance from
 	 * the data stored from the json file located at <code>this.path</code>
-	 * 
+	 *
 	 * @return <code>ConfigurationMetadata</code> instance from
 	 * the data stored from the json file located at <code>this.path</code>
 	 * @throws IOException
@@ -100,7 +113,7 @@ public abstract class AbstractStaticPropertiesProvider extends AbstractPropertie
 	/**
 	 * Returns a <code>InputStream</code> instance that reads from the
 	 * file located at <code>this.path</code>
-	 * 
+	 *
 	 * @return a <code>InputStream</code> instance that reads from the
 	 * file located at <code>this.path</code>
 	 * @throws IOException

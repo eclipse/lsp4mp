@@ -1,8 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2019 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -30,13 +34,12 @@ public class MicroProfileHoverSettings {
 	/**
 	 * Returns <code>true</code> if the client support the given documentation
 	 * format and <code>false</code> otherwise.
-	 * 
+	 *
 	 * @return <code>true</code> if the client support the given documentation
 	 *         format and <code>false</code> otherwise.
 	 */
 	public boolean isContentFormatSupported(String documentationFormat) {
-		return capabilities.getContentFormat() != null
-				&& capabilities.getContentFormat().contains(documentationFormat);
+		return capabilities.getContentFormat() != null && capabilities.getContentFormat().contains(documentationFormat);
 	}
 
 }

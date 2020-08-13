@@ -1,8 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2019 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -11,7 +15,7 @@ package org.eclipse.lsp4mp.settings;
 
 /**
  * Shared settings.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -37,7 +41,7 @@ public class SharedSettings {
 
 	/**
 	 * Returns the completion settings.
-	 * 
+	 *
 	 * @return the completion settings.
 	 */
 	public MicroProfileCompletionSettings getCompletionSettings() {
@@ -46,7 +50,7 @@ public class SharedSettings {
 
 	/**
 	 * Returns the hover settings.
-	 * 
+	 *
 	 * @return the hover settings.
 	 */
 	public MicroProfileHoverSettings getHoverSettings() {
@@ -55,7 +59,7 @@ public class SharedSettings {
 
 	/**
 	 * Returns the symbol settings.
-	 * 
+	 *
 	 * @return the symbol settings.
 	 */
 	public MicroProfileSymbolSettings getSymbolSettings() {
@@ -64,7 +68,7 @@ public class SharedSettings {
 
 	/**
 	 * Returns the validation settings.
-	 * 
+	 *
 	 * @return the validation settings.
 	 */
 	public MicroProfileValidationSettings getValidationSettings() {
@@ -73,7 +77,7 @@ public class SharedSettings {
 
 	/**
 	 * Returns the formatting settings.
-	 * 
+	 *
 	 * @return the formatting settings.
 	 */
 	public MicroProfileFormattingSettings getFormattingSettings() {
@@ -82,7 +86,7 @@ public class SharedSettings {
 
 	/**
 	 * Returns the command capabilities.
-	 * 
+	 *
 	 * @return the command capabilities.
 	 */
 	public MicroProfileCommandCapabilities getCommandCapabilities() {
@@ -91,7 +95,7 @@ public class SharedSettings {
 
 	/**
 	 * Returns the code lens settings.
-	 * 
+	 *
 	 * @return the code lens settings.
 	 */
 	public MicroProfileCodeLensSettings getCodeLensSettings() {
