@@ -1,18 +1,20 @@
 /*******************************************************************************
  * Copyright (c) 2000, 2016 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License 2.0
- * which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-2.0/
- *
- * SPDX-License-Identifier: EPL-2.0
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
  *
  * Copied from /org.eclipse.jdt.ui/src/org/eclipse/jdt/internal/ui/text/correction/proposals/NewAnnotationMemberProposal.java
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.lsp4mp.jdt.core.java.corrections.proposal;
+package src.main.java.org.eclipse.lsp4mp.jdt.core.java.corrections.proposal;
+
+import org.eclipse.lsp4mp.jdt.core.java.corrections.proposal.NewAnnotationProposal;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -23,6 +25,7 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
@@ -32,23 +35,34 @@ import org.eclipse.jdt.internal.core.manipulation.dom.ASTResolving;
 import org.eclipse.jdt.internal.corext.codemanipulation.ContextSensitiveImportRewriteContext;
 import org.eclipse.lsp4j.CodeActionKind;
 
-public class NewAnnotationProposal extends ASTRewriteCorrectionProposal {
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Arrays;
 
-	private final CompilationUnit fInvocationNode;
-	private final IBinding fBinding;
+/**
+ * Similar functionality as NewAnnotationProposal. The main difference is that
+ * first removes specified annotations before adding a new annotation.
+ * 
+ * Note: This class only accepts one new annotation to add.
+ * 
+ * @author Kathryn Kodama
+ */
+public class ReplaceAnnotationProposal extends NewAnnotationProposal {
 
-	private final String[] annotations;
+	private final String[] removeAnnotations;
 
-	public NewAnnotationProposal(String label, ICompilationUnit targetCU, CompilationUnit invocationNode,
-			IBinding binding, int relevance, String... annotations) {
-		super(label, CodeActionKind.QuickFix, targetCU, null, relevance);
-		fInvocationNode = invocationNode;
-		fBinding = binding;
-		this.annotations = annotations;
+	public ReplaceAnnotationProposal(String label, ICompilationUnit targetCU, CompilationUnit invocationNode,
+			IBinding binding, int relevance, String annotation, String... removeAnnotations) {
+		super(label, targetCU, invocationNode, binding, relevance, annotation);
+		this.removeAnnotations = removeAnnotations;
 	}
 
 	@Override
 	protected ASTRewrite getRewrite() throws CoreException {
+		CompilationUnit fInvocationNode = getInvocationNode();
+		IBinding fBinding = getBinding();
+		String[] annotations = getAnnotations();
+
 		ASTNode declNode = null;
 		ASTNode boundNode = fInvocationNode.findDeclaringNode(fBinding);
 		CompilationUnit newRoot = fInvocationNode;
@@ -70,6 +84,21 @@ public class NewAnnotationProposal extends ASTRewriteCorrectionProposal {
 
 			ImportRewriteContext importRewriteContext = new ContextSensitiveImportRewriteContext(declNode, imports);
 
+			// remove annotations in the removeAnnotations list
+			@SuppressWarnings("unchecked")
+			List<? extends ASTNode> children = (List<? extends ASTNode>) declNode
+					.getStructuralProperty(TypeDeclaration.MODIFIERS2_PROPERTY);
+			for (ASTNode child : children) {
+				if (child instanceof Annotation) {
+					Annotation annotation = (Annotation) child;
+					IAnnotationBinding annotationBinding = annotation.resolveAnnotationBinding();
+					boolean containsAnnotation = Arrays.stream(removeAnnotations)
+							.anyMatch(annotationBinding.getName()::contains);
+					if (containsAnnotation) {
+						rewrite.remove(child, null);
+					}
+				}
+			}
 			for (String annotation : annotations) {
 				Annotation marker = ast.newMarkerAnnotation();
 				marker.setTypeName(ast.newName(imports.addImport(annotation, importRewriteContext))); // $NON-NLS-1$
@@ -83,30 +112,4 @@ public class NewAnnotationProposal extends ASTRewriteCorrectionProposal {
 		return null;
 	}
 
-	/**
-	 * Returns the Compilation Unit node
-	 * 
-	 * @return the invocation node for the Compilation Unit
-	 */
-	protected CompilationUnit getInvocationNode() {
-		return this.fInvocationNode;
-	}
-
-	/**
-	 * Returns the Binding object associated with the new annotation change
-	 * 
-	 * @return the binding object
-	 */
-	protected IBinding getBinding() {
-		return this.fBinding;
-	}
-
-	/**
-	 * Returns the annotations list
-	 * 
-	 * @return the list of new annotations to add
-	 */
-	protected String[] getAnnotations() {
-		return this.annotations;
-	}
 }
