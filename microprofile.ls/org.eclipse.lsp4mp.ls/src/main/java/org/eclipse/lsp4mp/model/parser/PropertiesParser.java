@@ -46,9 +46,7 @@ public class PropertiesParser implements ParseContext {
 	 * Enum that keep tracks of what will be parsed on the next line
 	 */
 	private enum ParseState {
-		Property,
-		PropertyName,
-		PropertyValue
+		Property, PropertyName, PropertyValue
 	}
 
 	/**
@@ -119,14 +117,14 @@ public class PropertiesParser implements ParseContext {
 			return;
 		}
 		switch (current) {
-			case '#':
-			case ';':
-				// comment line
-				readComment();
-				break;
-			default:
-				// property line
-				readProperty();
+		case '#':
+		case ';':
+			// comment line
+			readComment();
+			break;
+		default:
+			// property line
+			readProperty();
 		}
 	}
 
@@ -165,12 +163,12 @@ public class PropertiesParser implements ParseContext {
 			return true;
 		}
 		switch (stop) {
-			case PropertyName:
-				return isColonSeparator() || isWhiteSpace();
-			case PropertyValue:
-				return false;
-			default:
-				return isWhiteSpace();
+		case PropertyName:
+			return isColonSeparator() || isWhiteSpace();
+		case PropertyValue:
+			return false;
+		default:
+			return isWhiteSpace();
 		}
 	}
 
@@ -180,39 +178,39 @@ public class PropertiesParser implements ParseContext {
 	private void readProperty() {
 
 		switch (parseState) {
-			case PropertyName:
-				if (continueReadPropertyKey()) {
-					readAfterPropertyKey();
-				}
-				break;
-			case PropertyValue:
-				if (continueReadPropertyValue()) {
-					handler.endProperty(this);
-					parseState = ParseState.Property;
-				}
-				break;
-			case Property:
-				handler.startProperty(this);
-				skipWhiteSpace();
-				if (!readPropertyKey()) {
-					// property name continues on the next line
-					parseState = ParseState.PropertyName;
-					return;
-				};
+		case PropertyName:
+			if (continueReadPropertyKey()) {
 				readAfterPropertyKey();
-				break;
-			default:
+			}
+			break;
+		case PropertyValue:
+			if (continueReadPropertyValue()) {
+				handler.endProperty(this);
+				parseState = ParseState.Property;
+			}
+			break;
+		case Property:
+			handler.startProperty(this);
+			skipWhiteSpace();
+			if (!readPropertyKey()) {
+				// property name continues on the next line
+				parseState = ParseState.PropertyName;
 				return;
+			}
+			;
+			readAfterPropertyKey();
+			break;
+		default:
+			return;
 		}
 	}
 
 	/**
-	 * Reads the contents after a PropertyKey.
-	 * This method should only be called after a PropertyKey
-	 * has been finsished reading:
-	 * (ProperyKey.start != -1 and ProperyKey.end != -1)
+	 * Reads the contents after a PropertyKey. This method should only be called
+	 * after a PropertyKey has been finsished reading: (ProperyKey.start != -1 and
+	 * ProperyKey.end != -1)
 	 */
-	private void readAfterPropertyKey(){
+	private void readAfterPropertyKey() {
 		skipWhiteSpace();
 
 		if (current != '=' && current != ':') {
@@ -221,7 +219,7 @@ public class PropertiesParser implements ParseContext {
 			parseState = ParseState.Property;
 			return;
 		}
-		
+
 		readDelimiter();
 		skipWhiteSpace();
 
@@ -241,15 +239,14 @@ public class PropertiesParser implements ParseContext {
 	}
 
 	/**
-	 * Creates a new PropertyKey in the handler and
-	 * reads the current line for the PropertyKey.
+	 * Creates a new PropertyKey in the handler and reads the current line for the
+	 * PropertyKey.
 	 * 
-	 * Returns true if the full PropertyKey has been read and
-	 * false otherwise. If false is returned, the contents
-	 * of the PropertyKey continues on the next line.
+	 * Returns true if the full PropertyKey has been read and false otherwise. If
+	 * false is returned, the contents of the PropertyKey continues on the next
+	 * line.
 	 * 
-	 * @return true if the full PropertyKey has been read and
-	 * false otherwise.
+	 * @return true if the full PropertyKey has been read and false otherwise.
 	 */
 	private boolean readPropertyKey() {
 		handler.startPropertyName(this);
@@ -257,16 +254,14 @@ public class PropertiesParser implements ParseContext {
 	}
 
 	/**
-	 * Creates a new PropertyValue in the handler and
-	 * reads the remaining content from the current line
-	 * for the PropertyValue.
+	 * Creates a new PropertyValue in the handler and reads the remaining content
+	 * from the current line for the PropertyValue.
 	 * 
-	 * Returns true if the full PropertyValue has been read and
-	 * false otherwise. If false is returned, the contents
-	 * of the PropertyValue continues on the next line.
+	 * Returns true if the full PropertyValue has been read and false otherwise. If
+	 * false is returned, the contents of the PropertyValue continues on the next
+	 * line.
 	 * 
-	 * @return true if the full PropertyValue has been read and
-	 * false otherwise.
+	 * @return true if the full PropertyValue has been read and false otherwise.
 	 */
 	private boolean readPropertyValue() {
 		handler.startPropertyValue(this);
@@ -274,19 +269,18 @@ public class PropertiesParser implements ParseContext {
 	}
 
 	/**
-	 * Reads the current line for the PropertyKey without
-	 * creating a new PropertyKey.
+	 * Reads the current line for the PropertyKey without creating a new
+	 * PropertyKey.
 	 * 
-	 * Prerequiste: A PropertyKey must already exist in the
-	 * handler.
+	 * Prerequiste: A PropertyKey must already exist in the handler.
 	 * 
-	 * Returns true if the full PropertyKey has been read and
-	 * false otherwise. If false is returned, the contents
-	 * of the PropertyKey continues on the next line.
+	 * Returns true if the full PropertyKey has been read and false otherwise. If
+	 * false is returned, the contents of the PropertyKey continues on the next
+	 * line.
 	 * 
-	 * @return true if the full PropertyKey has been read and
-	 * false otherwise. If false is returned, the contents
-	 * of the PropertyKey continues on the next line.
+	 * @return true if the full PropertyKey has been read and false otherwise. If
+	 *         false is returned, the contents of the PropertyKey continues on the
+	 *         next line.
 	 */
 	private boolean continueReadPropertyKey() {
 		readString(StopReading.PropertyName);
@@ -307,18 +301,16 @@ public class PropertiesParser implements ParseContext {
 	}
 
 	/**
-	 * Reads the current line for the PropertyValue without
-	 * creating a new PropertyValue.
+	 * Reads the current line for the PropertyValue without creating a new
+	 * PropertyValue.
 	 * 
-	 * Prerequiste: A PropertyValue must already exist in the
-	 * handler.
+	 * Prerequiste: A PropertyValue must already exist in the handler.
 	 * 
-	 * Returns true if the full PropertyValue has been read and
-	 * false otherwise. If false is returned, the contents
-	 * of the PropertyValue continues on the next line.
+	 * Returns true if the full PropertyValue has been read and false otherwise. If
+	 * false is returned, the contents of the PropertyValue continues on the next
+	 * line.
 	 * 
-	 * @return true if the full PropertyValue has been read and
-	 * false otherwise.
+	 * @return true if the full PropertyValue has been read and false otherwise.
 	 */
 	private boolean continueReadPropertyValue() {
 		readString(StopReading.PropertyValue);

@@ -1,6 +1,7 @@
 /*******************************************************************************
 * Copyright (c) 2020 Red Hat Inc. and others.
 * All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v2.0
 * which accompanies this distribution, and is available at
 * http://www.eclipse.org/legal/epl-v20.html
 *
@@ -30,7 +31,8 @@ public class MicroProfileJavaSnippetRegistryLoader implements ISnippetRegistryLo
 				SnippetContextForJava.TYPE_ADAPTER);
 		registry.registerSnippets(MicroProfileJavaSnippetRegistryLoader.class.getResourceAsStream("mp-openapi.json"),
 				SnippetContextForJava.TYPE_ADAPTER);
-		registry.registerSnippets(MicroProfileJavaSnippetRegistryLoader.class.getResourceAsStream("mp-faulttolerance.json"),
+		registry.registerSnippets(
+				MicroProfileJavaSnippetRegistryLoader.class.getResourceAsStream("mp-faulttolerance.json"),
 				SnippetContextForJava.TYPE_ADAPTER);
 	}
 

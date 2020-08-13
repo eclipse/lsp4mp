@@ -1,30 +1,24 @@
 /*******************************************************************************
 * Copyright (c) 2019 Red Hat Inc. and others.
 * All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v2.0
 * which accompanies this distribution, and is available at
 * http://www.eclipse.org/legal/epl-v20.html
+*
+* SPDX-License-Identifier: EPL-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.core;
 
-import static org.eclipse.lsp4mp.commons.metadata.ItemMetadata.CONFIG_PHASE_BUILD_TIME;
-import static org.eclipse.lsp4mp.jdt.internal.core.JavaUtils.createJavaProject;
 import static org.eclipse.lsp4mp.jdt.internal.core.JavaUtils.getJarPath;
-import static org.eclipse.lsp4mp.jdt.internal.core.MicroProfileAssert.assertProperties;
-import static org.eclipse.lsp4mp.jdt.internal.core.MicroProfileAssert.p;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.lsp4mp.commons.ClasspathKind;
-import org.eclipse.lsp4mp.commons.DocumentFormat;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfoParams;
-import org.eclipse.lsp4mp.commons.MicroProfilePropertiesScope;
-import org.eclipse.lsp4mp.jdt.core.PropertiesManager;
 import org.junit.Assert;
 import org.junit.Test;
 

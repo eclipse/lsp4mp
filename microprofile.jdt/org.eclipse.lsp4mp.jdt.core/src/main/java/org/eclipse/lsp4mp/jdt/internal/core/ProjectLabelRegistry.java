@@ -1,8 +1,11 @@
 /*******************************************************************************
 * Copyright (c) 2020 Red Hat Inc. and others.
 * All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v2.0
 * which accompanies this distribution, and is available at
 * http://www.eclipse.org/legal/epl-v20.html
+*
+* SPDX-License-Identifier: EPL-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -22,7 +25,7 @@ import org.eclipse.lsp4mp.jdt.core.MicroProfileCorePlugin;
 import org.eclipse.lsp4mp.jdt.core.ProjectLabelDefinition;
 
 /**
- *  Registry to hold the extension point
+ * Registry to hold the extension point
  * "org.eclipse.lsp4mp.jdt.core.projectLabelProviders".
  * 
  */
@@ -31,7 +34,7 @@ public class ProjectLabelRegistry {
 	private static final String CLASS_ATTR = "class";
 
 	private static final String EXTENSION_PROJECT_LABEL_PROVIDERS = "projectLabelProviders";
-	
+
 	private static final Logger LOGGER = Logger.getLogger(ProjectLabelRegistry.class.getName());
 
 	private static final ProjectLabelRegistry INSTANCE = new ProjectLabelRegistry();
@@ -39,7 +42,7 @@ public class ProjectLabelRegistry {
 	private final List<ProjectLabelDefinition> projectLabelDefinitions;
 
 	private boolean projectDefinitionsLoaded;
-	
+
 	public static ProjectLabelRegistry getInstance() {
 		return INSTANCE;
 	}
@@ -54,11 +57,11 @@ public class ProjectLabelRegistry {
 	 *
 	 * @return a list of project label definitions
 	 */
-	public  List<ProjectLabelDefinition> getProjectLabelDefinitions() {
+	public List<ProjectLabelDefinition> getProjectLabelDefinitions() {
 		loadProjectLabelDefinitions();
 		return projectLabelDefinitions;
 	}
-	
+
 	private synchronized void loadProjectLabelDefinitions() {
 		if (projectDefinitionsLoaded)
 			return;
@@ -68,10 +71,11 @@ public class ProjectLabelRegistry {
 		projectDefinitionsLoaded = true;
 
 		IExtensionRegistry registry = Platform.getExtensionRegistry();
-		IConfigurationElement[] cf = registry.getConfigurationElementsFor(MicroProfileCorePlugin.PLUGIN_ID, EXTENSION_PROJECT_LABEL_PROVIDERS);
+		IConfigurationElement[] cf = registry.getConfigurationElementsFor(MicroProfileCorePlugin.PLUGIN_ID,
+				EXTENSION_PROJECT_LABEL_PROVIDERS);
 		addProjectLabelDefinition(cf);
 	}
-	
+
 	private void addProjectLabelDefinition(IConfigurationElement[] cf) {
 		for (IConfigurationElement ce : cf) {
 			try {

@@ -1,9 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2019 Red Hat Inc. and others.
 * All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v2.0
 * which accompanies this distribution, and is available at
 * http://www.eclipse.org/legal/epl-v20.html
 *
+* SPDX-License-Identifier: EPL-2.0
+* 
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
@@ -286,7 +289,8 @@ public class ApplicationPropertiesTextDocumentService extends AbstractTextDocume
 			}
 			// then get the Properties model document
 			return getPropertiesModel(document, (cancelChecker, model) -> {
-				// then return do validation by using the MicroProfile project information and the
+				// then return do validation by using the MicroProfile project information and
+				// the
 				// Properties model document
 				List<Diagnostic> diagnostics = getMicroProfileLanguageService().doDiagnostics(model, projectInfo,
 						getSharedSettings().getValidationSettings(), cancelChecker);

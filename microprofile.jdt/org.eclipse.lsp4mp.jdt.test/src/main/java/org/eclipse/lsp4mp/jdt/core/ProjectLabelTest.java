@@ -1,8 +1,11 @@
 /*******************************************************************************
 * Copyright (c) 2020 Red Hat Inc. and others.
 * All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v2.0
 * which accompanies this distribution, and is available at
 * http://www.eclipse.org/legal/epl-v20.html
+*
+* SPDX-License-Identifier: EPL-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -16,7 +19,6 @@ import java.util.stream.Collectors;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.lsp4mp.commons.ProjectLabelInfoEntry;
-import org.eclipse.lsp4mp.jdt.core.ProjectLabelManager;
 import org.eclipse.lsp4mp.jdt.core.BasePropertiesManagerTest.GradleProjectName;
 import org.eclipse.lsp4mp.jdt.core.BasePropertiesManagerTest.MavenProjectName;
 import org.eclipse.lsp4mp.jdt.core.utils.JDTMicroProfileUtils;

@@ -1,9 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2019 Red Hat Inc. and others.
 * All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v2.0
 * which accompanies this distribution, and is available at
 * http://www.eclipse.org/legal/epl-v20.html
 *
+* SPDX-License-Identifier: EPL-2.0
+* 
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
@@ -72,7 +75,8 @@ class MicroProfileFormatter {
 	 * 
 	 * @param document           the properties model document
 	 * @param range              the range specifying the lines to format
-	 * @param formattingSettings the client's <code>MicroProfileFormattingSettings</code>
+	 * @param formattingSettings the client's
+	 *                           <code>MicroProfileFormattingSettings</code>
 	 * @return Returns a <code>List<TextEdit></code> that formats the the
 	 *         application.properties file represented by <code>document</code>,
 	 *         within the lines covered by the specified <code>range</code>.

@@ -1,9 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2019 Red Hat Inc. and others.
 * All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v2.0
 * which accompanies this distribution, and is available at
 * http://www.eclipse.org/legal/epl-v20.html
 *
+* SPDX-License-Identifier: EPL-2.0
+* 
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
@@ -108,7 +111,7 @@ public class ValuesRulesManager {
 	 */
 	public boolean isValidEnum(ItemMetadata metadata, PropertiesModel model, String propertyValue) {
 		List<ValueHint> enums = getValues(metadata, model);
-		return enums == null || getValueHint(propertyValue, metadata, model) != null; 
+		return enums == null || getValueHint(propertyValue, metadata, model) != null;
 	}
 
 	/**
@@ -124,7 +127,7 @@ public class ValuesRulesManager {
 		List<ValueHint> enums = getValues(metadata, model);
 		return getValue(propertyValue, enums);
 	}
-	
+
 	private ValueHint getValue(String value, List<ValueHint> values) {
 		if (values == null || value == null) {
 			return null;

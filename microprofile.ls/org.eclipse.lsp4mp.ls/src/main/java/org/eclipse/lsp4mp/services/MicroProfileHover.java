@@ -1,9 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2019 Red Hat Inc. and others.
 * All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v2.0
 * which accompanies this distribution, and is available at
 * http://www.eclipse.org/legal/epl-v20.html
 *
+* SPDX-License-Identifier: EPL-2.0
+* 
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
@@ -165,7 +168,8 @@ class MicroProfileHover {
 		ItemMetadata item = MicroProfilePropertiesUtils.getProperty(propertyName, projectInfo);
 		ValueHint enumItem = getValueHint(propertyValue, item, projectInfo, valuesRulesManager, value.getOwnerModel());
 		if (enumItem != null) {
-			// MicroProfile property enumeration item, found, display its documentation as hover
+			// MicroProfile property enumeration item, found, display its documentation as
+			// hover
 			MarkupContent markupContent = DocumentationUtils.getDocumentation(enumItem, markdownSupported);
 			Hover hover = new Hover();
 			hover.setContents(markupContent);
