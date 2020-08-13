@@ -1,8 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2019 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -23,7 +27,7 @@ import org.junit.Assert;
 
 /**
  * MicroProfile assert for JUnit tests.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -33,7 +37,7 @@ public class MicroProfileAssert {
 
 	/**
 	 * Assert MicroProfile properties.
-	 * 
+	 *
 	 * @param info     the MicroProfile project information
 	 * @param expected the expected MicroProfile properties.
 	 */
@@ -43,7 +47,7 @@ public class MicroProfileAssert {
 
 	/**
 	 * Assert MicroProfile properties.
-	 * 
+	 *
 	 * @param info          the MicroProfile project information
 	 * @param expectedCount MicroProfile properties expected count.
 	 * @param expected      the expected MicroProfile properties.
@@ -59,7 +63,7 @@ public class MicroProfileAssert {
 
 	/**
 	 * Assert MicroProfile metadata property
-	 * 
+	 *
 	 * @param info     the MicroProfile project information
 	 * @param expected the MicroProfile property.
 	 */
@@ -93,7 +97,7 @@ public class MicroProfileAssert {
 
 	/**
 	 * Returns an instance of MicroProfile property.
-	 * 
+	 *
 	 * @param extensionName Quarkus extension name
 	 * @param name          the property name
 	 * @param type          the property class type
@@ -126,7 +130,7 @@ public class MicroProfileAssert {
 	/**
 	 * Assert duplicate properties from the given the MicroProfile project
 	 * information
-	 * 
+	 *
 	 * @param info the MicroProfile project information
 	 */
 	public static void assertPropertiesDuplicate(MicroProfileProjectInfo info) {
@@ -143,7 +147,7 @@ public class MicroProfileAssert {
 
 	/**
 	 * Assert MicroProfile hints.
-	 * 
+	 *
 	 * @param info     the MicroProfile project information
 	 * @param expected the expected MicroProfile hints.
 	 */
@@ -153,7 +157,7 @@ public class MicroProfileAssert {
 
 	/**
 	 * Assert MicroProfile hints.
-	 * 
+	 *
 	 * @param info          the MicroProfile project information
 	 * @param expectedCount MicroProfile hints expected count.
 	 * @param expected      the expected MicroProfile hints.
@@ -169,7 +173,7 @@ public class MicroProfileAssert {
 
 	/**
 	 * Assert MicroProfile metadata hint
-	 * 
+	 *
 	 * @param info     the MicroProfile project information
 	 * @param expected the MicroProfile hint.
 	 */
@@ -190,7 +194,7 @@ public class MicroProfileAssert {
 
 	/**
 	 * Returns an instance of MicroProfile {@link ItemHint}.
-	 * 
+	 *
 	 * @param name        the property name
 	 * @param description the Javadoc
 	 * @param binary      true if it comes from a binary field/method and false
@@ -215,7 +219,7 @@ public class MicroProfileAssert {
 
 	/**
 	 * Returns an instance of MicroProfile {@link ValueHint}.
-	 * 
+	 *
 	 * @param value
 	 * @param description
 	 * @param sourceType
@@ -231,7 +235,7 @@ public class MicroProfileAssert {
 
 	/**
 	 * Assert duplicate hints from the given the MicroProfile project information
-	 * 
+	 *
 	 * @param info the MicroProfile project information
 	 */
 	public static void assertHintsDuplicate(MicroProfileProjectInfo info) {

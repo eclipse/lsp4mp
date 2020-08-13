@@ -1,8 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2019-2020 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -58,12 +62,12 @@ import org.eclipse.lsp4mp.jdt.internal.core.PropertiesProviderRegistry;
 
 /**
  * MicroProfile properties manager used to:
- * 
+ *
  * <ul>
  * <li>collect MicroProfile, Quarkus properties</li>
  * <li>find Java definition from a given property</li>
  * </ul>
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -149,7 +153,7 @@ public class PropertiesManager {
 	 * Configure the classpath used for the search of MicroProfile properties. At
 	 * this step we can add new JARs to use for the search (ex : for Quarkus we add
 	 * deployment JAR where Quarkus properties are defined).
-	 * 
+	 *
 	 * @param javaProject     the original Java project
 	 * @param excludeTestCode true if test must be excluded and false otherwise.
 	 * @param scopes
@@ -175,7 +179,7 @@ public class PropertiesManager {
 
 	/**
 	 * Execute the Java search to collect MicroProfile, Quarkus, etc properties.
-	 * 
+	 *
 	 * @param javaProjectForSearch Java project which hosts original JARs and new
 	 *                             JARs to use for the search.
 	 * @param excludeTestCode      true if test must be excluded and false
@@ -277,12 +281,12 @@ public class PropertiesManager {
 	 * Returns the java project used for search. This java project is the original
 	 * java project with extra JARs which can be added by a properties provoder (ex
 	 * : deployment JAR for Quarkus).
-	 * 
+	 *
 	 * <p>
 	 * To avoid disturbing the classpath of the origin java project, a fake java
 	 * project is created with the origin java project and extras JARs.
 	 * </p>
-	 * 
+	 *
 	 * @param javaProject     the origin java project
 	 * @param excludeTestCode true if test must me excluded and false otherwise.
 	 * @param scopes
@@ -353,7 +357,7 @@ public class PropertiesManager {
 	 * {@link BasicSearchEngine#createJavaSearchScope(boolean, IJavaElement[], boolean)}.
 	 * It overrides {@link JavaSearchScope#packageFragmentRoot(String, int, String)}
 	 * to search the first the package root (JAR) from the given fake project.
-	 * 
+	 *
 	 * @param fakeProject
 	 * @param excludeTestCode
 	 * @param elements
@@ -443,7 +447,7 @@ public class PropertiesManager {
 
 	/**
 	 * Returns the Java field from the given property source
-	 * 
+	 *
 	 * @param javaProject  the Java project
 	 * @param sourceType   the source type (class or interface)
 	 * @param sourceField  the source field and null otherwise.

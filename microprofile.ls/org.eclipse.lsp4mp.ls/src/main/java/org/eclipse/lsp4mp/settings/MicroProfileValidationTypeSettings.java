@@ -1,8 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2019 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -18,7 +22,7 @@ import org.eclipse.lsp4mp.utils.AntPathMatcher;
 
 /**
  * MicroProfile validation type settings.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -43,7 +47,7 @@ public class MicroProfileValidationTypeSettings {
 		/**
 		 * Returns true if the given property name matches the pattern and false
 		 * otherwise.
-		 * 
+		 *
 		 * @param propertyName the property name.
 		 * @return true if the given property name matches the pattern and false
 		 *         otherwise.
@@ -62,7 +66,7 @@ public class MicroProfileValidationTypeSettings {
 
 	/**
 	 * Returns the severity of the validation type.
-	 * 
+	 *
 	 * @return the severity of the validation type.
 	 */
 	public String getSeverity() {
@@ -71,7 +75,7 @@ public class MicroProfileValidationTypeSettings {
 
 	/**
 	 * Set the severity of the validation type.
-	 * 
+	 *
 	 * @param severity the severity of the validation type.
 	 */
 	public void setSeverity(String severity) {
@@ -80,7 +84,7 @@ public class MicroProfileValidationTypeSettings {
 
 	/**
 	 * Returns the array of properties to ignore for this validation type.
-	 * 
+	 *
 	 * @return the array of properties to ignore for this validation type.
 	 */
 	public String[] getExcluded() {
@@ -89,7 +93,7 @@ public class MicroProfileValidationTypeSettings {
 
 	/**
 	 * Set the array of properties to ignore for this validation type.
-	 * 
+	 *
 	 * @param excluded the array of properties to ignore for this validation type.
 	 */
 	public void setExcluded(String[] excluded) {
@@ -99,7 +103,7 @@ public class MicroProfileValidationTypeSettings {
 	/**
 	 * Returns the diagnostic severity according the given property name and null
 	 * otherwise.
-	 * 
+	 *
 	 * @param propertyName the property name.
 	 * @return the diagnostic severity according the given property name and null
 	 *         otherwise.
@@ -124,7 +128,7 @@ public class MicroProfileValidationTypeSettings {
 
 	/**
 	 * Returns true if the given property name must be excluded and false otherwise.
-	 * 
+	 *
 	 * @param propertyName the property name
 	 * @return true if the given property name must be excluded and false otherwise.
 	 */
@@ -145,7 +149,7 @@ public class MicroProfileValidationTypeSettings {
 
 	/**
 	 * Returns the compiled excluded properties.
-	 * 
+	 *
 	 * @return the compiled excluded properties.
 	 */
 	private List<ExcludedProperty> getExcludedProperties() {
@@ -157,7 +161,7 @@ public class MicroProfileValidationTypeSettings {
 
 	/**
 	 * Create the compiled excluded properties.
-	 * 
+	 *
 	 * @return the compiled excluded properties.
 	 */
 	private synchronized List<ExcludedProperty> createExcludedProperties() {

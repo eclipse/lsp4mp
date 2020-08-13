@@ -1,10 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2020 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
 *
-* SPDX-License-Identifier: EPL-2.0
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -18,7 +20,7 @@ import org.eclipse.jdt.core.JavaModelException;
 
 /**
  * Java annotations utilities.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -31,7 +33,7 @@ public class AnnotationUtils {
 	/**
 	 * Returns the annotation from the given <code>annotatable</code> element with
 	 * the given name <code>annotationName</code> and null otherwise.
-	 * 
+	 *
 	 * @param annotatable    the class, field which can be annotated.
 	 * @param annotationName the annotation name
 	 * @return the annotation from the given <code>annotatable</code> element with
@@ -54,7 +56,7 @@ public class AnnotationUtils {
 	/**
 	 * Returns true if the given annotation match the given annotation name and
 	 * false otherwise.
-	 * 
+	 *
 	 * @param annotation     the annotation.
 	 * @param annotationName the annotation name.
 	 * @return true if the given annotation match the given annotation name and
@@ -66,7 +68,7 @@ public class AnnotationUtils {
 
 	/**
 	 * Returns the value of the given member name of the given annotation.
-	 * 
+	 *
 	 * @param annotation the annotation.
 	 * @param memberName the member name.
 	 * @return the value of the given member name of the given annotation.

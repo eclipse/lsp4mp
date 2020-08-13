@@ -1,8 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2019 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -20,7 +24,7 @@ import org.eclipse.lsp4mp.commons.MicroProfilePropertiesScope;
 
 /**
  * The building scope context to build extra classpath.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -44,7 +48,7 @@ public class BuildingScopeContext extends BaseContext {
 
 	/**
 	 * Returns the resolved classpath.
-	 * 
+	 *
 	 * @return the resolved classpath.
 	 */
 	public IClasspathEntry[] getResolvedClasspath() {
@@ -53,7 +57,7 @@ public class BuildingScopeContext extends BaseContext {
 
 	/**
 	 * Returns true if test code must be excluded and false otherwise.
-	 * 
+	 *
 	 * @return true if test code must be excluded and false otherwise.
 	 */
 	public boolean isExcludeTestCode() {
@@ -62,7 +66,7 @@ public class BuildingScopeContext extends BaseContext {
 
 	/**
 	 * Returns the artifact resolver.
-	 * 
+	 *
 	 * @return the artifact resolver.
 	 */
 	public ArtifactResolver getArtifactResolver() {
@@ -72,7 +76,7 @@ public class BuildingScopeContext extends BaseContext {
 	/**
 	 * Returns the extract class path entries used for the search of properties to
 	 * collect.
-	 * 
+	 *
 	 * @return the extract class path entries used for the search of properties to
 	 *         collect.
 	 */

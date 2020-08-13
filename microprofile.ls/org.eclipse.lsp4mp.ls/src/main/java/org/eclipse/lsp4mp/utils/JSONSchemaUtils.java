@@ -1,8 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2019 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -11,19 +15,19 @@ package org.eclipse.lsp4mp.utils;
 
 import java.util.List;
 
-import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
-import org.eclipse.lsp4mp.commons.metadata.ConfigurationMetadata;
-import org.eclipse.lsp4mp.commons.metadata.ItemHint;
-import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
-import org.eclipse.lsp4mp.commons.metadata.ItemHint.ValueHint;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
+import org.eclipse.lsp4mp.commons.metadata.ConfigurationMetadata;
+import org.eclipse.lsp4mp.commons.metadata.ItemHint;
+import org.eclipse.lsp4mp.commons.metadata.ItemHint.ValueHint;
+import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
+
 /**
  * JSON Schema utilities.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -75,7 +79,7 @@ public class JSONSchemaUtils {
 
 	/**
 	 * Returns as JSON string the JSON Schema of the given <code>info</code>.
-	 * 
+	 *
 	 * <p>
 	 * The generated JSON Schema is composed by a "definitions" which is referenced
 	 * by $ref:
@@ -85,7 +89,7 @@ public class JSONSchemaUtils {
 	 * <li></li>
 	 * </ul>
 	 * </p>
-	 * 
+	 *
 	 * <p>
 	 * Here a sample
 	 * </p>
@@ -137,14 +141,14 @@ public class JSONSchemaUtils {
 		  },
 		  "$ref": "#/definitions/root"
 		}
-	 * 
+	 *
 	 * </code>
-	 * 
+	 *
 	 * @param info    the MicroProfile project information to convert as JSON
 	 *                Schema.
 	 * @param lenient true if 'additionalProperties' must be set to false and false
 	 *                otherwise.
-	 * 
+	 *
 	 * @return as JSON string the JSON Schema of the given <code>info</code>.
 	 */
 	public static String toJSONSchema(MicroProfileProjectInfo info, boolean lenient) {
@@ -162,7 +166,7 @@ public class JSONSchemaUtils {
 
 	/**
 	 * Generate the JSON Schema definitions for MicroProfile properties:
-	 * 
+	 *
 	 * <code>
 	 * "definitions": {
 		    "root": {
@@ -172,7 +176,7 @@ public class JSONSchemaUtils {
 		        "quarkus": {
 		        ...
 	 * </code>
-	 * 
+	 *
 	 * @param info   the MicroProfile project information.
 	 * @param schema the JSON Schema
 	 */
@@ -263,7 +267,7 @@ public class JSONSchemaUtils {
 
 	/**
 	 * Generate the JSON Schema profile type definition:
-	 * 
+	 *
 	 * <code>
 	 * "patternProperties": {
 	    "^[%][a-zA-Z0-9]*$": {
@@ -271,9 +275,9 @@ public class JSONSchemaUtils {
 	      "$ref": "#/definitions/root"
 	    }
 	  }
-	 * 
+	 *
 	 * </code>
-	 * 
+	 *
 	 * @param schema the JSON Schema
 	 */
 	private static void generateProfile(final JsonObject schema) {
@@ -327,7 +331,8 @@ public class JSONSchemaUtils {
 		if (item.isIntegerType() || item.isBigIntegerType()) {
 			return JSONSchemaType.integer;
 		}
-		if (item.isLongType() || item.isShortType() || item.isDoubleType() || item.isFloatType() || item.isBigDecimalType()) {
+		if (item.isLongType() || item.isShortType() || item.isDoubleType() || item.isFloatType()
+				|| item.isBigDecimalType()) {
 			return JSONSchemaType.number;
 		}
 		// In case of enum and no type has been found, we use string

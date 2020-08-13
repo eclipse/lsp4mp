@@ -1,8 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2019 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -20,7 +24,7 @@ import org.eclipse.lsp4mp.ls.commons.TextDocument;
 
 /**
  * Node class
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -47,7 +51,7 @@ public abstract class Node {
 
 	/**
 	 * Returns the start offset of the node and -1 otherwise.
-	 * 
+	 *
 	 * @return the start offset of the node and -1 otherwise.
 	 */
 	public int getStart() {
@@ -60,7 +64,7 @@ public abstract class Node {
 
 	/**
 	 * Returns the end offset of the node and -1 otherwise.
-	 * 
+	 *
 	 * @return the end offset of the node and -1 otherwise.
 	 */
 	public int getEnd() {
@@ -73,7 +77,7 @@ public abstract class Node {
 
 	/**
 	 * Returns the text of the node
-	 * 
+	 *
 	 * @return the text of the node
 	 */
 	public String getText() {
@@ -85,9 +89,10 @@ public abstract class Node {
 
 	/**
 	 * Returns the text of the node
-	 * 
-	 * @param skipMultiLine determines whether or not new lines characters and backslashes
-	 * should be preserved for multi line text values
+	 *
+	 * @param skipMultiLine determines whether or not new lines characters and
+	 *                      backslashes should be preserved for multi line text
+	 *                      values
 	 * @return the text of the node
 	 */
 	public String getText(boolean skipMultiLine) {
@@ -99,7 +104,7 @@ public abstract class Node {
 
 	/**
 	 * Returns the owner properties model
-	 * 
+	 *
 	 * @return the owner properties model
 	 */
 	public PropertiesModel getOwnerModel() {
@@ -115,7 +120,7 @@ public abstract class Node {
 
 	/**
 	 * Returns the children of the node.
-	 * 
+	 *
 	 * @return the children of the node.
 	 */
 	public List<Node> getChildren() {
@@ -124,7 +129,7 @@ public abstract class Node {
 
 	/**
 	 * Add node
-	 * 
+	 *
 	 * @param node the node to add
 	 */
 	void addNode(Node node) {
@@ -137,14 +142,14 @@ public abstract class Node {
 
 	/**
 	 * Returns the node type
-	 * 
+	 *
 	 * @return the node type
 	 */
 	public abstract NodeType getNodeType();
 
 	/**
 	 * Returns the owner text document
-	 * 
+	 *
 	 * @return the owner text document
 	 */
 	public TextDocument getDocument() {
@@ -153,7 +158,7 @@ public abstract class Node {
 
 	/**
 	 * Return the node at the given offset and null otherwise.
-	 * 
+	 *
 	 * @param offset the offset
 	 * @return the node at the given offset and null otherwise.
 	 */
@@ -171,7 +176,7 @@ public abstract class Node {
 
 	/**
 	 * Returns true if the node included the given offset and false otherwise.
-	 * 
+	 *
 	 * @param node
 	 * @param offset
 	 * @return true if the node included the given offset and false otherwise.
@@ -191,7 +196,7 @@ public abstract class Node {
 	 * Takes a sorted array and a function p. The array is sorted in such a way that
 	 * all elements where p(x) is false are located before all elements where p(x)
 	 * is true.
-	 * 
+	 *
 	 * @returns the least x for which p(x) is true or array.length if no element
 	 *          full fills the given function.
 	 */
@@ -215,7 +220,7 @@ public abstract class Node {
 		int offset = getDocument().offsetAt(position);
 		return findNodeAt(offset);
 	}
-	
+
 	public Node getParent() {
 		return parent;
 	}

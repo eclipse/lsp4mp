@@ -1,12 +1,17 @@
 /*******************************************************************************
 * Copyright (c) 2019 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
+
 package org.eclipse.lsp4mp.ls;
 
 import static org.eclipse.lsp4j.jsonrpc.CompletableFutures.computeAsync;
@@ -91,7 +96,7 @@ public class MicroProfileLanguageServer implements LanguageServer, ProcessLangua
 	 * turn on/off
 	 *
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.eclipse.lsp4j.services.LanguageServer#initialized(org.eclipse.lsp4j.
 	 * InitializedParams)
 	 */
@@ -102,7 +107,7 @@ public class MicroProfileLanguageServer implements LanguageServer, ProcessLangua
 
 	/**
 	 * Update MicroProfile settings configured from the client.
-	 * 
+	 *
 	 * @param initializationOptionsSettings the MicroProfile settings
 	 */
 	public synchronized void updateSettings(Object initializationOptionsSettings) {
@@ -110,7 +115,8 @@ public class MicroProfileLanguageServer implements LanguageServer, ProcessLangua
 			return;
 		}
 		// Update client settings
-		initializationOptionsSettings = AllMicroProfileSettings.getMicroProfileToolsSettings(initializationOptionsSettings);
+		initializationOptionsSettings = AllMicroProfileSettings
+				.getMicroProfileToolsSettings(initializationOptionsSettings);
 		MicroProfileGeneralClientSettings clientSettings = MicroProfileGeneralClientSettings
 				.getGeneralMicroProfileSettings(initializationOptionsSettings);
 		if (clientSettings != null) {

@@ -1,8 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2019 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -22,7 +26,7 @@ import org.eclipse.lsp4mp.model.parser.PropertiesParser;
 /**
  * The properties model (application.properties) which stores each start/end
  * offset of each property keys/values.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -135,7 +139,7 @@ public class PropertiesModel extends Node {
 
 	/**
 	 * Returns the properties model from the given text.
-	 * 
+	 *
 	 * @param text
 	 * @param uri
 	 * @return the properties model from the given text.
@@ -146,7 +150,7 @@ public class PropertiesModel extends Node {
 
 	/**
 	 * Returns the properties model from the text of the given document.
-	 * 
+	 *
 	 * @param document the text document
 	 * @return the properties model from the text of the given document.
 	 */
@@ -164,15 +168,16 @@ public class PropertiesModel extends Node {
 	}
 
 	/**
-	 * Returns the text from the <code>start</code> offset (inclusive) to the <code>end</code>
-	 * offset (exclusive).
-	 * 
+	 * Returns the text from the <code>start</code> offset (inclusive) to the
+	 * <code>end</code> offset (exclusive).
+	 *
 	 * @param start         the start offset
 	 * @param end           the end offset
-	 * @param skipMultiLine determines whether or not new lines characters and backslashes
-	 * should be preserved for multi line text values
-	 * @return the text from the <code>start</code> offset (inclusive) to the <code>end</code>
-	 * offset (exclusive).
+	 * @param skipMultiLine determines whether or not new lines characters and
+	 *                      backslashes should be preserved for multi line text
+	 *                      values
+	 * @return the text from the <code>start</code> offset (inclusive) to the
+	 *         <code>end</code> offset (exclusive).
 	 */
 	public String getText(int start, int end, boolean skipMultiLine) {
 		String text = document.getText();
@@ -200,8 +205,8 @@ public class PropertiesModel extends Node {
 			if (!trimLeading || !Character.isWhitespace(curr)) {
 				trimLeading = false;
 				sb.append(curr);
-			} 
-			
+			}
+
 			i++;
 		}
 		return sb.toString();

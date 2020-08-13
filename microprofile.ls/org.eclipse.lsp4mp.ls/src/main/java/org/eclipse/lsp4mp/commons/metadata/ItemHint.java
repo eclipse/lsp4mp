@@ -1,8 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2019 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -13,9 +17,9 @@ import java.util.List;
 
 /**
  * Configuration item hint.
- * 
+ *
  * @author Angelo ZERR
- * 
+ *
  * @see https://docs.spring.io/spring-boot/docs/current/reference/html/appendix-configuration-metadata.html
  */
 public class ItemHint extends ItemBase {
@@ -43,7 +47,7 @@ public class ItemHint extends ItemBase {
 
 		/**
 		 * Returns the value.
-		 * 
+		 *
 		 * @return the value.
 		 */
 		public String getValue() {
@@ -52,7 +56,7 @@ public class ItemHint extends ItemBase {
 
 		/**
 		 * Returns the converted value by using the given converter.
-		 * 
+		 *
 		 * @param converterKind the converter
 		 * @return the converted value by using the given converter.
 		 */
@@ -62,9 +66,9 @@ public class ItemHint extends ItemBase {
 
 		/**
 		 * Returns the preferred value according the given converters.
-		 * 
+		 *
 		 * @param converterKinds supported converters and null otherwise.
-		 * 
+		 *
 		 * @return the preferred value according the given converters.
 		 */
 		public String getPreferredValue(List<ConverterKind> converterKinds) {
@@ -135,7 +139,7 @@ public class ItemHint extends ItemBase {
 	/**
 	 * Returns the value hint from the given <code>value</code> and supported
 	 * converters <code>converterKinds</code> and null otherwise.
-	 * 
+	 *
 	 * @param value          the value
 	 * @param converterKinds the supported converters.
 	 * @return the value hint from the given <code>value</code> and supported

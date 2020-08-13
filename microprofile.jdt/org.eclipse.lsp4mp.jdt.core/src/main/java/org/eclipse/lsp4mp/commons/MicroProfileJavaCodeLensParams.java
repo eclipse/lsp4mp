@@ -1,10 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2019 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
 *
-* SPDX-License-Identifier: EPL-2.0
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -13,7 +15,7 @@ package org.eclipse.lsp4mp.commons;
 
 /**
  * MicroProfile Java codelens parameters.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -38,7 +40,7 @@ public class MicroProfileJavaCodeLensParams {
 
 	/**
 	 * Returns the java file uri.
-	 * 
+	 *
 	 * @return the java file uri.
 	 */
 	public String getUri() {
@@ -47,7 +49,7 @@ public class MicroProfileJavaCodeLensParams {
 
 	/**
 	 * Set the java file uri.
-	 * 
+	 *
 	 * @param uri the java file uri.
 	 */
 	public void setUri(String uri) {
@@ -56,7 +58,7 @@ public class MicroProfileJavaCodeLensParams {
 
 	/**
 	 * Returns true if url codelens is enabled and false otherwise.
-	 * 
+	 *
 	 * @return true if url codelens is enabled and false otherwise.
 	 */
 	public boolean isUrlCodeLensEnabled() {
@@ -65,7 +67,7 @@ public class MicroProfileJavaCodeLensParams {
 
 	/**
 	 * Set true if url codelens is enabled and false otherwise.
-	 * 
+	 *
 	 * @param urlCodeLensEnabled the url codelens enabled.
 	 */
 	public void setUrlCodeLensEnabled(boolean urlCodeLensEnabled) {
@@ -74,7 +76,7 @@ public class MicroProfileJavaCodeLensParams {
 
 	/**
 	 * Returns the local server port.
-	 * 
+	 *
 	 * @return the local server port.
 	 */
 	public Integer getLocalServerPort() {
@@ -83,7 +85,7 @@ public class MicroProfileJavaCodeLensParams {
 
 	/**
 	 * Set the local server port
-	 * 
+	 *
 	 * @param localServerPort the local server port
 	 */
 	public void setLocalServerPort(Integer localServerPort) {
@@ -93,7 +95,7 @@ public class MicroProfileJavaCodeLensParams {
 
 	/**
 	 * Returns the local base URL.
-	 * 
+	 *
 	 * @return the local base URL.
 	 */
 	public String getLocalBaseURL() {
@@ -106,7 +108,7 @@ public class MicroProfileJavaCodeLensParams {
 	/**
 	 * Returns the open URI command ID and null if it is not supported on client
 	 * side.
-	 * 
+	 *
 	 * @return the open URI command ID and null if it is not supported on client
 	 *         side.
 	 */
@@ -116,7 +118,7 @@ public class MicroProfileJavaCodeLensParams {
 
 	/**
 	 * Set the open URI command ID and null if it is not supported on client side.
-	 * 
+	 *
 	 * @param openURICommand the open URI command ID
 	 */
 	public void setOpenURICommand(String openURICommand) {
@@ -126,7 +128,7 @@ public class MicroProfileJavaCodeLensParams {
 	/**
 	 * Returns true if check of server available to show URL codelens must be done
 	 * and false otherwise.
-	 * 
+	 *
 	 * @return true if check of server available to show URL codelens must be done
 	 *         and false otherwise.
 	 */
@@ -137,7 +139,7 @@ public class MicroProfileJavaCodeLensParams {
 	/**
 	 * Sets true if check of server available to show URL codelens must be done and
 	 * false otherwise.
-	 * 
+	 *
 	 * @param checkServerAvailable true if check of server available to show URL
 	 *                             codelens must be done and false otherwise.
 	 */

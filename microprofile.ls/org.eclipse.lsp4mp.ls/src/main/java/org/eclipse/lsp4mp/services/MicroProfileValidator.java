@@ -1,8 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2019 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -26,9 +30,9 @@ import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.metadata.ConfigurationMetadata;
 import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
 import org.eclipse.lsp4mp.model.Node;
+import org.eclipse.lsp4mp.model.Node.NodeType;
 import org.eclipse.lsp4mp.model.PropertiesModel;
 import org.eclipse.lsp4mp.model.Property;
-import org.eclipse.lsp4mp.model.Node.NodeType;
 import org.eclipse.lsp4mp.model.values.ValuesRulesManager;
 import org.eclipse.lsp4mp.settings.MicroProfileValidationSettings;
 import org.eclipse.lsp4mp.utils.MicroProfilePropertiesUtils;
@@ -36,8 +40,9 @@ import org.eclipse.lsp4mp.utils.PositionUtils;
 import org.eclipse.lsp4mp.utils.StringUtils;
 
 /**
- * MicroProfile validator to validate properties declared in application.properties.
- * 
+ * MicroProfile validator to validate properties declared in
+ * application.properties.
+ *
  * @author Angelo ZERR
  *
  */
@@ -162,18 +167,18 @@ class MicroProfileValidator {
 	}
 
 	/**
-	 * Returns an error message only if <code>value</code> is an invalid enum
-	 * for the property defined by <code>metadata</code>
-	 * 
+	 * Returns an error message only if <code>value</code> is an invalid enum for
+	 * the property defined by <code>metadata</code>
+	 *
 	 * @param metadata metadata defining a property
 	 * @param value    value to check
-	 * @return error message only if <code>value</code> is an invalid enum
-	 *         for the property defined by <code>metadata</code>
+	 * @return error message only if <code>value</code> is an invalid enum for the
+	 *         property defined by <code>metadata</code>
 	 */
-	private String getErrorIfInvalidEnum(ItemMetadata metadata, ConfigurationMetadata configuration, PropertiesModel model,
-			String value) {
-		if (!configuration.isValidEnum(metadata, value) ||
-				(valuesRulesManager != null && !valuesRulesManager.isValidEnum(metadata, model, value))) {
+	private String getErrorIfInvalidEnum(ItemMetadata metadata, ConfigurationMetadata configuration,
+			PropertiesModel model, String value) {
+		if (!configuration.isValidEnum(metadata, value)
+				|| (valuesRulesManager != null && !valuesRulesManager.isValidEnum(metadata, model, value))) {
 			return "Invalid enum value: '" + value + "' is invalid for type " + metadata.getType();
 		}
 		return null;
@@ -182,18 +187,17 @@ class MicroProfileValidator {
 	/**
 	 * Returns an error message only if <code>value</code> is an invalid value type
 	 * for the property defined by <code>metadata</code>
-	 * 
+	 *
 	 * @param metadata metadata defining a property
 	 * @param value    value to check
-	 * @return error message only if <code>value</code> is an invalid value type
-	 *         for the property defined by <code>metadata</code>
+	 * @return error message only if <code>value</code> is an invalid value type for
+	 *         the property defined by <code>metadata</code>
 	 */
 	private static String getErrorIfValueTypeMismatch(ItemMetadata metadata, String value) {
 
 		if (isBuildtimePlaceholder(value)) {
 			return null;
 		}
-
 
 		if (metadata.isRegexType()) {
 			try {
@@ -204,12 +208,10 @@ class MicroProfileValidator {
 			}
 		}
 
-		if ((metadata.isIntegerType() && !isIntegerString(value))
-				|| (metadata.isFloatType() && !isFloatString(value))
+		if ((metadata.isIntegerType() && !isIntegerString(value)) || (metadata.isFloatType() && !isFloatString(value))
 				|| (metadata.isBooleanType() && !isBooleanString(value))
 				|| (metadata.isDoubleType() && !isDoubleString(value))
-				|| (metadata.isLongType() && !isLongString(value))
-				|| (metadata.isShortType() && !isShortString(value))
+				|| (metadata.isLongType() && !isLongString(value)) || (metadata.isShortType() && !isShortString(value))
 				|| (metadata.isBigDecimalType() && !isBigDecimalString(value))
 				|| (metadata.isBigIntegerType() && !isBigIntegerString(value))) {
 			return "Type mismatch: " + metadata.getType() + " expected";

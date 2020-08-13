@@ -1,8 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2019 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -16,7 +20,7 @@ import org.eclipse.xtext.xbase.lib.util.ToStringBuilder;
 
 /**
  * Specific capabilities for the `CommandKind`.
- * 
+ *
  * @see https://github.com/microsoft/language-server-protocol/issues/788
  */
 @SuppressWarnings("all")
@@ -25,7 +29,7 @@ public class CommandKindCapabilities {
 	 * The commands kind values the client supports. When this property exists the
 	 * client also guarantees that it will handle values outside its set gracefully
 	 * and falls back to a default value when unknown.
-	 * 
+	 *
 	 * If this property is not present the client only supports the commands kinds
 	 * from `File` to `Array` as defined in the initial version of the protocol.
 	 */
@@ -42,7 +46,7 @@ public class CommandKindCapabilities {
 	 * The commands kind values the client supports. When this property exists the
 	 * client also guarantees that it will handle values outside its set gracefully
 	 * and falls back to a default value when unknown.
-	 * 
+	 *
 	 * If this property is not present the client only supports the commands kinds
 	 * from `File` to `Array` as defined in the initial version of the protocol.
 	 */
@@ -55,7 +59,7 @@ public class CommandKindCapabilities {
 	 * The commands kind values the client supports. When this property exists the
 	 * client also guarantees that it will handle values outside its set gracefully
 	 * and falls back to a default value when unknown.
-	 * 
+	 *
 	 * If this property is not present the client only supports the commands kinds
 	 * from `File` to `Array` as defined in the initial version of the protocol.
 	 */

@@ -1,8 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2019 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -25,7 +29,7 @@ import org.eclipse.jdt.core.search.TypeReferenceMatch;
 
 /**
  * Abstract class for properties provider based on annotation search.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -41,7 +45,7 @@ public abstract class AbstractAnnotationTypeReferencePropertiesProvider extends 
 
 	/**
 	 * Returns the annotation names to search.
-	 * 
+	 *
 	 * @return the annotation names to search.
 	 */
 	protected abstract String[] getAnnotationNames();
@@ -56,7 +60,7 @@ public abstract class AbstractAnnotationTypeReferencePropertiesProvider extends 
 		IJavaElement javaElement = null;
 		try {
 			Object element = getMatchedElement(match);
-			
+
 			if (element instanceof IAnnotation) {
 				// ex : for Local variable
 				IAnnotation annotation = ((IAnnotation) element);
@@ -76,11 +80,11 @@ public abstract class AbstractAnnotationTypeReferencePropertiesProvider extends 
 			}
 		}
 	}
-	
+
 	/**
 	 * Return the element associated with the
 	 * given <code>match</code> and null otherwise
-	 * 
+	 *
 	 * @param match the match
 	 * @return
 	 */
@@ -98,7 +102,7 @@ public abstract class AbstractAnnotationTypeReferencePropertiesProvider extends 
 	/**
 	 * Processes the annotations bound to the current
 	 * <code>javaElement</code> and adds item metadata if needed
-	 * 
+	 *
 	 * @param javaElement the Java element
 	 * @param context     the context
 	 * @param monitor     the monitor
@@ -115,7 +119,7 @@ public abstract class AbstractAnnotationTypeReferencePropertiesProvider extends 
 	/**
 	 * Processes the current <code>annotation</code> bound to current
 	 * <code>javaElement</code> and adds item metadata if needed
-	 * 
+	 *
 	 * @param javaElement the Java element
 	 * @param context     the context
 	 * @param monitor     the monitor

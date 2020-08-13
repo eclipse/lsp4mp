@@ -1,8 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2019 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -22,26 +26,26 @@ import org.junit.Test;
 
 
 /**
- * Tests if <code>boolean</code> and <code>int</code> @ConfigItem properties without the 
- * <code>defaultValue</code> annotation, has a default value of <code>false</code> 
- * and <code>0</code> respectively 
+ * Tests if <code>boolean</code> and <code>int</code> @ConfigItem properties without the
+ * <code>defaultValue</code> annotation, has a default value of <code>false</code>
+ * and <code>0</code> respectively
  */
 public class ConfigItemIntBoolDefaultValueTest extends BasePropertiesManagerTest {
-	
-	
+
+
 	@Test
 	public void configItemIntBoolDefaultValueTest() throws Exception {
 
 		MicroProfileProjectInfo infoFromClasspath = getMicroProfileProjectInfoFromMavenProject(
 				MavenProjectName.config_quickstart, MicroProfilePropertiesScope.SOURCES_AND_DEPENDENCIES);
-		
+
 		String booleanDefault = "false";
 		String intDefault = "0";
 
 		assertProperties(infoFromClasspath,
 				9 /* properties from Java sources with ConfigProperty */ + //
 				7 /* static properties from microprofile-context-propagation-api */,
-	
+
 				// GreetingConstructorResource(
 				// 		@ConfigProperty(name = "greeting.constructor.message") String message,
 				//		@ConfigProperty(name = "greeting.constructor.suffix" , defaultValue="!") String suffix,

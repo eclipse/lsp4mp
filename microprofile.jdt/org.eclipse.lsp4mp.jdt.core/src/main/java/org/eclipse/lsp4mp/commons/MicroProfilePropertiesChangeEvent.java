@@ -1,10 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2019 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
 *
-* SPDX-License-Identifier: EPL-2.0
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -16,7 +18,7 @@ import java.util.Set;
 
 /**
  * The MicroProfile project properties change event.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -28,7 +30,7 @@ public class MicroProfilePropertiesChangeEvent {
 
 	/**
 	 * Returns the search scope to collect the MicroProfile properties.
-	 * 
+	 *
 	 * @return the search scope to collect the MicroProfile properties.
 	 */
 	public List<MicroProfilePropertiesScope> getType() {
@@ -37,7 +39,7 @@ public class MicroProfilePropertiesChangeEvent {
 
 	/**
 	 * Set the search scope to collect the MicroProfile properties.
-	 * 
+	 *
 	 * @param type the search scope to collect the MicroProfile properties.
 	 */
 	public void setType(List<MicroProfilePropertiesScope> type) {
@@ -46,7 +48,7 @@ public class MicroProfilePropertiesChangeEvent {
 
 	/**
 	 * Returns the project URIs impacted by the type scope changed.
-	 * 
+	 *
 	 * @return the project URIs impacted by the type scope changed.
 	 */
 	public Set<String> getProjectURIs() {
@@ -55,7 +57,7 @@ public class MicroProfilePropertiesChangeEvent {
 
 	/**
 	 * Set the project URIs impacted by the type scope changed.
-	 * 
+	 *
 	 * @param projectURIs the project URIs impacted by the type scope changed.
 	 */
 	public void setProjectURIs(Set<String> projectURIs) {

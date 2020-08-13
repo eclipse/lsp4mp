@@ -1,8 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2019 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -48,7 +52,7 @@ public class MicroProfileCorePlugin implements BundleActivator {
 
 	/**
 	 * Add the given MicroProfile properties changed listener.
-	 * 
+	 *
 	 * @param listener the listener to add
 	 */
 	public void addMicroProfilePropertiesChangedListener(IMicroProfilePropertiesChangedListener listener) {
@@ -57,7 +61,7 @@ public class MicroProfileCorePlugin implements BundleActivator {
 
 	/**
 	 * Remove the given MicroProfile properties changed listener.
-	 * 
+	 *
 	 * @param listener the listener to remove
 	 */
 	public void removeMicroProfilePropertiesChangedListener(IMicroProfilePropertiesChangedListener listener) {

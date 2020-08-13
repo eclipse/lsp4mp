@@ -1,11 +1,13 @@
 /*******************************************************************************
 * Copyright (c) 2020 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
 *
-* SPDX-License-Identifier: EPL-2.0
-* 
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
+*
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
@@ -26,6 +28,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonIOException;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.TypeAdapter;
+import com.google.gson.stream.JsonReader;
+
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
@@ -35,15 +43,9 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonIOException;
-import com.google.gson.JsonSyntaxException;
-import com.google.gson.TypeAdapter;
-import com.google.gson.stream.JsonReader;
-
 /**
  * A registry for snippets which uses the same format than vscode snippet.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -59,7 +61,7 @@ public class SnippetRegistry {
 
 	/**
 	 * Snippet registry for a given language id.
-	 * 
+	 *
 	 * @param languageId the language id and null otherwise.
 	 */
 	public SnippetRegistry(String languageId) {
@@ -79,7 +81,7 @@ public class SnippetRegistry {
 
 	/**
 	 * Register the given snippet.
-	 * 
+	 *
 	 * @param snippet the snippet to register.
 	 */
 	public void registerSnippet(Snippet snippet) {
@@ -88,7 +90,7 @@ public class SnippetRegistry {
 
 	/**
 	 * Register the snippets from the given JSON input stream.
-	 * 
+	 *
 	 * @param in the JSON input stream which declares snippets with vscode snippet
 	 *           format.
 	 * @throws IOException
@@ -99,7 +101,7 @@ public class SnippetRegistry {
 
 	/**
 	 * Register the snippets from the given JSON stream with a context.
-	 * 
+	 *
 	 * @param in                  the JSON input stream which declares snippets with
 	 *                            vscode snippet format.
 	 * @param contextDeserializer the GSON context deserializer used to create Java
@@ -113,7 +115,7 @@ public class SnippetRegistry {
 
 	/**
 	 * Register the snippets from the given JSON reader.
-	 * 
+	 *
 	 * @param in the JSON reader which declares snippets with vscode snippet format.
 	 * @throws IOException
 	 */
@@ -123,7 +125,7 @@ public class SnippetRegistry {
 
 	/**
 	 * Register the snippets from the given JSON reader with a context.
-	 * 
+	 *
 	 * @param in                  the JSON reader which declares snippets with
 	 *                            vscode snippet format.
 	 * @param contextDeserializer the GSON context deserializer used to create Java
@@ -154,7 +156,7 @@ public class SnippetRegistry {
 
 	/**
 	 * Returns all snippets.
-	 * 
+	 *
 	 * @return all snippets.
 	 */
 	public List<Snippet> getSnippets() {
@@ -163,7 +165,7 @@ public class SnippetRegistry {
 
 	/**
 	 * Returns the snippet completion items according to the context filter.
-	 * 
+	 *
 	 * @param replaceRange       the replace range.
 	 * @param lineDelimiter      the line delimiter.
 	 * @param canSupportMarkdown true if markdown is supported to generate

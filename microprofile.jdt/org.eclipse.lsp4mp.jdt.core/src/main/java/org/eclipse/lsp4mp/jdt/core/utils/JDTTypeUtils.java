@@ -1,8 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2019 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -28,7 +32,7 @@ import org.eclipse.jdt.internal.corext.util.JavaModelUtil;
 
 /**
  * JDT Type utilities.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -36,7 +40,7 @@ public class JDTTypeUtils {
 
 	private static final List<String> NUMBER_TYPES = Arrays.asList("short", "int", "long", "double", "float");
 
-	public static IType findType(IJavaProject project, String name) {		
+	public static IType findType(IJavaProject project, String name) {
 		try {
 			return project.findType(name);
 		} catch (JavaModelException e) {
@@ -47,7 +51,7 @@ public class JDTTypeUtils {
 	/**
 	 * Returns the resolved type name of the <code>javaElement</code> and null
 	 * otherwise
-	 * 
+	 *
 	 * @param javaElement the Java element
 	 * @return the resolved type name of the <code>javaElement</code> and null
 	 *         otherwise
@@ -66,7 +70,7 @@ public class JDTTypeUtils {
 	/**
 	 * Returns the resolved type name of the given <code>localVar</code> and null
 	 * otherwise
-	 * 
+	 *
 	 * @param localVar the local variable
 	 * @return the resolved type name of the given <code>localVar</code> and null
 	 *         otherwise
@@ -84,7 +88,7 @@ public class JDTTypeUtils {
 	/**
 	 * Returns the resolved type name of the given <code>field</code> and null
 	 * otherwise
-	 * 
+	 *
 	 * @param field the field
 	 * @return the resolved type name of the given <code>field</code> and null
 	 *         otherwise
@@ -102,7 +106,7 @@ public class JDTTypeUtils {
 	/**
 	 * Returns the resolved return type name of the given <code>method</code> and
 	 * null otherwise
-	 * 
+	 *
 	 * @param method the method
 	 * @return the resolved return type name of the given <code>method</code> and
 	 *         null otherwise
@@ -155,7 +159,7 @@ public class JDTTypeUtils {
 	/**
 	 * Returns true if the given <code>javaElement</code> is from a Java binary, and
 	 * false otherwise
-	 * 
+	 *
 	 * @param javaElement the Java element
 	 * @return true if the given <code>javaElement</code> is from a Java binary, and
 	 *         false otherwise
@@ -172,7 +176,7 @@ public class JDTTypeUtils {
 	/**
 	 * Returns the source type of the given <code>javaElement</code> and null
 	 * otherwise
-	 * 
+	 *
 	 * @param javaElement the Java element
 	 * @return the source type of the <code>javaElement</code>
 	 */
@@ -192,7 +196,7 @@ public class JDTTypeUtils {
 	/**
 	 * Returns the source type of the given local variable <code>member</code> and
 	 * null otherwise
-	 * 
+	 *
 	 * @param member the local variable to get the source type from
 	 * @return the source type of the given local variable <code>member</code> and
 	 *         null otherwise
@@ -203,7 +207,7 @@ public class JDTTypeUtils {
 
 	/**
 	 * Returns the source type of the given <code>member</code> and null otherwise
-	 * 
+	 *
 	 * @param member the member
 	 * @return the source type of the given <code>member</code> and null otherwise
 	 */
@@ -213,7 +217,7 @@ public class JDTTypeUtils {
 
 	/**
 	 * Returns the source field of the given <code>field</code>
-	 * 
+	 *
 	 * @param field the field
 	 * @return the source field of the given <code>field</code>
 	 */
@@ -232,7 +236,7 @@ public class JDTTypeUtils {
 	/**
 	 * Returns the enclosed type declared in the given <code>typeName</code> and
 	 * null otherwise.
-	 * 
+	 *
 	 * @param typeName
 	 * @return
 	 */

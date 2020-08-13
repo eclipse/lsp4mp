@@ -1,14 +1,16 @@
-/**
- *  Copyright (c) 2018 Red Hat, Inc. and others.
- *  All rights reserved. This program and the accompanying materials
- *  are made available under the terms of the Eclipse Public License v2.0
- *  which accompanies this distribution, and is available at
- *  http://www.eclipse.org/legal/epl-v20.html
- *
- *  Contributors:
- *  Red Hat Inc. - initial API and implementation
- */
-
+/*******************************************************************************
+* Copyright (c) 2018 Red Hat Inc. and others.
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
+*
+* Contributors:
+*     Red Hat Inc. - initial API and implementation
+*******************************************************************************/
 package org.eclipse.lsp4mp.settings.capabilities;
 
 import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_CODELENS_OPTIONS;
@@ -27,9 +29,9 @@ public class ServerCapabilitiesInitializer {
 
 	/**
 	 * Returns all server capabilities (with default values) that aren't dynamic.
-	 * 
+	 *
 	 * A service's dynamic capability is indicated by the client.
-	 * 
+	 *
 	 * @param clientCapabilities
 	 * @return ServerCapabilities object
 	 */
@@ -39,8 +41,7 @@ public class ServerCapabilitiesInitializer {
 		serverCapabilities.setTextDocumentSync(TextDocumentSyncKind.Incremental);
 		serverCapabilities.setHoverProvider(!clientCapabilities.isHoverDynamicRegistered());
 		serverCapabilities.setDocumentFormattingProvider(!clientCapabilities.isFormattingDynamicRegistered());
-		serverCapabilities.setDocumentRangeFormattingProvider(
-			!clientCapabilities.isRangeFormattingDynamicRegistered());
+		serverCapabilities.setDocumentRangeFormattingProvider(!clientCapabilities.isRangeFormattingDynamicRegistered());
 		if (!clientCapabilities.isCompletionDynamicRegistrationSupported()) {
 			serverCapabilities.setCompletionProvider(DEFAULT_COMPLETION_OPTIONS);
 		}

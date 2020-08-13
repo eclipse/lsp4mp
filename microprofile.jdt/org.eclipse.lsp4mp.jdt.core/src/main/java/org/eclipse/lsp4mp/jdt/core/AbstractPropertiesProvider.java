@@ -1,8 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2019 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -23,7 +27,7 @@ import org.eclipse.lsp4mp.commons.metadata.ItemHint.ValueHint;
 
 /**
  * Abstract class for properties provider.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -31,7 +35,7 @@ public abstract class AbstractPropertiesProvider implements IPropertiesProvider 
 
 	/**
 	 * Returns the Java search pattern.
-	 * 
+	 *
 	 * @return the Java search pattern.
 	 */
 	protected abstract String[] getPatterns();
@@ -42,11 +46,11 @@ public abstract class AbstractPropertiesProvider implements IPropertiesProvider 
 	public SearchPattern createSearchPattern() {
 		SearchPattern leftPattern = null;
 		String[] patterns = getPatterns();
-		
+
 		if (patterns == null) {
 			return null;
 		}
-		
+
 		for (String pattern : patterns) {
 			if (leftPattern == null) {
 				leftPattern = createSearchPattern(pattern);
@@ -62,7 +66,7 @@ public abstract class AbstractPropertiesProvider implements IPropertiesProvider 
 
 	/**
 	 * Create an instance of search pattern with the given <code>pattern</code>.
-	 * 
+	 *
 	 * @param pattern the search pattern
 	 * @return an instance of search pattern with the given <code>pattern</code>.
 	 */
@@ -71,7 +75,7 @@ public abstract class AbstractPropertiesProvider implements IPropertiesProvider 
 	/**
 	 * Create a search pattern for the given <code>annotationName</code> annotation
 	 * name.
-	 * 
+	 *
 	 * @param annotationName the annotation name to search.
 	 * @return a search pattern for the given <code>annotationName</code> annotation
 	 *         name.
@@ -83,7 +87,7 @@ public abstract class AbstractPropertiesProvider implements IPropertiesProvider 
 
 	/**
 	 * Create a search pattern for the given <code>className</code> class name.
-	 * 
+	 *
 	 * @param annotationName the class name to search.
 	 * @return a search pattern for the given <code>className</code> class name.
 	 */
@@ -94,7 +98,7 @@ public abstract class AbstractPropertiesProvider implements IPropertiesProvider 
 
 	/**
 	 * Add item metadata.
-	 * 
+	 *
 	 * @param collector     the properties collector.
 	 * @param name          the property name.
 	 * @param type          the type of the property.
@@ -118,7 +122,7 @@ public abstract class AbstractPropertiesProvider implements IPropertiesProvider 
 
 	/**
 	 * Add item metadata.
-	 * 
+	 *
 	 * @param collector     the properties collector.
 	 * @param name          the property name.
 	 * @param type          the type of the property.
@@ -141,7 +145,7 @@ public abstract class AbstractPropertiesProvider implements IPropertiesProvider 
 
 	/**
 	 * Get or create the update hint from the given type.
-	 * 
+	 *
 	 * @param collector
 	 * @param type        the JDT type and null otherwise.
 	 * @param typeName    the type name which is the string of the JDT type.

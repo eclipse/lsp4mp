@@ -1,10 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2019-2020 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
 *
-* SPDX-License-Identifier: EPL-2.0
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -38,15 +40,15 @@ import org.eclipse.lsp4mp.jdt.core.utils.JDTMicroProfileUtils;
 
 /**
  * This class tracks :
- * 
+ *
  * <ul>
  * <li>the classpath changed of all Java project</li>
  * <li>java sources changed on save</li>
  * </ul>
- * 
+ *
  * In this case it executes the "microprofile/propertiesChanged" command on
  * client side with array of project URIs which have classpath/sources changed.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -201,7 +203,7 @@ public class MicroProfilePropertiesListenerManager {
 
 	/**
 	 * Add the given MicroProfile properties changed listener.
-	 * 
+	 *
 	 * @param listener the listener to add
 	 */
 	public void addMicroProfilePropertiesChangedListener(IMicroProfilePropertiesChangedListener listener) {
@@ -212,7 +214,7 @@ public class MicroProfilePropertiesListenerManager {
 
 	/**
 	 * Remove the given MicroProfile properties changed listener.
-	 * 
+	 *
 	 * @param listener the listener to remove
 	 */
 	public void removeMicroProfilePropertiesChangedListener(IMicroProfilePropertiesChangedListener listener) {

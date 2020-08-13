@@ -1,13 +1,16 @@
-/**
- *  Copyright (c) 2018 Angelo ZERR.
- *  All rights reserved. This program and the accompanying materials
- *  are made available under the terms of the Eclipse Public License v2.0
- *  which accompanies this distribution, and is available at
- *  http://www.eclipse.org/legal/epl-v20.html
- *
- *  Contributors:
- *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
- */
+/*******************************************************************************
+* Copyright (c) 2018 Red Hat Inc. and others.
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
+*
+* Contributors:
+*     Red Hat Inc. - initial API and implementation
+*******************************************************************************/
 package org.eclipse.lsp4mp.ls.commons;
 
 import java.util.Arrays;
@@ -34,7 +37,7 @@ public class CodeActionFactory {
 
 	/**
 	 * Create a CodeAction to remove the content from the given range.
-	 * 
+	 *
 	 * @param title
 	 * @param range
 	 * @param document
@@ -47,7 +50,7 @@ public class CodeActionFactory {
 
 	/**
 	 * Create a CodeAction to insert a new content at the end of the given range.
-	 * 
+	 *
 	 * @param title
 	 * @param range
 	 * @param insertText
@@ -62,7 +65,7 @@ public class CodeActionFactory {
 
 	/**
 	 * Create a CodeAction to insert a new content at the end of the given range.
-	 * 
+	 *
 	 * @param title
 	 * @param range
 	 * @param insertText
@@ -79,7 +82,8 @@ public class CodeActionFactory {
 		VersionedTextDocumentIdentifier versionedTextDocumentIdentifier = new VersionedTextDocumentIdentifier(
 				document.getUri(), document.getVersion());
 
-		TextDocumentEdit textDocumentEdit = new TextDocumentEdit(versionedTextDocumentIdentifier, Collections.singletonList(edit));
+		TextDocumentEdit textDocumentEdit = new TextDocumentEdit(versionedTextDocumentIdentifier,
+				Collections.singletonList(edit));
 		WorkspaceEdit workspaceEdit = new WorkspaceEdit(Collections.singletonList(Either.forLeft(textDocumentEdit)));
 
 		insertContentAction.setEdit(workspaceEdit);
@@ -95,13 +99,14 @@ public class CodeActionFactory {
 		VersionedTextDocumentIdentifier versionedTextDocumentIdentifier = new VersionedTextDocumentIdentifier(
 				document.getUri(), document.getVersion());
 
-		TextDocumentEdit textDocumentEdit = new TextDocumentEdit(versionedTextDocumentIdentifier, Collections.singletonList(edit));
+		TextDocumentEdit textDocumentEdit = new TextDocumentEdit(versionedTextDocumentIdentifier,
+				Collections.singletonList(edit));
 		WorkspaceEdit workspaceEdit = new WorkspaceEdit(Collections.singletonList(Either.forLeft(textDocumentEdit)));
 
 		insertContentAction.setEdit(workspaceEdit);
 		return insertContentAction;
 	}
-	
+
 	public static boolean isDiagnosticCode(Either<String, Number> diagnosticCode, String code) {
 		if (diagnosticCode == null || diagnosticCode.isRight()) {
 			return false;

@@ -1,13 +1,16 @@
 /*******************************************************************************
 * Copyright (c) 2019 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-
 package org.eclipse.lsp4mp.utils;
 
 import static org.eclipse.lsp4mp.utils.MicroProfilePropertiesUtils.formatPropertyForMarkdown;
@@ -15,8 +18,8 @@ import static org.eclipse.lsp4mp.utils.MicroProfilePropertiesUtils.formatPropert
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.MarkupKind;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
-import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
 import org.eclipse.lsp4mp.commons.metadata.ItemHint.ValueHint;
+import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
 
 /**
  * Utility for documentation.
@@ -30,7 +33,7 @@ public class DocumentationUtils {
 
 	/**
 	 * Returns the documentation of the given MicroProfile property.
-	 * 
+	 *
 	 * @param item     the MicroProfile property.
 	 * @param profile  the profile
 	 * @param markdown true if documentation must be formatted as markdown and false
@@ -112,7 +115,7 @@ public class DocumentationUtils {
 
 	/**
 	 * Returns the documentation of the given enumeration item.
-	 * 
+	 *
 	 * @param item     the enumeration item
 	 * @param markdown true if documentation must be formatted as markdown and false
 	 *                 otherwise.
@@ -146,7 +149,7 @@ public class DocumentationUtils {
 	/**
 	 * Returns the documentation content of <code>documentation</code>. Returns null
 	 * if documentation content does not exist.
-	 * 
+	 *
 	 * @param documentation contains documentation content
 	 * @return the documentation content of <code>documentation</code>.
 	 */

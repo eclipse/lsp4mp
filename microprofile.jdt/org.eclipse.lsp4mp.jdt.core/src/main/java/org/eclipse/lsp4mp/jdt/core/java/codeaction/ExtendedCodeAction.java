@@ -1,10 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2020 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
 *
-* SPDX-License-Identifier: EPL-2.0
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -21,7 +23,7 @@ import org.eclipse.lsp4j.CodeAction;
 /**
  * Extends LSP CodeAction to store relevance information used to sort the code
  * actions.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -59,7 +61,7 @@ public class ExtendedCodeAction extends CodeAction {
 
 	/**
 	 * Returns the relevance.
-	 * 
+	 *
 	 * @return the relevance.
 	 */
 	public int getRelevance() {
@@ -68,7 +70,7 @@ public class ExtendedCodeAction extends CodeAction {
 
 	/**
 	 * Sets the relevance
-	 * 
+	 *
 	 * @param relevance the relevance
 	 */
 	public void setRelevance(int relevance) {
@@ -77,7 +79,7 @@ public class ExtendedCodeAction extends CodeAction {
 
 	/**
 	 * Sort the given code actions list by using relevance information.
-	 * 
+	 *
 	 * @param codeActions code actions to sort
 	 */
 	public static void sort(List<CodeAction> codeActions) {

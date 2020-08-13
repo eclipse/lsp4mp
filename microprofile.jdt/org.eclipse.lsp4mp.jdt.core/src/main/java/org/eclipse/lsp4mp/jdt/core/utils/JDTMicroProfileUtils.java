@@ -1,8 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2019 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -26,7 +30,7 @@ import org.eclipse.lsp4mp.jdt.core.MicroProfileConfigConstants;
 
 /**
  * JDT MicroProfile utilities.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -40,7 +44,7 @@ public class JDTMicroProfileUtils {
 
 	/**
 	 * Returns the project URI of the given project.
-	 * 
+	 *
 	 * @param project the java project
 	 * @return the project URI of the given project.
 	 */
@@ -50,7 +54,7 @@ public class JDTMicroProfileUtils {
 
 	/**
 	 * returns the project URI of the given project.
-	 * 
+	 *
 	 * @param project the project
 	 * @return the project URI of the given project.
 	 */
@@ -62,7 +66,7 @@ public class JDTMicroProfileUtils {
 	 * Returns true if the given resource <code>resource</code> is on the 'test'
 	 * classpath of the given java project <code>javaProject</code> and false
 	 * otherwise.
-	 * 
+	 *
 	 * @param resource    the resource
 	 * @param javaProject the project.
 	 * @return true if the given resource <code>resource</code> is on the 'test'
@@ -113,7 +117,7 @@ public class JDTMicroProfileUtils {
 	/**
 	 * Returns true if the given <code>project</code> has a nature specified by
 	 * <code>natureId</code> and false otherwise.
-	 * 
+	 *
 	 * @param project  the project
 	 * @param natureId the nature id
 	 * @return true if the given <code>project</code> has a nature specified by
@@ -134,7 +138,7 @@ public class JDTMicroProfileUtils {
 	/**
 	 * Returns true if <code>javaProject</code> is a MicroProfile project. Returns
 	 * false otherwise.
-	 * 
+	 *
 	 * @param javaProject the Java project to check
 	 * @return true only if <code>javaProject</code> is a MicroProfile project.
 	 */

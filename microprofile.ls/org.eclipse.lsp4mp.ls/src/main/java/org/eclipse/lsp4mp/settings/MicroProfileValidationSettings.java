@@ -1,8 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2019 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -11,7 +15,7 @@ package org.eclipse.lsp4mp.settings;
 
 /**
  * MicroProfile validation settings.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -60,7 +64,7 @@ public class MicroProfileValidationSettings {
 
 	/**
 	 * Returns true if the validation is enabled and false otherwise.
-	 * 
+	 *
 	 * @return true if the validation is enabled and false otherwise.
 	 */
 	public boolean isEnabled() {
@@ -69,7 +73,7 @@ public class MicroProfileValidationSettings {
 
 	/**
 	 * Set true if the validation is enabled and false otherwise.
-	 * 
+	 *
 	 * @param enabled true if the validation is enabled and false otherwise.
 	 */
 	public void setEnabled(boolean enabled) {
@@ -78,7 +82,7 @@ public class MicroProfileValidationSettings {
 
 	/**
 	 * Returns the settings for syntax validation.
-	 * 
+	 *
 	 * @return the settings for syntax validation.
 	 */
 	public MicroProfileValidationTypeSettings getSyntax() {
@@ -88,7 +92,7 @@ public class MicroProfileValidationSettings {
 
 	/**
 	 * Set the settings for syntax validation.
-	 * 
+	 *
 	 * @param syntax the settings for syntax validation.
 	 */
 	public void setSyntax(MicroProfileValidationTypeSettings syntax) {
@@ -98,7 +102,7 @@ public class MicroProfileValidationSettings {
 
 	/**
 	 * Returns the settings for unknown MicroProfile properties validation.
-	 * 
+	 *
 	 * @return the settings for unknown MicroProfile properties validation.
 	 */
 	public MicroProfileValidationTypeSettings getUnknown() {
@@ -108,7 +112,7 @@ public class MicroProfileValidationSettings {
 
 	/**
 	 * Set the settings for unknown MicroProfile properties validation.
-	 * 
+	 *
 	 * @param unknown the settings for unknown MicroProfile properties validation.
 	 */
 	public void setUnknown(MicroProfileValidationTypeSettings unknown) {
@@ -118,7 +122,7 @@ public class MicroProfileValidationSettings {
 
 	/**
 	 * Returns the settings for duplicate MicroProfile properties validation.
-	 * 
+	 *
 	 * @return the settings for duplicate MicroProfile properties validation.
 	 */
 	public MicroProfileValidationTypeSettings getDuplicate() {
@@ -128,8 +132,9 @@ public class MicroProfileValidationSettings {
 
 	/**
 	 * Set the settings for duplicate MicroProfile properties validation.
-	 * 
-	 * @param duplicate the settings for duplicate MicroProfile properties validation.
+	 *
+	 * @param duplicate the settings for duplicate MicroProfile properties
+	 *                  validation.
 	 */
 	public void setDuplicate(MicroProfileValidationTypeSettings duplicate) {
 		this.duplicate = duplicate;
@@ -148,7 +153,7 @@ public class MicroProfileValidationSettings {
 
 	/**
 	 * Returns the settings for value of MicroProfile properties validation.
-	 * 
+	 *
 	 * @return the settings for value of MicroProfile properties validation.
 	 */
 	public MicroProfileValidationTypeSettings getValue() {
@@ -158,7 +163,7 @@ public class MicroProfileValidationSettings {
 
 	/**
 	 * Set the settings for value of MicroProfile properties validation.
-	 * 
+	 *
 	 * @param value the settings for value of MicroProfile properties validation.
 	 */
 	public void setValue(MicroProfileValidationTypeSettings value) {
@@ -183,7 +188,7 @@ public class MicroProfileValidationSettings {
 
 	/**
 	 * Update the the validation settings with the given new validation settings.
-	 * 
+	 *
 	 * @param newValidation the new validation settings.
 	 */
 	public void update(MicroProfileValidationSettings newValidation) {

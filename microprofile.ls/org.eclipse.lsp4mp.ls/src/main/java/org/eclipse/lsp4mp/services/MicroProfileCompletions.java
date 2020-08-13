@@ -1,10 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2019 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
 *
-* SPDX-License-Identifier: EPL-2.0
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -32,17 +34,17 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.metadata.ConverterKind;
-import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
 import org.eclipse.lsp4mp.commons.metadata.ItemHint.ValueHint;
+import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
 import org.eclipse.lsp4mp.ls.commons.BadLocationException;
 import org.eclipse.lsp4mp.ls.commons.SnippetsBuilder;
 import org.eclipse.lsp4mp.ls.commons.TextDocument;
 import org.eclipse.lsp4mp.ls.commons.snippets.TextDocumentSnippetRegistry;
 import org.eclipse.lsp4mp.model.Node;
+import org.eclipse.lsp4mp.model.Node.NodeType;
 import org.eclipse.lsp4mp.model.PropertiesModel;
 import org.eclipse.lsp4mp.model.Property;
 import org.eclipse.lsp4mp.model.PropertyKey;
-import org.eclipse.lsp4mp.model.Node.NodeType;
 import org.eclipse.lsp4mp.model.values.ValuesRulesManager;
 import org.eclipse.lsp4mp.settings.MicroProfileCompletionSettings;
 import org.eclipse.lsp4mp.settings.MicroProfileFormattingSettings;
@@ -54,7 +56,7 @@ import org.eclipse.lsp4mp.utils.MicroProfilePropertiesUtils.FormattedPropertyRes
 
 /**
  * The MicroProfile completions
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -65,7 +67,7 @@ class MicroProfileCompletions {
 
 	/**
 	 * Returns completion list for the given position
-	 * 
+	 *
 	 * @param document           the properties model document
 	 * @param position           the position where completion was triggered
 	 * @param projectInfo        the MicroProfile project information
@@ -114,7 +116,7 @@ class MicroProfileCompletions {
 
 	/**
 	 * Collect property keys.
-	 * 
+	 *
 	 * @param offset             the offset where completion was invoked
 	 * @param node               the property key node
 	 * @param projectInfo        the MicroProfile project information
@@ -231,7 +233,7 @@ class MicroProfileCompletions {
 
 	/**
 	 * Collect Quarkus profiles
-	 * 
+	 *
 	 * @param offset            the offset where completion was invoked
 	 * @param key               the property key
 	 * @param model             the properties model
@@ -286,7 +288,7 @@ class MicroProfileCompletions {
 	/**
 	 * Adds documentation to <code>item</code> if <code>item</code> represents a
 	 * default profile
-	 * 
+	 *
 	 * @param item
 	 * @param markdown
 	 */
@@ -306,7 +308,7 @@ class MicroProfileCompletions {
 
 	/**
 	 * Returns a set of property names for the properties in <code>model</code>.
-	 * 
+	 *
 	 * @param model the <code>PropertiesModel</code> to get property names from
 	 * @return set of property names for the properties in <code>model</code>
 	 */
@@ -325,7 +327,7 @@ class MicroProfileCompletions {
 
 	/**
 	 * Returns the property name to insert when completion is applied.
-	 * 
+	 *
 	 * @param propertyName      the property name
 	 * @param snippetsSupported true if snippet is supported and false otherwise.
 	 * @return the property name to insert when completion is applied.
@@ -339,7 +341,7 @@ class MicroProfileCompletions {
 
 	/**
 	 * Collect property values.
-	 * 
+	 *
 	 * @param node               the property value node
 	 * @param projectInfo        the MicroProfile project information
 	 * @param completionSettings the completion settings
@@ -373,9 +375,9 @@ class MicroProfileCompletions {
 	/**
 	 * Returns the <code>CompletionItem</code> which offers completion for value
 	 * completion for <code>value</code> at the start offset of <code>node</code>.
-	 * 
+	 *
 	 * @param converterKinds
-	 * 
+	 *
 	 * @param value             the value for completion
 	 * @param docs              the documentation for completion
 	 * @param node              the node where its start offset is where value

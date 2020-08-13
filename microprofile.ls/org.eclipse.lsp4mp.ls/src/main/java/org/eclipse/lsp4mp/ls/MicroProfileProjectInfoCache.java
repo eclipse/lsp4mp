@@ -1,8 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2019 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -28,13 +32,13 @@ import org.eclipse.lsp4mp.commons.MicroProfilePropertiesChangeEvent;
 import org.eclipse.lsp4mp.commons.MicroProfilePropertiesScope;
 import org.eclipse.lsp4mp.commons.metadata.ItemBase;
 import org.eclipse.lsp4mp.commons.metadata.ItemHint;
-import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
 import org.eclipse.lsp4mp.commons.metadata.ItemHint.ValueHint;
+import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
 import org.eclipse.lsp4mp.ls.api.MicroProfileProjectInfoProvider;
 
 /**
  * MicroProfile project information cache.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -54,7 +58,7 @@ class MicroProfileProjectInfoCache {
 
 		/**
 		 * Computed metadata constructor
-		 * 
+		 *
 		 * @param metadata dynamic metadata name (ex : name =
 		 *                 '${mp.register.rest.client.class}/mp-rest/url)').
 		 * @param itemHint item hint which matches the dynamic metadata (ex : name =
@@ -116,7 +120,7 @@ class MicroProfileProjectInfoCache {
 
 		/**
 		 * Add the new MicroProfile properties in the cache coming java sources.
-		 * 
+		 *
 		 * @param propertiesFromJavaSource properties to add in the cache.
 		 */
 		synchronized void update(List<ItemMetadata> propertiesFromJavaSource, List<ItemHint> hintsFromJavaSource) {
@@ -187,7 +191,7 @@ class MicroProfileProjectInfoCache {
 	/**
 	 * Returns as promise the MicroProfile project information for the given
 	 * application.properties URI.
-	 * 
+	 *
 	 * @param params the URI of the application.properties.
 	 * @return as promise the MicroProfile project information for the given
 	 *         application.properties URI.
@@ -219,7 +223,8 @@ class MicroProfileProjectInfoCache {
 
 		MicroProfileProjectInfoWrapper wrapper = getProjectInfoWrapper(projectInfo);
 		if (wrapper.isReloadFromSource()) {
-			// There are some java sources changed, get the MicroProfile properties from java
+			// There are some java sources changed, get the MicroProfile properties from
+			// java
 			// sources.
 			params.setScopes(MicroProfilePropertiesScope.ONLY_SOURCES);
 			return provider.getProjectInfo(params). //
@@ -274,9 +279,9 @@ class MicroProfileProjectInfoCache {
 	/**
 	 * Returns the application.propeties URIs which belongs to the given project
 	 * URIs.
-	 * 
+	 *
 	 * @param projectURIs project URIs
-	 * 
+	 *
 	 * @return the application.propeties URIs which belongs to the given project
 	 *         URIs.
 	 */

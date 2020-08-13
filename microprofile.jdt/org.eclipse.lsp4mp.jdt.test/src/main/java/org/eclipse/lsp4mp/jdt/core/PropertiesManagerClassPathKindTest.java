@@ -1,8 +1,12 @@
 /*******************************************************************************
 * Copyright (c) 2019 Red Hat Inc. and others.
-* All rights reserved. This program and the accompanying materials
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v20.html
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
@@ -23,20 +27,19 @@ import org.eclipse.lsp4mp.commons.ClasspathKind;
 import org.eclipse.lsp4mp.commons.DocumentFormat;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.MicroProfilePropertiesScope;
-import org.eclipse.lsp4mp.jdt.core.PropertiesManager;
 import org.eclipse.lsp4mp.jdt.internal.core.utils.DependencyUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
  * Test collection of Quarkus properties from classpath kind
- * 
+ *
  * <ul>
  * <li>not in classpath -> 0 quarkus properties</li>
  * <li>in /java/main/src classpath -> N quarkus properties</li>
  * <li>in /java/main/test classpath-> N + M quarkus properties</li>
  * </ul>
- * 
+ *
  * @author Angelo ZERR
  *
  */
