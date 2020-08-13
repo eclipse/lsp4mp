@@ -86,6 +86,10 @@ public class InsertAnnotationMissingQuickFix implements IJavaCodeActionParticipa
 		return Bindings.getBindingOfParentType(node);
 	}
 
+	protected String[] getAnnotations() {
+		return this.annotations;
+	}
+
 	protected void insertAnnotations(Diagnostic diagnostic, JavaCodeActionContext context, IBinding parentType,
 			List<CodeAction> codeActions) throws CoreException {
 		if (generateOnlyOneCodeAction) {
