@@ -1,0 +1,38 @@
+{
+  "MicroProfile - new rest client": {
+    "prefix": "mpnrc",
+    "body": [
+      "package ${1:packagename};",
+      "",
+      "import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;",
+      "",
+      "import javax.enterprise.context.ApplicationScoped;",
+      "import javax.ws.rs.GET;",
+      "import javax.ws.rs.Path;",
+      "import javax.ws.rs.PathParam;",
+      "",
+      "@RegisterRestClient",
+      "@ApplicationScoped",
+      "public interface ${TM_FILENAME_BASE} {",
+      "",
+      "\t@GET",
+      "\t@Path(\"${2:/path}\")",
+      "\tString ${3:methodname}();",
+      "",
+      "}",
+      ""
+    ],
+    "description": "MicroProfile - new rest client",
+    "context": {
+      "type": "org.eclipse.microprofile.rest.client.inject.RegisterRestClient"
+    }
+  },
+  "MicroProfile - inject rest client": {
+    "prefix": "mpirc",
+    "body": ["@Inject", "@RestClient", "${1:Client} {2:client};"],
+    "description": "MicroProfile - inject rest client",
+    "context": {
+      "type": "org.eclipse.microprofile.rest.client.inject.RegisterRestClient"
+    }
+  }
+}
