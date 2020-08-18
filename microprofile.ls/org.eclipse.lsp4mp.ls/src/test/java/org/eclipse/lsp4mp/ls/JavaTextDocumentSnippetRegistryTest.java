@@ -140,6 +140,31 @@ public class JavaTextDocumentSnippetRegistryTest {
 		Assert.assertNotNull("mpliveness snippet has context", livenessContext);
 	}
 
+	@Test
+	public void mpRestClientSnippets() {
+		Optional<Snippet> newRestClientSnippet = findByPrefix("mpnrc", registry);
+		Assert.assertTrue("Tests has new MicroProfile rest client Java snippets", newRestClientSnippet.isPresent());
+
+		ISnippetContext<?> context = newRestClientSnippet.get().getContext();
+		Assert.assertNotNull("mpnrc snippet has context", context);
+		Assert.assertTrue("mpnrc snippet context is Java context", context instanceof SnippetContextForJava);
+
+		ProjectLabelInfoEntry projectInfo = new ProjectLabelInfoEntry("", new ArrayList<>());
+		boolean match = ((SnippetContextForJava) context).isMatch(projectInfo);
+		Assert.assertFalse("Project has no org.eclipse.microprofile.rest.client.inject.RegisterRestClient type", match);
+
+		ProjectLabelInfoEntry projectInfo2 = new ProjectLabelInfoEntry("",
+				Arrays.asList("org.eclipse.microprofile.rest.client.inject.RegisterRestClient"));
+		boolean match2 = ((SnippetContextForJava) context).isMatch(projectInfo2);
+		Assert.assertTrue("Project has org.eclipse.microprofile.rest.client.inject.RegisterRestClient type", match2);
+
+		Optional<Snippet> injectRestClientSnippet = findByPrefix("mpirc", registry);
+		Assert.assertTrue("Tests has inject MicroProfile rest client Java snippets", injectRestClientSnippet.isPresent());
+
+		ISnippetContext<?> context2 = injectRestClientSnippet.get().getContext();
+		Assert.assertNotNull("mpirc snippet has context", context2);
+	}
+
 	private static Optional<Snippet> findByPrefix(String prefix, SnippetRegistry registry) {
 		return registry.getSnippets().stream().filter(snippet -> snippet.getPrefixes().contains(prefix)).findFirst();
 	}

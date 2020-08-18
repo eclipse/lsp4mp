@@ -28,17 +28,19 @@ public class MicroProfileJavaSnippetRegistryLoader implements ISnippetRegistryLo
 
 	@Override
 	public void load(SnippetRegistry registry) throws IOException {
-		registry.registerSnippets(MicroProfileJavaSnippetRegistryLoader.class.getResourceAsStream("jax-rs.json"),
+		registry.registerSnippets(MicroProfileJavaSnippetRegistryLoader.class.getResourceAsStream("mp-restclient.json"),
 				SnippetContextForJava.TYPE_ADAPTER);
 		registry.registerSnippets(MicroProfileJavaSnippetRegistryLoader.class.getResourceAsStream("mp-metrics.json"),
 				SnippetContextForJava.TYPE_ADAPTER);
 		registry.registerSnippets(MicroProfileJavaSnippetRegistryLoader.class.getResourceAsStream("mp-openapi.json"),
 				SnippetContextForJava.TYPE_ADAPTER);
-		registry.registerSnippets(
-				MicroProfileJavaSnippetRegistryLoader.class.getResourceAsStream("mp-faulttolerance.json"),
+		registry.registerSnippets(MicroProfileJavaSnippetRegistryLoader.class.getResourceAsStream("mp-faulttolerance.json"),
 				SnippetContextForJava.TYPE_ADAPTER);
 		registry.registerSnippets(MicroProfileJavaSnippetRegistryLoader.class.getResourceAsStream("mp-health.json"),
 				SnippetContextForJava.TYPE_ADAPTER);
+		registry.registerSnippets(MicroProfileJavaSnippetRegistryLoader.class.getResourceAsStream("jax-rs.json"),
+				SnippetContextForJava.TYPE_ADAPTER);
+
 	}
 
 	@Override
