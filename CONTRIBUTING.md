@@ -12,6 +12,24 @@ A good bug report is one that make it easy for us to understand what you were tr
 
 For documentation on project structure and how to implement new language features in lsp4mp you can look at the [contributing guide of vscode-microprofile](https://github.com/redhat-developer/vscode-microprofile/blob/master/CONTRIBUTING.md) which contains an overview of lsp4mp.
 
+## File Headers
+
+If you create a new Java file include the following header at the top of your file.
+
+```
+/****************** *************************************************************
+* Copyright (c) {date} {owner}[ and others]
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License v. 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
+* which is available at https://www.apache.org/licenses/LICENSE-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
+*
+*******************************************************************************/
+```
+
 ## Eclipse Contributor Agreement
 
 Before your contribution can be accepted by the project, you need to create and electronically sign an [Eclipse Contributor Agreement (ECA)](http://www.eclipse.org/legal/ecafaq.php):
