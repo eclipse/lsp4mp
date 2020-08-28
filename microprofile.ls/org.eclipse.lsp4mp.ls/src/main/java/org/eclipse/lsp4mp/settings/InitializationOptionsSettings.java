@@ -22,7 +22,7 @@ import org.eclipse.lsp4mp.utils.JSONUtility;
 /**
  * Represents all settings sent from the server
  *
- * { 'settings': { 'quarkus': {...}, 'http': {...} } }
+ * { 'settings': { 'microprofile': {...}, 'http': {...} } }
  */
 public class InitializationOptionsSettings {
 

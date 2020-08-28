@@ -24,7 +24,7 @@ import org.eclipse.lsp4mp.utils.JSONUtility;
 		"commands": {
 			"commandsKind": {
 				"valueSet": [
-					"quarkus.command.configuration.update"
+					"microprofile.command.configuration.update"
 				]
 			}
 		}
@@ -54,7 +54,7 @@ public class InitializationOptionsExtendedClientCapabilities {
 			"commands": {
 				"commandsKind": {
 					"valueSet": [
-						"quarkus.command.configuration.update"
+						"microprofile.command.configuration.update"
 					]
 				}
 			}
