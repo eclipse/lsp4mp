@@ -13,27 +13,17 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.internal.metrics.java;
 
-import org.eclipse.lsp4mp.jdt.core.java.codeaction.InsertAnnotationMissingQuickFix;
-import org.eclipse.lsp4mp.jdt.internal.health.MicroProfileHealthConstants;
-import org.eclipse.lsp4mp.jdt.internal.metrics.MicroProfileMetricsConstants;
-
-import src.main.java.org.eclipse.lsp4mp.jdt.core.java.corrections.proposal.ReplaceAnnotationProposal;
-
-import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IBinding;
-import org.eclipse.jdt.internal.corext.dom.Bindings;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
-import org.eclipse.lsp4mp.jdt.core.java.codeaction.IJavaCodeActionParticipant;
+import org.eclipse.lsp4mp.jdt.core.java.codeaction.InsertAnnotationMissingQuickFix;
 import org.eclipse.lsp4mp.jdt.core.java.codeaction.JavaCodeActionContext;
 import org.eclipse.lsp4mp.jdt.core.java.corrections.proposal.ChangeCorrectionProposal;
-import org.eclipse.lsp4mp.jdt.core.java.corrections.proposal.ImplementInterfaceProposal;
+import org.eclipse.lsp4mp.jdt.core.java.corrections.proposal.ReplaceAnnotationProposal;
+import org.eclipse.lsp4mp.jdt.internal.metrics.MicroProfileMetricsConstants;
 
 /**
  * QuickFix for fixing
