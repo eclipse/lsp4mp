@@ -90,10 +90,12 @@ class MicroProfileSymbolsProvider {
 					for (String path : paths) {
 						symbol = getSymbol(path, property, symbol != null ? symbol.getChildren() : symbols);
 					}
-					symbol.setKind(SymbolKind.Property);
-					String value = property.getPropertyValue();
-					if (value != null) {
-						symbol.setDetail(value);
+					if (symbol != null) {
+						symbol.setKind(SymbolKind.Property);
+						String value = property.getPropertyValue();
+						if (value != null) {
+							symbol.setDetail(value);
+						}
 					}
 				}
 			}

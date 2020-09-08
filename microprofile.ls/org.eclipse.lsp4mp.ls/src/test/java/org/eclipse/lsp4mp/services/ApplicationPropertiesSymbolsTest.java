@@ -23,7 +23,7 @@ import org.junit.Test;
 
 /**
  * Test with symbols in 'application.properties' file.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -103,4 +103,17 @@ public class ApplicationPropertiesSymbolsTest {
 				s("quarkus.application.name", SymbolKind.Property, "application.properties", r(0, 0, 3, 4))
 		);
 	};
+
+	@Test
+	public void justPeriod() throws BadLocationException {
+		String value = ".";
+		testDocumentSymbolsFor(value);
+	}
+
+	@Test
+	public void justEquals() throws BadLocationException {
+		String value = "=";
+		testDocumentSymbolsFor(value);
+	}
+
 }
