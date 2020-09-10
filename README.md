@@ -37,29 +37,7 @@ In Java files, you will benefit with:
 
 ## Architecture
 
-The language features provided by the MicroProfile Language Server depend on the user's Java project.
-For example, MicroProfile Fault Tolerance features (snippets, validation, completion, etc.) are only provided if the user's
-Java project has MicroProfile Fault Tolerance as a depenency.
-
-In order for the MicroProfile Language Server to provide relevant features within a given Java project, the language server
-relies on an external component such as MicroProfile JDT (see [MicroProfile JDT LS Extensions](./microprofile.jdt))
-to scan/inspect the Java project.
-
-This external component is used to help resolve LSP commands sent from the MicroProfile Language Server.
-See [`MicroProfileLanguageClientAPI.java`](https://github.com/eclipse/lsp4mp/blob/master/microprofile.ls/org.eclipse.lsp4mp.ls/src/main/java/org/eclipse/lsp4mp/ls/api/MicroProfileLanguageClientAPI.java).
-
-For example, when the MicroProfile Language Server calls [`MicroProfileProjectInfoProvider#getProjectInfo`](https://github.com/eclipse/lsp4mp/blob/82c4798ac142efeb06499ece053407ef01009d46/microprofile.ls/org.eclipse.lsp4mp.ls/src/main/java/org/eclipse/lsp4mp/ls/api/MicroProfileProjectInfoProvider.java#L35),
-the `microprofile/projectInfo` command is handled in the external component with 
-[`MicroProfileDelegateCommandHandler#executeCommand`](https://github.com/eclipse/lsp4mp/blob/82c4798ac142efeb06499ece053407ef01009d46/microprofile.jdt/org.eclipse.lsp4mp.jdt.core/src/main/java/org/eclipse/lsp4mp/jdt/internal/core/ls/MicroProfileDelegateCommandHandler.java#L53). 
-
-In the context of Eclipse and VS Code, this external component is managed with [MicroProfile JDT](./microprofile.jdt).
-The external component does not necessarily require JDT however, as different implementations can be used instead.
-In other words, the MicroProfile Language Server **does not** depend on JDT.
-See [Quarkus Tools for IntelliJ](https://github.com/redhat-developer/intellij-quarkus).
-
-The following diagram portrays LSP4MP's integration in various IDEs and editors:
-
-![Diagram](./images/ls_external_component.png)
+For information on the architecture/project structure see [architecture.md](./docs/architecture.md)
 
 ## Getting started
 
