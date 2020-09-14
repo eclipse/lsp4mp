@@ -126,7 +126,8 @@ And if you want to consume the SNAPSHOT builds instead:
 
 ## Clients
 
-- Visual Studio Code with [vscode-quarkus](https://github.com/redhat-developer/vscode-quarkus)
+- Visual Studio Code with [vscode-microprofile](https://github.com/redhat-developer/vscode-microprofile)
+  - vscode-microprofile can optionally be [extended](#extensions) with [vscode-quarkus](https://github.com/redhat-developer/vscode-quarkus)
 - IntelliJ with [intellij-quarkus](https://github.com/redhat-developer/intellij-quarkus)
 - Eclipse IDE with [jbosstools-quarkus](https://github.com/jbosstools/jbosstools-quarkus)
 
