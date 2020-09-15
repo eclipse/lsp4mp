@@ -2,6 +2,7 @@
 
 [![Build Status](https://ci.eclipse.org/lsp4mp/buildStatus/icon?job=lsp4mp%2Fmaster)](https://ci.eclipse.org/lsp4mp/job/lsp4mp/job/master/)
 [![License](https://img.shields.io/badge/License-EPL%202.0-brightgreen.svg)](https://www.eclipse.org/legal/epl-2.0/)
+[![Gitter chat for lsp4mp](https://badges.gitter.im/eclipse/microprofile-languageserver.svg)](https://gitter.im/eclipse/microprofile-languageserver)
 
 A language server implementation based on the [Language Server Protocol](https://github.com/Microsoft/language-server-protocol) for [Eclipse MicroProfile](https://microprofile.io/). This Language Server for Eclipse MicroProfile (LSP4MP) provides core language support capabilities (such as code complete, diagnostics, quick fixes) to enable developers to quickly and easily develop applications using MicroProfile APIs.
 
