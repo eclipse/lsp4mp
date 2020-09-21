@@ -19,9 +19,10 @@ pipeline {
           }
         }
         withMaven {
+          sh "VERSION=${params.VERSION}"
           sh '''
                 cd microprofile.ls/org.eclipse.lsp4mp.ls
-                VERSION=${params.VERSION}
+                
                 ./mvnw versions:set-scm-tag -DnewTag=$VERSION
                 ./mvnw clean deploy -B -Peclipse-sign -Dcbi.jarsigner.skip=false
 
@@ -38,8 +39,8 @@ pipeline {
     stage('Deploy to downloads.eclipse.org') {
       steps {
         sshagent ( ['projects-storage.eclipse.org-bot-ssh']) {
+          sh "VERSION=${params.VERSION}"
           sh '''
-            VERSION=${params.VERSION}
             targetDir=/home/data/httpd/download.eclipse.org/lsp4mp/releases/$VERSION
             ssh genie.lsp4mp@projects-storage.eclipse.org rm -rf $targetDir
             ssh genie.lsp4mp@projects-storage.eclipse.org mkdir -p $targetDir
@@ -53,14 +54,15 @@ pipeline {
     stage('Push tag to git') {
       steps {
         sshagent ( ['github-bot-ssh']) {
+          sh "VERSION=${params.VERSION}"
           sh '''
             git config --global user.email "lsp4mp-bot@eclipse.org"
             git config --global user.name "LSP4MP GitHub Bot"
             git add .
-            msg="Release ${params.VERSION}"
+            msg="Release $VERSION"
             git commit -sm msg
-            git tag ${params.VERSION}
-            git push origin ${params.VERSION}
+            git tag $VERSION
+            git push origin $VERSION
           '''
         }
       }
