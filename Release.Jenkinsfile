@@ -8,22 +8,20 @@ pipeline {
     MAVEN_USER_HOME = "$MAVEN_HOME"
   }
   parameters {
-      booleanParam(name: 'PERFORM_RELEASE', defaultValue: false, description: 'Perform a release?')
+      string(name: 'VERSION', defaultValue: '', description: 'Version to Release?')
   }
   stages {
     stage("Release LSP4MP Language Server"){
       steps {
         script {
-          if (!params.PERFORM_RELEASE) {
+          if (!params.VERSION) {
             error('Not releasing')
           }
         }
         withMaven {
           sh '''
                 cd microprofile.ls/org.eclipse.lsp4mp.ls
-                ./mvnw versions:set -DremoveSnapshot=true
-                VERSION=$(./mvnw -Dexec.executable='echo' -Dexec.args='${project.version}' --non-recursive exec:exec -q)
-
+                VERSION=${params.VERSION}
                 ./mvnw versions:set-scm-tag -DnewTag=$VERSION
                 ./mvnw clean deploy -B -Peclipse-sign -Dcbi.jarsigner.skip=false
 
@@ -41,7 +39,7 @@ pipeline {
       steps {
         sshagent ( ['projects-storage.eclipse.org-bot-ssh']) {
           sh '''
-            VERSION=`grep -o '[0-9].*[0-9]' microprofile.jdt/org.eclipse.lsp4mp.jdt.core/target/maven-archiver/pom.properties`
+            VERSION=${params.VERSION}
             targetDir=/home/data/httpd/download.eclipse.org/lsp4mp/releases/$VERSION
             ssh genie.lsp4mp@projects-storage.eclipse.org rm -rf $targetDir
             ssh genie.lsp4mp@projects-storage.eclipse.org mkdir -p $targetDir
@@ -59,10 +57,10 @@ pipeline {
             git config --global user.email "lsp4mp-bot@eclipse.org"
             git config --global user.name "LSP4MP GitHub Bot"
             git add .
-            msg="Release $VERSION"
+            msg="Release ${params.VERSION}"
             git commit -sm msg
-            git tag $VERSION
-            git push origin $VERSION
+            git tag ${params.VERSION}
+            git push origin ${params.VERSION}
           '''
         }
       }
