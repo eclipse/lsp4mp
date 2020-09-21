@@ -22,7 +22,7 @@ pipeline {
           sh "VERSION=${params.VERSION}"
           sh '''
                 cd microprofile.ls/org.eclipse.lsp4mp.ls
-                
+                ./mvnw versions:set -DnewVersion=$VERSION
                 ./mvnw versions:set-scm-tag -DnewTag=$VERSION
                 ./mvnw clean deploy -B -Peclipse-sign -Dcbi.jarsigner.skip=false
 
