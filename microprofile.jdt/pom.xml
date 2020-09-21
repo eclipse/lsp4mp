@@ -26,7 +26,12 @@
     <sonar.jacoco.reportPath>${jacoco.destFile}</sonar.jacoco.reportPath>
     <surefire.timeout>600</surefire.timeout>
   </properties>
-
+	<scm>
+		<connection>scm:git:git@github.com:eclipse/lsp4mp.git</connection>
+		<developerConnection>scm:git:git@github.com:eclipse/lsp4mp.git</developerConnection>
+		<url>https://github.com/eclipse/lsp4mp</url>
+		<tag>${project.version}</tag>
+	</scm>
   <repositories>
     <repository>
       <id>2019-06</id>
