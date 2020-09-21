@@ -12,12 +12,12 @@ pipeline {
   }
   stages {
     stage("Release LSP4MP Language Server"){
-      script {
-        if (!params.PERFORM_RELEASE) {
-          error('Not releasing')
-        }
-      }
       steps {
+        script {
+          if (!params.PERFORM_RELEASE) {
+            error('Not releasing')
+          }
+        }
         withMaven {
           sh '''
                 cd microprofile.ls/org.eclipse.lsp4mp.ls
