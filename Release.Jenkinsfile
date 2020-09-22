@@ -58,7 +58,7 @@ pipeline {
           sh '''
             git config --global user.email "lsp4mp-bot@eclipse.org"
             git config --global user.name "LSP4MP GitHub Bot"
-            git add .
+            git add **/pom.xml **/MANIFEST.MF
             msg="Release $VERSION"
             git commit -sm msg
             git tag $VERSION

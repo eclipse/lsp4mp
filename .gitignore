@@ -99,6 +99,7 @@ local.properties
 hs_err_pid*
 
 ### Maven ###
+.m2/
 target/
 pom.xml.tag
 pom.xml.releaseBackup
