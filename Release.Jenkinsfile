@@ -60,7 +60,7 @@ pipeline {
             git config --global user.name "LSP4MP GitHub Bot"
             git add **/pom.xml **/MANIFEST.MF
             msg="Release $VERSION"
-            git commit -sm msg
+            git commit -sm ${msg}
             git tag $VERSION
             git push origin $VERSION
           '''
