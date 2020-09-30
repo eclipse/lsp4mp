@@ -91,7 +91,7 @@ public interface IPropertiesCollector {
 	 * according to the specified merging strategy
 	 *
 	 * @param metadata the metadata to merge
-	 * @param merging stategy to use
+	 * @param mergingStrategy merging strategy to use
 	 */
 	void merge(ConfigurationMetadata metadata, MergingStrategy mergingStrategy);
 }
