@@ -54,6 +54,11 @@ For example:
 
 6. The MicroProfile Language Server receives the project information, adds it to its cache, and returns the completion options stored in the project information as the response to the original `textDocument/completion` request.
 
+In VS Code, the MicroProfile JDT is used as the external component, so the following diagram represents the communication sequence between components
+
+![Completion cache miss sequence](./images/property-completion-cache-miss-sequence.png)
+![Completion cache hit sequence](./images/property-completion-cache-hit-sequence.png)
+
 ## Java language features
 
 For Java language features (hover, diagnostics, code actions etc.), since the MicroProfile Language Server has limited knowledge of the Java project, it delegates the request to the external component.
@@ -71,6 +76,8 @@ For example:
 5. The IDE / editor receives the hover results and sends it back to the MicroProfile Language Server
 
 6. The MicroProfile Language Server receives the hover results and sends them back as the response to the original `textDocument/hover` request.
+
+![Java hover sequence](./images/java-hover-sequence.png)
 
 The following diagram portrays LSP4MP's integration in various IDEs and editors:
 
