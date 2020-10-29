@@ -195,9 +195,10 @@ public class JavaTextDocumentService extends AbstractTextDocumentService {
 		JavaTextDocument document = documents.get(params.getTextDocument().getUri());
 		return document.executeIfInMicroProfileProject((projectinfo) -> {
 			boolean markdownSupported = sharedSettings.getHoverSettings().isContentFormatSupported(MarkupKind.MARKDOWN);
+			boolean surroundEqualsWithSpaces = sharedSettings.getFormattingSettings().isSurroundEqualsWithSpaces();
 			DocumentFormat documentFormat = markdownSupported ? DocumentFormat.Markdown : DocumentFormat.PlainText;
 			MicroProfileJavaHoverParams javaParams = new MicroProfileJavaHoverParams(params.getTextDocument().getUri(),
-					params.getPosition(), documentFormat);
+					params.getPosition(), documentFormat, surroundEqualsWithSpaces);
 			return microprofileLanguageServer.getLanguageClient().getJavaHover(javaParams);
 		}, null);
 	}

@@ -16,6 +16,7 @@ package org.eclipse.lsp4mp.jdt.internal.core.project;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+import java.util.Set;
 
 import org.eclipse.jdt.core.IJavaProject;
 
@@ -41,6 +42,11 @@ public class PropertiesConfigSource extends AbstractConfigSource<Properties> {
 		Properties properties = new Properties();
 		properties.load(input);
 		return properties;
+	}
+
+	@Override
+	protected Set<String> getPropertyKeys(Properties properties) {
+		return properties.stringPropertyNames();
 	}
 
 }

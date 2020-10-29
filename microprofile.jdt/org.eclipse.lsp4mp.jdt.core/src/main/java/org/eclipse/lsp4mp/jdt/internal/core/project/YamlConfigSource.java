@@ -15,9 +15,13 @@ package org.eclipse.lsp4mp.jdt.internal.core.project;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.lsp4mp.jdt.core.project.MicroProfileConfigPropertyInformation;
+import org.eclipse.lsp4mp.jdt.core.utils.YamlUtils;
 import org.yaml.snakeyaml.Yaml;
 
 /**
@@ -69,6 +73,11 @@ public class YamlConfigSource extends AbstractConfigSource<Map<String, Object>> 
 		}
 
 		return String.valueOf(value);
+	}
+
+	@Override
+	protected Set<String> getPropertyKeys(Map<String, Object> config) {
+		return YamlUtils.flattenYamlMapToKeys(config);
 	}
 
 }

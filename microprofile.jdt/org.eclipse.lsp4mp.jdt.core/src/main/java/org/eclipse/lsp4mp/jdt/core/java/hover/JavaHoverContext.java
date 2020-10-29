@@ -34,12 +34,15 @@ public class JavaHoverContext extends AbtractJavaContext {
 
 	private final DocumentFormat documentFormat;
 
+	private final boolean surroundEqualsWithSpaces;
+
 	public JavaHoverContext(String uri, ITypeRoot typeRoot, IJDTUtils utils, IJavaElement hoverElement,
-			Position hoverPosition, DocumentFormat documentFormat) {
+			Position hoverPosition, DocumentFormat documentFormat, boolean surroundEqualsWithSpaces) {
 		super(uri, typeRoot, utils);
 		this.hoverElement = hoverElement;
 		this.hoverPosition = hoverPosition;
 		this.documentFormat = documentFormat;
+		this.surroundEqualsWithSpaces = surroundEqualsWithSpaces;
 	}
 
 	public DocumentFormat getDocumentFormat() {
@@ -52,6 +55,15 @@ public class JavaHoverContext extends AbtractJavaContext {
 
 	public Position getHoverPosition() {
 		return hoverPosition;
+	}
+
+	/**
+	 * Returns true if `=` should be surrounded with spaces in hover items, and false otherwise
+	 *
+	 * @return true if `=` should be surrounded with spaces in hover items, and false otherwise
+	 */
+	public boolean isSurroundEqualsWithSpaces() {
+		return surroundEqualsWithSpaces;
 	}
 
 }
