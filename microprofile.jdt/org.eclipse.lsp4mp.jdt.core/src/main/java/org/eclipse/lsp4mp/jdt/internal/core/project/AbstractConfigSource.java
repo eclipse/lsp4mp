@@ -20,7 +20,11 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -31,6 +35,7 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.JavaProject;
+import org.eclipse.lsp4mp.jdt.core.project.MicroProfileConfigPropertyInformation;
 
 /**
  * Abstract class for config file.
@@ -96,6 +101,11 @@ public abstract class AbstractConfigSource<T> implements IConfigSource {
 		return null;
 	}
 
+	@Override
+	public String getConfigFileName() {
+		return configFileName;
+	}
+
 	/**
 	 * Returns the loaded config and null otherwise.
 	 *
@@ -149,6 +159,28 @@ public abstract class AbstractConfigSource<T> implements IConfigSource {
 		return null;
 	}
 
+	private Set<String> getPropertyKeys() {
+		T config = getConfig();
+		if (config == null) {
+			return Collections.<String>emptySet();
+		}
+		return getPropertyKeys(config);
+	}
+
+	@Override
+	public Map<String, MicroProfileConfigPropertyInformation> getPropertyInformations(String propertyKey) {
+		Map<String, MicroProfileConfigPropertyInformation> infos = new HashMap<>();
+		getPropertyKeys().stream() //
+				.filter(key -> {
+					return propertyKey.equals(MicroProfileConfigPropertyInformation.getPropertyNameWithoutProfile(key))
+							&& getProperty(key) != null;
+				}) //
+				.forEach(matchingKey -> {
+					infos.put(matchingKey, new MicroProfileConfigPropertyInformation(matchingKey, getProperty(matchingKey), getConfigFileName()));
+				});
+		return infos;
+	}
+
 	private void reset() {
 		config = null;
 	}
@@ -170,5 +202,14 @@ public abstract class AbstractConfigSource<T> implements IConfigSource {
 	 * @return the property from the given <code>key</code> and null otherwise.
 	 */
 	protected abstract String getProperty(String key, T config);
+
+
+	/**
+	 * Returns all property keys defined in the config.
+	 *
+	 * @param config
+	 * @return all property keys defined in the config.
+	 */
+	protected abstract Set<String> getPropertyKeys(T config);
 
 }

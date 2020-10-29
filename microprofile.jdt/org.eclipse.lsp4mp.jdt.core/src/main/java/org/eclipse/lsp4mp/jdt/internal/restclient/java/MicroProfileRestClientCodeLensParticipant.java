@@ -158,11 +158,11 @@ public class MicroProfileRestClientCodeLensParticipant implements IJavaCodeLensP
 
 	private static String getBaseURIFromConfig(IType type, JDTMicroProfileProject mpProject) {
 		String property = new StringBuilder(type.getFullyQualifiedName()).append("/mp-rest/uri").toString();
-		return mpProject.getProperty(property, null);
+		return mpProject.getProperty(property);
 	}
 
 	private static String getBaseURLFromConfig(IType type, JDTMicroProfileProject mpProject) {
 		String property = new StringBuilder(type.getFullyQualifiedName()).append("/mp-rest/url").toString();
-		return mpProject.getProperty(property, null);
+		return mpProject.getProperty(property);
 	}
 }

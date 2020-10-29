@@ -46,7 +46,7 @@ import org.eclipse.lsp4mp.jdt.core.PropertiesManagerForJava;
 
 /**
  * JDT LS delegate command handler for Java file.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -81,7 +81,7 @@ public class MicroProfileDelegateCommandHandlerForJava extends AbstractMicroProf
 
 	/**
 	 * Returns the file information (package name, etc) for the given Java file.
-	 * 
+	 *
 	 * @param arguments
 	 * @param commandId
 	 * @param monitor
@@ -99,10 +99,10 @@ public class MicroProfileDelegateCommandHandlerForJava extends AbstractMicroProf
 
 	/**
 	 * Create the Java file information parameter from the given arguments map.
-	 * 
+	 *
 	 * @param arguments
 	 * @param commandId
-	 * 
+	 *
 	 * @return the Java file information parameter.
 	 */
 	private static MicroProfileJavaFileInfoParams createJavaFileInfoParams(List<Object> arguments, String commandId) {
@@ -125,7 +125,7 @@ public class MicroProfileDelegateCommandHandlerForJava extends AbstractMicroProf
 
 	/**
 	 * Returns the code action for the given Java file.
-	 * 
+	 *
 	 * @param arguments
 	 * @param commandId
 	 * @param monitor
@@ -143,10 +143,10 @@ public class MicroProfileDelegateCommandHandlerForJava extends AbstractMicroProf
 
 	/**
 	 * Create java code action parameter from the given arguments map.
-	 * 
+	 *
 	 * @param arguments
 	 * @param commandId
-	 * 
+	 *
 	 * @return java code action parameter
 	 */
 	private static MicroProfileJavaCodeActionParams createMicroProfileJavaCodeActionParams(List<Object> arguments,
@@ -173,7 +173,7 @@ public class MicroProfileDelegateCommandHandlerForJava extends AbstractMicroProf
 
 	/**
 	 * Returns the code lenses for the given Java file.
-	 * 
+	 *
 	 * @param arguments
 	 * @param commandId
 	 * @param monitor
@@ -191,10 +191,10 @@ public class MicroProfileDelegateCommandHandlerForJava extends AbstractMicroProf
 
 	/**
 	 * Create java code lens parameter from the given arguments map.
-	 * 
+	 *
 	 * @param arguments
 	 * @param commandId
-	 * 
+	 *
 	 * @return java code lens parameter
 	 */
 	private static MicroProfileJavaCodeLensParams createMicroProfileJavaCodeLensParams(List<Object> arguments,
@@ -219,7 +219,7 @@ public class MicroProfileDelegateCommandHandlerForJava extends AbstractMicroProf
 	}
 
 	/**
-	 * 
+	 *
 	 * @param arguments
 	 * @param commandId
 	 * @param monitor
@@ -237,10 +237,10 @@ public class MicroProfileDelegateCommandHandlerForJava extends AbstractMicroProf
 
 	/**
 	 * Returns the java diagnostics parameters from the given arguments map.
-	 * 
+	 *
 	 * @param arguments
 	 * @param commandId
-	 * 
+	 *
 	 * @return the java diagnostics parameters
 	 */
 	private static MicroProfileJavaDiagnosticsParams createMicroProfileJavaDiagnosticsParams(List<Object> arguments,
@@ -262,7 +262,7 @@ public class MicroProfileDelegateCommandHandlerForJava extends AbstractMicroProf
 	/**
 	 * Returns the <code>MicroProfileJavaHoverInfo</code> for the hover described in
 	 * <code>arguments</code>
-	 * 
+	 *
 	 * @param arguments
 	 * @param commandId
 	 * @param monitor
@@ -280,10 +280,10 @@ public class MicroProfileDelegateCommandHandlerForJava extends AbstractMicroProf
 
 	/**
 	 * Returns the java hover parameters from the given arguments map.
-	 * 
+	 *
 	 * @param arguments
 	 * @param commandId
-	 * 
+	 *
 	 * @return the java hover parameters
 	 */
 	private static MicroProfileJavaHoverParams createMicroProfileJavaHoverParams(List<Object> arguments,
@@ -306,6 +306,7 @@ public class MicroProfileDelegateCommandHandlerForJava extends AbstractMicroProf
 		if (documentFormatIndex != null) {
 			documentFormat = DocumentFormat.forValue(documentFormatIndex.intValue());
 		}
-		return new MicroProfileJavaHoverParams(javaFileUri, hoverPosition, documentFormat);
+		boolean surroundEqualsWithSpaces = ((Boolean) obj.get("surroundEqualsWithSpaces")).booleanValue();
+		return new MicroProfileJavaHoverParams(javaFileUri, hoverPosition, documentFormat, surroundEqualsWithSpaces);
 	}
 }

@@ -19,6 +19,9 @@ import static org.eclipse.lsp4mp.jdt.core.MicroProfileConfigConstants.CONFIG_PRO
 import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.getAnnotation;
 import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.getAnnotationMemberValue;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IAnnotatable;
@@ -38,7 +41,9 @@ import org.eclipse.lsp4j.util.Ranges;
 import org.eclipse.lsp4mp.commons.DocumentFormat;
 import org.eclipse.lsp4mp.jdt.core.java.hover.IJavaHoverParticipant;
 import org.eclipse.lsp4mp.jdt.core.java.hover.JavaHoverContext;
+import org.eclipse.lsp4mp.jdt.core.project.JDTMicroProfileProject;
 import org.eclipse.lsp4mp.jdt.core.project.JDTMicroProfileProjectManager;
+import org.eclipse.lsp4mp.jdt.core.project.MicroProfileConfigPropertyInformation;
 import org.eclipse.lsp4mp.jdt.core.utils.IJDTUtils;
 import org.eclipse.lsp4mp.jdt.core.utils.JDTTypeUtils;
 
@@ -63,7 +68,8 @@ public class MicroProfileConfigHoverParticipant implements IJavaHoverParticipant
 	@Override
 	public Hover collectHover(JavaHoverContext context, IProgressMonitor monitor) throws CoreException {
 		IJavaElement hoverElement = context.getHoverElement();
-		if (hoverElement.getElementType() != IJavaElement.FIELD && hoverElement.getElementType() != IJavaElement.LOCAL_VARIABLE) {
+		if (hoverElement.getElementType() != IJavaElement.FIELD
+				&& hoverElement.getElementType() != IJavaElement.LOCAL_VARIABLE) {
 			return null;
 		}
 
@@ -101,57 +107,110 @@ public class MicroProfileConfigHoverParticipant implements IJavaHoverParticipant
 			return null;
 		}
 
-		String propertyValue = JDTMicroProfileProjectManager.getInstance().getJDTMicroProfileProject(javaProject)
-				.getProperty(propertyKey, null);
-		if (propertyValue == null) {
-			propertyValue = getAnnotationMemberValue(annotation, CONFIG_PROPERTY_ANNOTATION_DEFAULT_VALUE);
-			if (propertyValue != null && propertyValue.length() == 0) {
-				propertyValue = null;
-			}
-		}
-		DocumentFormat documentFormat = context.getDocumentFormat();
-		return new Hover(getDocumentation(propertyKey, propertyValue, documentFormat, true), propertyKeyRange);
+		JDTMicroProfileProject mpProject = JDTMicroProfileProjectManager.getInstance()
+				.getJDTMicroProfileProject(javaProject);
+		List<MicroProfileConfigPropertyInformation> propertyInformation = getConfigPropertyInformation(propertyKey,
+				annotation, mpProject);
+		return new Hover(getDocumentation(propertyInformation, context.getDocumentFormat(),
+				context.isSurroundEqualsWithSpaces()), propertyKeyRange);
 	}
 
 	/**
-	 * Returns documentation about the provided <code>propertyKey</code>'s value,
-	 * <code>propertyValue</code>
+	 * Returns all the config property information for the given property key.
 	 *
-	 * @param propertyKey   the property key
-	 * @param propertyValue the property key's value
-	 * @param markdown      true if documentation must be formatted as markdown and
-	 *                      false otherwise
-	 * @param insertSpacing true if spacing should be inserted around the equals
-	 *                      sign and false otherwise
-	 * @return
+	 * Includes the information for all the different profiles.
+	 *
+	 * @param propertyKey              the property key without the profile
+	 * @param configPropertyAnnotation the annotation that defines the config property
+	 * @param project                  the project
+	 * @return the config property information for the given property key
+	 * @throws JavaModelException if an error occurs when accessing the config property annotation
 	 */
-	public static MarkupContent getDocumentation(String propertyKey, String propertyValue,
+	public static List<MicroProfileConfigPropertyInformation> getConfigPropertyInformation(String propertyKey,
+			IAnnotation configPropertyAnnotation, JDTMicroProfileProject project) throws JavaModelException {
+
+		List<MicroProfileConfigPropertyInformation> infos = project.getPropertyInformations(propertyKey);
+		boolean defaultProfileDefined = false;
+
+		for (MicroProfileConfigPropertyInformation info : infos) {
+			if (info.getPropertyNameWithProfile().equals(propertyKey)) {
+				defaultProfileDefined = true;
+			}
+		}
+
+		if (!defaultProfileDefined) {
+			infos.add(new MicroProfileConfigPropertyInformation(propertyKey,
+					getAnnotationMemberValue(configPropertyAnnotation, CONFIG_PROPERTY_ANNOTATION_DEFAULT_VALUE),
+					configPropertyAnnotation.getResource().getName()));
+		}
+
+		return infos;
+	}
+
+	/**
+	 * Returns documentation about the property keys and values provided in
+	 * <code>propertyMap</code>
+	 *
+	 * @param propertyInformation the microprofile property information
+	 * @param documentFormat      the document format
+	 * @param insertSpacing       true if spacing should be inserted around the
+	 *                            equals sign and false otherwise
+	 *
+	 * @return documentation about the property keys and values provided in
+	 *         <code>propertyMap</code>
+	 */
+	public static MarkupContent getDocumentation(List<MicroProfileConfigPropertyInformation> propertyInformation,
 			DocumentFormat documentFormat, boolean insertSpacing) {
-		boolean markdown = DocumentFormat.Markdown.equals(documentFormat);
 		StringBuilder content = new StringBuilder();
 
-		if (markdown) {
-			content.append("`");
-		}
-
-		content.append(propertyKey);
-
-		if (propertyValue == null) {
-			if (markdown) {
-				content.append("`");
-			}
-			content.append(" is not set.");
-		} else {
-			if (insertSpacing) {
-				content.append(" = ");
-			} else {
-				content.append("=");
-			}
-			content.append(propertyValue);
-			if (markdown) {
-				content.append("`");
-			}
-		}
+		boolean markdown = DocumentFormat.Markdown.equals(documentFormat);
+		buildDocumentation(propertyInformation, markdown, insertSpacing, content);
 		return new MarkupContent(markdown ? MarkupKind.MARKDOWN : MarkupKind.PLAINTEXT, content.toString());
+	}
+
+	private static void buildDocumentation(List<MicroProfileConfigPropertyInformation> propertyInformation,
+			boolean markdownSupported, boolean insertSpacing, StringBuilder content) {
+
+		for (MicroProfileConfigPropertyInformation info : propertyInformation) {
+
+			if (content.length() > 0) {
+				content.append("  \n");
+			}
+
+			if (markdownSupported) {
+				content.append("`");
+			}
+
+			content.append(info.getPropertyNameWithProfile());
+
+			if (info.getValue() == null) {
+				if (markdownSupported) {
+					content.append("`");
+				}
+				content.append(" is not set");
+			} else {
+				if (insertSpacing) {
+					content.append(" = ");
+				} else {
+					content.append("=");
+				}
+				content.append(info.getValue());
+				if (markdownSupported) {
+					content.append("`");
+				}
+				if (info.getConfigFileName() != null) {
+					content.append(" ");
+					if (markdownSupported) {
+						content.append("*");
+					}
+					content.append("in");
+					if (markdownSupported) {
+						content.append("*");
+					}
+					content.append(" ");
+					content.append(info.getConfigFileName());
+				}
+			}
+		}
 	}
 }

@@ -229,8 +229,9 @@ public class PropertiesManagerForJava {
 		IJavaElement hoverElement = getHoveredElement(typeRoot, hoveredOffset);
 
 		DocumentFormat documentFormat = params.getDocumentFormat();
+		boolean surroundEqualsWithSpaces = params.isSurroundEqualsWithSpaces();
 		List<Hover> hovers = new ArrayList<>();
-		collectHover(uri, typeRoot, hoverElement, utils, hoverPosition, documentFormat, hovers, monitor);
+		collectHover(uri, typeRoot, hoverElement, utils, hoverPosition, documentFormat, surroundEqualsWithSpaces, hovers, monitor);
 		if (hovers.isEmpty()) {
 			return null;
 		}
@@ -289,10 +290,10 @@ public class PropertiesManagerForJava {
 	}
 
 	private void collectHover(String uri, ITypeRoot typeRoot, IJavaElement hoverElement, IJDTUtils utils,
-			Position hoverPosition, DocumentFormat documentFormat, List<Hover> hovers, IProgressMonitor monitor) {
+			Position hoverPosition, DocumentFormat documentFormat, boolean surroundEqualsWithSpaces, List<Hover> hovers, IProgressMonitor monitor) {
 		// Collect all adapted hover participant
 		JavaHoverContext context = new JavaHoverContext(uri, typeRoot, utils, hoverElement, hoverPosition,
-				documentFormat);
+				documentFormat, surroundEqualsWithSpaces);
 		List<JavaHoverDefinition> definitions = JavaFeaturesRegistry.getInstance().getJavaHoverDefinitions().stream()
 				.filter(definition -> definition.isAdaptedForHover(context, monitor)).collect(Collectors.toList());
 		if (definitions.isEmpty()) {
