@@ -29,8 +29,6 @@ import org.eclipse.lsp4j.ShowMessageRequestParams;
 import org.eclipse.lsp4j.TextDocumentClientCapabilities;
 import org.eclipse.lsp4j.WorkspaceClientCapabilities;
 import org.eclipse.lsp4j.services.LanguageClient;
-import org.eclipse.lsp4mp.settings.capabilities.MicroProfileCapabilityManager;
-import org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesInitializer;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -48,13 +46,11 @@ public class MicroProfileCapabilitiesTest {
 
 	@Before
 	public void startup() {
-
 		textDocument = new TextDocumentClientCapabilities();
 		workspace = new WorkspaceClientCapabilities();
 		manager = new MicroProfileCapabilityManager(languageClient);
 		clientCapabilities = new ClientCapabilities();
 		capabilityIDs = null;
-
 	}
 
 	@Test

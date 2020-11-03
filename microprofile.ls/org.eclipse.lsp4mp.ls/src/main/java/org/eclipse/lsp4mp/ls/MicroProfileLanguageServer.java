@@ -42,6 +42,7 @@ import org.eclipse.lsp4mp.services.MicroProfileLanguageService;
 import org.eclipse.lsp4mp.settings.AllMicroProfileSettings;
 import org.eclipse.lsp4mp.settings.InitializationOptionsSettings;
 import org.eclipse.lsp4mp.settings.MicroProfileCodeLensSettings;
+import org.eclipse.lsp4mp.settings.MicroProfileExtensionSettings;
 import org.eclipse.lsp4mp.settings.MicroProfileFormattingSettings;
 import org.eclipse.lsp4mp.settings.MicroProfileGeneralClientSettings;
 import org.eclipse.lsp4mp.settings.MicroProfileSymbolSettings;
@@ -62,6 +63,8 @@ public class MicroProfileLanguageServer implements LanguageServer, ProcessLangua
 	private final MicroProfileTextDocumentService textDocumentService;
 	private final WorkspaceService workspaceService;
 
+	private final MicroProfileExtensionSettings extensionSettings;
+
 	private Integer parentProcessId;
 	private MicroProfileLanguageClientAPI languageClient;
 	private MicroProfileCapabilityManager capabilityManager;
@@ -70,6 +73,7 @@ public class MicroProfileLanguageServer implements LanguageServer, ProcessLangua
 		microProfileLanguageService = new MicroProfileLanguageService();
 		textDocumentService = new MicroProfileTextDocumentService(this);
 		workspaceService = new MicroProfileWorkspaceService(this);
+		this.extensionSettings = new MicroProfileExtensionSettings();
 	}
 
 	@Override
@@ -120,6 +124,8 @@ public class MicroProfileLanguageServer implements LanguageServer, ProcessLangua
 		MicroProfileGeneralClientSettings clientSettings = MicroProfileGeneralClientSettings
 				.getGeneralMicroProfileSettings(initializationOptionsSettings);
 		if (clientSettings != null) {
+			// Merge client settings with extension settings
+			extensionSettings.merge(clientSettings);
 			MicroProfileSymbolSettings newSymbols = clientSettings.getSymbols();
 			if (newSymbols != null) {
 				textDocumentService.updateSymbolSettings(newSymbols);
