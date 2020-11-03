@@ -59,7 +59,7 @@ public class ApplicationPropertiesDiagnosticsTest {
 				d(8, 0, 16, "Unknown property 'unknown.property'", DiagnosticSeverity.Warning, ValidationType.unknown), //
 				d(10, 0, 53, "Unknown property 'quarkus.log.category.XXXXXXXXXXXXX.YYYYYYYYYYYY.level'",
 						DiagnosticSeverity.Warning, ValidationType.unknown));
-	};
+	}
 
 	@Test
 	public void validateUnknownPropertyMissingEquals() throws BadLocationException {
@@ -74,7 +74,7 @@ public class ApplicationPropertiesDiagnosticsTest {
 				d(0, 0, 16, "Missing equals sign after 'unknown.property'", DiagnosticSeverity.Error,
 						ValidationType.syntax),
 				d(0, 0, 16, "Unknown property 'unknown.property'", DiagnosticSeverity.Warning, ValidationType.unknown));
-	};
+	}
 
 	@Test
 	public void validateUnknownPropertiesAsError() throws BadLocationException {
@@ -104,7 +104,7 @@ public class ApplicationPropertiesDiagnosticsTest {
 				d(8, 0, 16, "Unknown property 'unknown.property'", DiagnosticSeverity.Error, ValidationType.unknown), //
 				d(10, 0, 53, "Unknown property 'quarkus.log.category.XXXXXXXXXXXXX.YYYYYYYYYYYY.level'",
 						DiagnosticSeverity.Error, ValidationType.unknown));
-	};
+	}
 
 	@Test
 	public void validateUnknownPropertiesExcluded() throws BadLocationException {
@@ -128,13 +128,13 @@ public class ApplicationPropertiesDiagnosticsTest {
 		MicroProfileValidationSettings settings = new MicroProfileValidationSettings();
 		MicroProfileValidationTypeSettings unknown = new MicroProfileValidationTypeSettings();
 		unknown.setSeverity("error");
-		unknown.setExcluded(new String[] { "unknown.property" });
+		unknown.setExcluded(Arrays.asList("unknown.property"));
 		settings.setUnknown(unknown);
 
 		testDiagnosticsFor(value, 1, getDefaultMicroProfileProjectInfo(), settings,
 				d(10, 0, 53, "Unknown property 'quarkus.log.category.XXXXXXXXXXXXX.YYYYYYYYYYYY.level'",
 						DiagnosticSeverity.Error, ValidationType.unknown));
-	};
+	}
 
 	@Test
 	public void validateUnknownPropertiesExcludedWithPattern() throws BadLocationException {
@@ -149,18 +149,16 @@ public class ApplicationPropertiesDiagnosticsTest {
 
 		// */mp-rest/url pattern --> only
 		// com.mycompany.remoteServices.MyServiceClient/mp-rest/url is ignored
-		unknown.setExcluded(new String[] { "*/mp-rest/url" });
+		unknown.setExcluded(Arrays.asList("*/mp-rest/url"));
 		testDiagnosticsFor(value, 2, getDefaultMicroProfileProjectInfo(), settings,
 				d(1, 0, 56, "Unknown property 'com.mycompany.remoteServices.MyServiceClient/mp-rest/uri'",
 						DiagnosticSeverity.Error, ValidationType.unknown),
-				d(2, 0, 17, "Unknown property 'com.mycompany.foo'",
-						DiagnosticSeverity.Error, ValidationType.unknown));
+				d(2, 0, 17, "Unknown property 'com.mycompany.foo'", DiagnosticSeverity.Error, ValidationType.unknown));
 
 		// */mp-rest/* pattern --> all errors containing path 'mp-rest' are ignored
-		unknown.setExcluded(new String[] { "*/mp-rest/*" });
+		unknown.setExcluded(Arrays.asList("*/mp-rest/*"));
 		testDiagnosticsFor(value, 1, getDefaultMicroProfileProjectInfo(), settings,
-				d(2, 0, 17, "Unknown property 'com.mycompany.foo'",
-						DiagnosticSeverity.Error, ValidationType.unknown));
+				d(2, 0, 17, "Unknown property 'com.mycompany.foo'", DiagnosticSeverity.Error, ValidationType.unknown));
 
 		value = "com.mycompany.remoteServices.MyServiceClient/mp-rest/url/foo=url\n" + //
 				"com.mycompany.remoteServices.MyServiceClient/mp-rest/uri/bar=uri\n" + //
@@ -169,22 +167,22 @@ public class ApplicationPropertiesDiagnosticsTest {
 				"com.mycompany.foo=bar";
 
 		// com.mycompany.* pattern --> all errors are ignored
-		unknown.setExcluded(new String[] { "com.mycompany.*" });
+		unknown.setExcluded(Arrays.asList("com.mycompany.*"));
 		testDiagnosticsFor(value, 0, getDefaultMicroProfileProjectInfo(), settings);
 
-		// com.mycompany.remoteServices.MyServiceClient/**/ --> all 'MyServiceClient' errors are ignored
-		unknown.setExcluded(new String[] { "com.mycompany.remoteServices.MyServiceClient/**/" });
+		// com.mycompany.remoteServices.MyServiceClient/**/ --> all 'MyServiceClient'
+		// errors are ignored
+		unknown.setExcluded(Arrays.asList("com.mycompany.remoteServices.MyServiceClient/**/"));
 		testDiagnosticsFor(value, 3, getDefaultMicroProfileProjectInfo(), settings,
 				d(2, 0, 58, "Unknown property 'com.mycompany.remoteServices.MyOtherClient/mp-rest/url/foo'",
 						DiagnosticSeverity.Error, ValidationType.unknown),
 				d(3, 0, 58, "Unknown property 'com.mycompany.remoteServices.MyOtherClient/mp-rest/uri/bar'",
 						DiagnosticSeverity.Error, ValidationType.unknown),
-				d(4, 0, 17, "Unknown property 'com.mycompany.foo'",
-						DiagnosticSeverity.Error, ValidationType.unknown));
+				d(4, 0, 17, "Unknown property 'com.mycompany.foo'", DiagnosticSeverity.Error, ValidationType.unknown));
 
 		// com.mycompany.remoteServices.MyServiceClient/**/foo --> all errors
 		// for 'MyServiceClient' properties ending with path 'foo' are ignored
-		unknown.setExcluded(new String[] { "com.mycompany.remoteServices.MyServiceClient/**/foo" });
+		unknown.setExcluded(Arrays.asList("com.mycompany.remoteServices.MyServiceClient/**/foo"));
 		testDiagnosticsFor(value, 4, getDefaultMicroProfileProjectInfo(), settings,
 				d(1, 0, 60, "Unknown property 'com.mycompany.remoteServices.MyServiceClient/mp-rest/uri/bar'",
 						DiagnosticSeverity.Error, ValidationType.unknown),
@@ -192,23 +190,21 @@ public class ApplicationPropertiesDiagnosticsTest {
 						DiagnosticSeverity.Error, ValidationType.unknown),
 				d(3, 0, 58, "Unknown property 'com.mycompany.remoteServices.MyOtherClient/mp-rest/uri/bar'",
 						DiagnosticSeverity.Error, ValidationType.unknown),
-				d(4, 0, 17, "Unknown property 'com.mycompany.foo'",
-						DiagnosticSeverity.Error, ValidationType.unknown));
+				d(4, 0, 17, "Unknown property 'com.mycompany.foo'", DiagnosticSeverity.Error, ValidationType.unknown));
 
 		// com.mycompany.*/**/foo --> all errors for properties
 		// ending with path 'foo' are ignored
-		unknown.setExcluded(new String[] { "com.mycompany.*/**/foo" });
+		unknown.setExcluded(Arrays.asList("com.mycompany.*/**/foo"));
 		testDiagnosticsFor(value, 3, getDefaultMicroProfileProjectInfo(), settings,
 				d(1, 0, 60, "Unknown property 'com.mycompany.remoteServices.MyServiceClient/mp-rest/uri/bar'",
 						DiagnosticSeverity.Error, ValidationType.unknown),
 				d(3, 0, 58, "Unknown property 'com.mycompany.remoteServices.MyOtherClient/mp-rest/uri/bar'",
 						DiagnosticSeverity.Error, ValidationType.unknown),
-				d(4, 0, 17, "Unknown property 'com.mycompany.foo'",
-						DiagnosticSeverity.Error, ValidationType.unknown));
+				d(4, 0, 17, "Unknown property 'com.mycompany.foo'", DiagnosticSeverity.Error, ValidationType.unknown));
 
 		// com*MyService*/**/foo --> all errors for 'MyService' properties
 		// ending with path 'foo' are ignored
-		unknown.setExcluded(new String[] { "com*MyService*/**/foo" });
+		unknown.setExcluded(Arrays.asList("com*MyService*/**/foo"));
 		testDiagnosticsFor(value, 4, getDefaultMicroProfileProjectInfo(), settings,
 				d(1, 0, 60, "Unknown property 'com.mycompany.remoteServices.MyServiceClient/mp-rest/uri/bar'",
 						DiagnosticSeverity.Error, ValidationType.unknown),
@@ -216,11 +212,10 @@ public class ApplicationPropertiesDiagnosticsTest {
 						DiagnosticSeverity.Error, ValidationType.unknown),
 				d(3, 0, 58, "Unknown property 'com.mycompany.remoteServices.MyOtherClient/mp-rest/uri/bar'",
 						DiagnosticSeverity.Error, ValidationType.unknown),
-				d(4, 0, 17, "Unknown property 'com.mycompany.foo'",
-						DiagnosticSeverity.Error, ValidationType.unknown));
+				d(4, 0, 17, "Unknown property 'com.mycompany.foo'", DiagnosticSeverity.Error, ValidationType.unknown));
 
 		// *foo --> all errors ending with 'foo' are ignored
-		unknown.setExcluded(new String[] { "*foo" });
+		unknown.setExcluded(Arrays.asList("*foo"));
 		testDiagnosticsFor(value, 2, getDefaultMicroProfileProjectInfo(), settings,
 				d(1, 0, 60, "Unknown property 'com.mycompany.remoteServices.MyServiceClient/mp-rest/uri/bar'",
 						DiagnosticSeverity.Error, ValidationType.unknown),
@@ -228,10 +223,10 @@ public class ApplicationPropertiesDiagnosticsTest {
 						DiagnosticSeverity.Error, ValidationType.unknown));
 
 		// * pattern --> all errors are ignored
-		unknown.setExcluded(new String[] { "*" });
+		unknown.setExcluded(Arrays.asList("*"));
 		testDiagnosticsFor(value, 0, getDefaultMicroProfileProjectInfo(), settings);
 
-	};
+	}
 
 	@Test
 	public void validateUnknownPropertiesWithProfileExcludedWithPattern() throws BadLocationException {
@@ -246,9 +241,9 @@ public class ApplicationPropertiesDiagnosticsTest {
 		settings.setUnknown(unknown);
 
 		// kafka-streams.* --> properties for a profile are ignored
-		unknown.setExcluded(new String[] { "kafka-streams.*" });
+		unknown.setExcluded(Arrays.asList("kafka-streams.*"));
 		testDiagnosticsFor(value, 0, getDefaultMicroProfileProjectInfo(), settings);
-	};
+	}
 
 	@Test
 	public void validateSyntaxMissingEquals() throws BadLocationException {
@@ -263,7 +258,7 @@ public class ApplicationPropertiesDiagnosticsTest {
 						ValidationType.syntax), //
 				d(2, 0, 27, "Missing equals sign after 'quarkus.datasource.username'", DiagnosticSeverity.Error,
 						ValidationType.syntax));
-	};
+	}
 
 	@Test
 	public void validateSyntaxMissingEqualsComment() throws BadLocationException {
@@ -275,7 +270,7 @@ public class ApplicationPropertiesDiagnosticsTest {
 		testDiagnosticsFor(value, getDefaultMicroProfileProjectInfo(), settings,
 				d(1, 0, 24, "Missing equals sign after 'quarkus.application.name'", DiagnosticSeverity.Error,
 						ValidationType.syntax));
-	};
+	}
 
 	@Test
 	public void validateDuplicateProperty() throws BadLocationException {
@@ -292,7 +287,7 @@ public class ApplicationPropertiesDiagnosticsTest {
 						ValidationType.duplicate),
 				d(3, 0, 17, "Duplicate property 'quarkus.http.port'", DiagnosticSeverity.Warning,
 						ValidationType.duplicate));
-	};
+	}
 
 	@Test
 	public void validateDuplicateProperties() throws BadLocationException {
@@ -313,7 +308,7 @@ public class ApplicationPropertiesDiagnosticsTest {
 						ValidationType.duplicate),
 				d(5, 0, 17, "Duplicate property 'quarkus.http.port'", DiagnosticSeverity.Warning,
 						ValidationType.duplicate));
-	};
+	}
 
 	@Test
 	public void validateDifferentDuplicateProperties() throws BadLocationException {
@@ -339,7 +334,7 @@ public class ApplicationPropertiesDiagnosticsTest {
 						ValidationType.duplicate),
 				d(4, 0, 17, "Duplicate property 'quarkus.http.port'", DiagnosticSeverity.Warning,
 						ValidationType.duplicate));
-	};
+	}
 
 	@Test
 	public void validateDuplicatePropertyDifferentProfile() throws BadLocationException {
@@ -352,7 +347,7 @@ public class ApplicationPropertiesDiagnosticsTest {
 		MicroProfileValidationSettings settings = new MicroProfileValidationSettings();
 
 		testDiagnosticsFor(value, getDefaultMicroProfileProjectInfo(), settings);
-	};
+	}
 
 	@Test
 	public void validateDuplicatePropertySameProfile() throws BadLocationException {
@@ -368,7 +363,7 @@ public class ApplicationPropertiesDiagnosticsTest {
 						ValidationType.duplicate),
 				d(2, 0, 22, "Duplicate property '%dev.quarkus.http.port'", DiagnosticSeverity.Warning,
 						ValidationType.duplicate));
-	};
+	}
 
 	@Test
 	public void validateEnumValueNoError() throws BadLocationException {
@@ -378,7 +373,7 @@ public class ApplicationPropertiesDiagnosticsTest {
 
 		MicroProfileValidationSettings settings = new MicroProfileValidationSettings();
 		testDiagnosticsFor(value, getDefaultMicroProfileProjectInfo(), settings);
-	};
+	}
 
 	@Test
 	public void validateEnumValueError() throws BadLocationException {
@@ -393,7 +388,7 @@ public class ApplicationPropertiesDiagnosticsTest {
 				d(1, 34, 39,
 						"Invalid enum value: 'error' is invalid for type org.jboss.logmanager.handlers.AsyncHandler.OverflowAction",
 						DiagnosticSeverity.Error, ValidationType.value));
-	};
+	}
 
 	@Test
 	public void validateIntValueNoError() throws BadLocationException {
@@ -405,7 +400,7 @@ public class ApplicationPropertiesDiagnosticsTest {
 
 		MicroProfileValidationSettings settings = new MicroProfileValidationSettings();
 		testDiagnosticsFor(value, getDefaultMicroProfileProjectInfo(), settings);
-	};
+	}
 
 	@Test
 	public void validateIntValueError() throws BadLocationException {
@@ -453,12 +448,16 @@ public class ApplicationPropertiesDiagnosticsTest {
 
 		MicroProfileValidationSettings settings = new MicroProfileValidationSettings();
 		testDiagnosticsFor(value, getDefaultMicroProfileProjectInfo(), settings,
-				d(0, 23, 30, "Type mismatch: boolean expected. By default, this value will be interpreted as 'false'", DiagnosticSeverity.Error, ValidationType.value),
-				d(1, 31, 35, "Type mismatch: boolean expected. By default, this value will be interpreted as 'false'", DiagnosticSeverity.Error, ValidationType.value),
-				d(2, 21, 26, "Type mismatch: java.util.Optional<java.lang.Boolean> expected. By default, this value will be interpreted as 'false'", DiagnosticSeverity.Error,
-						ValidationType.value),
-				d(3, 35, 38, "Type mismatch: java.lang.Boolean expected. By default, this value will be interpreted as 'false'", DiagnosticSeverity.Error,
-						ValidationType.value));
+				d(0, 23, 30, "Type mismatch: boolean expected. By default, this value will be interpreted as 'false'",
+						DiagnosticSeverity.Error, ValidationType.value),
+				d(1, 31, 35, "Type mismatch: boolean expected. By default, this value will be interpreted as 'false'",
+						DiagnosticSeverity.Error, ValidationType.value),
+				d(2, 21, 26,
+						"Type mismatch: java.util.Optional<java.lang.Boolean> expected. By default, this value will be interpreted as 'false'",
+						DiagnosticSeverity.Error, ValidationType.value),
+				d(3, 35, 38,
+						"Type mismatch: java.lang.Boolean expected. By default, this value will be interpreted as 'false'",
+						DiagnosticSeverity.Error, ValidationType.value));
 	}
 
 	@Test
@@ -537,14 +536,18 @@ public class ApplicationPropertiesDiagnosticsTest {
 		value = "quarkus.BigDecimal=hello world\n" + //
 				"quarkus.Optional.BigDecimal=hello world";
 		testDiagnosticsFor(value, projectInfo, settings,
-				d(0, 19, 30, "Type mismatch: java.math.BigDecimal expected", DiagnosticSeverity.Error, ValidationType.value),
-				d(1, 28, 39, "Type mismatch: java.util.Optional<java.math.BigDecimal> expected", DiagnosticSeverity.Error, ValidationType.value));
+				d(0, 19, 30, "Type mismatch: java.math.BigDecimal expected", DiagnosticSeverity.Error,
+						ValidationType.value),
+				d(1, 28, 39, "Type mismatch: java.util.Optional<java.math.BigDecimal> expected",
+						DiagnosticSeverity.Error, ValidationType.value));
 
 		value = "quarkus.BigDecimal=true\n" + //
 				"quarkus.Optional.BigDecimal=true";
 		testDiagnosticsFor(value, projectInfo, settings,
-				d(0, 19, 23, "Type mismatch: java.math.BigDecimal expected", DiagnosticSeverity.Error, ValidationType.value),
-				d(1, 28, 32, "Type mismatch: java.util.Optional<java.math.BigDecimal> expected", DiagnosticSeverity.Error, ValidationType.value));
+				d(0, 19, 23, "Type mismatch: java.math.BigDecimal expected", DiagnosticSeverity.Error,
+						ValidationType.value),
+				d(1, 28, 32, "Type mismatch: java.util.Optional<java.math.BigDecimal> expected",
+						DiagnosticSeverity.Error, ValidationType.value));
 	}
 
 	@Test
@@ -574,26 +577,34 @@ public class ApplicationPropertiesDiagnosticsTest {
 		value = "quarkus.BigInteger=hello world\n" + //
 				"quarkus.Optional.BigInteger=hello world";
 		testDiagnosticsFor(value, projectInfo, settings,
-				d(0, 19, 30, "Type mismatch: java.math.BigInteger expected", DiagnosticSeverity.Error, ValidationType.value),
-				d(1, 28, 39, "Type mismatch: java.util.Optional<java.math.BigInteger> expected", DiagnosticSeverity.Error, ValidationType.value));
+				d(0, 19, 30, "Type mismatch: java.math.BigInteger expected", DiagnosticSeverity.Error,
+						ValidationType.value),
+				d(1, 28, 39, "Type mismatch: java.util.Optional<java.math.BigInteger> expected",
+						DiagnosticSeverity.Error, ValidationType.value));
 
 		value = "quarkus.BigInteger=true\n" + //
 				"quarkus.Optional.BigInteger=true";
 		testDiagnosticsFor(value, projectInfo, settings,
-				d(0, 19, 23, "Type mismatch: java.math.BigInteger expected", DiagnosticSeverity.Error, ValidationType.value),
-				d(1, 28, 32, "Type mismatch: java.util.Optional<java.math.BigInteger> expected", DiagnosticSeverity.Error, ValidationType.value));
+				d(0, 19, 23, "Type mismatch: java.math.BigInteger expected", DiagnosticSeverity.Error,
+						ValidationType.value),
+				d(1, 28, 32, "Type mismatch: java.util.Optional<java.math.BigInteger> expected",
+						DiagnosticSeverity.Error, ValidationType.value));
 
 		value = "quarkus.BigInteger=3.14159\n" + //
 				"quarkus.Optional.BigInteger=3.14159";
 		testDiagnosticsFor(value, projectInfo, settings,
-				d(0, 19, 26, "Type mismatch: java.math.BigInteger expected", DiagnosticSeverity.Error, ValidationType.value),
-				d(1, 28, 35, "Type mismatch: java.util.Optional<java.math.BigInteger> expected", DiagnosticSeverity.Error, ValidationType.value));
+				d(0, 19, 26, "Type mismatch: java.math.BigInteger expected", DiagnosticSeverity.Error,
+						ValidationType.value),
+				d(1, 28, 35, "Type mismatch: java.util.Optional<java.math.BigInteger> expected",
+						DiagnosticSeverity.Error, ValidationType.value));
 
 		value = "quarkus.BigInteger=314.159e-2\n" + //
 				"quarkus.Optional.BigInteger=314.159e-2";
 		testDiagnosticsFor(value, projectInfo, settings,
-				d(0, 19, 29, "Type mismatch: java.math.BigInteger expected", DiagnosticSeverity.Error, ValidationType.value),
-				d(1, 28, 38, "Type mismatch: java.util.Optional<java.math.BigInteger> expected", DiagnosticSeverity.Error, ValidationType.value));
+				d(0, 19, 29, "Type mismatch: java.math.BigInteger expected", DiagnosticSeverity.Error,
+						ValidationType.value),
+				d(1, 28, 38, "Type mismatch: java.util.Optional<java.math.BigInteger> expected",
+						DiagnosticSeverity.Error, ValidationType.value));
 	}
 
 	@Test
@@ -603,9 +614,12 @@ public class ApplicationPropertiesDiagnosticsTest {
 				"quarkus.ssl.native=    ${value-three}";
 		MicroProfileValidationSettings settings = new MicroProfileValidationSettings();
 		testDiagnosticsFor(value, getDefaultMicroProfileProjectInfo(), settings, //
-				d(0, 22, 31, "Unknown referenced property 'value.one'", DiagnosticSeverity.Error, ValidationType.expression), //
-				d(1, 20, 29, "Unknown referenced property 'value_two'", DiagnosticSeverity.Error, ValidationType.expression), //
-				d(2, 25, 36, "Unknown referenced property 'value-three'", DiagnosticSeverity.Error, ValidationType.expression));
+				d(0, 22, 31, "Unknown referenced property 'value.one'", DiagnosticSeverity.Error,
+						ValidationType.expression), //
+				d(1, 20, 29, "Unknown referenced property 'value_two'", DiagnosticSeverity.Error,
+						ValidationType.expression), //
+				d(2, 25, 36, "Unknown referenced property 'value-three'", DiagnosticSeverity.Error,
+						ValidationType.expression));
 	}
 
 	@Test
@@ -724,8 +738,8 @@ public class ApplicationPropertiesDiagnosticsTest {
 		value = "mp.opentracing.server.skip-pattern=(";
 
 		testDiagnosticsFor(value, projectInfo, settings, //
-				d(0, 35, 36, "Unclosed group near index 1" + ls + "(" + ls + "",
-						DiagnosticSeverity.Error, ValidationType.value));
+				d(0, 35, 36, "Unclosed group near index 1" + ls + "(" + ls + "", DiagnosticSeverity.Error,
+						ValidationType.value));
 
 		value = "mp.opentracing.server.skip-pattern=[";
 		testDiagnosticsFor(value, projectInfo, settings, //
@@ -734,8 +748,8 @@ public class ApplicationPropertiesDiagnosticsTest {
 
 		value = "mp.opentracing.server.skip-pattern=\\";
 		testDiagnosticsFor(value, projectInfo, settings, //
-				d(0, 35, 36, "Unexpected internal error near index 1" + ls + "\\" + ls + "",
-						DiagnosticSeverity.Error, ValidationType.value));
+				d(0, 35, 36, "Unexpected internal error near index 1" + ls + "\\" + ls + "", DiagnosticSeverity.Error,
+						ValidationType.value));
 
 		value = "mp.opentracing.server.skip-pattern={";
 
@@ -746,29 +760,22 @@ public class ApplicationPropertiesDiagnosticsTest {
 		message.append(ls).append("{").append(ls);
 
 		testDiagnosticsFor(value, projectInfo, settings, //
-				d(0, 35, 36, message.toString(),
-						DiagnosticSeverity.Error, ValidationType.value));
+				d(0, 35, 36, message.toString(), DiagnosticSeverity.Error, ValidationType.value));
 	}
 
 	@Test
 	public void validateMultilineKey() {
-		String value = "quarkus.\\\n" +
-		"application.\\\n" +
-		"name=name";
+		String value = "quarkus.\\\n" + "application.\\\n" + "name=name";
 		MicroProfileValidationSettings settings = new MicroProfileValidationSettings();
 		testDiagnosticsFor(value, getDefaultMicroProfileProjectInfo(), settings);
 
-		value = "quarkus.\\\r\n" +
-		"application.\\\r\n" +
-		"name=name";
+		value = "quarkus.\\\r\n" + "application.\\\r\n" + "name=name";
 		testDiagnosticsFor(value, getDefaultMicroProfileProjectInfo(), settings);
 
-		value = "qu.\\\n" +
-		"application.\\\n" +
-		"name=name";
+		value = "qu.\\\n" + "application.\\\n" + "name=name";
 		testDiagnosticsFor(value, getDefaultMicroProfileProjectInfo(), settings, //
-				d(0, 0, 2, 4, "Unknown property 'qu.application.name'",
-						DiagnosticSeverity.Warning, ValidationType.unknown));
+				d(0, 0, 2, 4, "Unknown property 'qu.application.name'", DiagnosticSeverity.Warning,
+						ValidationType.unknown));
 	}
 
 	@Test
@@ -785,7 +792,8 @@ public class ApplicationPropertiesDiagnosticsTest {
 		String value = "test.property = ${doesnt.exist.property}";
 		testDiagnosticsFor(value, //
 				d(0, 0, 13, "Unknown property 'test.property'", DiagnosticSeverity.Warning, ValidationType.unknown), //
-				d(0, 18, 39, "Unknown referenced property 'doesnt.exist.property'", DiagnosticSeverity.Error, ValidationType.expression));
+				d(0, 18, 39, "Unknown referenced property 'doesnt.exist.property'", DiagnosticSeverity.Error,
+						ValidationType.expression));
 	}
 
 	@Test
@@ -810,7 +818,8 @@ public class ApplicationPropertiesDiagnosticsTest {
 		String value = "test.property = ${other.property";
 		testDiagnosticsFor(value, //
 				d(0, 0, 13, "Unknown property 'test.property'", DiagnosticSeverity.Warning, ValidationType.unknown), //
-				d(0, 18, 32, "Unknown referenced property 'other.property'", DiagnosticSeverity.Error, ValidationType.expression), //
+				d(0, 18, 32, "Unknown referenced property 'other.property'", DiagnosticSeverity.Error,
+						ValidationType.expression), //
 				d(0, 16, 32, "Missing '}'", DiagnosticSeverity.Error, ValidationType.syntax));
 	}
 
@@ -823,11 +832,14 @@ public class ApplicationPropertiesDiagnosticsTest {
 		testDiagnosticsFor(value, //
 				d(0, 0, 12, "Unknown property 'property.one'", DiagnosticSeverity.Warning, ValidationType.unknown), //
 				d(1, 0, 12, "Unknown property 'property.two'", DiagnosticSeverity.Warning, ValidationType.unknown), //
-				d(1, 17, 28, "Unknown referenced property 'property.on'", DiagnosticSeverity.Error, ValidationType.expression), //
+				d(1, 17, 28, "Unknown referenced property 'property.on'", DiagnosticSeverity.Error,
+						ValidationType.expression), //
 				d(2, 0, 14, "Unknown property 'property.three'", DiagnosticSeverity.Warning, ValidationType.unknown), //
-				d(2, 19, 30, "Unknown referenced property 'property.tw'", DiagnosticSeverity.Error, ValidationType.expression), //
+				d(2, 19, 30, "Unknown referenced property 'property.tw'", DiagnosticSeverity.Error,
+						ValidationType.expression), //
 				d(3, 0, 13, "Unknown property 'property.four'", DiagnosticSeverity.Warning, ValidationType.unknown), //
-				d(3, 18, 29, "Unknown referenced property 'property.th'", DiagnosticSeverity.Error, ValidationType.expression));
+				d(3, 18, 29, "Unknown referenced property 'property.th'", DiagnosticSeverity.Error,
+						ValidationType.expression));
 	}
 
 }

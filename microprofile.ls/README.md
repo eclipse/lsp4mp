@@ -50,13 +50,24 @@ Here are some clients consuming the MicroProfile language server:
  * Eclipse with [quarkus-lsp4e (POC)](https://github.com/angelozerr/quarkus-lsp4e)
  * IntelliJ with [intellij-quarkus](https://github.com/jeffmaury/intellij-quarkus)
  * Visual Studio Code with [vscode-quarkus](https://github.com/redhat-developer/vscode-quarkus)
- 
-Code Snippets
+
+LSPMP - LS - extensions
 -------
+
+The MicroProfile language server can be extensable:
+
+ * to add your own [code snippets](#code-snippets).
+ * to manage [complex properties](#managing-complex-properties).
+ * to [contribute to settings](#contribute-to-settings).
+
+Those contribution must be hosted in an external JAR and must be added in the MicroProfile language server classpath. 
+If you are using [vscode-microprofile](https://github.com/redhat-developer/vscode-microprofile), see the [Contributing to properties and Java support](https://github.com/redhat-developer/vscode-microprofile#contributing-to-properties-and-java-support) section.
+ 
+## Code Snippets
 
 Java and properties completion snippets are managed by the MicroProfile LS (snippets on server side) by using Java SPI.
 
-## Describing snippets in JSON
+### Describing snippets in JSON
 
 `Snippets` are described in JSON files using the [vscode snippet format](https://code.visualstudio.com/docs/editor/userdefinedsnippets#_create-your-own-snippets).
 
@@ -98,14 +109,14 @@ means that the snippet is shown only if the project has the `quarkus.datasource.
 
 means that the snippet is shown only if the project has the `org.eclipse.microprofile.openapi.annotations.Operation` Java Annotation in the classpath. In other words, only when the Java project has a dependency on MicroProfile Open API.
  
-## Adding new internal snippets
+### Adding new internal snippets
 
 To register a snippet, it must be added in:
 
  * [MicroProfileJavaSnippetRegistryLoader](https://github.com/eclipse/lsp4mp/blob/master/microprofile.ls/org.eclipse.lsp4mp.ls/src/main/java/org/eclipse/lsp4mp/snippets/MicroProfileJavaSnippetRegistryLoader.java) if the new snippet is for Java files. 
  * [MicroProfilePropertiesSnippetRegistryLoader](https://github.com/eclipse/lsp4mp/blob/master/microprofile.ls/org.eclipse.lsp4mp.ls/src/main/java/org/eclipse/lsp4mp/snippets/MicroProfilePropertiesSnippetRegistryLoader.java) if the new snippet is for properties files.
 
-## Adding new external snippets
+### Adding new external snippets
 
 To add external snippets (like Quarkus snippets) an implementation of `ISnippetRegistryLoader` must be created and registered with Java SPI. See for the [quarkus.ls.ext](https://github.com/redhat-developer/quarkus-ls/tree/master/quarkus.ls.ext) for Quarkus snippets:
 
@@ -113,8 +124,7 @@ To add external snippets (like Quarkus snippets) an implementation of `ISnippetR
  * [JSON Quarkus snippet](https://github.com/redhat-developer/quarkus-ls/tree/master/quarkus.ls.ext/com.redhat.quarkus.ls/src/main/resources/com/redhat/quarkus/snippets).
  * Java Quarkus snippets loader must be declared in [META-INF/services/org.eclipse.lsp4mp.ls.commons.snippets.ISnippetRegistryLoader](https://github.com/redhat-developer/quarkus-ls/blob/master/quarkus.ls.ext/com.redhat.quarkus.ls/src/main/resources/META-INF/services/org.eclipse.lsp4mp.ls.commons.snippets.ISnippetRegistryLoader) 
 
- Managing complex properties
--------
+## Managing complex properties
 
 The properties available in `microprofile-config.properties` come from the external component (ex: MicroProfile JDT LS extension). In some case a property 
 cannot be computed on the external component and must be computed on MicroProfile LS side.
@@ -134,6 +144,27 @@ In other words, `mp.messaging.outgoing.generated-price.topic` exists only
 if there is the declaration `mp.messaging.outgoing.generated-price.connector=smallrye-kafka` 
 
 The `mp.messaging.outgoing.generated-price.topic` property cannot be computed on the external component side because it depends on the value of 
-`mp.messaging.outgoing.generated-price.connector`. The comput	tion is done on MicroProfile LS side with custom builder by using Java SPI [ItemMetadataProviderFactory](/src/main/java/org/eclipse/lsp4mp/extensions/ItemMetadataProviderFactory).
+`mp.messaging.outgoing.generated-price.connector`. The computation is done on MicroProfile LS side with custom builder by using Java SPI [ItemMetadataProviderFactory](https://github.com/eclipse/lsp4mp/blob/master/microprofile.ls/org.eclipse.lsp4mp.ls/src/main/java/org/eclipse/lsp4mp/extensions/ItemMetadataProviderFactory.java).
 
-Please see the [sample of MicroProfile Reactive Messaging](/src/main/java/org/eclipse/lsp4mp/extensions/reactivemessaging).
+Please see the [sample of MicroProfile Reactive Messaging](https://github.com/eclipse/lsp4mp/blob/master/microprofile.ls/org.eclipse.lsp4mp.ls/src/main/java/org/eclipse/lsp4mp/extensions/reactivemessaging).
+
+## Contribute to settings
+
+In microprofile-config.properties file when a property doesn't exists, there is an unkwown error. The user can configure which unknown property errors to hide in the client settings.
+It's possible to ignore this error with contribution (ex : camel toolings can ignore validation for all `camel.*` properties).
+
+To do that in the JAR extension, create the `META-INF/lsp4mp/settings.json` like this:
+ 
+```json
+{
+	"validation": {
+		"unknown": {
+			"excluded": [
+				"camel.*"
+			]
+		}
+	}
+}
+```
+
+In this sample all camel properties will be ignored during the validation.

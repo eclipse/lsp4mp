@@ -15,7 +15,6 @@ package org.eclipse.lsp4mp.settings;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4mp.utils.AntPathMatcher;
@@ -30,7 +29,7 @@ public class MicroProfileValidationTypeSettings {
 
 	private String severity;
 
-	private String[] excluded;
+	private List<String> excluded;
 
 	private transient List<ExcludedProperty> excludedProperties;
 
@@ -87,7 +86,7 @@ public class MicroProfileValidationTypeSettings {
 	 *
 	 * @return the array of properties to ignore for this validation type.
 	 */
-	public String[] getExcluded() {
+	public List<String> getExcluded() {
 		return excluded;
 	}
 
@@ -96,7 +95,7 @@ public class MicroProfileValidationTypeSettings {
 	 *
 	 * @param excluded the array of properties to ignore for this validation type.
 	 */
-	public void setExcluded(String[] excluded) {
+	public void setExcluded(List<String> excluded) {
 		this.excluded = excluded;
 	}
 
@@ -170,7 +169,7 @@ public class MicroProfileValidationTypeSettings {
 		}
 		AntPathMatcher matcher = new AntPathMatcher();
 		matcher.setCachePatterns(true);
-		return Stream.of(excluded) //
+		return excluded.stream() //
 				.map(p -> new ExcludedProperty(p, matcher)) //
 				.collect(Collectors.toList());
 	}

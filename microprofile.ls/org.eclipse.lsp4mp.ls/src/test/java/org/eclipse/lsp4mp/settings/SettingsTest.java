@@ -13,9 +13,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import org.eclipse.lsp4j.InitializeParams;
-import org.eclipse.lsp4mp.settings.AllMicroProfileSettings;
-import org.eclipse.lsp4mp.settings.InitializationOptionsSettings;
-import org.eclipse.lsp4mp.settings.MicroProfileGeneralClientSettings;
 import org.junit.Test;
 
 import com.google.gson.Gson;
@@ -26,41 +23,43 @@ import com.google.gson.JsonObject;
  */
 public class SettingsTest {
 
-	private final String json = "{\r\n" + 
-			"    \"settings\": {\r\n" + 
-			"        \"microprofile\": {\r\n" + 
-			"            \"tools\": {\r\n" + 
-			"                \"trace\": {\r\n" + 
-			"                    \"server\": \"verbose\"\r\n" + 
-			"                },\r\n" + 
-			"                \"symbols\": {\r\n" + 
-			"                    \"showAsTree\": true\r\n" + 
-			"                },\r\n" + 
-			"                \"validation\": {\r\n" + 
-			"                    \"enabled\": \"true\",\r\n" + 
-			"                    \"unknown\": {\r\n" + 
-			"                        \"severity\": \"error\",\r\n" + 
-			"                        \"excluded\": [\r\n" + 
-			"                            \"abcd\"\r\n" + 
-			"                        ]\r\n" + 
-			"                    }\r\n" + 
-			"                }\r\n" + 
-			"            }\r\n" + 
-			"        }\r\n" + 
-			"    }\r\n" + 
+	private final String json = "{\r\n" + //
+			"    \"settings\": {\r\n" + //
+			"        \"microprofile\": {\r\n" + //
+			"            \"tools\": {\r\n" + //
+			"                \"trace\": {\r\n" + //
+			"                    \"server\": \"verbose\"\r\n" + //
+			"                },\r\n" + //
+			"                \"symbols\": {\r\n" + //
+			"                    \"showAsTree\": true\r\n" + //
+			"                },\r\n" + //
+			"                \"validation\": {\r\n" + //
+			"                    \"enabled\": \"true\",\r\n" + //
+			"                    \"unknown\": {\r\n" + //
+			"                        \"severity\": \"error\",\r\n" + //
+			"                        \"excluded\": [\r\n" + //
+			"                            \"abcd\"\r\n" + //
+			"                        ]\r\n" + //
+			"                    }\r\n" + //
+			"                }\r\n" + //
+			"            }\r\n" + //
+			"        }\r\n" + //
+			"    }\r\n" + //
 			"}";
 
 	@Test
 	public void initializationOptionsSettings() {
 
 		// Emulate InitializeParams#getInitializationOptions() object created as
-		// JSONObject when MicroProfileLanguageServer#initialize(InitializeParams params) is
+		// JSONObject when MicroProfileLanguageServer#initialize(InitializeParams
+		// params) is
 		// called
 		InitializeParams params = createInitializeParams(json);
 		Object initializationOptionsSettings = InitializationOptionsSettings.getSettings(params);
 
 		// Test client commons settings
-		initializationOptionsSettings = AllMicroProfileSettings.getMicroProfileToolsSettings(initializationOptionsSettings);
+		initializationOptionsSettings = AllMicroProfileSettings
+				.getMicroProfileToolsSettings(initializationOptionsSettings);
 		MicroProfileGeneralClientSettings settings = MicroProfileGeneralClientSettings
 				.getGeneralMicroProfileSettings(initializationOptionsSettings);
 		assertNotNull(settings);

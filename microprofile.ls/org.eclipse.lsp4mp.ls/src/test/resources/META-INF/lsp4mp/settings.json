@@ -1,0 +1,9 @@
+{
+	"validation": {
+		"unknown": {
+			"excluded": [
+				"camel.*"
+			]
+		}
+	}
+}
