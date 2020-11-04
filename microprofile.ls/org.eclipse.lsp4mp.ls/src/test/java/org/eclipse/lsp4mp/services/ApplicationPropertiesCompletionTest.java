@@ -63,7 +63,7 @@ public class ApplicationPropertiesCompletionTest {
 		testCompletionFor(value, false,
 				c("quarkus.log.category.{*}.level", "quarkus.log.category.{*}.level=inherit", r(0, 0, 20)));
 		testCompletionFor(value, true, c("quarkus.log.category.{*}.level",
-				"quarkus.log.category.${1:key}.level=${2|DEBUG,ERROR,OFF,SEVERE,WARNING,INFO,CONFIG,FINE,FINER,FINEST,ALL|}",
+				"quarkus.log.category.${1:key}.level=${2|OFF,SEVERE,WARNING,CONFIG,FINE,FINER,FINEST,ALL,FATAL,ERROR,WARN,INFO,DEBUG,TRACE|}",
 				r(0, 0, 20)));
 	}
 
@@ -75,7 +75,7 @@ public class ApplicationPropertiesCompletionTest {
 		testCompletionFor(value, false,
 				c("quarkus.log.category.{*}.level", "quarkus.log.category.{*}.level=inherit", r(1, 0, 0)));
 		testCompletionFor(value, true, c("quarkus.log.category.{*}.level",
-				"quarkus.log.category.${1:key}.level=${2|DEBUG,ERROR,OFF,SEVERE,WARNING,INFO,CONFIG,FINE,FINER,FINEST,ALL|}",
+				"quarkus.log.category.${1:key}.level=${2|OFF,SEVERE,WARNING,CONFIG,FINE,FINER,FINEST,ALL,FATAL,ERROR,WARN,INFO,DEBUG,TRACE|}",
 				r(1, 0, 0)));
 	}
 

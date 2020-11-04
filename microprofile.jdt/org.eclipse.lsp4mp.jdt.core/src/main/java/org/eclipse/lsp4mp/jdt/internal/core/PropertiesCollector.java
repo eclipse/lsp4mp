@@ -23,6 +23,7 @@ import org.eclipse.lsp4mp.commons.MicroProfilePropertiesScope;
 import org.eclipse.lsp4mp.commons.metadata.ConfigurationMetadata;
 import org.eclipse.lsp4mp.commons.metadata.ItemHint;
 import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
+import org.eclipse.lsp4mp.commons.metadata.ValueHint;
 import org.eclipse.lsp4mp.jdt.core.IPropertiesCollector;
 
 /**
@@ -78,14 +79,9 @@ public class PropertiesCollector implements IPropertiesCollector {
 		return hintsCache.containsKey(hint);
 	}
 
-	private void addItemHint(ItemHint itemHint) {
-		configuration.getHints().add(itemHint);
-		hintsCache.put(itemHint.getName(), itemHint);
-	}
-
 	@Override
 	public ItemHint getItemHint(String hint) {
-		ItemHint itemHint = hintsCache.get(hint);
+		ItemHint itemHint = getExistingItemHint(hint);
 		if (itemHint != null) {
 			return itemHint;
 		}
@@ -99,36 +95,37 @@ public class PropertiesCollector implements IPropertiesCollector {
 	@Override
 	public void merge(ConfigurationMetadata metadata, MergingStrategy mergingStrategy) {
 		List<ItemMetadata> properties = metadata.getProperties();
-		if (properties == null) {
-			return;
-		}
-		for (ItemMetadata property: properties) {
-			merge(property, mergingStrategy);
+		if (properties != null) {
+			for (ItemMetadata property : properties) {
+				merge(property, mergingStrategy);
+			}
 		}
 		List<ItemHint> hints = metadata.getHints();
 		if (hints != null) {
 			for (ItemHint itemHint : hints) {
-				addItemHint(itemHint);
+				merge(itemHint, mergingStrategy);
 			}
 		}
 	}
 
-	public void merge(ItemMetadata property, MergingStrategy mergingStrategy) {
+	// --------------- Properties merge
+
+	private void merge(ItemMetadata property, MergingStrategy mergingStrategy) {
 		if (onlySources && (property.getSource() == null || !property.getSource())) {
 			// In the case of the scopes is only sources, the property which is a binary
 			// property must not be added.
 			return;
 		}
 		switch (mergingStrategy) {
-			case IGNORE_IF_EXISTS:
-				mergeWithIgnoreIfExists(property);
-				break;
-			case REPLACE:
-				mergeWithReplace(property);
-				break;
-			default:
-				addProperty(property);
-				break;
+		case IGNORE_IF_EXISTS:
+			mergeWithIgnoreIfExists(property);
+			break;
+		case REPLACE:
+			mergeWithReplace(property);
+			break;
+		default:
+			addProperty(property);
+			break;
 		}
 	}
 
@@ -142,9 +139,7 @@ public class PropertiesCollector implements IPropertiesCollector {
 
 	private Optional<ItemMetadata> getExistingProperty(ItemMetadata property) {
 		List<ItemMetadata> configProperties = configuration.getProperties();
-		Optional<ItemMetadata> configProperty = configProperties.stream()
-				.filter(cp -> cp.getName().equals(property.getName())).findFirst();
-		return configProperty;
+		return configProperties.stream().filter(cp -> cp.getName().equals(property.getName())).findFirst();
 	}
 
 	private void mergeWithReplace(ItemMetadata property) {
@@ -157,5 +152,58 @@ public class PropertiesCollector implements IPropertiesCollector {
 
 	private void addProperty(ItemMetadata property) {
 		configuration.getProperties().add(property);
+	}
+
+	// --------------- ItemHint merge
+
+	private void merge(ItemHint itemHint, MergingStrategy mergingStrategy) {
+		ItemHint existingItemHint = getItemHint(itemHint.getName());
+		merge(itemHint.getValues(), existingItemHint, mergingStrategy);
+		if (itemHint.getProviders() != null) {
+			if (existingItemHint.getProviders() == null) {
+				existingItemHint.setProviders(new ArrayList<>());
+			}
+			existingItemHint.getProviders().addAll(itemHint.getProviders());
+		}
+	}
+
+	private static void merge(List<ValueHint> from, ItemHint to, MergingStrategy mergingStrategy) {
+		if (from == null || from.isEmpty()) {
+			return;
+		}
+		if (to.getValues() == null) {
+			to.setValues(new ArrayList<>());
+		}
+		for (ValueHint fromValue : from) {
+			switch (mergingStrategy) {
+			case IGNORE_IF_EXISTS:
+				if (!getExistingValue(fromValue.getValue(), to.getValues()).isPresent()) {
+					to.getValues().add(fromValue);
+				}
+				break;
+			case REPLACE:
+				Optional<ValueHint> existingValue = getExistingValue(fromValue.getValue(), to.getValues());
+				if (existingValue.isPresent()) {
+					to.getValues().remove(existingValue.get());
+				}
+				to.getValues().add(fromValue);
+				break;
+			default:
+				to.getValues().add(fromValue);
+			}
+		}
+	}
+
+	private static Optional<ValueHint> getExistingValue(String name, List<ValueHint> values) {
+		return values.stream().filter(cp -> cp.getValue().equals(name)).findFirst();
+	}
+
+	private ItemHint getExistingItemHint(String hint) {
+		return hintsCache.get(hint);
+	}
+	
+	private void addItemHint(ItemHint itemHint) {
+		configuration.getHints().add(itemHint);
+		hintsCache.put(itemHint.getName(), itemHint);
 	}
 }

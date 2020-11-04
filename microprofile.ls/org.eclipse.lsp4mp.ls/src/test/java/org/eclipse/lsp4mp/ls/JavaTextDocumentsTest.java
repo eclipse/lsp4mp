@@ -19,7 +19,6 @@ import java.util.concurrent.ExecutionException;
 import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaProjectLabelsParams;
 import org.eclipse.lsp4mp.commons.ProjectLabelInfoEntry;
-import org.eclipse.lsp4mp.ls.JavaTextDocuments;
 import org.eclipse.lsp4mp.ls.JavaTextDocuments.JavaTextDocument;
 import org.eclipse.lsp4mp.ls.api.MicroProfileJavaProjectLabelsProvider;
 import org.junit.Assert;

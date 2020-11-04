@@ -16,7 +16,6 @@ import java.util.Arrays;
 import java.util.Optional;
 
 import org.eclipse.lsp4mp.commons.ProjectLabelInfoEntry;
-import org.eclipse.lsp4mp.ls.JavaTextDocumentSnippetRegistry;
 import org.eclipse.lsp4mp.ls.commons.snippets.ISnippetContext;
 import org.eclipse.lsp4mp.ls.commons.snippets.Snippet;
 import org.eclipse.lsp4mp.ls.commons.snippets.SnippetRegistry;

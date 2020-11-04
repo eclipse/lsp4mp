@@ -56,9 +56,16 @@ public abstract class AbstractStaticPropertiesProvider extends AbstractPropertie
 
 	private ConfigurationMetadata metadata;
 
+	private final MergingStrategy mergingStrategy;
+
 	public AbstractStaticPropertiesProvider(String pluginId, String path) {
+		this(pluginId, path, MergingStrategy.IGNORE_IF_EXISTS);
+	}
+
+	public AbstractStaticPropertiesProvider(String pluginId, String path, MergingStrategy mergingStrategy) {
 		this.pluginId = pluginId;
 		this.path = path;
+		this.mergingStrategy = mergingStrategy;
 	}
 
 	@Override
@@ -93,16 +100,16 @@ public abstract class AbstractStaticPropertiesProvider extends AbstractPropertie
 			}
 		}
 		if (metadata != null) {
-			context.getCollector().merge(metadata, MergingStrategy.IGNORE_IF_EXISTS);
+			context.getCollector().merge(metadata, mergingStrategy);
 		}
 	}
 
 	/**
-	 * Returns a <code>ConfigurationMetadata</code> instance from
-	 * the data stored from the json file located at <code>this.path</code>
+	 * Returns a <code>ConfigurationMetadata</code> instance from the data stored
+	 * from the json file located at <code>this.path</code>
 	 *
-	 * @return <code>ConfigurationMetadata</code> instance from
-	 * the data stored from the json file located at <code>this.path</code>
+	 * @return <code>ConfigurationMetadata</code> instance from the data stored from
+	 *         the json file located at <code>this.path</code>
 	 * @throws IOException
 	 */
 	protected ConfigurationMetadata getMetadata() throws IOException {
@@ -112,11 +119,11 @@ public abstract class AbstractStaticPropertiesProvider extends AbstractPropertie
 	}
 
 	/**
-	 * Returns a <code>InputStream</code> instance that reads from the
-	 * file located at <code>this.path</code>
+	 * Returns a <code>InputStream</code> instance that reads from the file located
+	 * at <code>this.path</code>
 	 *
-	 * @return a <code>InputStream</code> instance that reads from the
-	 * file located at <code>this.path</code>
+	 * @return a <code>InputStream</code> instance that reads from the file located
+	 *         at <code>this.path</code>
 	 * @throws IOException
 	 */
 	protected InputStream getInputStream() throws IOException {
@@ -124,7 +131,8 @@ public abstract class AbstractStaticPropertiesProvider extends AbstractPropertie
 			return null;
 		}
 		if (pluginId != null) {
-			URL url = new URL(new StringBuilder(PLATFORM_PLUGIN).append(pluginId).append("/").append(path).toString());
+			URL url = new URL(new StringBuilder(PLATFORM_PLUGIN).append(pluginId)
+					.append(path.charAt(0) != '/' ? "/" : "").append(path).toString());
 			return url.openStream();
 		}
 		return new FileInputStream(new File(path));

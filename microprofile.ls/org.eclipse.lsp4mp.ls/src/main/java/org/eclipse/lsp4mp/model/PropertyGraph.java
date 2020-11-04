@@ -20,6 +20,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.lsp4mp.model.Node.NodeType;
+
 import com.google.common.base.Optional;
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Graph;
@@ -27,8 +29,6 @@ import com.google.common.graph.GraphBuilder;
 import com.google.common.graph.Graphs;
 import com.google.common.graph.MutableGraph;
 import com.google.common.graph.Traverser;
-
-import org.eclipse.lsp4mp.model.Node.NodeType;
 
 /**
  * Represents the graph of dependencies between properties defined in a

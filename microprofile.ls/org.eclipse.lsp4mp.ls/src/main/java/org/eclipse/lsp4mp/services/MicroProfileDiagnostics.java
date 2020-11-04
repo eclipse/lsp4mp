@@ -20,7 +20,6 @@ import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.model.PropertiesModel;
-import org.eclipse.lsp4mp.model.values.ValuesRulesManager;
 import org.eclipse.lsp4mp.settings.MicroProfileValidationSettings;
 
 /**
@@ -35,21 +34,18 @@ class MicroProfileDiagnostics {
 	 *
 	 * @param document           the properties model.
 	 * @param projectInfo        the MicroProfile properties
-	 * @param valuesRulesManager manager for values rules
 	 * @param validationSettings the validation settings.
 	 * @param cancelChecker      the cancel checker.
 	 * @return the result of the validation.
 	 */
 	public List<Diagnostic> doDiagnostics(PropertiesModel document, MicroProfileProjectInfo projectInfo,
-			ValuesRulesManager valuesRulesManager, MicroProfileValidationSettings validationSettings,
-			CancelChecker cancelChecker) {
+			MicroProfileValidationSettings validationSettings, CancelChecker cancelChecker) {
 		if (validationSettings == null) {
 			validationSettings = MicroProfileValidationSettings.DEFAULT;
 		}
 		List<Diagnostic> diagnostics = new ArrayList<Diagnostic>();
 		if (validationSettings.isEnabled()) {
-			MicroProfileValidator validator = new MicroProfileValidator(projectInfo, valuesRulesManager, diagnostics,
-					validationSettings);
+			MicroProfileValidator validator = new MicroProfileValidator(projectInfo, diagnostics, validationSettings);
 			validator.validate(document, cancelChecker);
 		}
 		return diagnostics;

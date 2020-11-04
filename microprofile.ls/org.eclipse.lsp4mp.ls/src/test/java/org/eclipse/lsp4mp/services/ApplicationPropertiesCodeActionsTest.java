@@ -156,7 +156,8 @@ public class ApplicationPropertiesCodeActionsTest {
 		testDiagnosticsFor(value, d);
 		testCodeActionsFor(value, d, ca("Did you mean 'FINE'?", te(0, 18, 0, 19, "FINE"), d),
 				ca("Did you mean 'FINER'?", te(0, 18, 0, 19, "FINER"), d),
-				ca("Did you mean 'FINEST'?", te(0, 18, 0, 19, "FINEST"), d));
+				ca("Did you mean 'FINEST'?", te(0, 18, 0, 19, "FINEST"), d),
+				ca("Did you mean 'FATAL'?", te(0, 18, 0, 19, "FATAL"), d));
 	};
 
 	@Test

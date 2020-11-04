@@ -24,8 +24,8 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.metadata.ConfigurationMetadata;
 import org.eclipse.lsp4mp.commons.metadata.ItemHint;
-import org.eclipse.lsp4mp.commons.metadata.ItemHint.ValueHint;
 import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
+import org.eclipse.lsp4mp.commons.metadata.ValueHint;
 import org.eclipse.lsp4mp.ls.commons.BadLocationException;
 import org.eclipse.lsp4mp.model.Node;
 import org.eclipse.lsp4mp.model.Node.NodeType;
@@ -35,7 +35,6 @@ import org.eclipse.lsp4mp.model.PropertyGraph;
 import org.eclipse.lsp4mp.model.PropertyKey;
 import org.eclipse.lsp4mp.model.PropertyValue;
 import org.eclipse.lsp4mp.model.PropertyValueExpression;
-import org.eclipse.lsp4mp.model.values.ValuesRulesManager;
 import org.eclipse.lsp4mp.settings.MicroProfileHoverSettings;
 import org.eclipse.lsp4mp.utils.DocumentationUtils;
 import org.eclipse.lsp4mp.utils.MicroProfilePropertiesUtils;
@@ -51,15 +50,14 @@ class MicroProfileHover {
 	/**
 	 * Returns Hover object for the currently hovered token
 	 *
-	 * @param document           the properties model document
-	 * @param position           the hover position
-	 * @param projectInfo        the MicroProfile project information
-	 * @param valuesRulesManager manager for values rules
-	 * @param hoverSettings      the hover settings
+	 * @param document      the properties model document
+	 * @param position      the hover position
+	 * @param projectInfo   the MicroProfile project information
+	 * @param hoverSettings the hover settings
 	 * @return Hover object for the currently hovered token
 	 */
 	public Hover doHover(PropertiesModel document, Position position, MicroProfileProjectInfo projectInfo,
-			ValuesRulesManager valuesRulesManager, MicroProfileHoverSettings hoverSettings) {
+			MicroProfileHoverSettings hoverSettings) {
 
 		Node node = null;
 		int offset = -1;
@@ -75,29 +73,29 @@ class MicroProfileHover {
 		}
 
 		switch (node.getNodeType()) {
-			case COMMENTS:
-				// no hover documentation
-				return null;
-			case PROPERTY_VALUE_EXPRESSION:
-				return getPropertyValueExpressionHover(node, projectInfo, hoverSettings);
-			case PROPERTY_VALUE_LITERAL:
-				// no hover documentation
-				return getPropertyValueHover(node.getParent(), projectInfo, valuesRulesManager, hoverSettings);
-			case PROPERTY_VALUE:
-				// no hover documentation
-				return getPropertyValueHover(node, projectInfo, valuesRulesManager, hoverSettings);
-			case PROPERTY_KEY:
-				PropertyKey key = (PropertyKey) node;
-				if (key.isBeforeProfile(offset)) {
-					// hover documentation on profile
-					return getProfileHover(key, hoverSettings);
-				} else {
-					// hover documentation on property key
-					return getPropertyKeyHover(key, projectInfo, hoverSettings);
-				}
+		case COMMENTS:
+			// no hover documentation
+			return null;
+		case PROPERTY_VALUE_EXPRESSION:
+			return getPropertyValueExpressionHover(node, projectInfo, hoverSettings);
+		case PROPERTY_VALUE_LITERAL:
+			// no hover documentation
+			return getPropertyValueHover(node.getParent(), projectInfo, hoverSettings);
+		case PROPERTY_VALUE:
+			// no hover documentation
+			return getPropertyValueHover(node, projectInfo, hoverSettings);
+		case PROPERTY_KEY:
+			PropertyKey key = (PropertyKey) node;
+			if (key.isBeforeProfile(offset)) {
+				// hover documentation on profile
+				return getProfileHover(key, hoverSettings);
+			} else {
+				// hover documentation on property key
+				return getPropertyKeyHover(key, projectInfo, hoverSettings);
+			}
 
-			default:
-				return null;
+		default:
+			return null;
 		}
 	}
 
@@ -182,7 +180,7 @@ class MicroProfileHover {
 	 * @return the documentation hover for property key represented by token
 	 */
 	private static Hover getPropertyValueHover(Node node, MicroProfileProjectInfo projectInfo,
-			ValuesRulesManager valuesRulesManager, MicroProfileHoverSettings hoverSettings) {
+			MicroProfileHoverSettings hoverSettings) {
 		PropertyValue value = ((PropertyValue) node);
 		boolean markdownSupported = hoverSettings.isContentFormatSupported(MarkupKind.MARKDOWN);
 		// retrieve MicroProfile property from the project information
@@ -192,7 +190,7 @@ class MicroProfileHover {
 		}
 		String propertyName = ((Property) (value.getParent())).getPropertyName();
 		ItemMetadata item = MicroProfilePropertiesUtils.getProperty(propertyName, projectInfo);
-		ValueHint enumItem = getValueHint(propertyValue, item, projectInfo, valuesRulesManager, value.getOwnerModel());
+		ValueHint enumItem = getValueHint(propertyValue, item, projectInfo, value.getOwnerModel());
 		if (enumItem != null) {
 			// MicroProfile property enumeration item, found, display its documentation as
 			// hover
@@ -273,7 +271,7 @@ class MicroProfileHover {
 	}
 
 	private static ValueHint getValueHint(String propertyValue, ItemMetadata metadata,
-			ConfigurationMetadata configuration, ValuesRulesManager valuesRulesManager, PropertiesModel model) {
+			ConfigurationMetadata configuration, PropertiesModel model) {
 		if (metadata == null) {
 			return null;
 		}
@@ -284,6 +282,6 @@ class MicroProfileHover {
 				return valueHint;
 			}
 		}
-		return valuesRulesManager.getValueHint(propertyValue, metadata, model);
+		return null;
 	}
 }

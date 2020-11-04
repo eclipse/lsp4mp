@@ -22,10 +22,10 @@ import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.google.common.io.Closeables;
-
 import org.eclipse.lsp4j.jsonrpc.MessageConsumer;
 import org.eclipse.lsp4j.services.LanguageServer;
+
+import com.google.common.io.Closeables;
 
 /**
  * Watches the parent process PID and invokes exit if it is no longer available.

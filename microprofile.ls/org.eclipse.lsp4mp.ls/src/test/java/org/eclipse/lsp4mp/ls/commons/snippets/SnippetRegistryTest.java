@@ -19,9 +19,6 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.Arrays;
 
-import org.eclipse.lsp4mp.ls.commons.snippets.Snippet;
-import org.eclipse.lsp4mp.ls.commons.snippets.SnippetRegistry;
-import org.eclipse.lsp4mp.ls.commons.snippets.TextDocumentSnippetRegistry;
 import org.junit.Assert;
 import org.junit.Test;
 

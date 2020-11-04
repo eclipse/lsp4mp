@@ -36,7 +36,6 @@ import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.extensions.ExtendedMicroProfileProjectInfo;
 import org.eclipse.lsp4mp.ls.api.MicroProfilePropertyDefinitionProvider;
 import org.eclipse.lsp4mp.model.PropertiesModel;
-import org.eclipse.lsp4mp.model.values.ValuesRulesManager;
 import org.eclipse.lsp4mp.settings.MicroProfileCommandCapabilities;
 import org.eclipse.lsp4mp.settings.MicroProfileCompletionSettings;
 import org.eclipse.lsp4mp.settings.MicroProfileFormattingSettings;
@@ -59,13 +58,8 @@ public class MicroProfileLanguageService {
 	private final MicroProfileFormatter formatter;
 	private final MicroProfileCodeActions codeActions;
 	private final MicroProfileDocumentHighlight documentHighlight;
-	private final ValuesRulesManager valuesRulesManager;
 
 	public MicroProfileLanguageService() {
-		this(new ValuesRulesManager(true));
-	}
-
-	public MicroProfileLanguageService(ValuesRulesManager valuesRulesManger) {
 		this.completions = new MicroProfileCompletions();
 		this.symbolsProvider = new MicroProfileSymbolsProvider();
 		this.hover = new MicroProfileHover();
@@ -74,7 +68,6 @@ public class MicroProfileLanguageService {
 		this.formatter = new MicroProfileFormatter();
 		this.codeActions = new MicroProfileCodeActions();
 		this.documentHighlight = new MicroProfileDocumentHighlight();
-		this.valuesRulesManager = valuesRulesManger;
 	}
 
 	/**
@@ -91,8 +84,8 @@ public class MicroProfileLanguageService {
 			MicroProfileCompletionSettings completionSettings, MicroProfileFormattingSettings formattingSettings,
 			CancelChecker cancelChecker) {
 		updateProperties(projectInfo, document);
-		return completions.doComplete(document, position, projectInfo, getValuesRulesManager(), completionSettings,
-				formattingSettings, cancelChecker);
+		return completions.doComplete(document, position, projectInfo, completionSettings, formattingSettings,
+				cancelChecker);
 	}
 
 	/**
@@ -107,7 +100,7 @@ public class MicroProfileLanguageService {
 	public Hover doHover(PropertiesModel document, Position position, MicroProfileProjectInfo projectInfo,
 			MicroProfileHoverSettings hoverSettings) {
 		updateProperties(projectInfo, document);
-		return hover.doHover(document, position, projectInfo, getValuesRulesManager(), hoverSettings);
+		return hover.doHover(document, position, projectInfo, hoverSettings);
 	}
 
 	/**
@@ -151,7 +144,8 @@ public class MicroProfileLanguageService {
 			PropertiesModel document, Position position, MicroProfileProjectInfo projectInfo,
 			MicroProfilePropertyDefinitionProvider provider, boolean definitionLinkSupport) {
 		updateProperties(projectInfo, document);
-		CompletableFuture<List<LocationLink>> definitionLocationLinks = definition.findDefinition(document, position, projectInfo, provider);
+		CompletableFuture<List<LocationLink>> definitionLocationLinks = definition.findDefinition(document, position,
+				projectInfo, provider);
 		if (definitionLinkSupport) {
 			return definitionLocationLinks.thenApply((List<LocationLink> resolvedLinks) -> {
 				return Either.forRight(resolvedLinks);
@@ -205,8 +199,7 @@ public class MicroProfileLanguageService {
 	public List<Diagnostic> doDiagnostics(PropertiesModel document, MicroProfileProjectInfo projectInfo,
 			MicroProfileValidationSettings validationSettings, CancelChecker cancelChecker) {
 		updateProperties(projectInfo, document);
-		return diagnostics.doDiagnostics(document, projectInfo, getValuesRulesManager(), validationSettings,
-				cancelChecker);
+		return diagnostics.doDiagnostics(document, projectInfo, validationSettings, cancelChecker);
 	}
 
 	/**
@@ -226,21 +219,12 @@ public class MicroProfileLanguageService {
 			MicroProfileProjectInfo projectInfo, MicroProfileFormattingSettings formattingSettings,
 			MicroProfileCommandCapabilities commandCapabilities) {
 		updateProperties(projectInfo, document);
-		return codeActions.doCodeActions(context, range, document, projectInfo, getValuesRulesManager(),
-				formattingSettings, commandCapabilities);
+		return codeActions.doCodeActions(context, range, document, projectInfo, formattingSettings,
+				commandCapabilities);
 	}
 
 	public List<? extends DocumentHighlight> findDocumentHighlight(PropertiesModel document, Position position) {
 		return documentHighlight.findDocumentHighlight(document, position);
-	}
-
-	/**
-	 * Returns the manager for values rules.
-	 *
-	 * @return the manager for values rules.
-	 */
-	private ValuesRulesManager getValuesRulesManager() {
-		return valuesRulesManager;
 	}
 
 	private void updateProperties(MicroProfileProjectInfo projectInfo, PropertiesModel document) {

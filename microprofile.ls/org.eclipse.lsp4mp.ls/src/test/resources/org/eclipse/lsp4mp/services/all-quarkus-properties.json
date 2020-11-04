@@ -15907,6 +15907,79 @@
       ],
       "name": "io.smallrye.jwt.KeyFormat",
       "sourceType": "io.smallrye.jwt.KeyFormat"
-    }
+    },
+    {
+		"name": "java.util.logging.Level",
+		"sourceType": "java.util.logging.Level",
+		"values": [
+			{
+				"value": "OFF",
+				"description": "`OFF` is a special level that can be used to turn off logging.\nThis level is initialized to `Integer.MAX_VALUE`."
+			},
+			{
+				"value": "SEVERE",
+				"description": "`SEVERE` is a message level indicating a serious failure.\n\nIn general SEVERE messages should describe events that are of considerable importance and which will prevent normal program execution. They should be reasonably intelligible to end users and to system administrators. This level is initialized to `1000`."
+			},
+			{
+				"value": "WARNING",
+				"description": "`WARNING` is a message level indicating a potential problem.\n\nIn general WARNING messages should describe events that will be of interest to end users or system managers, or which indicate potential problems. This level is initialized to `900`."
+			},
+			{
+				"value": "CONFIG",
+				"description": "`CONFIG` is a message level for static configuration messages.\n\nCONFIG messages are intended to provide a variety of static configuration information, to assist in debugging problems that may be associated with particular configurations. For example, CONFIG message might include the CPU type, the graphics depth, the GUI look-and-feel, etc. This level is initialized to `700`."
+			},
+			{
+				"value": "FINE",
+				"description": "`FINE` is a message level providing tracing information.\n\nAll of FINE, FINER, and FINEST are intended for relatively detailed tracing.  The exact meaning of the three levels will vary between subsystems, but in general, FINEST should be used for the most voluminous detailed output, FINER for somewhat less detailed output, and FINE for the  lowest volume (and most important) messages.\n\nIn general the FINE level should be used for information that will be broadly interesting to developers who do not have a specialized interest in the specific subsystem.\n\nFINE messages might include things like minor (recoverable) failures.  Issues indicating potential performance problems are also worth logging as FINE. This level is initialized to `500`."
+			},
+			{
+				"value": "FINER",
+				"description": "`FINER` indicates a fairly detailed tracing message. By default logging calls for entering, returning, or throwing an exception are traced at this level. This level is initialized to `400`."
+			},
+			{
+				"value": "FINEST",
+				"description": "`FINEST` indicates a highly detailed tracing message. This level is initialized to `300`."
+			},
+			{
+				"value": "ALL",
+				"description": "`ALL` indicates that all messages should be logged. This level is initialized to `Integer.MIN_VALUE`."
+			},
+			{
+				"value": "FATAL",
+				"description": "Use the `FATAL` level priority for events that indicate a critical service failure. If a service issues a FATAL error it is completely unable to service requests of any kind."
+			},
+			{
+				"value": "ERROR",
+				"description": "Use the `ERROR` level priority for events that indicate a disruption in a request or the ability to service a request. A service should have some capacity to continue to service requests in the presence of ERRORs."
+			},
+			{
+				"value": "WARN",
+				"description": "Use the `WARN` level priority for events that may indicate a non-critical service error. Resumable errors, or minor breaches in request expectations fall into this category. The distinction between WARN and ERROR may be hard to discern and so its up to the developer to judge. The simplest criterion is would this failure result in a user support call. If it would use ERROR. If it would not use WARN."
+			},
+			{
+				"value": "INFO",
+				"description": "Use the `INFO` level priority for service life-cycle events and other crucial related information. Looking at the INFO messages for a given service category should tell you exactly what state the service is in."
+			},
+			{
+				"value": "DEBUG",
+				"description": "Use the `DEBUG` level priority for log messages that convey extra information regarding life-cycle events. Developer or in depth information required for support is the basis for this priority. The important point is that when the DEBUG level priority is enabled, the JBoss server log should not grow proportionally with the number of server requests. Looking at the DEBUG and INFO messages for a given service category should tell you exactly what state the service is in, as well as what server resources it is using: ports, interfaces, log files, etc."
+			},
+			{
+				"value": "TRACE",
+				"description": "Use `TRACE` the level priority for log messages that are directly associated with activity that corresponds requests. Further, such messages should not be submitted to a Logger unless the Logger category priority threshold indicates that the message will be rendered. Use the Logger.isTraceEnabled() method to determine if the category priority threshold is enabled. The point of the TRACE priority is to allow for deep probing of the JBoss server behavior when necessary. When the TRACE level priority is enabled, you can expect the number of messages in the JBoss server log to grow at least a x N, where N is the number of requests received by the server, a some constant. The server log may well grow as power of N depending on the request-handling layer being traced."
+			}
+		]
+	},
+	{
+			"name": "quarkus.log.category.{*}.level",
+			"providers": [
+				{
+					"name": "handle-as",
+					"parameters": {
+						"target": "java.util.logging.Level"
+					}
+				}
+			]
+		}
   ]
 }
