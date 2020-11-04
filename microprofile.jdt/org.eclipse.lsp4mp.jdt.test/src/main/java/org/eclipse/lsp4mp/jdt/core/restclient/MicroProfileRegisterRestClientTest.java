@@ -81,7 +81,7 @@ public class MicroProfileRegisterRestClientTest extends BasePropertiesManagerTes
 		assertPropertiesDuplicate(infoFromClasspath);
 
 		// mp-rest Hints
-		assertHints(infoFromClasspath, 1,
+		assertHints(infoFromClasspath, (Integer) null,
 
 				h("${mp.register.rest.client.class}", null, false, null,
 						vh("org.acme.restclient.CountriesService", null, "org.acme.restclient.CountriesService"), //

@@ -20,7 +20,6 @@ import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfoParams;
 import org.eclipse.lsp4mp.commons.MicroProfilePropertiesChangeEvent;
 import org.eclipse.lsp4mp.commons.MicroProfilePropertiesScope;
-import org.eclipse.lsp4mp.ls.MicroProfileProjectInfoCache;
 import org.eclipse.lsp4mp.ls.api.MicroProfileProjectInfoProvider;
 import org.junit.Assert;
 import org.junit.Test;

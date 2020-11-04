@@ -13,13 +13,19 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.internal.core;
 
-import java.util.ArrayList;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
-import org.eclipse.lsp4mp.jdt.core.IPropertiesCollector.MergingStrategy;
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import org.eclipse.lsp4mp.commons.MicroProfilePropertiesScope;
 import org.eclipse.lsp4mp.commons.metadata.ConfigurationMetadata;
+import org.eclipse.lsp4mp.commons.metadata.ItemHint;
 import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
-import org.junit.Assert;
+import org.eclipse.lsp4mp.commons.metadata.ValueHint;
+import org.eclipse.lsp4mp.jdt.core.IPropertiesCollector.MergingStrategy;
 import org.junit.Test;
 
 /**
@@ -30,6 +36,8 @@ import org.junit.Test;
  */
 public class PropertiesCollectorTest {
 
+	// ------------ Test with properties merge
+
 	@Test
 	public void merge() {
 		ConfigurationMetadata configuration = new ConfigurationMetadata();
@@ -39,12 +47,12 @@ public class PropertiesCollectorTest {
 		ConfigurationMetadata toMerge = createToMerge();
 		collector.merge(toMerge);
 
-		Assert.assertEquals(2, configuration.getProperties().size());
+		assertEquals(2, configuration.getProperties().size());
 
 		ConfigurationMetadata dupMerge = createDuplicateMerge();
 		collector.merge(dupMerge); // implicitly using MergingStrategy.FORCE
 
-		Assert.assertEquals(3, configuration.getProperties().size());
+		assertEquals(3, configuration.getProperties().size());
 	}
 
 	@Test
@@ -56,7 +64,7 @@ public class PropertiesCollectorTest {
 		ConfigurationMetadata toMerge = createToMerge();
 		collector.merge(toMerge);
 
-		Assert.assertEquals(1, configuration.getProperties().size());
+		assertEquals(1, configuration.getProperties().size());
 	}
 
 	@Test
@@ -68,14 +76,14 @@ public class PropertiesCollectorTest {
 		ConfigurationMetadata toMerge = createToMerge();
 		collector.merge(toMerge, MergingStrategy.REPLACE);
 
-		Assert.assertEquals(2, configuration.getProperties().size());
-		Assert.assertNull(configuration.getProperties().get(0).getDescription());
+		assertEquals(2, configuration.getProperties().size());
+		assertNull(configuration.getProperties().get(0).getDescription());
 
 		ConfigurationMetadata dupMerge = createDuplicateMerge();
 		collector.merge(dupMerge, MergingStrategy.REPLACE);
 
-		Assert.assertEquals(2, configuration.getProperties().size());
-		Assert.assertNotNull(configuration.getProperties().get(1).getDescription());
+		assertEquals(2, configuration.getProperties().size());
+		assertNotNull(configuration.getProperties().get(1).getDescription());
 	}
 
 	@Test
@@ -87,14 +95,14 @@ public class PropertiesCollectorTest {
 		ConfigurationMetadata toMerge = createToMerge();
 		collector.merge(toMerge, MergingStrategy.IGNORE_IF_EXISTS);
 
-		Assert.assertEquals(2, configuration.getProperties().size());
-		Assert.assertNull(configuration.getProperties().get(0).getDescription());
+		assertEquals(2, configuration.getProperties().size());
+		assertNull(configuration.getProperties().get(0).getDescription());
 
 		ConfigurationMetadata dupMerge = createDuplicateMerge();
 		collector.merge(dupMerge, MergingStrategy.IGNORE_IF_EXISTS);
 
-		Assert.assertEquals(2, configuration.getProperties().size());
-		Assert.assertNull(configuration.getProperties().get(0).getDescription());
+		assertEquals(2, configuration.getProperties().size());
+		assertNull(configuration.getProperties().get(0).getDescription());
 	}
 
 	private static ConfigurationMetadata createToMerge() {
@@ -124,4 +132,101 @@ public class PropertiesCollectorTest {
 		return dupMerge;
 	}
 
+	// ------------ Test with hint merge
+
+	@Test
+	public void mergeHintsWithIgnore() {
+
+		ConfigurationMetadata configuration1 = new ConfigurationMetadata();
+		PropertiesCollector collector = new PropertiesCollector(configuration1,
+				MicroProfilePropertiesScope.SOURCES_AND_DEPENDENCIES);
+
+		ItemHint hint1 = collector.getItemHint("logging");
+		hint1.getValues().add(vh("OFF", "OFF [1]"));
+		hint1.getValues().add(vh("SEVERE", "SEVERE [1]"));
+		hint1.getValues().add(vh("INFO", "INFO [1]"));
+
+		ConfigurationMetadata configuration2 = new ConfigurationMetadata();
+		ItemHint hint2 = new ItemHint();
+		hint2.setName("logging");
+		hint2.setValues(
+				new ArrayList<>(Arrays.asList(vh("DEBUG", "DEBUG [2]"), vh("INFO", "INFO [2]"), vh("OFF", "OFF [2]"))));
+		configuration2.setHints(new ArrayList<>(Arrays.asList(hint2)));
+
+		collector.merge(configuration2, MergingStrategy.IGNORE_IF_EXISTS);
+
+		assertEquals(1, configuration1.getHints().size());
+		assertEquals(4, configuration1.getHints().get(0).getValues().size());
+		assertEquals("OFF [1]", configuration1.getHints().get(0).getValues().get(0).getDescription());
+		assertEquals("SEVERE [1]", configuration1.getHints().get(0).getValues().get(1).getDescription());
+		assertEquals("INFO [1]", configuration1.getHints().get(0).getValues().get(2).getDescription());
+		assertEquals("DEBUG [2]", configuration1.getHints().get(0).getValues().get(3).getDescription());
+	}
+
+	@Test
+	public void mergeHintsWithReplace() {
+
+		ConfigurationMetadata configuration1 = new ConfigurationMetadata();
+		PropertiesCollector collector = new PropertiesCollector(configuration1,
+				MicroProfilePropertiesScope.SOURCES_AND_DEPENDENCIES);
+
+		ItemHint hint1 = collector.getItemHint("logging");
+		hint1.getValues().add(vh("OFF", "OFF [1]"));
+		hint1.getValues().add(vh("SEVERE", "SEVERE [1]"));
+		hint1.getValues().add(vh("INFO", "INFO [1]"));
+
+		ConfigurationMetadata configuration2 = new ConfigurationMetadata();
+		ItemHint hint2 = new ItemHint();
+		hint2.setName("logging");
+		hint2.setValues(
+				new ArrayList<>(Arrays.asList(vh("DEBUG", "DEBUG [2]"), vh("INFO", "INFO [2]"), vh("OFF", "OFF [2]"))));
+		configuration2.setHints(new ArrayList<>(Arrays.asList(hint2)));
+
+		collector.merge(configuration2, MergingStrategy.REPLACE);
+
+		assertEquals(1, configuration1.getHints().size());
+		assertEquals(4, configuration1.getHints().get(0).getValues().size());
+		assertEquals("SEVERE [1]", configuration1.getHints().get(0).getValues().get(0).getDescription());
+		assertEquals("DEBUG [2]", configuration1.getHints().get(0).getValues().get(1).getDescription());
+		assertEquals("INFO [2]", configuration1.getHints().get(0).getValues().get(2).getDescription());
+		assertEquals("OFF [2]", configuration1.getHints().get(0).getValues().get(3).getDescription());
+	}
+
+	@Test
+	public void mergeHintsWithForce() {
+
+		ConfigurationMetadata configuration1 = new ConfigurationMetadata();
+		PropertiesCollector collector = new PropertiesCollector(configuration1,
+				MicroProfilePropertiesScope.SOURCES_AND_DEPENDENCIES);
+
+		ItemHint hint1 = collector.getItemHint("logging");
+		hint1.getValues().add(vh("OFF", "OFF [1]"));
+		hint1.getValues().add(vh("SEVERE", "SEVERE [1]"));
+		hint1.getValues().add(vh("INFO", "INFO [1]"));
+
+		ConfigurationMetadata configuration2 = new ConfigurationMetadata();
+		ItemHint hint2 = new ItemHint();
+		hint2.setName("logging");
+		hint2.setValues(
+				new ArrayList<>(Arrays.asList(vh("DEBUG", "DEBUG [2]"), vh("INFO", "INFO [2]"), vh("OFF", "OFF [2]"))));
+		configuration2.setHints(new ArrayList<>(Arrays.asList(hint2)));
+
+		collector.merge(configuration2, MergingStrategy.FORCE);
+
+		assertEquals(1, configuration1.getHints().size());
+		assertEquals(6, configuration1.getHints().get(0).getValues().size());
+		assertEquals("OFF [1]", configuration1.getHints().get(0).getValues().get(0).getDescription());
+		assertEquals("SEVERE [1]", configuration1.getHints().get(0).getValues().get(1).getDescription());
+		assertEquals("INFO [1]", configuration1.getHints().get(0).getValues().get(2).getDescription());
+		assertEquals("DEBUG [2]", configuration1.getHints().get(0).getValues().get(3).getDescription());
+		assertEquals("INFO [2]", configuration1.getHints().get(0).getValues().get(4).getDescription());
+		assertEquals("OFF [2]", configuration1.getHints().get(0).getValues().get(5).getDescription());
+	}
+
+	private static ValueHint vh(String value, String description) {
+		ValueHint debug = new ValueHint();
+		debug.setValue(value);
+		debug.setDescription(description);
+		return debug;
+	}
 }

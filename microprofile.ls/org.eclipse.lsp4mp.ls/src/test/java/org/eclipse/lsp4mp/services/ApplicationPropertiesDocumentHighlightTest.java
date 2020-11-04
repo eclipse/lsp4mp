@@ -14,12 +14,11 @@
 
 package org.eclipse.lsp4mp.services;
 
-import org.junit.Test;
-
-import static org.eclipse.lsp4mp.services.MicroProfileAssert.r;
 import static org.eclipse.lsp4mp.services.MicroProfileAssert.assertDocumentHighlight;
+import static org.eclipse.lsp4mp.services.MicroProfileAssert.r;
 
 import org.eclipse.lsp4mp.ls.commons.BadLocationException;
+import org.junit.Test;
 
 /**
  * Tests for the document highlight in MicroProfile properties files

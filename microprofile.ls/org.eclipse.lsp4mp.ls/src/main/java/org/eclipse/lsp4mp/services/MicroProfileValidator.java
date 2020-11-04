@@ -37,7 +37,6 @@ import org.eclipse.lsp4mp.model.Node.NodeType;
 import org.eclipse.lsp4mp.model.PropertiesModel;
 import org.eclipse.lsp4mp.model.Property;
 import org.eclipse.lsp4mp.model.PropertyValueExpression;
-import org.eclipse.lsp4mp.model.values.ValuesRulesManager;
 import org.eclipse.lsp4mp.settings.MicroProfileValidationSettings;
 import org.eclipse.lsp4mp.utils.MicroProfilePropertiesUtils;
 import org.eclipse.lsp4mp.utils.PositionUtils;
@@ -55,17 +54,16 @@ class MicroProfileValidator {
 	private static final String MICROPROFILE_DIAGNOSTIC_SOURCE = "microprofile";
 
 	private final MicroProfileProjectInfo projectInfo;
-	private final ValuesRulesManager valuesRulesManager;
+
 	private final List<Diagnostic> diagnostics;
 
 	private final MicroProfileValidationSettings validationSettings;
 	private final Map<String, List<Property>> existingProperties;
 	private Set<String> allProperties;
 
-	public MicroProfileValidator(MicroProfileProjectInfo projectInfo, ValuesRulesManager valuesRulesManager,
-			List<Diagnostic> diagnostics, MicroProfileValidationSettings validationSettings) {
+	public MicroProfileValidator(MicroProfileProjectInfo projectInfo, List<Diagnostic> diagnostics,
+			MicroProfileValidationSettings validationSettings) {
 		this.projectInfo = projectInfo;
-		this.valuesRulesManager = valuesRulesManager;
 		this.diagnostics = diagnostics;
 		this.validationSettings = validationSettings;
 		this.existingProperties = new HashMap<String, List<Property>>();
@@ -215,7 +213,8 @@ class MicroProfileValidator {
 					}
 					String refdProp = propValExpr.getReferencedPropertyName();
 					if (!allProperties.contains(refdProp)) {
-						Range range = PositionUtils.createAdjustedRange(propValExpr, 2, propValExpr.isClosed()? -1 : 0);
+						Range range = PositionUtils.createAdjustedRange(propValExpr, 2,
+								propValExpr.isClosed() ? -1 : 0);
 						if (range != null) {
 							addDiagnostic("Unknown referenced property '" + refdProp + "'", range, expressionSeverity,
 									ValidationType.expression.name());
@@ -240,8 +239,7 @@ class MicroProfileValidator {
 	 */
 	private String getErrorIfInvalidEnum(ItemMetadata metadata, ConfigurationMetadata configuration,
 			PropertiesModel model, String value) {
-		if (!configuration.isValidEnum(metadata, value)
-				|| (valuesRulesManager != null && !valuesRulesManager.isValidEnum(metadata, model, value))) {
+		if (!MicroProfilePropertiesUtils.isValidEnum(metadata, configuration, value)) {
 			return "Invalid enum value: '" + value + "' is invalid for type " + metadata.getType();
 		}
 		return null;

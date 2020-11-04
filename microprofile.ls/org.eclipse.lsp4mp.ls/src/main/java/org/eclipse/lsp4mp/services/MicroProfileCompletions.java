@@ -34,8 +34,8 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.metadata.ConverterKind;
-import org.eclipse.lsp4mp.commons.metadata.ItemHint.ValueHint;
 import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
+import org.eclipse.lsp4mp.commons.metadata.ValueHint;
 import org.eclipse.lsp4mp.ls.commons.BadLocationException;
 import org.eclipse.lsp4mp.ls.commons.SnippetsBuilder;
 import org.eclipse.lsp4mp.ls.commons.TextDocument;
@@ -47,7 +47,6 @@ import org.eclipse.lsp4mp.model.Property;
 import org.eclipse.lsp4mp.model.PropertyGraph;
 import org.eclipse.lsp4mp.model.PropertyKey;
 import org.eclipse.lsp4mp.model.PropertyValueExpression;
-import org.eclipse.lsp4mp.model.values.ValuesRulesManager;
 import org.eclipse.lsp4mp.settings.MicroProfileCompletionSettings;
 import org.eclipse.lsp4mp.settings.MicroProfileFormattingSettings;
 import org.eclipse.lsp4mp.snippets.LanguageId;
@@ -73,14 +72,13 @@ class MicroProfileCompletions {
 	 * @param document           the properties model document
 	 * @param position           the position where completion was triggered
 	 * @param projectInfo        the MicroProfile project information
-	 * @param valuesRulesManager manager for values rules
 	 * @param completionSettings the completion settings
 	 * @param cancelChecker      the cancel checker
 	 * @return completion list for the given position
 	 */
 	public CompletionList doComplete(PropertiesModel document, Position position, MicroProfileProjectInfo projectInfo,
-			ValuesRulesManager valuesRulesManager, MicroProfileCompletionSettings completionSettings,
-			MicroProfileFormattingSettings formattingSettings, CancelChecker cancelChecker) {
+			MicroProfileCompletionSettings completionSettings, MicroProfileFormattingSettings formattingSettings,
+			CancelChecker cancelChecker) {
 		CompletionList list = new CompletionList();
 		int offset = -1;
 		Node node = null;
@@ -103,28 +101,28 @@ class MicroProfileCompletions {
 		case PROPERTY_VALUE_EXPRESSION:
 			PropertyValueExpression propExpr = (PropertyValueExpression) node;
 			if (offset == propExpr.getStart() || (propExpr.isClosed() && propExpr.getEnd() == offset)) {
-				collectPropertyValueSuggestions(node, document, projectInfo, valuesRulesManager, completionSettings, list);
+				collectPropertyValueSuggestions(node, document, projectInfo, completionSettings, list);
 			} else {
-				collectPropertyValueExpressionSuggestions(node, document, projectInfo, valuesRulesManager, completionSettings, list);
+				collectPropertyValueExpressionSuggestions(node, document, projectInfo, completionSettings, list);
 			}
 			break;
 
 		case ASSIGN:
 			// Only collect if on right side of =
 			if (offset >= node.getEnd()) {
-				collectPropertyValueSuggestions(node, document, projectInfo, valuesRulesManager, completionSettings, list);
+				collectPropertyValueSuggestions(node, document, projectInfo, completionSettings, list);
 			}
 			break;
 		case PROPERTY_VALUE:
 		case PROPERTY_VALUE_LITERAL:
 			// completion on property value
-			collectPropertyValueSuggestions(node, document, projectInfo, valuesRulesManager, completionSettings, list);
+			collectPropertyValueSuggestions(node, document, projectInfo, completionSettings, list);
 			break;
 
 		default:
 			// completion on property key
-			collectPropertyKeySuggestions(offset, node, document, projectInfo, valuesRulesManager, completionSettings,
-					formattingSettings, list);
+			collectPropertyKeySuggestions(offset, node, document, projectInfo, completionSettings, formattingSettings,
+					list);
 			// Collect completion items with snippet
 			collectSnippetSuggestions(offset, node, document, projectInfo, completionSettings, getSnippetRegistry(),
 					list);
@@ -139,14 +137,12 @@ class MicroProfileCompletions {
 	 * @param offset             the offset where completion was invoked
 	 * @param node               the property key node
 	 * @param projectInfo        the MicroProfile project information
-	 * @param valuesRulesManager the values rules manager
 	 * @param completionSettings the completion settings
 	 * @param list               the completion list to fill
 	 */
 	private static void collectPropertyKeySuggestions(int offset, Node node, PropertiesModel model,
-			MicroProfileProjectInfo projectInfo, ValuesRulesManager valuesRulesManager,
-			MicroProfileCompletionSettings completionSettings, MicroProfileFormattingSettings formattingSettings,
-			CompletionList list) {
+			MicroProfileProjectInfo projectInfo, MicroProfileCompletionSettings completionSettings,
+			MicroProfileFormattingSettings formattingSettings, CompletionList list) {
 
 		boolean snippetsSupported = completionSettings.isCompletionSnippetsSupported();
 		boolean markdownSupported = completionSettings.isDocumentationFormatSupported(MarkupKind.MARKDOWN);
@@ -192,8 +188,7 @@ class MicroProfileCompletions {
 			item.setKind(CompletionItemKind.Property);
 
 			String defaultValue = property.getDefaultValue();
-			Collection<ValueHint> enums = MicroProfilePropertiesUtils.getEnums(property, projectInfo, model,
-					valuesRulesManager);
+			Collection<ValueHint> enums = MicroProfilePropertiesUtils.getEnums(property, projectInfo);
 
 			StringBuilder insertText = new StringBuilder();
 			if (profile != null) {
@@ -367,30 +362,29 @@ class MicroProfileCompletions {
 	 * @param list               the completion list to fill
 	 */
 	private static void collectPropertyValueSuggestions(Node node, PropertiesModel model,
-			MicroProfileProjectInfo projectInfo, ValuesRulesManager valuesRulesManager,
-			MicroProfileCompletionSettings completionSettings, CompletionList list) {
+			MicroProfileProjectInfo projectInfo, MicroProfileCompletionSettings completionSettings,
+			CompletionList list) {
 
 		Property property = null;
 
 		switch (node.getNodeType()) {
-			case ASSIGN:
-			case PROPERTY_VALUE:
-				property = (Property) node.getParent();
-				break;
-			case PROPERTY_VALUE_LITERAL:
-			case PROPERTY_VALUE_EXPRESSION:
-				property = (Property) node.getParent().getParent();
-				break;
-			default:
-				assert false;
+		case ASSIGN:
+		case PROPERTY_VALUE:
+			property = (Property) node.getParent();
+			break;
+		case PROPERTY_VALUE_LITERAL:
+		case PROPERTY_VALUE_EXPRESSION:
+			property = (Property) node.getParent().getParent();
+			break;
+		default:
+			assert false;
 		}
 
 		String propertyName = property.getPropertyName();
 
 		ItemMetadata item = MicroProfilePropertiesUtils.getProperty(propertyName, projectInfo);
 		if (item != null) {
-			Collection<ValueHint> enums = MicroProfilePropertiesUtils.getEnums(item, projectInfo, model,
-					valuesRulesManager);
+			Collection<ValueHint> enums = MicroProfilePropertiesUtils.getEnums(item, projectInfo);
 			if (enums != null && !enums.isEmpty()) {
 				boolean markdownSupported = completionSettings.isDocumentationFormatSupported(MarkupKind.MARKDOWN);
 				for (ValueHint e : enums) {
@@ -401,24 +395,27 @@ class MicroProfileCompletions {
 		}
 	}
 
-	private static void collectPropertyValueExpressionSuggestions(Node node,
-		PropertiesModel model, MicroProfileProjectInfo projectInfo, ValuesRulesManager valuesRulesManager,
-		MicroProfileCompletionSettings completionSettings, CompletionList list) {
+	private static void collectPropertyValueExpressionSuggestions(Node node, PropertiesModel model,
+			MicroProfileProjectInfo projectInfo, MicroProfileCompletionSettings completionSettings,
+			CompletionList list) {
 
 		PropertyGraph graph = new PropertyGraph(node.getOwnerModel());
 
-		// Find properties that won't make a circular dependency and suggest them for completion
+		// Find properties that won't make a circular dependency and suggest them for
+		// completion
 		String completionPropertyName = ((Property) node.getParent().getParent()).getPropertyKey();
 		List<String> independentProperties = graph.getIndependentProperties(completionPropertyName);
 		// Add all independent properties as completion items
 		for (String independentProperty : independentProperties) {
 			list.getItems().add(getPropertyCompletionItem(independentProperty, (PropertyValueExpression) node, model));
 		}
-		// Add all properties not referenced in the properties file as completion options
+		// Add all properties not referenced in the properties file as completion
+		// options
 		for (ItemMetadata candidateCompletion : projectInfo.getProperties()) {
 			String candidateCompletionName = candidateCompletion.getName();
 			if (!graph.hasNode(candidateCompletionName)) {
-				list.getItems().add(getPropertyCompletionItem(candidateCompletionName, (PropertyValueExpression) node, model));
+				list.getItems()
+						.add(getPropertyCompletionItem(candidateCompletionName, (PropertyValueExpression) node, model));
 			}
 		}
 	}
@@ -470,12 +467,14 @@ class MicroProfileCompletions {
 	 *
 	 * @param property the metadata of the property to create a completion item for
 	 */
-	private static CompletionItem getPropertyCompletionItem(String propertyName, PropertyValueExpression propertyValueExpression, PropertiesModel model) {
+	private static CompletionItem getPropertyCompletionItem(String propertyName,
+			PropertyValueExpression propertyValueExpression, PropertiesModel model) {
 		String completionText = "${" + propertyName + "}";
 		CompletionItem completionItem = new CompletionItem(completionText);
 		completionItem.setKind(CompletionItemKind.Value);
 		try {
-			Range range = new Range(model.getDocument().positionAt(propertyValueExpression.getStart()), model.getDocument().positionAt(propertyValueExpression.getEnd()));
+			Range range = new Range(model.getDocument().positionAt(propertyValueExpression.getStart()),
+					model.getDocument().positionAt(propertyValueExpression.getEnd()));
 			completionItem.setTextEdit(new TextEdit(range, completionText));
 			return completionItem;
 		} catch (BadLocationException e) {

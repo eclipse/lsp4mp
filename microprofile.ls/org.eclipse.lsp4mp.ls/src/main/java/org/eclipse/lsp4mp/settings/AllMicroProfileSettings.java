@@ -13,10 +13,10 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.settings;
 
-import com.google.gson.annotations.JsonAdapter;
-
 import org.eclipse.lsp4j.jsonrpc.json.adapters.JsonElementTypeAdapter;
 import org.eclipse.lsp4mp.utils.JSONUtility;
+
+import com.google.gson.annotations.JsonAdapter;
 
 /**
  * Represents all settings under the 'microprofile' key

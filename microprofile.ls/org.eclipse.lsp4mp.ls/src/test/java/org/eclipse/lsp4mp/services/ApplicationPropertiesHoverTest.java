@@ -174,14 +174,12 @@ public class ApplicationPropertiesHoverTest {
 
 	@Test
 	public void hoverOnValueForLevelBasedOnRule() throws BadLocationException {
-		// quarkus.log.file.level has 'java.util.logging.Level' which has no
-		// enumeration
-		// to fix it, quarkus-values-rules.json defines the Level enumerations
+		// quarkus.log.file.level has 'java.util.logging.Level'
 		String value = "quarkus.log.file.level=OF|F ";
 		String hoverLabel = "**OFF**" + //
 				System.lineSeparator() + //
 				System.lineSeparator() + //
-				"OFF is a special level that can be used to turn off logging.\nThis level is initialized to `Integer.MAX_VALUE`."
+				"`OFF` is a special level that can be used to turn off logging.\nThis level is initialized to `Integer.MAX_VALUE`."
 				+ //
 				System.lineSeparator();
 		assertHoverMarkdown(value, hoverLabel, 23);
@@ -222,7 +220,7 @@ public class ApplicationPropertiesHoverTest {
 		String value = "property.one = hello\n" + //
 				"property.two = ${property.one}\n" + //
 				"property.three = ${property.two}\n" + //
-				"property.four = ${property.three}\n" +
+				"property.four = ${property.three}\n" + //
 				"property.five = ${property|.four}";
 		String hoverLabel = "hello";
 		assertHoverMarkdown(value, hoverLabel, 16);
@@ -295,15 +293,21 @@ public class ApplicationPropertiesHoverTest {
 
 	@Test
 	public void hoverKeyWithReference() throws BadLocationException {
-		String value = "value = value\n"  + //
+		String value = "value = value\n" + //
 				"mp.metri|cs.appName=${value}";
 		assertHoverMarkdown(value, //
-				"**mp.metrics.appName**\n" + //
-				"\nThe app name.\n\n" + //
-				" * Type: `java.lang.String`\n" + //
-				" * Value: `value`\n" + //
-				" * Extension: `microprofile-metrics-api`"
-				, 0);
+				"**mp.metrics.appName**" + //
+						System.lineSeparator() + //
+						System.lineSeparator() + //
+						"The app name." + //
+						System.lineSeparator() + //
+						System.lineSeparator() + //
+						" * Type: `java.lang.String`" + //
+						System.lineSeparator() + //
+						" * Value: `value`" + //
+						System.lineSeparator() + //
+						" * Extension: `microprofile-metrics-api`",
+				0);
 	}
 
 	@Test
@@ -321,15 +325,21 @@ public class ApplicationPropertiesHoverTest {
 
 	@Test
 	public void hoverKeyWithReferenceAndSelfLoop() throws BadLocationException {
-		String value = "value = ${value}\n"  + //
+		String value = "value = ${value}\n" + //
 				"mp.metri|cs.appName=${value}";
 		assertHoverMarkdown(value, //
-				"**mp.metrics.appName**\n" + //
-				"\nThe app name.\n\n" + //
-				" * Type: `java.lang.String`\n" + //
-				" * Value: `${value}`\n" + //
-				" * Extension: `microprofile-metrics-api`"
-				, 0);
+				"**mp.metrics.appName**" + //
+						System.lineSeparator() + //
+						System.lineSeparator() + //
+						"The app name." + //
+						System.lineSeparator() + //
+						System.lineSeparator() + //
+						" * Type: `java.lang.String`" + //
+						System.lineSeparator() + //
+						" * Value: `${value}`" + //
+						System.lineSeparator() + //
+						" * Extension: `microprofile-metrics-api`",
+				0);
 	}
 
 	@Test
@@ -337,11 +347,16 @@ public class ApplicationPropertiesHoverTest {
 		String value = "value =\n" + //
 				"mp.metri|cs.appName = ${value}";
 		assertHoverMarkdown(value, //
-				"**mp.metrics.appName**\n" + //
-				"\nThe app name.\n\n" + //
-				" * Type: `java.lang.String`\n" + //
-				" * Extension: `microprofile-metrics-api`"
-				, 0);
+				"**mp.metrics.appName**" + //
+						System.lineSeparator() + //
+						System.lineSeparator() + //
+						"The app name." + //
+						System.lineSeparator() + //
+						System.lineSeparator() + //
+						" * Type: `java.lang.String`" + //
+						System.lineSeparator() + //
+						" * Extension: `microprofile-metrics-api`",
+				0);
 	}
 
 	@Test
@@ -349,11 +364,16 @@ public class ApplicationPropertiesHoverTest {
 		String value = "value =      \n" + //
 				"mp.metri|cs.appName = ${value}";
 		assertHoverMarkdown(value, //
-				"**mp.metrics.appName**\n" + //
-				"\nThe app name.\n\n" + //
-				" * Type: `java.lang.String`\n" + //
-				" * Extension: `microprofile-metrics-api`"
-				, 0);
+				"**mp.metrics.appName**" + //
+						System.lineSeparator() + //
+						System.lineSeparator() + //
+						"The app name." + //
+						System.lineSeparator() + //
+						System.lineSeparator() + //
+						" * Type: `java.lang.String`" + //
+						System.lineSeparator() + //
+						" * Extension: `microprofile-metrics-api`",
+				0);
 	}
 
 	@Test

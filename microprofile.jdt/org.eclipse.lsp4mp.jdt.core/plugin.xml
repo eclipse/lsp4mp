@@ -44,6 +44,14 @@
       <provider class="org.eclipse.lsp4mp.jdt.internal.core.providers.MicroProfileProjectLabelProvider" />
    </extension>
 
+   <!-- Java Util Logging Config support -->
+
+   <extension point="org.eclipse.lsp4mp.jdt.core.propertiesProviders">
+      <!-- Hints provider for java.util.logging.Level -->
+      <provider class="org.eclipse.lsp4mp.jdt.internal.jul.properties.JULPropertyProvider" />
+      <provider class="org.eclipse.lsp4mp.jdt.internal.jul.properties.JBossLogManagerPropertyProvider" />
+   </extension>
+
    <!-- Microprofile Config support -->
 
    <extension point="org.eclipse.lsp4mp.jdt.core.propertiesProviders">

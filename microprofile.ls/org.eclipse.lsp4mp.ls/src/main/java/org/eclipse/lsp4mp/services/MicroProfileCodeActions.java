@@ -30,8 +30,8 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.metadata.ConverterKind;
-import org.eclipse.lsp4mp.commons.metadata.ItemHint.ValueHint;
 import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
+import org.eclipse.lsp4mp.commons.metadata.ValueHint;
 import org.eclipse.lsp4mp.ls.commons.BadLocationException;
 import org.eclipse.lsp4mp.ls.commons.CodeActionFactory;
 import org.eclipse.lsp4mp.ls.commons.TextDocument;
@@ -43,7 +43,6 @@ import org.eclipse.lsp4mp.model.PropertiesModel;
 import org.eclipse.lsp4mp.model.Property;
 import org.eclipse.lsp4mp.model.PropertyKey;
 import org.eclipse.lsp4mp.model.PropertyValue;
-import org.eclipse.lsp4mp.model.values.ValuesRulesManager;
 import org.eclipse.lsp4mp.settings.MicroProfileCommandCapabilities;
 import org.eclipse.lsp4mp.settings.MicroProfileFormattingSettings;
 import org.eclipse.lsp4mp.utils.MicroProfilePropertiesUtils;
@@ -76,8 +75,8 @@ class MicroProfileCodeActions {
 	 * @return the result of the code actions.
 	 */
 	public List<CodeAction> doCodeActions(CodeActionContext context, Range range, PropertiesModel document,
-			MicroProfileProjectInfo projectInfo, ValuesRulesManager valuesRulesManager,
-			MicroProfileFormattingSettings formattingSettings, MicroProfileCommandCapabilities commandCapabilities) {
+			MicroProfileProjectInfo projectInfo, MicroProfileFormattingSettings formattingSettings,
+			MicroProfileCommandCapabilities commandCapabilities) {
 		List<CodeAction> codeActions = new ArrayList<>();
 		if (context.getDiagnostics() != null) {
 			doCodeActionForAllRequired(context.getDiagnostics(), document, formattingSettings, codeActions);
@@ -87,8 +86,7 @@ class MicroProfileCodeActions {
 					// Manage code action for unknown
 					doCodeActionsForUnknown(diagnostic, document, projectInfo, commandCapabilities, codeActions);
 				} else if (ValidationType.value.isValidationType(diagnostic.getCode())) {
-					doCodeActionsForUnknownEnumValue(diagnostic, document, projectInfo, valuesRulesManager,
-							codeActions);
+					doCodeActionsForUnknownEnumValue(diagnostic, document, projectInfo, codeActions);
 				}
 			}
 		}
@@ -149,27 +147,26 @@ class MicroProfileCodeActions {
 	 * Code action(s) are created only if the property contained within the
 	 * <code>diagnostic</code> range expects an enum value
 	 *
-	 * @param diagnostic         the diagnostic
-	 * @param document           the properties model
-	 * @param projectInfo        the MicroProfile properties
-	 * @param valuesRulesManager the ValueRulesManager
-	 * @param codeActions        the code actions list to fill
+	 * @param diagnostic  the diagnostic
+	 * @param document    the properties model
+	 * @param projectInfo the MicroProfile properties
+	 * @param codeActions the code actions list to fill
 	 */
 	private void doCodeActionsForUnknownEnumValue(Diagnostic diagnostic, PropertiesModel document,
-			MicroProfileProjectInfo projectInfo, ValuesRulesManager valuesRulesManager, List<CodeAction> codeActions) {
+			MicroProfileProjectInfo projectInfo, List<CodeAction> codeActions) {
 		try {
 			Node node = document.findNodeAt((diagnostic.getRange().getStart()));
 			PropertyValue propertyValue = null;
 			switch (node.getNodeType()) {
-				case PROPERTY_VALUE:
-					propertyValue = (PropertyValue) document.findNodeAt(diagnostic.getRange().getStart());
-					break;
-				case PROPERTY_VALUE_EXPRESSION:
-				case PROPERTY_VALUE_LITERAL:
-					propertyValue = (PropertyValue) document.findNodeAt(diagnostic.getRange().getStart()).getParent();
-					break;
-				default:
-					assert false;
+			case PROPERTY_VALUE:
+				propertyValue = (PropertyValue) document.findNodeAt(diagnostic.getRange().getStart());
+				break;
+			case PROPERTY_VALUE_EXPRESSION:
+			case PROPERTY_VALUE_LITERAL:
+				propertyValue = (PropertyValue) document.findNodeAt(diagnostic.getRange().getStart()).getParent();
+				break;
+			default:
+				assert false;
 			}
 			PropertyKey propertyKey = ((Property) propertyValue.getParent()).getKey();
 			String value = propertyValue.getValue();
@@ -180,8 +177,7 @@ class MicroProfileCodeActions {
 				return;
 			}
 
-			Collection<ValueHint> enums = MicroProfilePropertiesUtils.getEnums(metaProperty, projectInfo, document,
-					valuesRulesManager);
+			Collection<ValueHint> enums = MicroProfilePropertiesUtils.getEnums(metaProperty, projectInfo);
 			if (enums == null || enums.isEmpty()) {
 				return;
 			}
@@ -257,7 +253,8 @@ class MicroProfileCodeActions {
 	/**
 	 * Returns a code action for <code>diagnostic</code> that causes
 	 * <code>item</code> to be added to
-	 * <code>microprofile.tools.validation.unknown.excluded</code> client configuration
+	 * <code>microprofile.tools.validation.unknown.excluded</code> client
+	 * configuration
 	 *
 	 * @param item       the item to add to the client configuration array
 	 * @param diagnostic the diagnostic for the <code>CodeAction</code>
@@ -268,8 +265,8 @@ class MicroProfileCodeActions {
 	private CodeAction createAddToExcludedCodeAction(String item, Diagnostic diagnostic) {
 		CodeAction insertCodeAction = new CodeAction("Exclude '" + item + "' from unknown property validation?");
 
-		ConfigurationItemEdit configItemEdit = new ConfigurationItemEdit("microprofile.tools.validation.unknown.excluded",
-				ConfigurationItemEditType.add, item);
+		ConfigurationItemEdit configItemEdit = new ConfigurationItemEdit(
+				"microprofile.tools.validation.unknown.excluded", ConfigurationItemEditType.add, item);
 
 		Command command = new Command("Add " + item + " to unknown excluded array",
 				CommandKind.COMMAND_CONFIGURATION_UPDATE, Collections.singletonList(configItemEdit));

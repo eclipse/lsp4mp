@@ -14,16 +14,18 @@
 package org.eclipse.lsp4mp.utils;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.function.BiConsumer;
 
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.metadata.ConfigurationMetadata;
 import org.eclipse.lsp4mp.commons.metadata.ItemHint;
-import org.eclipse.lsp4mp.commons.metadata.ItemHint.ValueHint;
 import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
+import org.eclipse.lsp4mp.commons.metadata.ValueHint;
+import org.eclipse.lsp4mp.commons.metadata.ValueProvider;
+import org.eclipse.lsp4mp.commons.metadata.ValueProvider.ValueProviderDefaultName;
+import org.eclipse.lsp4mp.commons.metadata.ValueProviderParameter;
 import org.eclipse.lsp4mp.ls.commons.SnippetsBuilder;
-import org.eclipse.lsp4mp.model.PropertiesModel;
-import org.eclipse.lsp4mp.model.values.ValuesRulesManager;
 import org.eclipse.lsp4mp.services.QuarkusModel;
 
 /**
@@ -87,23 +89,76 @@ public class MicroProfilePropertiesUtils {
 	/**
 	 * Returns the enums values according the property type.
 	 *
-	 * @param property           the property
-	 * @param projectInfo
-	 * @param valuesRulesManager
-	 * @param model
+	 * @param property      the property.
+	 * @param configuration the configuration.
 	 * @return the enums values according the property type
 	 */
-	public static Collection<ValueHint> getEnums(ItemMetadata property, ConfigurationMetadata configuration,
-			PropertiesModel model, ValuesRulesManager valuesRulesManager) {
+	public static Collection<ValueHint> getEnums(ItemMetadata property, ConfigurationMetadata configuration) {
 		ItemHint hint = configuration.getHint(property);
 		if (hint != null) {
+			ItemHint handleAsHint = getHandleAsHint(configuration, hint);
+			if (handleAsHint != null) {
+				return handleAsHint.getValues();
+			}
 			return hint.getValues();
 		}
 		if (property.isBooleanType()) {
 			return QuarkusModel.BOOLEAN_ENUMS.getValues();
 		}
-		if (valuesRulesManager != null) {
-			return valuesRulesManager.getValues(property, model);
+		return null;
+	}
+
+	/**
+	 * Returns true if the given <code>value</code> is a valid enumeration for the
+	 * given <code>metadata</code> and false otherwise.
+	 *
+	 * @param property      the property.
+	 * @param configuration the configuration.
+	 * @param value         the value to check.
+	 * @return true if the given <code>value</code> is a valid enumeration for the
+	 *         given <code>metadata</code> and false otherwise.
+	 */
+	public static boolean isValidEnum(ItemMetadata property, ConfigurationMetadata configuration, String value) {
+		ItemHint itemHint = configuration.getHint(property);
+		if (itemHint == null) {
+			return true;
+		}
+		if (itemHint.getValue(value, property.getConverterKinds()) != null) {
+			return true;
+		}
+		ItemHint handleAsHint = getHandleAsHint(configuration, itemHint);
+		if (handleAsHint != null) {
+			return handleAsHint.getValue(value, property.getConverterKinds()) != null;
+		}
+		return false;
+	}
+
+	/**
+	 * Returns the "handle-as" item hint from the given hint and false otherwise.
+	 * 
+	 * @param configuration the configuration.
+	 * @param hint          the item hint.
+	 * @return the "handle-as" item hint from the given hint and false otherwise.
+	 */
+	public static ItemHint getHandleAsHint(ConfigurationMetadata configuration, ItemHint hint) {
+		if (hint == null) {
+			return null;
+		}
+		List<ValueProvider> providers = hint.getProviders();
+		if (providers != null && !providers.isEmpty()) {
+			ValueProvider provider = providers.get(0);
+			if (ValueProviderDefaultName.HANDLE_AS.getName().equals(provider.getName())) {
+				ValueProviderParameter parameters = provider.getParameters();
+				if (parameters != null) {
+					String target = parameters.getTarget();
+					if (target != null) {
+						ItemHint targetHint = configuration.getHint(target);
+						if (targetHint != null) {
+							return targetHint;
+						}
+					}
+				}
+			}
 		}
 		return null;
 	}

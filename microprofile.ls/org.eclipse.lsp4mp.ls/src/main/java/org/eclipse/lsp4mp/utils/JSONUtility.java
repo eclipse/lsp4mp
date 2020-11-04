@@ -13,11 +13,11 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.utils;
 
+import org.eclipse.lsp4j.jsonrpc.json.adapters.EitherTypeAdapter;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
-
-import org.eclipse.lsp4j.jsonrpc.json.adapters.EitherTypeAdapter;
 
 /**
  * JSONUtility
