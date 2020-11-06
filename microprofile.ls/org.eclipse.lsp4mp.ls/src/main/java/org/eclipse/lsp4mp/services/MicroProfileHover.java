@@ -154,7 +154,7 @@ class MicroProfileHover {
 			} else {
 				propertyValue = valueNode.getValue();
 			}
-			if (propertyValue != null && propertyValue.isBlank()) {
+			if (propertyValue != null && propertyValue.trim().isEmpty()) {
 				propertyValue = null;
 			}
 		}
@@ -217,7 +217,7 @@ class MicroProfileHover {
 
 		if (graph.isAcyclic()) {
 			String resolvedValue = propValExpr.getResolvedValue(graph, projectInfo);
-			if (resolvedValue != null && !resolvedValue.isBlank()) {
+			if (resolvedValue != null && !resolvedValue.trim().isEmpty()) {
 				return createHover(resolvedValue, node);
 			}
 		}

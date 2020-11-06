@@ -70,7 +70,7 @@ public class MicroProfileDocumentHighlight {
 	private List<? extends DocumentHighlight> getPropertyValueExpressionHighlight(PropertiesModel document,
 			PropertyValueExpression node) {
 		String otherProp = node.getReferencedPropertyName();
-		if (otherProp == null || otherProp.isBlank()) {
+		if (otherProp == null || otherProp.trim().isEmpty()) {
 			return Collections.emptyList();
 		}
 		List<DocumentHighlight> highlights = new ArrayList<>(2);
@@ -99,7 +99,7 @@ public class MicroProfileDocumentHighlight {
 	 */
 	private List<? extends DocumentHighlight> getPropertyKeyHighlight(PropertiesModel document, PropertyKey node) {
 		String propertyName = node.getPropertyName();
-		if (propertyName == null || propertyName.isBlank()) {
+		if (propertyName == null || propertyName.trim().isEmpty()) {
 			return Collections.emptyList();
 		}
 		List<DocumentHighlight> highlights = new ArrayList<>();
