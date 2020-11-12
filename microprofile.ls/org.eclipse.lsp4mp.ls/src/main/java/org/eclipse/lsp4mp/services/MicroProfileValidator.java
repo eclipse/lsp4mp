@@ -102,7 +102,7 @@ class MicroProfileValidator {
 			ItemMetadata metadata = MicroProfilePropertiesUtils.getProperty(propertyName, projectInfo);
 			if (metadata == null) {
 				// Validate Unknown property
-				validateUnknownProperty(propertyNameWithProfile, property);
+				validateUnknownProperty(propertyName, property);
 			} else {
 				// Validate property Value
 				validatePropertyValue(propertyNameWithProfile, metadata, property);
