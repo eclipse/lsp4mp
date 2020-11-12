@@ -230,6 +230,24 @@ public class ApplicationPropertiesDiagnosticsTest {
 		// * pattern --> all errors are ignored
 		unknown.setExcluded(new String[] { "*" });
 		testDiagnosticsFor(value, 0, getDefaultMicroProfileProjectInfo(), settings);
+
+	};
+
+	@Test
+	public void validateUnknownPropertiesWithProfileExcludedWithPattern() throws BadLocationException {
+		String value = "kafka-streams.cache.max.bytes.buffering=10240\n" + //
+				"kafka-streams.metadata.max.age.ms=500\n" + //
+				"kafka-streams.metrics.recording.level=DEBUG\n" + //
+				"%test.kafka-streams.state.dir=target/data/kafka-data/stores";
+
+		MicroProfileValidationSettings settings = new MicroProfileValidationSettings();
+		MicroProfileValidationTypeSettings unknown = new MicroProfileValidationTypeSettings();
+		unknown.setSeverity("error");
+		settings.setUnknown(unknown);
+
+		// kafka-streams.* --> properties for a profile are ignored
+		unknown.setExcluded(new String[] { "kafka-streams.*" });
+		testDiagnosticsFor(value, 0, getDefaultMicroProfileProjectInfo(), settings);
 	};
 
 	@Test
