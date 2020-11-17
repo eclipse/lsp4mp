@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.Arrays;
 
+import org.eclipse.lsp4mp.ls.JavaTextDocumentSnippetRegistry;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -113,6 +114,42 @@ public class SnippetRegistryTest {
 		String expected = "package ${1:packagename};" + ls + //
 				"" + ls + //
 				"import io.quarkus.test.junit.SubstrateTest;" + ls + //
+				"" + ls + //
+				"@SubstrateTest" + ls + //
+				"public class ${TM_FILENAME_BASE} extends ${2:${TM_FILENAME_BASE/^Native(.*)IT/$1/}Test} {" + ls + //
+				"" + ls + //
+				"\t// Execute the same tests, but in native mode." + ls + //
+				"}";
+
+		assertCompletion("|", registry, c("qntrc", expected, r(0, 0, 0)));
+		assertCompletion(" |", registry, c("qntrc", expected, r(0, 1, 1)));
+	}
+
+	@Test
+	public void applyJavaCompletionWithIndent() throws IOException {
+		String content = "{\r\n" + //
+				"	\"Quarkus - new native test resource class\": {\r\n" + //
+				"		\"prefix\": \"qntrc\",\r\n" + //
+				"		\"body\": [\r\n" + //
+				"			\"package ${1:packagename};\",\r\n" + //
+				"			\"\",\r\n" + //
+				"			\"import io.quarkus.test.junit.SubstrateTest;\",\r\n" + //
+				"			\"\",\r\n" + //
+				"			\"@SubstrateTest\",\r\n" + //
+				"			\"public class ${TM_FILENAME_BASE} extends ${2:${TM_FILENAME_BASE/^Native(.*)IT/$1/}Test} {\",\r\n"
+				+ //
+				"			\"\",\r\n" + //
+				"			\"\\t// Execute the same tests, but in native mode.\",\r\n" + //
+				"			\"}\"\r\n" + //
+				"		],\r\n" + //
+				"		\"description\": \"Quarkus native test resource class\"\r\n" + //
+				"	}\r\n" + //
+				"}";
+		JavaTextDocumentSnippetRegistry registry = new JavaTextDocumentSnippetRegistry();
+		registry.registerSnippets(new StringReader(content));
+
+		String ls = System.lineSeparator();
+		String expected = "${packagename}import io.quarkus.test.junit.SubstrateTest;" + ls + //
 				"" + ls + //
 				"@SubstrateTest" + ls + //
 				"public class ${TM_FILENAME_BASE} extends ${2:${TM_FILENAME_BASE/^Native(.*)IT/$1/}Test} {" + ls + //

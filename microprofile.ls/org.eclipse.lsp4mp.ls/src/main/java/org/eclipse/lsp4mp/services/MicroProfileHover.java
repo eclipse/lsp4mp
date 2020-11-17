@@ -39,6 +39,7 @@ import org.eclipse.lsp4mp.settings.MicroProfileHoverSettings;
 import org.eclipse.lsp4mp.utils.DocumentationUtils;
 import org.eclipse.lsp4mp.utils.MicroProfilePropertiesUtils;
 import org.eclipse.lsp4mp.utils.PositionUtils;
+import org.eclipse.lsp4mp.utils.StringUtils;
 
 /**
  * Retrieves hover documentation and creating Hover object
@@ -152,7 +153,7 @@ class MicroProfileHover {
 			} else {
 				propertyValue = valueNode.getValue();
 			}
-			if (propertyValue != null && propertyValue.isBlank()) {
+			if (!StringUtils.hasText(propertyValue)) {
 				propertyValue = null;
 			}
 		}
@@ -185,7 +186,7 @@ class MicroProfileHover {
 		boolean markdownSupported = hoverSettings.isContentFormatSupported(MarkupKind.MARKDOWN);
 		// retrieve MicroProfile property from the project information
 		String propertyValue = value.getValue();
-		if (propertyValue == null || propertyValue.isEmpty()) {
+		if (StringUtils.isEmpty(propertyValue)) {
 			return null;
 		}
 		String propertyName = ((Property) (value.getParent())).getPropertyName();
@@ -215,7 +216,7 @@ class MicroProfileHover {
 
 		if (graph.isAcyclic()) {
 			String resolvedValue = propValExpr.getResolvedValue(graph, projectInfo);
-			if (resolvedValue != null && !resolvedValue.isBlank()) {
+			if (StringUtils.hasText(resolvedValue)) {
 				return createHover(resolvedValue, node);
 			}
 		}

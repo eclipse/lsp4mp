@@ -28,10 +28,13 @@ import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.LanguageServer;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
+import org.eclipse.lsp4mp.commons.JavaFileInfo;
+import org.eclipse.lsp4mp.commons.MicroProfileJavaFileInfoParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaProjectLabelsParams;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfoParams;
 import org.eclipse.lsp4mp.commons.MicroProfilePropertiesChangeEvent;
 import org.eclipse.lsp4mp.commons.ProjectLabelInfoEntry;
+import org.eclipse.lsp4mp.ls.api.MicroProfileJavaFileInfoProvider;
 import org.eclipse.lsp4mp.ls.api.MicroProfileJavaProjectLabelsProvider;
 import org.eclipse.lsp4mp.ls.api.MicroProfileLanguageClientAPI;
 import org.eclipse.lsp4mp.ls.api.MicroProfileLanguageServerAPI;
@@ -55,7 +58,7 @@ import org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesInitializer;
  *
  */
 public class MicroProfileLanguageServer implements LanguageServer, ProcessLanguageServer, MicroProfileLanguageServerAPI,
-		MicroProfileJavaProjectLabelsProvider {
+		MicroProfileJavaProjectLabelsProvider, MicroProfileJavaFileInfoProvider {
 
 	private static final Logger LOGGER = Logger.getLogger(MicroProfileLanguageServer.class.getName());
 
@@ -205,5 +208,10 @@ public class MicroProfileLanguageServer implements LanguageServer, ProcessLangua
 	public CompletableFuture<ProjectLabelInfoEntry> getJavaProjectlabels(
 			MicroProfileJavaProjectLabelsParams javaParams) {
 		return getLanguageClient().getJavaProjectlabels(javaParams);
+	}
+
+	@Override
+	public CompletableFuture<JavaFileInfo> getJavaFileInfo(MicroProfileJavaFileInfoParams javaParams) {
+		return getLanguageClient().getJavaFileInfo(javaParams);
 	}
 }

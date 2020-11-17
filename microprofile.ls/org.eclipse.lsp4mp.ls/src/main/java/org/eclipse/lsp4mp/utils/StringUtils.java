@@ -47,7 +47,11 @@ public class StringUtils {
 	 * @see Character#isWhitespace
 	 */
 	public static boolean hasText(String str) {
-		return (str != null && !str.isEmpty() && containsText(str));
+		return (!isEmpty(str) && containsText(str));
+	}
+
+	public static boolean isEmpty(String value) {
+		return value == null || value.isEmpty();
 	}
 
 	private static boolean containsText(CharSequence str) {

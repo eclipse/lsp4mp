@@ -301,7 +301,7 @@ public class JSONSchemaUtils {
 			JsonArray enumType = new JsonArray();
 			property.add(ENUM_PROP, enumType);
 			for (ValueHint value : values) {
-				if (value.getValue() != null && !value.getValue().isEmpty()) {
+				if (!StringUtils.isEmpty(value.getValue())) {
 					enumType.add(value.getValue());
 				}
 			}

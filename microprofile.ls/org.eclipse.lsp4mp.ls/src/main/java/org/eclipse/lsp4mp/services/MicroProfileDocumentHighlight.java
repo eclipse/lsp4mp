@@ -29,6 +29,7 @@ import org.eclipse.lsp4mp.model.Property;
 import org.eclipse.lsp4mp.model.PropertyKey;
 import org.eclipse.lsp4mp.model.PropertyValueExpression;
 import org.eclipse.lsp4mp.utils.PositionUtils;
+import org.eclipse.lsp4mp.utils.StringUtils;
 
 /**
  * Highlight for micro profile config documents
@@ -46,12 +47,12 @@ public class MicroProfileDocumentHighlight {
 		try {
 			Node node = document.findNodeAt(position);
 			switch (node.getNodeType()) {
-				case PROPERTY_KEY:
-					return getPropertyKeyHighlight(document, (PropertyKey) node);
-				case PROPERTY_VALUE_EXPRESSION:
-					return getPropertyValueExpressionHighlight(document, (PropertyValueExpression) node);
-				default:
-					return Collections.emptyList();
+			case PROPERTY_KEY:
+				return getPropertyKeyHighlight(document, (PropertyKey) node);
+			case PROPERTY_VALUE_EXPRESSION:
+				return getPropertyValueExpressionHighlight(document, (PropertyValueExpression) node);
+			default:
+				return Collections.emptyList();
 			}
 		} catch (BadLocationException e) {
 			return Collections.emptyList();
@@ -70,7 +71,7 @@ public class MicroProfileDocumentHighlight {
 	private List<? extends DocumentHighlight> getPropertyValueExpressionHighlight(PropertiesModel document,
 			PropertyValueExpression node) {
 		String otherProp = node.getReferencedPropertyName();
-		if (otherProp == null || otherProp.isBlank()) {
+		if (!StringUtils.hasText(otherProp)) {
 			return Collections.emptyList();
 		}
 		List<DocumentHighlight> highlights = new ArrayList<>(2);
@@ -99,7 +100,7 @@ public class MicroProfileDocumentHighlight {
 	 */
 	private List<? extends DocumentHighlight> getPropertyKeyHighlight(PropertiesModel document, PropertyKey node) {
 		String propertyName = node.getPropertyName();
-		if (propertyName == null || propertyName.isBlank()) {
+		if (!StringUtils.hasText(propertyName)) {
 			return Collections.emptyList();
 		}
 		List<DocumentHighlight> highlights = new ArrayList<>();
@@ -123,7 +124,7 @@ public class MicroProfileDocumentHighlight {
 	/**
 	 * Returns a DocumentHighlight that highlights the given node
 	 *
-	 * @param n the node to highlight
+	 * @param n    the node to highlight
 	 * @param kind the kind of the DocumentHighlight
 	 * @return a DocumentHighlight that highlights the given node
 	 */

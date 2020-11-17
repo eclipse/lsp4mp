@@ -175,7 +175,7 @@ public class MicroProfilePropertiesUtils {
 	 */
 	public static ItemMetadata getProperty(String propertyName, MicroProfileProjectInfo info) {
 		Collection<ItemMetadata> properties = info.getProperties();
-		if (propertyName == null || propertyName.isEmpty()) {
+		if (StringUtils.isEmpty(propertyName)) {
 			return null;
 		}
 

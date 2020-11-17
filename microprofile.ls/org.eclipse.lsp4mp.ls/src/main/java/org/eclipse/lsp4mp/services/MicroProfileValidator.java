@@ -88,7 +88,7 @@ class MicroProfileValidator {
 
 	private void validateProperty(Property property) {
 		String propertyNameWithProfile = property.getPropertyNameWithProfile();
-		if (propertyNameWithProfile != null && !propertyNameWithProfile.isEmpty()) {
+		if (!StringUtils.isEmpty(propertyNameWithProfile)) {
 			// Validate Syntax property
 			validateSyntaxProperty(propertyNameWithProfile, property);
 			// Validate Duplicate property
@@ -96,7 +96,7 @@ class MicroProfileValidator {
 		}
 
 		String propertyName = property.getPropertyName();
-		if (propertyName != null && !propertyName.isEmpty()) {
+		if (!StringUtils.isEmpty(propertyName)) {
 			ItemMetadata metadata = MicroProfilePropertiesUtils.getProperty(propertyName, projectInfo);
 			if (metadata == null) {
 				// Validate Unknown property
@@ -158,7 +158,7 @@ class MicroProfileValidator {
 		}
 
 		String value = property.getPropertyValue();
-		if (value == null || value.isEmpty()) {
+		if (StringUtils.isEmpty(value)) {
 			return;
 		}
 

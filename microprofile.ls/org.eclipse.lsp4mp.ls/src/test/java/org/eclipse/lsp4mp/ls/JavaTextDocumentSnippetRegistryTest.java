@@ -11,20 +11,28 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.ls;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
+import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4mp.commons.ProjectLabelInfoEntry;
+import org.eclipse.lsp4mp.ls.JavaTextDocuments.JavaTextDocument;
 import org.eclipse.lsp4mp.ls.commons.snippets.ISnippetContext;
 import org.eclipse.lsp4mp.ls.commons.snippets.Snippet;
 import org.eclipse.lsp4mp.ls.commons.snippets.SnippetRegistry;
 import org.eclipse.lsp4mp.snippets.SnippetContextForJava;
-import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * test for Java snippet registry.
+ * Test for Java snippet registry.
  * 
  * @author Angelo ZERR
  *
@@ -35,133 +43,216 @@ public class JavaTextDocumentSnippetRegistryTest {
 
 	@Test
 	public void haveJavaSnippets() {
-		Assert.assertFalse("Tests has MicroProfile Java snippets", registry.getSnippets().isEmpty());
+		assertFalse("Tests has MicroProfile Java snippets", registry.getSnippets().isEmpty());
 	}
 
 	@Test
 	public void jaxrsSnippets() {
 		Optional<Snippet> jaxrsSnippet = findByPrefix("jaxrc", registry);
-		Assert.assertTrue("Tests has jaxrc Java snippets", jaxrsSnippet.isPresent());
+		assertTrue("Tests has jaxrc Java snippets", jaxrsSnippet.isPresent());
 
 		ISnippetContext<?> context = jaxrsSnippet.get().getContext();
-		Assert.assertNotNull("jaxrc snippet has context", context);
-		Assert.assertTrue("jaxrc snippet context is Java context", context instanceof SnippetContextForJava);
+		assertNotNull("jaxrc snippet has context", context);
+		assertTrue("jaxrc snippet context is Java context", context instanceof SnippetContextForJava);
 
-		ProjectLabelInfoEntry projectInfo = new ProjectLabelInfoEntry("", new ArrayList<>());
+		ProjectLabelInfoEntry projectInfo = new ProjectLabelInfoEntry("", "", new ArrayList<>());
 		boolean match = ((SnippetContextForJava) context).isMatch(projectInfo);
-		Assert.assertFalse("Project has no javax.ws.rs.GET type", match);
+		assertFalse("Project has no javax.ws.rs.GET type", match);
 
-		ProjectLabelInfoEntry projectInfo2 = new ProjectLabelInfoEntry("",
-				Arrays.asList("javax.ws.rs.GET"));
+		ProjectLabelInfoEntry projectInfo2 = new ProjectLabelInfoEntry("", "", Arrays.asList("javax.ws.rs.GET"));
 		boolean match2 = ((SnippetContextForJava) context).isMatch(projectInfo2);
-		Assert.assertTrue("Project has javax.ws.rs.GET type", match2);
+		assertTrue("Project has javax.ws.rs.GET type", match2);
 	}
 
 	@Test
 	public void mpMetricsSnippets() {
 		Optional<Snippet> metricSnippet = findByPrefix("@Metric", registry);
-		Assert.assertTrue("Tests has @Metric Java snippets", metricSnippet.isPresent());
+		assertTrue("Tests has @Metric Java snippets", metricSnippet.isPresent());
 
 		ISnippetContext<?> context = metricSnippet.get().getContext();
-		Assert.assertNotNull("@Metric snippet has context", context);
-		Assert.assertTrue("@Metric snippet context is Java context", context instanceof SnippetContextForJava);
+		assertNotNull("@Metric snippet has context", context);
+		assertTrue("@Metric snippet context is Java context", context instanceof SnippetContextForJava);
 
-		ProjectLabelInfoEntry projectInfo = new ProjectLabelInfoEntry("", new ArrayList<>());
+		ProjectLabelInfoEntry projectInfo = new ProjectLabelInfoEntry("", "", new ArrayList<>());
 		boolean match = ((SnippetContextForJava) context).isMatch(projectInfo);
-		Assert.assertFalse("Project has no org.eclipse.microprofile.metrics.annotation.Metric type", match);
+		assertFalse("Project has no org.eclipse.microprofile.metrics.annotation.Metric type", match);
 
-		ProjectLabelInfoEntry projectInfo2 = new ProjectLabelInfoEntry("",
+		ProjectLabelInfoEntry projectInfo2 = new ProjectLabelInfoEntry("", "",
 				Arrays.asList("org.eclipse.microprofile.metrics.annotation.Metric"));
 		boolean match2 = ((SnippetContextForJava) context).isMatch(projectInfo2);
-		Assert.assertTrue("Project has org.eclipse.microprofile.metrics.annotation.Metric type", match2);
+		assertTrue("Project has org.eclipse.microprofile.metrics.annotation.Metric type", match2);
 	}
 
 	@Test
 	public void mpOpenAPISnippets() {
 		Optional<Snippet> apiResponseSnippet = findByPrefix("@APIResponse", registry);
-		Assert.assertTrue("Tests has @APIResponse Java snippets", apiResponseSnippet.isPresent());
+		assertTrue("Tests has @APIResponse Java snippets", apiResponseSnippet.isPresent());
 
 		ISnippetContext<?> context = apiResponseSnippet.get().getContext();
-		Assert.assertNotNull("@APIResponse snippet has context", context);
-		Assert.assertTrue("@APIResponse snippet context is Java context", context instanceof SnippetContextForJava);
+		assertNotNull("@APIResponse snippet has context", context);
+		assertTrue("@APIResponse snippet context is Java context", context instanceof SnippetContextForJava);
 
-		ProjectLabelInfoEntry projectInfo = new ProjectLabelInfoEntry("", new ArrayList<>());
+		ProjectLabelInfoEntry projectInfo = new ProjectLabelInfoEntry("", "", new ArrayList<>());
 		boolean match = ((SnippetContextForJava) context).isMatch(projectInfo);
-		Assert.assertFalse("Project has no org.eclipse.microprofile.openapi.annotations.responses.APIResponse type", match);
+		assertFalse("Project has no org.eclipse.microprofile.openapi.annotations.responses.APIResponse type", match);
 
-		ProjectLabelInfoEntry projectInfo2 = new ProjectLabelInfoEntry("",
+		ProjectLabelInfoEntry projectInfo2 = new ProjectLabelInfoEntry("", "",
 				Arrays.asList("org.eclipse.microprofile.openapi.annotations.responses.APIResponse"));
 		boolean match2 = ((SnippetContextForJava) context).isMatch(projectInfo2);
-		Assert.assertTrue("Project has org.eclipse.microprofile.openapi.annotations.responses.APIResponse type", match2);
+		assertTrue("Project has org.eclipse.microprofile.openapi.annotations.responses.APIResponse type", match2);
 	}
 
 	@Test
 	public void mpFaultToleranceSnippets() {
 		Optional<Snippet> fallbackSnippet = findByPrefix("@Fallback", registry);
-		Assert.assertTrue("Tests has @Fallback Java snippets", fallbackSnippet.isPresent());
+		assertTrue("Tests has @Fallback Java snippets", fallbackSnippet.isPresent());
 
 		ISnippetContext<?> context = fallbackSnippet.get().getContext();
-		Assert.assertNotNull("@Fallback snippet has context", context);
-		Assert.assertTrue("@Fallback snippet context is Java context", context instanceof SnippetContextForJava);
+		assertNotNull("@Fallback snippet has context", context);
+		assertTrue("@Fallback snippet context is Java context", context instanceof SnippetContextForJava);
 
-		ProjectLabelInfoEntry projectInfo = new ProjectLabelInfoEntry("", new ArrayList<>());
+		ProjectLabelInfoEntry projectInfo = new ProjectLabelInfoEntry("", "", new ArrayList<>());
 		boolean match = ((SnippetContextForJava) context).isMatch(projectInfo);
-		Assert.assertFalse("Project has no org.eclipse.microprofile.faulttolerance.Fallback type", match);
+		assertFalse("Project has no org.eclipse.microprofile.faulttolerance.Fallback type", match);
 
-		ProjectLabelInfoEntry projectInfo2 = new ProjectLabelInfoEntry("",
+		ProjectLabelInfoEntry projectInfo2 = new ProjectLabelInfoEntry("", "",
 				Arrays.asList("org.eclipse.microprofile.faulttolerance.Fallback"));
 		boolean match2 = ((SnippetContextForJava) context).isMatch(projectInfo2);
-		Assert.assertTrue("Project has org.eclipse.microprofile.faulttolerance.Fallback type", match2);
+		assertTrue("Project has org.eclipse.microprofile.faulttolerance.Fallback type", match2);
 	}
 
 	@Test
 	public void mpHealthSnippets() {
 		Optional<Snippet> readinessSnippet = findByPrefix("mpreadiness", registry);
-		Assert.assertTrue("Tests has mpreadiness Java snippets", readinessSnippet.isPresent());
+		assertTrue("Tests has mpreadiness Java snippets", readinessSnippet.isPresent());
 
 		ISnippetContext<?> readinessContext = readinessSnippet.get().getContext();
-		Assert.assertNotNull("mpreadiness snippet has context", readinessContext);
-		Assert.assertTrue("mpreadiness snippet context is Java context", readinessContext instanceof SnippetContextForJava);
+		assertNotNull("mpreadiness snippet has context", readinessContext);
+		assertTrue("mpreadiness snippet context is Java context", readinessContext instanceof SnippetContextForJava);
 
-		ProjectLabelInfoEntry readinessProjectInfo = new ProjectLabelInfoEntry("", new ArrayList<>());
+		ProjectLabelInfoEntry readinessProjectInfo = new ProjectLabelInfoEntry("", "", new ArrayList<>());
 		boolean match = ((SnippetContextForJava) readinessContext).isMatch(readinessProjectInfo);
-		Assert.assertFalse("Project has no org.eclipse.microprofile.health.Readiness type", match);
+		assertFalse("Project has no org.eclipse.microprofile.health.Readiness type", match);
 
-		ProjectLabelInfoEntry readinessProjectInfo2 = new ProjectLabelInfoEntry("",
+		ProjectLabelInfoEntry readinessProjectInfo2 = new ProjectLabelInfoEntry("", "",
 				Arrays.asList("org.eclipse.microprofile.health.Readiness"));
 		boolean match2 = ((SnippetContextForJava) readinessContext).isMatch(readinessProjectInfo2);
-		Assert.assertTrue("Project has org.eclipse.microprofile.health.Readiness type", match2);
+		assertTrue("Project has org.eclipse.microprofile.health.Readiness type", match2);
 
 		Optional<Snippet> livenessSnippet = findByPrefix("mpliveness", registry);
-		Assert.assertTrue("Tests has mpliveness Java snippets", livenessSnippet.isPresent());
-		
+		assertTrue("Tests has mpliveness Java snippets", livenessSnippet.isPresent());
+
 		ISnippetContext<?> livenessContext = livenessSnippet.get().getContext();
-		Assert.assertNotNull("mpliveness snippet has context", livenessContext);
+		assertNotNull("mpliveness snippet has context", livenessContext);
 	}
 
 	@Test
 	public void mpRestClientSnippets() {
 		Optional<Snippet> newRestClientSnippet = findByPrefix("mpnrc", registry);
-		Assert.assertTrue("Tests has new MicroProfile rest client Java snippets", newRestClientSnippet.isPresent());
+		assertTrue("Tests has new MicroProfile rest client Java snippets", newRestClientSnippet.isPresent());
 
 		ISnippetContext<?> context = newRestClientSnippet.get().getContext();
-		Assert.assertNotNull("mpnrc snippet has context", context);
-		Assert.assertTrue("mpnrc snippet context is Java context", context instanceof SnippetContextForJava);
+		assertNotNull("mpnrc snippet has context", context);
+		assertTrue("mpnrc snippet context is Java context", context instanceof SnippetContextForJava);
 
-		ProjectLabelInfoEntry projectInfo = new ProjectLabelInfoEntry("", new ArrayList<>());
+		ProjectLabelInfoEntry projectInfo = new ProjectLabelInfoEntry("", "", new ArrayList<>());
 		boolean match = ((SnippetContextForJava) context).isMatch(projectInfo);
-		Assert.assertFalse("Project has no org.eclipse.microprofile.rest.client.inject.RegisterRestClient type", match);
+		assertFalse("Project has no org.eclipse.microprofile.rest.client.inject.RegisterRestClient type", match);
 
-		ProjectLabelInfoEntry projectInfo2 = new ProjectLabelInfoEntry("",
+		ProjectLabelInfoEntry projectInfo2 = new ProjectLabelInfoEntry("", "",
 				Arrays.asList("org.eclipse.microprofile.rest.client.inject.RegisterRestClient"));
 		boolean match2 = ((SnippetContextForJava) context).isMatch(projectInfo2);
-		Assert.assertTrue("Project has org.eclipse.microprofile.rest.client.inject.RegisterRestClient type", match2);
+		assertTrue("Project has org.eclipse.microprofile.rest.client.inject.RegisterRestClient type", match2);
 
 		Optional<Snippet> injectRestClientSnippet = findByPrefix("mpirc", registry);
-		Assert.assertTrue("Tests has inject MicroProfile rest client Java snippets", injectRestClientSnippet.isPresent());
+		assertTrue("Tests has inject MicroProfile rest client Java snippets", injectRestClientSnippet.isPresent());
 
 		ISnippetContext<?> context2 = injectRestClientSnippet.get().getContext();
-		Assert.assertNotNull("mpirc snippet has context", context2);
+		assertNotNull("mpirc snippet has context", context2);
+	}
+
+	@Test
+	public void completionWithPackagename() {
+		// Create the snippet
+		Snippet snippet = new Snippet();
+		snippet.setPrefixes(Arrays.asList("test"));
+		snippet.setBody(new ArrayList<>(Arrays.asList("package ${packagename};", //
+				"import javax.ws.rs.GET;", //
+				"import javax.ws.rs.Path;")));
+		JavaTextDocumentSnippetRegistry registry = new JavaTextDocumentSnippetRegistry(false);
+		registry.registerSnippet(snippet);
+
+		// Create a Java text document with com.foo package.
+		JavaTextDocument document = new JavaTextDocuments(null, null)
+				.createDocument(new TextDocumentItem("test.java", "java", 0, "abcd"));
+		document.setPackageName("com.foo");
+
+		List<CompletionItem> items = registry.getCompletionItems(document, 0, true, true, (context, model) -> true);
+		assertEquals("Completion size", 1, items.size());
+		CompletionItem item = items.get(0);
+		assertNotNull("Completion text edit", item.getTextEdit());
+		assertEquals("package com.foo;" + //
+				System.lineSeparator() + //
+				System.lineSeparator() + //
+				"import javax.ws.rs.GET;" + //
+				System.lineSeparator() + //
+				"import javax.ws.rs.Path;" //
+				, item.getTextEdit().getNewText());
+	}
+
+	@Test
+	public void completionWithoutPackagename() {
+		// Create the snippet
+		Snippet snippet = new Snippet();
+		snippet.setPrefixes(Arrays.asList("test"));
+		snippet.setBody(new ArrayList<>(Arrays.asList("package ${packagename};", //
+				"import javax.ws.rs.GET;", //
+				"import javax.ws.rs.Path;")));
+		JavaTextDocumentSnippetRegistry registry = new JavaTextDocumentSnippetRegistry(false);
+		registry.registerSnippet(snippet);
+
+		// Create a Java text document with com.foo package.
+		JavaTextDocument document = new JavaTextDocuments(null, null)
+				.createDocument(new TextDocumentItem("test.java", "java", 0, "abcd"));
+		document.setPackageName(null);
+
+		List<CompletionItem> items = registry.getCompletionItems(document, 0, true, true, (context, model) -> true);
+		assertEquals("Completion size", 1, items.size());
+		CompletionItem item = items.get(0);
+		assertNotNull("Completion text edit", item.getTextEdit());
+		assertEquals("package ${1:packagename};" + //
+				System.lineSeparator() + //
+				System.lineSeparator() + //
+				"import javax.ws.rs.GET;" + //
+				System.lineSeparator() + //
+				"import javax.ws.rs.Path;" //
+				, item.getTextEdit().getNewText());
+	}
+
+	@Test
+	public void completionWithEmptyPackagename() {
+		// Create the snippet
+		Snippet snippet = new Snippet();
+		snippet.setPrefixes(Arrays.asList("test"));
+		snippet.setBody(new ArrayList<>(Arrays.asList("package ${1:packagename};", //
+				"import javax.ws.rs.GET;", //
+				"import javax.ws.rs.Path;")));
+		JavaTextDocumentSnippetRegistry registry = new JavaTextDocumentSnippetRegistry(false);
+		registry.registerSnippet(snippet);
+
+		// Create a Java text document with empty package.
+		JavaTextDocument document = new JavaTextDocuments(null, null)
+				.createDocument(new TextDocumentItem("test.java", "java", 0, "abcd"));
+		document.setPackageName("");
+
+		List<CompletionItem> items = registry.getCompletionItems(document, 0, true, true, (context, model) -> true);
+		assertEquals("Completion size", 1, items.size());
+		CompletionItem item = items.get(0);
+		assertNotNull("Completion text edit", item.getTextEdit());
+		assertEquals("import javax.ws.rs.GET;" + //
+				System.lineSeparator() + //
+				"import javax.ws.rs.Path;" //
+				, item.getTextEdit().getNewText());
 	}
 
 	private static Optional<Snippet> findByPrefix(String prefix, SnippetRegistry registry) {
