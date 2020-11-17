@@ -14,6 +14,7 @@
 package org.eclipse.lsp4mp.services;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -54,6 +55,7 @@ import org.eclipse.lsp4mp.snippets.SnippetContextForProperties;
 import org.eclipse.lsp4mp.utils.DocumentationUtils;
 import org.eclipse.lsp4mp.utils.MicroProfilePropertiesUtils;
 import org.eclipse.lsp4mp.utils.MicroProfilePropertiesUtils.FormattedPropertyResult;
+import org.eclipse.lsp4mp.utils.StringUtils;
 
 /**
  * The MicroProfile completions
@@ -331,7 +333,7 @@ class MicroProfileCompletions {
 		for (Node child : model.getChildren()) {
 			if (child.getNodeType() == NodeType.PROPERTY) {
 				String name = ((Property) child).getPropertyNameWithProfile();
-				if (name != null && !name.isEmpty()) {
+				if (!StringUtils.isEmpty(name)) {
 					set.add(name);
 				}
 			}
@@ -486,15 +488,17 @@ class MicroProfileCompletions {
 			MicroProfileProjectInfo projectInfo, MicroProfileCompletionSettings completionSettings,
 			TextDocumentSnippetRegistry snippetRegistry, CompletionList list) {
 		boolean markdownSupported = completionSettings.isDocumentationFormatSupported(MarkupKind.MARKDOWN);
-		snippetRegistry.getCompletionItems(document.getDocument(), completionOffset, markdownSupported, context -> {
-			if (context instanceof SnippetContextForProperties) {
-				SnippetContextForProperties contextProperties = (SnippetContextForProperties) context;
-				return contextProperties.isMatch(projectInfo);
-			}
-			return false;
-		}).forEach(item -> {
-			list.getItems().add(item);
-		});
+		boolean snippetsSupported = completionSettings.isCompletionSnippetsSupported();
+		snippetRegistry.getCompletionItems(document.getDocument(), completionOffset, markdownSupported,
+				snippetsSupported, (context, model) -> {
+					if (context instanceof SnippetContextForProperties) {
+						SnippetContextForProperties contextProperties = (SnippetContextForProperties) context;
+						return contextProperties.isMatch(projectInfo);
+					}
+					return false;
+				}, Collections.emptyMap()).forEach(item -> {
+					list.getItems().add(item);
+				});
 	}
 
 	private TextDocumentSnippetRegistry getSnippetRegistry() {

@@ -23,11 +23,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.eclipse.lsp4j.TextDocumentItem;
+import org.eclipse.lsp4mp.commons.JavaFileInfo;
+import org.eclipse.lsp4mp.commons.MicroProfileJavaFileInfoParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaProjectLabelsParams;
 import org.eclipse.lsp4mp.commons.MicroProfilePropertiesChangeEvent;
 import org.eclipse.lsp4mp.commons.MicroProfilePropertiesScope;
 import org.eclipse.lsp4mp.commons.ProjectLabelInfoEntry;
 import org.eclipse.lsp4mp.ls.JavaTextDocuments.JavaTextDocument;
+import org.eclipse.lsp4mp.ls.api.MicroProfileJavaFileInfoProvider;
 import org.eclipse.lsp4mp.ls.api.MicroProfileJavaProjectLabelsProvider;
 import org.eclipse.lsp4mp.ls.commons.TextDocument;
 import org.eclipse.lsp4mp.ls.commons.TextDocuments;
@@ -48,7 +51,9 @@ class JavaTextDocuments extends TextDocuments<JavaTextDocument> {
 
 	private final Map<String /* project URI */, CompletableFuture<ProjectLabelInfoEntry>> projectCache;
 
-	private final MicroProfileJavaProjectLabelsProvider provider;
+	private final MicroProfileJavaProjectLabelsProvider projectInfoProvider;
+
+	private final MicroProfileJavaFileInfoProvider fileInfoProvider;
 
 	private JavaTextDocumentSnippetRegistry snippetRegistry;
 
@@ -60,12 +65,45 @@ class JavaTextDocuments extends TextDocuments<JavaTextDocument> {
 
 		private String projectURI;
 
+		private String packageName;
+
+		private CompletableFuture<JavaFileInfo> fileInfoFuture;
+
 		public JavaTextDocument(TextDocumentItem document) {
 			super(document);
+			collectFileInfo();
+		}
+
+		/**
+		 * Collect Java file information (ex : package name) from the JDT LS side.
+		 */
+		private void collectFileInfo() {
+			if (fileInfoProvider != null) {
+				if (fileInfoFuture == null || fileInfoFuture.isCancelled() || fileInfoFuture.isCompletedExceptionally()) {
+					MicroProfileJavaFileInfoParams params = new MicroProfileJavaFileInfoParams();
+					params.setUri(super.getUri());
+					fileInfoFuture = fileInfoProvider.getJavaFileInfo(params);
+				}
+				JavaFileInfo fileInfo = fileInfoFuture.getNow(null);
+				if (fileInfo != null) {
+					setPackageName(fileInfo.getPackageName());
+				}
+			}
 		}
 
 		public String getProjectURI() {
 			return projectURI;
+		}
+
+		public String getPackageName() {
+			if (packageName == null) {
+				collectFileInfo();
+			}
+			return packageName;
+		}
+
+		public void setPackageName(String packageName) {
+			this.packageName = packageName;
 		}
 
 		public void setProjectURI(String projectURI) {
@@ -106,8 +144,10 @@ class JavaTextDocuments extends TextDocuments<JavaTextDocument> {
 		}
 	}
 
-	JavaTextDocuments(MicroProfileJavaProjectLabelsProvider provider) {
-		this.provider = provider;
+	JavaTextDocuments(MicroProfileJavaProjectLabelsProvider projectInfoProvider,
+			MicroProfileJavaFileInfoProvider fileInfoProvider) {
+		this.projectInfoProvider = projectInfoProvider;
+		this.fileInfoProvider = fileInfoProvider;
 		this.documentCache = new ConcurrentHashMap<>();
 		this.projectCache = new ConcurrentHashMap<>();
 	}
@@ -154,7 +194,7 @@ class JavaTextDocuments extends TextDocuments<JavaTextDocument> {
 			MicroProfileJavaProjectLabelsParams params = new MicroProfileJavaProjectLabelsParams();
 			params.setUri(documentURI);
 			params.setTypes(getSnippetRegistry().getTypes());
-			final CompletableFuture<ProjectLabelInfoEntry> future = provider.getJavaProjectlabels(params);
+			final CompletableFuture<ProjectLabelInfoEntry> future = projectInfoProvider.getJavaProjectlabels(params);
 			future.thenApply(entry -> {
 				if (entry != null) {
 					// project info with labels are get from the JDT LS

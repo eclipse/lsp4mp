@@ -34,9 +34,11 @@ import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4mp.commons.DocumentFormat;
+import org.eclipse.lsp4mp.commons.JavaFileInfo;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeActionParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeLensParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaDiagnosticsParams;
+import org.eclipse.lsp4mp.commons.MicroProfileJavaFileInfoParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaHoverParams;
 import org.eclipse.lsp4mp.jdt.core.java.codelens.JavaCodeLensContext;
 import org.eclipse.lsp4mp.jdt.core.java.diagnostics.JavaDiagnosticsContext;
@@ -66,6 +68,28 @@ public class PropertiesManagerForJava {
 
 	private PropertiesManagerForJava() {
 		this.codeActionHandler = new CodeActionHandler();
+	}
+
+	/**
+	 * Returns the Java file information (ex : package name) from the given file URI
+	 * and null otherwise.
+	 * 
+	 * @param params  the file information parameters.
+	 * @param utils   the utilities class
+	 * @param monitor the monitor
+	 * @return the Java file information (ex : package name) from the given file URI
+	 *         and null otherwise.
+	 */
+	public JavaFileInfo fileInfo(MicroProfileJavaFileInfoParams params, IJDTUtils utils, IProgressMonitor monitor) {
+		String uri = params.getUri();
+		final ICompilationUnit unit = utils.resolveCompilationUnit(uri);
+		if (unit != null && unit.exists()) {
+			JavaFileInfo fileInfo = new JavaFileInfo();
+			String packageName = unit.getParent() != null ? unit.getParent().getElementName() : "";
+			fileInfo.setPackageName(packageName);
+			return fileInfo;
+		}
+		return null;
 	}
 
 	/**
@@ -218,13 +242,13 @@ public class PropertiesManagerForJava {
 	}
 
 	/**
-	 * Returns the hovered element from the given <code>typeRoot</code>
-	 * and <code>offset</code>. Returns null otherwise
+	 * Returns the hovered element from the given <code>typeRoot</code> and
+	 * <code>offset</code>. Returns null otherwise
 	 *
 	 * @param typeRoot the typeRoot
 	 * @param offset   the offset representing the hover location
-	 * @return the hovered element from the given <code>typeRoot</code>
-	 * and <code>offset</code>. Returns null otherwise
+	 * @return the hovered element from the given <code>typeRoot</code> and
+	 *         <code>offset</code>. Returns null otherwise
 	 * @throws JavaModelException
 	 */
 	private IJavaElement getHoveredElement(ITypeRoot typeRoot, int offset) throws JavaModelException {
@@ -242,13 +266,13 @@ public class PropertiesManagerForJava {
 	 * Returns the parameter element from the given <code>method</code> that
 	 * contains the given <code>offset</code>.
 	 *
-	 * Returns the given <code>method</code> if the correct parameter
-	 * element cannot be found
+	 * Returns the given <code>method</code> if the correct parameter element cannot
+	 * be found
 	 *
 	 * @param method the method
 	 * @param offset the offset
 	 * @return the parameter element from the given <code>method</code> that
-	 * contains the given <code>offset</code>
+	 *         contains the given <code>offset</code>
 	 * @throws JavaModelException
 	 */
 	private IJavaElement getHoveredMethodParameter(IMethod method, int offset) throws JavaModelException {

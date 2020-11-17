@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2019 Red Hat Inc. and others.
+* Copyright (c) 2020 Red Hat Inc. and others.
 *
 * This program and the accompanying materials are made available under the
 * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,17 +13,23 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.ls.api;
 
-import org.eclipse.lsp4j.services.LanguageClient;
+import java.util.concurrent.CompletableFuture;
+
+import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
+import org.eclipse.lsp4mp.commons.JavaFileInfo;
+import org.eclipse.lsp4mp.commons.MicroProfileJavaFileInfoParams;
 
 /**
- * MicroProfile language client API.
+ * MicroProfile Java file information provider.
  *
  * @author Angelo ZERR
  *
  */
-public interface MicroProfileLanguageClientAPI
-		extends LanguageClient, MicroProfileProjectInfoProvider, MicroProfilePropertyDefinitionProvider,
-		MicroProfileJavaCodeActionProvider, MicroProfileJavaCodeLensProvider, MicroProfileJavaDiagnosticsProvider,
-		MicroProfileJavaHoverProvider, MicroProfileJavaProjectLabelsProvider, MicroProfileJavaFileInfoProvider {
+public interface MicroProfileJavaFileInfoProvider {
+
+	@JsonRequest("microprofile/java/fileInfo")
+	default CompletableFuture<JavaFileInfo> getJavaFileInfo(MicroProfileJavaFileInfoParams javaParams) {
+		return CompletableFuture.completedFuture(null);
+	}
 
 }

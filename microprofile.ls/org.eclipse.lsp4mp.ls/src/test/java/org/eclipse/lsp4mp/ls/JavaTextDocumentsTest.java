@@ -47,14 +47,14 @@ public class JavaTextDocumentsTest {
 			if (uri.startsWith(MP_PROJECT)) {
 				labels = Arrays.asList("microprofile");
 			}
-			ProjectLabelInfoEntry projectInfo = new ProjectLabelInfoEntry(uri, labels);
+			ProjectLabelInfoEntry projectInfo = new ProjectLabelInfoEntry(uri, "", labels);
 			return CompletableFuture.completedFuture(projectInfo);
 		}
 	};
 
 	@Test
 	public void inMicroProfileProject() throws InterruptedException, ExecutionException {
-		JavaTextDocuments documents = new JavaTextDocuments(PROVIDER);
+		JavaTextDocuments documents = new JavaTextDocuments(PROVIDER, null);
 		JavaTextDocument document1 = documents
 				.createDocument(new TextDocumentItem(MP_PROJECT + "/file1.java", "", 0, ""));
 		CompletableFuture<Boolean> result = document1.executeIfInMicroProfileProject((projectInfo) -> {
@@ -68,7 +68,7 @@ public class JavaTextDocumentsTest {
 
 	@Test
 	public void inNonMicroProfileProject() throws InterruptedException, ExecutionException {
-		JavaTextDocuments documents = new JavaTextDocuments(PROVIDER);
+		JavaTextDocuments documents = new JavaTextDocuments(PROVIDER, null);
 		JavaTextDocument document1 = documents
 				.createDocument(new TextDocumentItem(NOMP_PROJECT + "/file1.java", "", 0, ""));
 		CompletableFuture<Boolean> result = document1.executeIfInMicroProfileProject((projectInfo) -> {

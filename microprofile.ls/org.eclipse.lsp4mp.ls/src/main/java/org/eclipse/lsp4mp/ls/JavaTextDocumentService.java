@@ -52,7 +52,6 @@ import org.eclipse.lsp4mp.ls.JavaTextDocuments.JavaTextDocument;
 import org.eclipse.lsp4mp.ls.commons.BadLocationException;
 import org.eclipse.lsp4mp.ls.commons.TextDocument;
 import org.eclipse.lsp4mp.ls.commons.client.CommandKind;
-import org.eclipse.lsp4mp.ls.commons.snippets.TextDocumentSnippetRegistry;
 import org.eclipse.lsp4mp.settings.MicroProfileCodeLensSettings;
 import org.eclipse.lsp4mp.settings.SharedSettings;
 import org.eclipse.lsp4mp.snippets.SnippetContextForJava;
@@ -72,13 +71,11 @@ public class JavaTextDocumentService extends AbstractTextDocumentService {
 
 	private final JavaTextDocuments documents;
 
-	private TextDocumentSnippetRegistry snippetRegistry;
-
 	public JavaTextDocumentService(MicroProfileLanguageServer microprofileLanguageServer,
 			SharedSettings sharedSettings) {
 		this.microprofileLanguageServer = microprofileLanguageServer;
 		this.sharedSettings = sharedSettings;
-		this.documents = new JavaTextDocuments(microprofileLanguageServer);
+		this.documents = new JavaTextDocuments(microprofileLanguageServer, microprofileLanguageServer);
 	}
 
 	// ------------------------------ did* for Java file -------------------------
@@ -118,10 +115,11 @@ public class JavaTextDocumentService extends AbstractTextDocumentService {
 					// Returns java snippets
 					int completionOffset = document.offsetAt(params.getPosition());
 					boolean canSupportMarkdown = true;
+					boolean snippetsSupported = sharedSettings.getCompletionSettings().isCompletionSnippetsSupported();
 					CompletionList list = new CompletionList();
 					list.setItems(new ArrayList<>());
-					documents.getSnippetRegistry()
-							.getCompletionItems(document, completionOffset, canSupportMarkdown, context -> {
+					documents.getSnippetRegistry().getCompletionItems(document, completionOffset, canSupportMarkdown,
+							snippetsSupported, (context, model) -> {
 								if (context != null && context instanceof SnippetContextForJava) {
 									return ((SnippetContextForJava) context).isMatch(projectInfo);
 								}

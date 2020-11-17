@@ -28,6 +28,7 @@ import org.eclipse.lsp4mp.model.PropertiesModel;
 import org.eclipse.lsp4mp.model.Property;
 import org.eclipse.lsp4mp.model.PropertyKey;
 import org.eclipse.lsp4mp.utils.PositionUtils;
+import org.eclipse.lsp4mp.utils.StringUtils;
 
 /**
  * The MicroProfile symbols provider
@@ -54,7 +55,7 @@ class MicroProfileSymbolsProvider {
 				// It's a property (not a comments)
 				Property property = (Property) node;
 				String name = getSymbolName(property);
-				if (name != null && !name.isEmpty()) {
+				if (!StringUtils.isEmpty(name)) {
 					// The property is not an empty line
 					Range range = getSymbolRange(property);
 					Location location = new Location(document.getDocumentURI(), range);
@@ -83,7 +84,7 @@ class MicroProfileSymbolsProvider {
 				// It's a property (not a comments)
 				Property property = (Property) node;
 				String name = getSymbolName(property);
-				if (name != null && !name.isEmpty()) {
+				if (!StringUtils.isEmpty(name)) {
 					// The property is not an empty line
 					String[] paths = name.split("[.]");
 					DocumentSymbol symbol = null;

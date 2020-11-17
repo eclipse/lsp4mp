@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2019 Red Hat Inc. and others.
+* Copyright (c) 2020 Red Hat Inc. and others.
 *
 * This program and the accompanying materials are made available under the
 * terms of the Eclipse Public License v. 2.0 which is available at
@@ -11,19 +11,33 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lsp4mp.ls.api;
-
-import org.eclipse.lsp4j.services.LanguageClient;
+package org.eclipse.lsp4mp.commons;
 
 /**
- * MicroProfile language client API.
- *
+ * Java file information.
+ * 
  * @author Angelo ZERR
  *
  */
-public interface MicroProfileLanguageClientAPI
-		extends LanguageClient, MicroProfileProjectInfoProvider, MicroProfilePropertyDefinitionProvider,
-		MicroProfileJavaCodeActionProvider, MicroProfileJavaCodeLensProvider, MicroProfileJavaDiagnosticsProvider,
-		MicroProfileJavaHoverProvider, MicroProfileJavaProjectLabelsProvider, MicroProfileJavaFileInfoProvider {
+public class JavaFileInfo {
 
+	private String packageName;
+
+	/**
+	 * Returns the package name.
+	 * 
+	 * @return the package name.
+	 */
+	public String getPackageName() {
+		return packageName;
+	}
+
+	/**
+	 * Set the package name.
+	 * 
+	 * @param packageName the package name.
+	 */
+	public void setPackageName(String packageName) {
+		this.packageName = packageName;
+	}
 }

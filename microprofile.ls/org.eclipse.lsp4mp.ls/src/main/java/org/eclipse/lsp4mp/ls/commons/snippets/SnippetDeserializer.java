@@ -17,6 +17,8 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.lsp4mp.utils.StringUtils;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -27,15 +29,18 @@ import com.google.gson.TypeAdapter;
 
 /**
  * GSON deserializer to build Snippet from vscode JSON snippet.
- *
+ * 
  * @author Angelo ZERR
  *
  */
 class SnippetDeserializer implements JsonDeserializer<Snippet> {
 
 	private static final String PREFIX_ELT = "prefix";
+	private static final String SUFFIX_ELT = "suffix";
 	private static final String DESCRIPTION_ELT = "description";
+	private static final String LABEL_ELT = "label";
 	private static final String SCOPE_ELT = "scope";
+	private static final String SORTTEXT_ELT = "sortText";
 	private static final String BODY_ELT = "body";
 	private static final String CONTEXT_ELT = "context";
 
@@ -65,6 +70,17 @@ class SnippetDeserializer implements JsonDeserializer<Snippet> {
 			}
 		}
 		snippet.setPrefixes(prefixes);
+		// by default label is the first prefix
+		if (!prefixes.isEmpty()) {
+			snippet.setLabel(prefixes.get(0));
+		}
+
+		// suffix
+		JsonElement suffixElt = snippetObj.get(SUFFIX_ELT);
+		if (suffixElt != null) {
+			String suffix = suffixElt.getAsString();
+			snippet.setSuffix(suffix);
+		}
 
 		// body
 		List<String> body = new ArrayList<>();
@@ -88,11 +104,33 @@ class SnippetDeserializer implements JsonDeserializer<Snippet> {
 			snippet.setDescription(description);
 		}
 
+		// label
+		JsonElement labelElt = snippetObj.get(LABEL_ELT);
+		if (labelElt != null) {
+			String label = labelElt.getAsString();
+			if (label.contains("$")) {
+				if (!StringUtils.isEmpty(snippet.getDescription())) {
+					label = label.replaceAll("\\$description", snippet.getDescription());
+				}
+				if (!snippet.getPrefixes().isEmpty()) {
+					label = label.replaceAll("\\$prefix", snippet.getPrefixes().get(0));
+				}
+			}
+			snippet.setLabel(label);
+		}
+
 		// scope
 		JsonElement scopeElt = snippetObj.get(SCOPE_ELT);
 		if (scopeElt != null) {
 			String scope = scopeElt.getAsString();
 			snippet.setScope(scope);
+		}
+
+		// sortText
+		JsonElement sortTextElt = snippetObj.get(SORTTEXT_ELT);
+		if (sortTextElt != null) {
+			String sortText = sortTextElt.getAsString();
+			snippet.setSortText(sortText);
 		}
 
 		// context

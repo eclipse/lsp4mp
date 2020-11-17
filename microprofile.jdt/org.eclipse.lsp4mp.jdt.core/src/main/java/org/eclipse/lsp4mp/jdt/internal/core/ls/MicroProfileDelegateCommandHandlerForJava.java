@@ -36,20 +36,23 @@ import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4mp.commons.DocumentFormat;
+import org.eclipse.lsp4mp.commons.JavaFileInfo;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeActionParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeLensParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaDiagnosticsParams;
+import org.eclipse.lsp4mp.commons.MicroProfileJavaFileInfoParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaHoverParams;
 import org.eclipse.lsp4mp.jdt.core.PropertiesManagerForJava;
 
 /**
- * JDT LS delegate command handler for Java file..
+ * JDT LS delegate command handler for Java file.
  * 
  * @author Angelo ZERR
  *
  */
 public class MicroProfileDelegateCommandHandlerForJava extends AbstractMicroProfileDelegateCommandHandler {
 
+	private static final String FILE_INFO_COMMAND_ID = "microprofile/java/fileInfo";
 	private static final String JAVA_CODEACTION_COMMAND_ID = "microprofile/java/codeAction";
 	private static final String JAVA_CODELENS_COMMAND_ID = "microprofile/java/codeLens";
 	private static final String JAVA_DIAGNOSTICS_COMMAND_ID = "microprofile/java/diagnostics";
@@ -61,6 +64,8 @@ public class MicroProfileDelegateCommandHandlerForJava extends AbstractMicroProf
 	@Override
 	public Object executeCommand(String commandId, List<Object> arguments, IProgressMonitor progress) throws Exception {
 		switch (commandId) {
+		case FILE_INFO_COMMAND_ID:
+			return getFileInfo(arguments, commandId, progress);
 		case JAVA_CODEACTION_COMMAND_ID:
 			return getCodeActionForJava(arguments, commandId, progress);
 		case JAVA_CODELENS_COMMAND_ID:
@@ -72,6 +77,50 @@ public class MicroProfileDelegateCommandHandlerForJava extends AbstractMicroProf
 		default:
 			throw new UnsupportedOperationException(String.format("Unsupported command '%s'!", commandId));
 		}
+	}
+
+	/**
+	 * Returns the file information (package name, etc) for the given Java file.
+	 * 
+	 * @param arguments
+	 * @param commandId
+	 * @param monitor
+	 * @return the file information (package name, etc) for the given Java file.
+	 * @throws CoreException
+	 * @throws JavaModelException
+	 */
+	private static JavaFileInfo getFileInfo(List<Object> arguments, String commandId, IProgressMonitor monitor)
+			throws JavaModelException, CoreException {
+		// Create java file information parameter
+		MicroProfileJavaFileInfoParams params = createJavaFileInfoParams(arguments, commandId);
+		// Return file information from the parameter
+		return PropertiesManagerForJava.getInstance().fileInfo(params, JDTUtilsLSImpl.getInstance(), monitor);
+	}
+
+	/**
+	 * Create the Java file information parameter from the given arguments map.
+	 * 
+	 * @param arguments
+	 * @param commandId
+	 * 
+	 * @return the Java file information parameter.
+	 */
+	private static MicroProfileJavaFileInfoParams createJavaFileInfoParams(List<Object> arguments, String commandId) {
+		Map<String, Object> obj = getFirst(arguments);
+		if (obj == null) {
+			throw new UnsupportedOperationException(String.format(
+					"Command '%s' must be called with one MicroProfileJavaFileInfoParams argument!", commandId));
+		}
+		// Get project name from the java file URI
+		String javaFileUri = getString(obj, "uri");
+		if (javaFileUri == null) {
+			throw new UnsupportedOperationException(String.format(
+					"Command '%s' must be called with required MicroProfileJavaFileInfoParams.uri (java file URI)!",
+					commandId));
+		}
+		MicroProfileJavaFileInfoParams params = new MicroProfileJavaFileInfoParams();
+		params.setUri(javaFileUri);
+		return params;
 	}
 
 	/**
@@ -88,7 +137,7 @@ public class MicroProfileDelegateCommandHandlerForJava extends AbstractMicroProf
 			IProgressMonitor monitor) throws JavaModelException, CoreException {
 		// Create java code action parameter
 		MicroProfileJavaCodeActionParams params = createMicroProfileJavaCodeActionParams(arguments, commandId);
-		// Return code lenses from the lens parameter
+		// Return code action from the code action parameter
 		return PropertiesManagerForJava.getInstance().codeAction(params, JDTUtilsLSImpl.getInstance(), monitor);
 	}
 
@@ -152,8 +201,8 @@ public class MicroProfileDelegateCommandHandlerForJava extends AbstractMicroProf
 			String commandId) {
 		Map<String, Object> obj = getFirst(arguments);
 		if (obj == null) {
-			throw new UnsupportedOperationException(String
-					.format("Command '%s' must be called with one MicroProfileJavaCodeLensParams argument!", commandId));
+			throw new UnsupportedOperationException(String.format(
+					"Command '%s' must be called with one MicroProfileJavaCodeLensParams argument!", commandId));
 		}
 		String javaFileUri = getString(obj, "uri");
 		if (javaFileUri == null) {
@@ -247,7 +296,8 @@ public class MicroProfileDelegateCommandHandlerForJava extends AbstractMicroProf
 		String javaFileUri = getString(obj, "uri");
 		if (javaFileUri == null) {
 			throw new UnsupportedOperationException(String.format(
-					"Command '%s' must be called with required MicroProfileJavaHoverParams.uri (java URI)!", commandId));
+					"Command '%s' must be called with required MicroProfileJavaHoverParams.uri (java URI)!",
+					commandId));
 		}
 
 		Position hoverPosition = getPosition(obj, "position");

@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -148,7 +149,8 @@ public class MicroProfileAssert {
 		testCompletionFor(value, snippetSupport, false, fileURI, expectedCount, projectInfo, expectedItems);
 	}
 
-	public static void testCompletionFor(String value, MicroProfileProjectInfo projectInfo, CompletionItem... expectedItems) throws BadLocationException {
+	public static void testCompletionFor(String value, MicroProfileProjectInfo projectInfo,
+			CompletionItem... expectedItems) throws BadLocationException {
 		testCompletionFor(value, true, false, null, expectedItems.length, projectInfo, expectedItems);
 	}
 
@@ -287,9 +289,9 @@ public class MicroProfileAssert {
 		int offset = value.indexOf('|');
 		value = value.substring(0, offset) + value.substring(offset + 1);
 		TextDocument document = new TextDocument(value, "application.properties");
-		List<CompletionItem> items = registry.getCompletionItems(document, offset, true, context -> {
+		List<CompletionItem> items = registry.getCompletionItems(document, offset, true, true, (context, model) -> {
 			return true;
-		});
+		}, new HashMap<>());
 		CompletionList actual = new CompletionList(items);
 		assertCompletions(actual, expectedCount, expectedItems);
 	}
@@ -307,13 +309,13 @@ public class MicroProfileAssert {
 		}).collect(Collectors.toList()));
 		TextDocumentSnippetRegistry registry = new TextDocumentSnippetRegistry(LanguageId.properties.name());
 		TextDocument document = new TextDocument(value, "application.properties");
-		List<CompletionItem> items = registry.getCompletionItems(document, offset, true, context -> {
+		List<CompletionItem> items = registry.getCompletionItems(document, offset, true, true, (context, model) -> {
 			if (context instanceof SnippetContextForProperties) {
 				SnippetContextForProperties contextProperties = (SnippetContextForProperties) context;
 				return contextProperties.isMatch(projectInfo);
 			}
 			return false;
-		});
+		}, new HashMap<>());
 		CompletionList actual = new CompletionList(items);
 		assertCompletions(actual, expectedCount, expectedItems);
 	}
@@ -446,7 +448,7 @@ public class MicroProfileAssert {
 
 	public static void testDefinitionFor(String value, String documentName, LocationLink... expected)
 			throws BadLocationException, InterruptedException, ExecutionException {
-		
+
 		testDefinitionFor(value, documentName, getDefaultMicroProfileProjectInfo(),
 				getDefaultMicroProfilePropertyDefinitionProvider(), expected);
 	}

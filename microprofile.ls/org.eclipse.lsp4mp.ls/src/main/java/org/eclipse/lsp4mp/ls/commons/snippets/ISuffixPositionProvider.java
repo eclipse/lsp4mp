@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2019 Red Hat Inc. and others.
+* Copyright (c) 2020 Red Hat Inc. and others.
 *
 * This program and the accompanying materials are made available under the
 * terms of the Eclipse Public License v. 2.0 which is available at
@@ -11,19 +11,25 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lsp4mp.ls.api;
+package org.eclipse.lsp4mp.ls.commons.snippets;
 
-import org.eclipse.lsp4j.services.LanguageClient;
+import org.eclipse.lsp4j.Position;
 
 /**
- * MicroProfile language client API.
- *
+ * Suffix position provider API.
+ * 
  * @author Angelo ZERR
  *
  */
-public interface MicroProfileLanguageClientAPI
-		extends LanguageClient, MicroProfileProjectInfoProvider, MicroProfilePropertyDefinitionProvider,
-		MicroProfileJavaCodeActionProvider, MicroProfileJavaCodeLensProvider, MicroProfileJavaDiagnosticsProvider,
-		MicroProfileJavaHoverProvider, MicroProfileJavaProjectLabelsProvider, MicroProfileJavaFileInfoProvider {
+public interface ISuffixPositionProvider {
 
+	/**
+	 * Returns the suffix position provider of the given <code>sufix</code> and null
+	 * otherwise.
+	 * 
+	 * @param suffix 
+	 * @return  the suffix position provider of the given <code>sufix</code> and null
+	 * otherwise.
+	 */
+	Position findSuffixPosition(String suffix);
 }
