@@ -13,6 +13,9 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.internal.core.java;
 
+import static org.junit.Assert.assertEquals;
+
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -24,6 +27,10 @@ import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
+import org.eclipse.lsp4j.Hover;
+import org.eclipse.lsp4j.LocationLink;
+import org.eclipse.lsp4j.MarkupContent;
+import org.eclipse.lsp4j.MarkupKind;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
@@ -33,8 +40,12 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.eclipse.lsp4mp.commons.DocumentFormat;
+import org.eclipse.lsp4mp.commons.MicroProfileDefinition;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeActionParams;
+import org.eclipse.lsp4mp.commons.MicroProfileJavaDefinitionParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaDiagnosticsParams;
+import org.eclipse.lsp4mp.commons.MicroProfileJavaHoverParams;
 import org.eclipse.lsp4mp.jdt.core.PropertiesManagerForJava;
 import org.eclipse.lsp4mp.jdt.core.java.diagnostics.IJavaErrorCode;
 import org.eclipse.lsp4mp.jdt.core.utils.IJDTUtils;
@@ -48,7 +59,7 @@ import org.junit.Assert;
  */
 public class MicroProfileForJavaAssert {
 
-	// ------------------- CodeAction assert
+	// ------------------- Assert for CodeAction
 
 	public static MicroProfileJavaCodeActionParams createCodeActionParams(String uri, Diagnostic d) {
 		TextDocumentIdentifier textDocument = new TextDocumentIdentifier(uri);
@@ -124,8 +135,16 @@ public class MicroProfileForJavaAssert {
 				code != null ? code.getCode() : null);
 	}
 
+	public static Range r(int line, int startCharacter, int endCharacter) {
+		return r(line, startCharacter, line, endCharacter);
+	}
+
 	public static Range r(int startLine, int startCharacter, int endLine, int endCharacter) {
-		return new Range(new Position(startLine, startCharacter), new Position(endLine, endCharacter));
+		return new Range(p(startLine, startCharacter), p(endLine, endCharacter));
+	}
+
+	public static Position p(int line, int character) {
+		return new Position(line, character);
 	}
 
 	public static void assertJavaDiagnostics(MicroProfileJavaDiagnosticsParams params, IJDTUtils utils,
@@ -163,4 +182,91 @@ public class MicroProfileForJavaAssert {
 		Assert.assertEquals("Unexpected diagnostics:\n" + actual, expected, received);
 	}
 
+	// Assert for Hover
+
+	public static void assertJavaHover(Position hoverPosition, String javaFileUri, IJDTUtils utils, Hover expected)
+			throws JavaModelException {
+		MicroProfileJavaHoverParams params = new MicroProfileJavaHoverParams();
+		params.setDocumentFormat(DocumentFormat.Markdown);
+		params.setPosition(hoverPosition);
+		params.setUri(javaFileUri);
+		params.setSurroundEqualsWithSpaces(true);
+		assertJavaHover(params, utils, expected);
+	}
+
+	public static void assertJavaHover(MicroProfileJavaHoverParams params, IJDTUtils utils, Hover expected)
+			throws JavaModelException {
+		Hover actual = PropertiesManagerForJava.getInstance().hover(params, utils, new NullProgressMonitor());
+		assertHover(expected, actual);
+	}
+
+	public static void assertHover(Hover expected, Hover actual) {
+		if (expected == null || actual == null) {
+			assertEquals(expected, actual);
+		} else {
+			assertEquals(expected.getContents().getRight(), actual.getContents().getRight());
+			assertEquals(expected.getRange(), actual.getRange());
+		}
+	}
+
+	public static Hover h(String hoverContent, int startLine, int startCharacter, int endLine, int endCharacter) {
+		Range range = r(startLine, startCharacter, endLine, endCharacter);
+		Hover hover = new Hover();
+		hover.setContents(Either.forRight(new MarkupContent(MarkupKind.MARKDOWN, hoverContent)));
+		hover.setRange(range);
+		return hover;
+	}
+
+	public static Hover h(String hoverContent, int line, int startCharacter, int endCharacter) {
+		return h(hoverContent, line, startCharacter, line, endCharacter);
+	}
+
+	// Assert for Definition
+
+	public static void assertJavaDefinitions(Position position, String javaFileUri, IJDTUtils utils,
+			MicroProfileDefinition... expected) throws JavaModelException {
+		MicroProfileJavaDefinitionParams params = new MicroProfileJavaDefinitionParams();
+		params.setPosition(position);
+		params.setUri(javaFileUri);
+		List<MicroProfileDefinition> actual = PropertiesManagerForJava.getInstance().definition(params, utils,
+				new NullProgressMonitor());
+		assertDefinitions(actual, expected);
+	}
+
+	public static void assertDefinitions(List<MicroProfileDefinition> actual, MicroProfileDefinition... expected) {
+		Assert.assertEquals(expected.length, actual.size());
+		for (int i = 0; i < expected.length; i++) {
+			Assert.assertEquals("Assert selectPropertyName [" + i + "]", expected[i].getSelectPropertyName(),
+					actual.get(i).getSelectPropertyName());
+			Assert.assertEquals("Assert location [" + i + "]", expected[i].getLocation(), actual.get(i).getLocation());
+		}
+	}
+
+	public static MicroProfileDefinition def(Range originSelectionRange, String targetUri, Range targetRange) {
+		return def(originSelectionRange, targetUri, targetRange, null);
+	}
+
+	public static MicroProfileDefinition def(Range originSelectionRange, String targetUri, String selectPropertyName) {
+		return def(originSelectionRange, targetUri, null, selectPropertyName);
+	}
+
+	private static MicroProfileDefinition def(Range originSelectionRange, String targetUri, Range targetRange,
+			String selectPropertyName) {
+		MicroProfileDefinition definition = new MicroProfileDefinition();
+		LocationLink location = new LocationLink();
+		location.setOriginSelectionRange(originSelectionRange);
+		location.setTargetUri(targetUri);
+		if (targetRange != null) {
+			location.setTargetRange(targetRange);
+			location.setTargetSelectionRange(targetRange);
+		}
+		definition.setLocation(location);
+		definition.setSelectPropertyName(selectPropertyName);
+		return definition;
+	}
+
+	public static String fixURI(URI uri) {
+		String uriString = uri.toString();
+		return uriString.replaceFirst("file:/([^/])", "file:///$1");
+	}
 }

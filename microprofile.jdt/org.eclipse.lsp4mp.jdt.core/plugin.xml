@@ -26,6 +26,7 @@
             <command id="microprofile/java/fileInfo"/>
             <command id="microprofile/java/codeAction"/>
             <command id="microprofile/java/codeLens"/>
+            <command id="microprofile/java/definition"/>
             <command id="microprofile/java/diagnostics"/>
             <command id="microprofile/java/hover"/>
        </delegateCommandHandler>
@@ -61,6 +62,8 @@
    </extension>
 
    <extension point="org.eclipse.lsp4mp.jdt.core.javaFeatureParticipants">
+       <!-- Java definition for the MicroProfile @ConfigProperty annotation -->
+      <definition class="org.eclipse.lsp4mp.jdt.internal.config.java.MicroProfileConfigDefinitionParticipant" />      
        <!-- Java hover for the MicroProfile @ConfigProperty annotation -->
       <hover class="org.eclipse.lsp4mp.jdt.internal.config.java.MicroProfileConfigHoverParticipant" />   
    </extension>
@@ -80,6 +83,8 @@
    </extension>
    
    <extension point="org.eclipse.lsp4mp.jdt.core.javaFeatureParticipants" >
+       <!-- Java definition for the MicroProfile @ConfigProperty annotation -->
+      <definition class="org.eclipse.lsp4mp.jdt.internal.faulttolerance.java.MicroProfileFaultToleranceDefinitionParticipant" />         
       <!-- Diagnostics for fault tolerance annotations -->
    	  <diagnostics class="org.eclipse.lsp4mp.jdt.internal.faulttolerance.java.MicroProfileFaultToleranceDiagnosticsParticipant" />
    </extension>

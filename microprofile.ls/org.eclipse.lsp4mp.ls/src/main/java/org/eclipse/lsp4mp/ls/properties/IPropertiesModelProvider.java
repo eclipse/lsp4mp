@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2019 Red Hat Inc. and others.
+* Copyright (c) 2020 Red Hat Inc. and others.
 *
 * This program and the accompanying materials are made available under the
 * terms of the Eclipse Public License v. 2.0 which is available at
@@ -11,19 +11,25 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lsp4mp.ls.api;
+package org.eclipse.lsp4mp.ls.properties;
 
-import org.eclipse.lsp4j.services.LanguageClient;
+import org.eclipse.lsp4mp.model.PropertiesModel;
 
 /**
- * MicroProfile language client API.
- *
+ * Properties model provider.
+ * 
  * @author Angelo ZERR
  *
  */
-public interface MicroProfileLanguageClientAPI extends LanguageClient, MicroProfileProjectInfoProvider,
-		MicroProfilePropertyDefinitionProvider, MicroProfileJavaCodeActionProvider, MicroProfileJavaCodeLensProvider,
-		MicroProfileJavaDiagnosticsProvider, MicroProfileJavaDefinitionProvider, MicroProfileJavaHoverProvider,
-		MicroProfileJavaProjectLabelsProvider, MicroProfileJavaFileInfoProvider {
+public interface IPropertiesModelProvider {
+
+	/**
+	 * Returns the properties model from the given URI.
+	 * 
+	 * @param documentURI the document URI.
+	 * 
+	 * @return the properties model from the given URI.
+	 */
+	PropertiesModel getPropertiesModel(String documentURI);
 
 }

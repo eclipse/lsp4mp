@@ -6,7 +6,7 @@
          <meta.schema plugin="org.eclipse.lsp4mp.jdt.core" id="javaFeatureParticipants" name="Java features participants"/>
       </appinfo>
       <documentation>
-         This extension point allows adding a Java feature (codeAction, codelens, hover, diagnostics) to consume it in the Java editor.
+         This extension point allows adding a Java feature (codeAction, codelens, hover, diagnostics, definition) to consume it in the Java editor.
       </documentation>
    </annotation>
 
@@ -22,6 +22,7 @@
                <element ref="codeAction" minOccurs="0" maxOccurs="unbounded"/>
                <element ref="codeLens" minOccurs="0" maxOccurs="unbounded"/>
                <element ref="diagnostics" minOccurs="0" maxOccurs="unbounded"/>
+               <element ref="definition" minOccurs="0" maxOccurs="unbounded"/>
                <element ref="hover" minOccurs="0" maxOccurs="unbounded"/>
             </choice>
          </sequence>
@@ -156,6 +157,26 @@
       </complexType>
    </element>
 
+   <element name="definition">
+      <annotation>
+         <documentation>
+            Java definition participant.
+         </documentation>
+      </annotation>
+      <complexType>
+         <attribute name="class" type="string" use="required">
+            <annotation>
+               <documentation>
+                  Name of a class that implements IJavaDefinitionParticipant.
+               </documentation>
+               <appinfo>
+                  <meta.attribute kind="java" basedOn=":org.eclipse.lsp4mp.jdt.core.java.definition.IJavaDefinitionParticipant"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
    <annotation>
       <appinfo>
          <meta.section type="since"/>
@@ -188,6 +209,9 @@
   &lt;hover
    class=&quot;com.example.MyJavaHoverParticipant&quot;&gt;
   &lt;/hover&gt;  
+  &lt;definition
+   class=&quot;com.example.MyJavaDefinitionParticipant&quot;&gt;
+  &lt;/definition&gt;
  &lt;/extension&gt;
 &lt;/pre&gt;
       </documentation>

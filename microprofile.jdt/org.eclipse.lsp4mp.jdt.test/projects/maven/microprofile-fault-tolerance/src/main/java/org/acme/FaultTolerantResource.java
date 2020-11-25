@@ -32,4 +32,16 @@ public class FaultTolerantResource {
     public String stringMethod() {
         return "";
     }
+
+    @Fallback()
+    public void ccc() {
+
+    }
+}
+
+class Data {
+
+    void aaa() {
+
+    }
 }

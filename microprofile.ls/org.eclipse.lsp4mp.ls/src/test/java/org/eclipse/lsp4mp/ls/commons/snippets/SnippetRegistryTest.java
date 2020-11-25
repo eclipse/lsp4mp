@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.Arrays;
 
-import org.eclipse.lsp4mp.ls.JavaTextDocumentSnippetRegistry;
+import org.eclipse.lsp4mp.ls.java.JavaTextDocumentSnippetRegistry;
 import org.junit.Assert;
 import org.junit.Test;
 

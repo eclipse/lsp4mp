@@ -37,16 +37,20 @@ import org.eclipse.lsp4mp.commons.DocumentFormat;
 import org.eclipse.lsp4mp.commons.JavaFileInfo;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeActionParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeLensParams;
+import org.eclipse.lsp4mp.commons.MicroProfileJavaDefinitionParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaDiagnosticsParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaFileInfoParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaHoverParams;
+import org.eclipse.lsp4mp.commons.MicroProfileDefinition;
 import org.eclipse.lsp4mp.jdt.core.java.codelens.JavaCodeLensContext;
+import org.eclipse.lsp4mp.jdt.core.java.definition.JavaDefinitionContext;
 import org.eclipse.lsp4mp.jdt.core.java.diagnostics.JavaDiagnosticsContext;
 import org.eclipse.lsp4mp.jdt.core.java.hover.JavaHoverContext;
 import org.eclipse.lsp4mp.jdt.core.utils.IJDTUtils;
 import org.eclipse.lsp4mp.jdt.internal.core.java.JavaFeaturesRegistry;
 import org.eclipse.lsp4mp.jdt.internal.core.java.codeaction.CodeActionHandler;
 import org.eclipse.lsp4mp.jdt.internal.core.java.codelens.JavaCodeLensDefinition;
+import org.eclipse.lsp4mp.jdt.internal.core.java.definition.JavaDefinitionDefinition;
 import org.eclipse.lsp4mp.jdt.internal.core.java.diagnostics.JavaDiagnosticsDefinition;
 import org.eclipse.lsp4mp.jdt.internal.core.java.hover.JavaHoverDefinition;
 
@@ -150,6 +154,59 @@ public class PropertiesManagerForJava {
 			}
 		});
 		definitions.forEach(definition -> definition.endCodeLens(context, monitor));
+	}
+
+	/**
+	 * Returns the definition list according the given definition parameters.
+	 *
+	 * @param params  the definition parameters
+	 * @param utils   the utilities class
+	 * @param monitor the monitor
+	 * @return the definition list according the given definition parameters.
+	 * @throws JavaModelException
+	 */
+	public List<MicroProfileDefinition> definition(MicroProfileJavaDefinitionParams params, IJDTUtils utils,
+			IProgressMonitor monitor) throws JavaModelException {
+		String uri = params.getUri();
+		ITypeRoot typeRoot = resolveTypeRoot(uri, utils, monitor);
+		if (typeRoot == null) {
+			return Collections.emptyList();
+		}
+
+		Position hyperlinkedPosition = params.getPosition();
+		int definitionOffset = utils.toOffset(typeRoot.getBuffer(), hyperlinkedPosition.getLine(),
+				hyperlinkedPosition.getCharacter());
+		IJavaElement hyperlinkedElement = getHoveredElement(typeRoot, definitionOffset);
+
+		List<MicroProfileDefinition> locations = new ArrayList<>();
+		collectDefinition(uri, typeRoot, hyperlinkedElement, utils, hyperlinkedPosition, locations, monitor);
+		if (monitor.isCanceled()) {
+			return Collections.emptyList();
+		}
+		return locations;
+	}
+
+	private void collectDefinition(String uri, ITypeRoot typeRoot, IJavaElement hyperlinkedElement, IJDTUtils utils,
+			Position hyperlinkedPosition, List<MicroProfileDefinition> locations, IProgressMonitor monitor) {
+		// Collect all adapted definition participant
+		JavaDefinitionContext context = new JavaDefinitionContext(uri, typeRoot, utils, hyperlinkedElement,
+				hyperlinkedPosition);
+		List<JavaDefinitionDefinition> definitions = JavaFeaturesRegistry.getInstance().getJavaDefinitionDefinitions()
+				.stream().filter(definition -> definition.isAdaptedForDefinition(context, monitor))
+				.collect(Collectors.toList());
+		if (definitions.isEmpty()) {
+			return;
+		}
+
+		// Begin, collect, end participants
+		definitions.forEach(definition -> definition.beginDefinition(context, monitor));
+		definitions.forEach(definition -> {
+			List<MicroProfileDefinition> collectedDefinitions = definition.collectDefinitions(context, monitor);
+			if (collectedDefinitions != null && !collectedDefinitions.isEmpty()) {
+				locations.addAll(collectedDefinitions);
+			}
+		});
+		definitions.forEach(definition -> definition.endDefinition(context, monitor));
 	}
 
 	/**

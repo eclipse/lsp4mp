@@ -11,7 +11,7 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lsp4mp.ls;
+package org.eclipse.lsp4mp.ls.java;
 
 import java.util.List;
 import java.util.Map;
@@ -29,11 +29,11 @@ import org.eclipse.lsp4mp.commons.MicroProfileJavaProjectLabelsParams;
 import org.eclipse.lsp4mp.commons.MicroProfilePropertiesChangeEvent;
 import org.eclipse.lsp4mp.commons.MicroProfilePropertiesScope;
 import org.eclipse.lsp4mp.commons.ProjectLabelInfoEntry;
-import org.eclipse.lsp4mp.ls.JavaTextDocuments.JavaTextDocument;
 import org.eclipse.lsp4mp.ls.api.MicroProfileJavaFileInfoProvider;
 import org.eclipse.lsp4mp.ls.api.MicroProfileJavaProjectLabelsProvider;
 import org.eclipse.lsp4mp.ls.commons.TextDocument;
 import org.eclipse.lsp4mp.ls.commons.TextDocuments;
+import org.eclipse.lsp4mp.ls.java.JavaTextDocuments.JavaTextDocument;
 
 /**
  * Java Text documents registry which manages opened Java file.
@@ -45,7 +45,7 @@ class JavaTextDocuments extends TextDocuments<JavaTextDocument> {
 
 	private static final String MICROPROFILE_PROJECT_LABEL = "microprofile";
 
-	private static final Logger LOGGER = Logger.getLogger(MicroProfileProjectInfoCache.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(JavaTextDocuments.class.getName());
 
 	private final Map<String /* Java file URI */, CompletableFuture<ProjectLabelInfoEntry>> documentCache;
 
