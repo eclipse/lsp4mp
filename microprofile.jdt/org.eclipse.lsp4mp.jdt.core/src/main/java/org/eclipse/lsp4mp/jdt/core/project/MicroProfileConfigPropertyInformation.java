@@ -13,6 +13,9 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.core.project;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Represents a config value for a given property and profile, along with a
  * reference to where the value was assigned
@@ -122,6 +125,16 @@ public class MicroProfileConfigPropertyInformation {
 		} else {
 			return propertyNameWithProfile;
 		}
+	}
+
+	/**
+	 * Returns a list of segments of the property name
+	 *
+	 * @param propertyNameWithProfile the property and profile in the format used in microprofile-config.properties
+	 * @return
+	 */
+	public static List<String> getSegments(String propertyNameWithProfile) {
+		return Arrays.asList(propertyNameWithProfile.split("\\."));
 	}
 
 }

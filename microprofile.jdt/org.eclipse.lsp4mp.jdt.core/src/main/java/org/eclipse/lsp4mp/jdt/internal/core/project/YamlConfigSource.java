@@ -16,8 +16,8 @@ package org.eclipse.lsp4mp.jdt.internal.core.project;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.lsp4mp.jdt.core.project.MicroProfileConfigPropertyInformation;
@@ -76,8 +76,40 @@ public class YamlConfigSource extends AbstractConfigSource<Map<String, Object>> 
 	}
 
 	@Override
-	protected Set<String> getPropertyKeys(Map<String, Object> config) {
-		return YamlUtils.flattenYamlMapToKeys(config);
+	public Map<String, MicroProfileConfigPropertyInformation> getPropertyInformations(String propertyKey,
+			Map<String, Object> config) {
+
+		Map<String, MicroProfileConfigPropertyInformation> result = new HashMap<>();
+
+		if (config == null) {
+			return result;
+		}
+
+		final List<String> segments = MicroProfileConfigPropertyInformation.getSegments(propertyKey);
+		if (segments.size() < 1) {
+			return result;
+		}
+
+		for (String key : config.keySet()) {
+			if (key.equals(segments.get(0))) {
+				String value = YamlUtils.getValueRecursively(segments, config);
+				if (value != null) {
+					result.put(propertyKey,
+							new MicroProfileConfigPropertyInformation(propertyKey, value, getConfigFileName()));
+				}
+			} else if (key.charAt(0) == '%') {
+				if (config.get(key) instanceof Map) {
+					String value = YamlUtils.getValueRecursively(segments, config.get(key));
+					if (value != null) {
+						String propertyAndProfile = key + "." + propertyKey;
+						result.put(propertyAndProfile, new MicroProfileConfigPropertyInformation(propertyAndProfile,
+								value, getConfigFileName()));
+					}
+				}
+			}
+		}
+
+		return result;
 	}
 
 }
