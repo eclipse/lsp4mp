@@ -11,7 +11,7 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lsp4mp.ls;
+package org.eclipse.lsp4mp.ls.properties;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,7 +21,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
-import org.eclipse.lsp4j.ClientCapabilities;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.Command;
@@ -44,17 +43,16 @@ import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.HoverParams;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.LocationLink;
-import org.eclipse.lsp4j.MarkupKind;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.SymbolInformation;
-import org.eclipse.lsp4j.TextDocumentClientCapabilities;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
-import org.eclipse.lsp4mp.commons.DocumentFormat;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfoParams;
 import org.eclipse.lsp4mp.commons.MicroProfilePropertiesChangeEvent;
+import org.eclipse.lsp4mp.ls.AbstractTextDocumentService;
+import org.eclipse.lsp4mp.ls.MicroProfileLanguageServer;
 import org.eclipse.lsp4mp.ls.api.MicroProfileLanguageServerAPI.JsonSchemaForProjectInfo;
 import org.eclipse.lsp4mp.ls.commons.ModelTextDocument;
 import org.eclipse.lsp4mp.ls.commons.ModelTextDocuments;
@@ -65,65 +63,25 @@ import org.eclipse.lsp4mp.settings.MicroProfileSymbolSettings;
 import org.eclipse.lsp4mp.settings.MicroProfileValidationSettings;
 import org.eclipse.lsp4mp.settings.SharedSettings;
 import org.eclipse.lsp4mp.utils.JSONSchemaUtils;
+import org.eclipse.lsp4mp.utils.URIUtils;
 
 /**
- * LSP text document service for 'application.properties' file.
+ * LSP text document service for 'microprofile-config.properties',
+ * 'application.properties' file.
  *
  */
-public class ApplicationPropertiesTextDocumentService extends AbstractTextDocumentService {
+public class PropertiesFileTextDocumentService extends AbstractTextDocumentService implements IPropertiesModelProvider {
 
 	private final ModelTextDocuments<PropertiesModel> documents;
 
 	private MicroProfileProjectInfoCache projectInfoCache;
 
-	private final MicroProfileLanguageServer microprofileLanguageServer;
-
-	private final SharedSettings sharedSettings;
-
-	private boolean hierarchicalDocumentSymbolSupport;
-
-	private boolean definitionLinkSupport;
-
-	private DocumentFormat documentFormat;
-
-	public ApplicationPropertiesTextDocumentService(MicroProfileLanguageServer microProfileLanguageServer,
+	public PropertiesFileTextDocumentService(MicroProfileLanguageServer microprofileLanguageServer,
 			SharedSettings sharedSettings) {
-		this.microprofileLanguageServer = microProfileLanguageServer;
+		super(microprofileLanguageServer, sharedSettings);
 		this.documents = new ModelTextDocuments<PropertiesModel>((document, cancelChecker) -> {
 			return PropertiesModel.parse(document);
 		});
-		this.sharedSettings = sharedSettings;
-		this.documentFormat = DocumentFormat.PlainText;
-	}
-
-	/**
-	 * Update shared settings from the client capabilities.
-	 *
-	 * @param capabilities the client capabilities
-	 */
-	public void updateClientCapabilities(ClientCapabilities capabilities) {
-		TextDocumentClientCapabilities textDocumentClientCapabilities = capabilities.getTextDocument();
-		if (textDocumentClientCapabilities != null) {
-			hierarchicalDocumentSymbolSupport = textDocumentClientCapabilities.getDocumentSymbol() != null
-					&& textDocumentClientCapabilities.getDocumentSymbol().getHierarchicalDocumentSymbolSupport() != null
-					&& textDocumentClientCapabilities.getDocumentSymbol().getHierarchicalDocumentSymbolSupport();
-			definitionLinkSupport = textDocumentClientCapabilities.getDefinition() != null
-					&& textDocumentClientCapabilities.getDefinition().getLinkSupport() != null
-					&& textDocumentClientCapabilities.getDefinition().getLinkSupport();
-			// Update document format
-			if (textDocumentClientCapabilities.getCompletion() != null
-					&& textDocumentClientCapabilities.getCompletion().getCompletionItem() != null
-					&& textDocumentClientCapabilities.getCompletion().getCompletionItem()
-							.getDocumentationFormat() != null
-					&& textDocumentClientCapabilities.getCompletion().getCompletionItem().getDocumentationFormat()
-							.contains(MarkupKind.MARKDOWN)) {
-				documentFormat = DocumentFormat.Markdown;
-			} else if (textDocumentClientCapabilities.getHover() != null
-					&& textDocumentClientCapabilities.getHover().getContentFormat() != null
-					&& textDocumentClientCapabilities.getHover().getContentFormat().contains(MarkupKind.MARKDOWN)) {
-				documentFormat = DocumentFormat.Markdown;
-			}
-		}
 	}
 
 	@Override
@@ -196,7 +154,7 @@ public class ApplicationPropertiesTextDocumentService extends AbstractTextDocume
 	public CompletableFuture<List<Either<SymbolInformation, DocumentSymbol>>> documentSymbol(
 			DocumentSymbolParams params) {
 		return getPropertiesModel(params.getTextDocument(), (cancelChecker, document) -> {
-			if (hierarchicalDocumentSymbolSupport && sharedSettings.getSymbolSettings().isShowAsTree()) {
+			if (isHierarchicalDocumentSymbolSupport() && sharedSettings.getSymbolSettings().isShowAsTree()) {
 				return getMicroProfileLanguageService().findDocumentSymbols(document, cancelChecker) //
 						.stream() //
 						.map(s -> {
@@ -226,7 +184,7 @@ public class ApplicationPropertiesTextDocumentService extends AbstractTextDocume
 			// then get the Properties model document
 			return getDocument(params.getTextDocument().getUri()).getModel().thenComposeAsync(document -> {
 				return getMicroProfileLanguageService().findDefinition(document, params.getPosition(), projectInfo,
-						microprofileLanguageServer.getLanguageClient(), definitionLinkSupport);
+						microprofileLanguageServer.getLanguageClient(), isDefinitionLinkSupport());
 			});
 		});
 	}
@@ -281,7 +239,7 @@ public class ApplicationPropertiesTextDocumentService extends AbstractTextDocume
 
 	private MicroProfileProjectInfoParams createProjectInfoParams(String uri) {
 		MicroProfileProjectInfoParams params = new MicroProfileProjectInfoParams(uri);
-		params.setDocumentFormat(documentFormat);
+		params.setDocumentFormat(getDocumentFormat());
 		return params;
 	}
 
@@ -426,6 +384,29 @@ public class ApplicationPropertiesTextDocumentService extends AbstractTextDocume
 			String jsonSchema = JSONSchemaUtils.toJSONSchema(info, true);
 			return new JsonSchemaForProjectInfo(info.getProjectURI(), jsonSchema);
 		});
+	}
+
+	@Override
+	public PropertiesModel getPropertiesModel(String documentURI) {
+		// Try to get the document from the Map.
+		ModelTextDocument<PropertiesModel> document = documents.get(documentURI);
+		if (document != null) {
+			return document.getModel().getNow(null);
+		}
+		// vscode opens the file by encoding the file URI and the 'C' of hard drive
+		// lower case
+		// 'c'.
+		// for --> file:///C:/Users/a folder/application.properties
+		// vscode didOpen --> file:///c%3A/Users/a%20folder/application.properties
+		String encodedFileURI = URIUtils.encodeFileURI(documentURI).toUpperCase();
+		// We loop for all properties files which are opened and we compare the encoded
+		// file URI with upper case
+		for (ModelTextDocument<PropertiesModel> textDocument : documents.all()) {
+			if (textDocument.getUri().toUpperCase().equals(encodedFileURI)) {
+				return textDocument.getModel().getNow(null);
+			}
+		}
+		return null;
 	}
 
 }

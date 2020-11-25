@@ -94,8 +94,8 @@ public class YamlConfigSource extends AbstractConfigSource<Map<String, Object>> 
 			if (key.equals(segments.get(0))) {
 				String value = YamlUtils.getValueRecursively(segments, config);
 				if (value != null) {
-					result.put(propertyKey,
-							new MicroProfileConfigPropertyInformation(propertyKey, value, getConfigFileName()));
+					result.put(propertyKey, new MicroProfileConfigPropertyInformation(propertyKey, value,
+							getSourceConfigFileURI(), getConfigFileName()));
 				}
 			} else if (key.charAt(0) == '%') {
 				if (config.get(key) instanceof Map) {
@@ -103,7 +103,7 @@ public class YamlConfigSource extends AbstractConfigSource<Map<String, Object>> 
 					if (value != null) {
 						String propertyAndProfile = key + "." + propertyKey;
 						result.put(propertyAndProfile, new MicroProfileConfigPropertyInformation(propertyAndProfile,
-								value, getConfigFileName()));
+								value, getSourceConfigFileURI(), getConfigFileName()));
 					}
 				}
 			}

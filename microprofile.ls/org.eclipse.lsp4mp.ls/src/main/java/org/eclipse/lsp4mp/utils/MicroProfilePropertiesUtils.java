@@ -13,9 +13,12 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.utils;
 
+import java.net.URL;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.metadata.ConfigurationMetadata;
@@ -26,6 +29,7 @@ import org.eclipse.lsp4mp.commons.metadata.ValueProvider;
 import org.eclipse.lsp4mp.commons.metadata.ValueProvider.ValueProviderDefaultName;
 import org.eclipse.lsp4mp.commons.metadata.ValueProviderParameter;
 import org.eclipse.lsp4mp.ls.commons.SnippetsBuilder;
+import org.eclipse.lsp4mp.model.PropertiesModel;
 import org.eclipse.lsp4mp.services.QuarkusModel;
 
 /**
@@ -35,6 +39,8 @@ import org.eclipse.lsp4mp.services.QuarkusModel;
  *
  */
 public class MicroProfilePropertiesUtils {
+
+	private static final Logger LOGGER = Logger.getLogger(MicroProfilePropertiesUtils.class.getName());
 
 	private static final BiConsumer<Integer, StringBuilder> KEY_MAP_MARKDOWN_REPLACE = (i, newName) -> newName
 			.append("\\{\\*\\}");
@@ -311,5 +317,19 @@ public class MicroProfilePropertiesUtils {
 	 */
 	public static boolean isIndexArrayProperty(String propertyName) {
 		return propertyName.indexOf("[*]") != -1;
+	}
+
+	/**
+	 * 
+	 * @param documentURI
+	 * @return
+	 */
+	public static PropertiesModel loadProperties(String documentURI) {
+		try {
+			return PropertiesModel.parse(IOUtils.convertStreamToString(new URL(documentURI).openStream()), documentURI);
+		} catch (Exception e) {
+			LOGGER.log(Level.SEVERE, "Error while loading properties file '" + documentURI + "'.", e);
+			return null;
+		}
 	}
 }

@@ -26,6 +26,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.lsp4mp.jdt.core.MicroProfileCorePlugin;
 import org.eclipse.lsp4mp.jdt.internal.core.java.codeaction.JavaCodeActionDefinition;
 import org.eclipse.lsp4mp.jdt.internal.core.java.codelens.JavaCodeLensDefinition;
+import org.eclipse.lsp4mp.jdt.internal.core.java.definition.JavaDefinitionDefinition;
 import org.eclipse.lsp4mp.jdt.internal.core.java.diagnostics.JavaDiagnosticsDefinition;
 import org.eclipse.lsp4mp.jdt.internal.core.java.hover.JavaHoverDefinition;
 
@@ -39,6 +40,7 @@ public class JavaFeaturesRegistry {
 	private static final String EXTENSION_JAVA_FEATURE_PARTICIPANTS = "javaFeatureParticipants";
 	private static final String CODEACTION_ELT = "codeAction";
 	private static final String CODELENS_ELT = "codeLens";
+	private static final String DEFINITION_ELT = "definition";
 	private static final String DIAGNOSTICS_ELT = "diagnostics";
 	private static final String HOVER_ELT = "hover";
 
@@ -49,6 +51,8 @@ public class JavaFeaturesRegistry {
 	private final List<JavaCodeActionDefinition> javaCodeActionDefinitions;
 
 	private final List<JavaCodeLensDefinition> javaCodeLensDefinitions;
+
+	private final List<JavaDefinitionDefinition> javaDefinitionDefinitions;
 
 	private final List<JavaDiagnosticsDefinition> javaDiagnosticsDefinitions;
 
@@ -64,6 +68,7 @@ public class JavaFeaturesRegistry {
 		javaFeatureDefinitionsLoaded = false;
 		javaCodeActionDefinitions = new ArrayList<>();
 		javaCodeLensDefinitions = new ArrayList<>();
+		javaDefinitionDefinitions = new ArrayList<>();
 		javaDiagnosticsDefinitions = new ArrayList<>();
 		javaHoverDefinitions = new ArrayList<>();
 	}
@@ -76,6 +81,16 @@ public class JavaFeaturesRegistry {
 	public List<JavaCodeLensDefinition> getJavaCodeLensDefinitions() {
 		loadJavaFeatureDefinitions();
 		return javaCodeLensDefinitions;
+	}
+
+	/**
+	 * Returns a list of definition definition.
+	 *
+	 * @return a list of definition definition.
+	 */
+	public List<JavaDefinitionDefinition> getJavaDefinitionDefinitions() {
+		loadJavaFeatureDefinitions();
+		return javaDefinitionDefinitions;
 	}
 
 	/**
@@ -142,6 +157,13 @@ public class JavaFeaturesRegistry {
 			JavaDiagnosticsDefinition definition = new JavaDiagnosticsDefinition(ce);
 			synchronized (javaDiagnosticsDefinitions) {
 				javaDiagnosticsDefinitions.add(definition);
+			}
+			break;
+		}
+		case DEFINITION_ELT: {
+			JavaDefinitionDefinition definition = new JavaDefinitionDefinition(ce);
+			synchronized (javaDefinitionDefinitions) {
+				javaDefinitionDefinitions.add(definition);
 			}
 			break;
 		}

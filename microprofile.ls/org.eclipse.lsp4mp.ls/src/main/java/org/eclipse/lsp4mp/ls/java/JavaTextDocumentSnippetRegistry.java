@@ -11,7 +11,7 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lsp4mp.ls;
+package org.eclipse.lsp4mp.ls.java;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,11 +20,11 @@ import java.util.Map;
 import java.util.function.BiPredicate;
 
 import org.eclipse.lsp4j.CompletionItem;
-import org.eclipse.lsp4mp.ls.JavaTextDocuments.JavaTextDocument;
 import org.eclipse.lsp4mp.ls.commons.BadLocationException;
 import org.eclipse.lsp4mp.ls.commons.snippets.ISnippetContext;
 import org.eclipse.lsp4mp.ls.commons.snippets.Snippet;
 import org.eclipse.lsp4mp.ls.commons.snippets.TextDocumentSnippetRegistry;
+import org.eclipse.lsp4mp.ls.java.JavaTextDocuments.JavaTextDocument;
 import org.eclipse.lsp4mp.snippets.LanguageId;
 import org.eclipse.lsp4mp.snippets.SnippetContextForJava;
 import org.eclipse.lsp4mp.utils.StringUtils;

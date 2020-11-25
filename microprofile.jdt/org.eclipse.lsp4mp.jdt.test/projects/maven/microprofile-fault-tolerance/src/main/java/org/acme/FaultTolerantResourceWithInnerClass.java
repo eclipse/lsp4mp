@@ -8,7 +8,7 @@ import javax.ws.rs.core.MediaType;
 import org.eclipse.microprofile.faulttolerance.Fallback;
 
 @Path("/fault-tolerant")
-public class FaultTolerantResource {
+public class FaultTolerantResourceWithInnerClass {
 
     @GET
     @Produces(MediaType.TEXT_PLAIN)
@@ -41,7 +41,7 @@ public class FaultTolerantResource {
 
 class Data {
 
-    void aaaaaaa() {
+    void aaa() {
 
     }
 }

@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
@@ -47,10 +48,9 @@ public abstract class AbstractConfigSource<T> implements IConfigSource {
 
 	private final String configFileName;
 	private final IJavaProject javaProject;
-	private Path configFile;
-
+	private Path outputConfigFile;
+	private Path sourceConfigFile;
 	private FileTime lastModified;
-
 	private T config;
 
 	public AbstractConfigSource(String configFileName, IJavaProject javaProject) {
@@ -68,28 +68,38 @@ public abstract class AbstractConfigSource<T> implements IConfigSource {
 	 *
 	 * @return the target/classes/$configFile and null otherwise.
 	 */
-	private Path getConfigFile() {
-		if (configFile != null && Files.exists(configFile)) {
-			return configFile;
+	private Path getOutputConfigFile() {
+		if (outputConfigFile != null && Files.exists(outputConfigFile)) {
+			return outputConfigFile;
 		}
+		sourceConfigFile = null;
+		outputConfigFile = null;
 		if (javaProject.getProject() != null && javaProject.getProject().isAccessible()) {
 			try {
-				List<IPath> outputs = Stream.of(((JavaProject) javaProject).getResolvedClasspath(true)) //
+				List<IClasspathEntry> sourceEntries = Stream.of(((JavaProject) javaProject).getResolvedClasspath(true)) //
 						.filter(entry -> !entry.isTest()) //
-						.filter(entry -> entry.getEntryKind() == IClasspathEntry.CPE_SOURCE) //
-						.map(entry -> entry.getOutputLocation()) //
-						.filter(output -> output != null) //
+						.filter(entry -> entry.getEntryKind() == IClasspathEntry.CPE_SOURCE
+								&& entry.getOutputLocation() != null) //
 						.distinct() //
 						.collect(Collectors.toList());
-				for (IPath output : outputs) {
-					File file = javaProject.getProject().getLocation().append(output.removeFirstSegments(1))
+				// Search the config file in the source and in the output folders
+				for (IClasspathEntry sourceEntry : sourceEntries) {
+					// Search the config file in the source folder
+					IPath source = sourceEntry.getPath();
+					File sourceFile = javaProject.getProject().getLocation().append(source.removeFirstSegments(1))
 							.append(configFileName).toFile();
-					if (file.exists()) {
-						configFile = file.toPath();
-						return configFile;
+					if (sourceFile.exists()) {
+						sourceConfigFile = sourceFile.toPath();
+					}
+					// Search the config file in the output folder
+					IPath output = sourceEntry.getOutputLocation();
+					File outputFile = javaProject.getProject().getLocation().append(output.removeFirstSegments(1))
+							.append(configFileName).toFile();
+					if (outputFile.exists()) {
+						outputConfigFile = outputFile.toPath();
 					}
 				}
-				return null;
+				return outputConfigFile;
 			} catch (JavaModelException e) {
 				LOGGER.log(Level.SEVERE, "Error while getting configuration", e);
 				return null;
@@ -103,13 +113,28 @@ public abstract class AbstractConfigSource<T> implements IConfigSource {
 		return configFileName;
 	}
 
+	@Override
+	public String getSourceConfigFileURI() {
+		getOutputConfigFile();
+		if (sourceConfigFile != null) {
+			URI uri = sourceConfigFile.toFile().toURI();
+			return fixURI(uri);
+		}
+		return null;
+	}
+
+	private static String fixURI(URI uri) {
+		String uriString = uri.toString();
+		return uriString.replaceFirst("file:/([^/])", "file:///$1");
+	}
+
 	/**
 	 * Returns the loaded config and null otherwise.
 	 *
 	 * @return the loaded config and null otherwise
 	 */
 	private T getConfig() {
-		Path configFile = getConfigFile();
+		Path configFile = getOutputConfigFile();
 		if (configFile == null) {
 			reset();
 			return null;

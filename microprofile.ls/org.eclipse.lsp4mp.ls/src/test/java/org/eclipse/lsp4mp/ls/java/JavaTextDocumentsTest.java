@@ -9,7 +9,7 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lsp4mp.ls;
+package org.eclipse.lsp4mp.ls.java;
 
 import java.util.Arrays;
 import java.util.List;
@@ -19,8 +19,8 @@ import java.util.concurrent.ExecutionException;
 import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaProjectLabelsParams;
 import org.eclipse.lsp4mp.commons.ProjectLabelInfoEntry;
-import org.eclipse.lsp4mp.ls.JavaTextDocuments.JavaTextDocument;
 import org.eclipse.lsp4mp.ls.api.MicroProfileJavaProjectLabelsProvider;
+import org.eclipse.lsp4mp.ls.java.JavaTextDocuments.JavaTextDocument;
 import org.junit.Assert;
 import org.junit.Test;
 

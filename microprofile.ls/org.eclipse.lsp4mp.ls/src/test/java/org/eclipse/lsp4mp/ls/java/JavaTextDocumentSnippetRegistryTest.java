@@ -9,7 +9,7 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lsp4mp.ls;
+package org.eclipse.lsp4mp.ls.java;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -24,10 +24,10 @@ import java.util.Optional;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4mp.commons.ProjectLabelInfoEntry;
-import org.eclipse.lsp4mp.ls.JavaTextDocuments.JavaTextDocument;
 import org.eclipse.lsp4mp.ls.commons.snippets.ISnippetContext;
 import org.eclipse.lsp4mp.ls.commons.snippets.Snippet;
 import org.eclipse.lsp4mp.ls.commons.snippets.SnippetRegistry;
+import org.eclipse.lsp4mp.ls.java.JavaTextDocuments.JavaTextDocument;
 import org.eclipse.lsp4mp.snippets.SnippetContextForJava;
 import org.junit.Test;
 

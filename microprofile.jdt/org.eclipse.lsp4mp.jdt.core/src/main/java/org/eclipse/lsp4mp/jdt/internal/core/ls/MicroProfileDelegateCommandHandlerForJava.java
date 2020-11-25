@@ -39,9 +39,11 @@ import org.eclipse.lsp4mp.commons.DocumentFormat;
 import org.eclipse.lsp4mp.commons.JavaFileInfo;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeActionParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeLensParams;
+import org.eclipse.lsp4mp.commons.MicroProfileJavaDefinitionParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaDiagnosticsParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaFileInfoParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaHoverParams;
+import org.eclipse.lsp4mp.commons.MicroProfileDefinition;
 import org.eclipse.lsp4mp.jdt.core.PropertiesManagerForJava;
 
 /**
@@ -55,6 +57,7 @@ public class MicroProfileDelegateCommandHandlerForJava extends AbstractMicroProf
 	private static final String FILE_INFO_COMMAND_ID = "microprofile/java/fileInfo";
 	private static final String JAVA_CODEACTION_COMMAND_ID = "microprofile/java/codeAction";
 	private static final String JAVA_CODELENS_COMMAND_ID = "microprofile/java/codeLens";
+	private static final String JAVA_DEFINITION_COMMAND_ID = "microprofile/java/definition";
 	private static final String JAVA_DIAGNOSTICS_COMMAND_ID = "microprofile/java/diagnostics";
 	private static final String JAVA_HOVER_COMMAND_ID = "microprofile/java/hover";
 
@@ -70,6 +73,8 @@ public class MicroProfileDelegateCommandHandlerForJava extends AbstractMicroProf
 			return getCodeActionForJava(arguments, commandId, progress);
 		case JAVA_CODELENS_COMMAND_ID:
 			return getCodeLensForJava(arguments, commandId, progress);
+		case JAVA_DEFINITION_COMMAND_ID:
+			return getDefinitionForJava(arguments, commandId, progress);
 		case JAVA_DIAGNOSTICS_COMMAND_ID:
 			return getDiagnosticsForJava(arguments, commandId, progress);
 		case JAVA_HOVER_COMMAND_ID:
@@ -219,11 +224,57 @@ public class MicroProfileDelegateCommandHandlerForJava extends AbstractMicroProf
 	}
 
 	/**
-	 *
+	 * Returns the list o <code>MicroProfileLocationLink</code> for the definition
+	 * described in <code>arguments</code>
+	 * 
 	 * @param arguments
 	 * @param commandId
 	 * @param monitor
 	 * @return
+	 * @throws JavaModelException
+	 * @throws CoreException
+	 */
+	private static List<MicroProfileDefinition> getDefinitionForJava(List<Object> arguments, String commandId,
+			IProgressMonitor monitor) throws JavaModelException, CoreException {
+		// Create java definition parameter
+		MicroProfileJavaDefinitionParams params = createMicroProfileJavaDefinitionParams(arguments, commandId);
+		// Return hover info from hover parameter
+		return PropertiesManagerForJava.getInstance().definition(params, JDTUtilsLSImpl.getInstance(), monitor);
+	}
+
+	/**
+	 * Returns the java definition parameters from the given arguments map.
+	 * 
+	 * @param arguments
+	 * @param commandId
+	 * 
+	 * @return the definition hover parameters
+	 */
+	private static MicroProfileJavaDefinitionParams createMicroProfileJavaDefinitionParams(List<Object> arguments,
+			String commandId) {
+		Map<String, Object> obj = getFirst(arguments);
+		if (obj == null) {
+			throw new UnsupportedOperationException(String.format(
+					"Command '%s' must be called with one MicroProfileJavaDefinitionParams argument!", commandId));
+		}
+		String javaFileUri = getString(obj, "uri");
+		if (javaFileUri == null) {
+			throw new UnsupportedOperationException(String.format(
+					"Command '%s' must be called with required MicroProfileJavaDefinitionParams.uri (java URI)!",
+					commandId));
+		}
+
+		Position hoverPosition = getPosition(obj, "position");
+		return new MicroProfileJavaDefinitionParams(javaFileUri, hoverPosition);
+	}
+
+	/**
+	 * Returns the publish diagnostics list for a given java file URIs.
+	 * 
+	 * @param arguments
+	 * @param commandId
+	 * @param monitor
+	 * @return the publish diagnostics list for a given java file URIs.
 	 * @throws JavaModelException
 	 */
 	private static List<PublishDiagnosticsParams> getDiagnosticsForJava(List<Object> arguments, String commandId,
@@ -260,7 +311,7 @@ public class MicroProfileDelegateCommandHandlerForJava extends AbstractMicroProf
 	}
 
 	/**
-	 * Returns the <code>MicroProfileJavaHoverInfo</code> for the hover described in
+	 * Returns the <code>Hover</code> for the hover described in
 	 * <code>arguments</code>
 	 *
 	 * @param arguments
