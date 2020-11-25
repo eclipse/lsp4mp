@@ -14,6 +14,7 @@
 package org.eclipse.lsp4mp.jdt.core.utils;
 
 import org.eclipse.jdt.core.IField;
+import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IOpenable;
 import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.IType;
@@ -31,7 +32,7 @@ public class PositionUtils {
 	/**
 	 * Returns the LSP range for the given field name.
 	 *
-	 * @param field teh java field.
+	 * @param field the java field.
 	 * @param utils the JDT utilities.
 	 * @return the LSP range for the given field name.
 	 * @throws JavaModelException
@@ -42,10 +43,32 @@ public class PositionUtils {
 		return utils.toRange(openable, sourceRange.getOffset(), sourceRange.getLength());
 	}
 
+	/**
+	 * Returns the LSP range for the given type name.
+	 *
+	 * @param type  the java type.
+	 * @param utils the JDT utilities.
+	 * @return the LSP range for the given type name.
+	 * @throws JavaModelException
+	 */
 	public static Range toNameRange(IType type, IJDTUtils utils) throws JavaModelException {
 		IOpenable openable = type.getCompilationUnit();
 		ISourceRange sourceRange = type.getNameRange();
 		return utils.toRange(openable, sourceRange.getOffset(), sourceRange.getLength());
 	}
-	
+
+	/**
+	 * Returns the LSP range for the given method name.
+	 *
+	 * @param method the java type.
+	 * @param utils  the JDT utilities.
+	 * @return the LSP range for the given method name.
+	 * @throws JavaModelException
+	 */
+	public static Range toNameRange(IMethod method, IJDTUtils utils) throws JavaModelException {
+		IOpenable openable = method.getCompilationUnit();
+		ISourceRange sourceRange = method.getNameRange();
+		return utils.toRange(openable, sourceRange.getOffset(), sourceRange.getLength());
+	}
+
 }

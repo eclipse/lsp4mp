@@ -14,23 +14,24 @@
 package org.eclipse.lsp4mp.jdt.internal.config.java;
 
 import static org.eclipse.lsp4mp.jdt.core.MicroProfileConfigConstants.CONFIG_PROPERTY_ANNOTATION;
-import static org.eclipse.lsp4mp.jdt.core.MicroProfileConfigConstants.CONFIG_PROPERTY_ANNOTATION_DEFAULT_VALUE;
 import static org.eclipse.lsp4mp.jdt.core.MicroProfileConfigConstants.CONFIG_PROPERTY_ANNOTATION_NAME;
 
-import org.eclipse.lsp4mp.jdt.core.java.hover.PropertiesHoverParticipant;
+import org.eclipse.lsp4mp.jdt.core.java.definition.PropertiesDefinitionParticipant;
 
 /**
  *
- * MicroProfile Config Hover
+ * MicroProfile Config Definition to navigate from Java
+ * file @ConfigProperty/name to properties, yaml files where the property is
+ * declared.
  *
  * @author Angelo ZERR
  *
  * @See https://github.com/eclipse/microprofile-config
  *
  */
-public class MicroProfileConfigHoverParticipant extends PropertiesHoverParticipant {
+public class MicroProfileConfigDefinitionParticipant extends PropertiesDefinitionParticipant {
 
-	public MicroProfileConfigHoverParticipant() {
-		super(CONFIG_PROPERTY_ANNOTATION, CONFIG_PROPERTY_ANNOTATION_NAME, CONFIG_PROPERTY_ANNOTATION_DEFAULT_VALUE);
+	public MicroProfileConfigDefinitionParticipant() {
+		super(CONFIG_PROPERTY_ANNOTATION, CONFIG_PROPERTY_ANNOTATION_NAME);
 	}
 }

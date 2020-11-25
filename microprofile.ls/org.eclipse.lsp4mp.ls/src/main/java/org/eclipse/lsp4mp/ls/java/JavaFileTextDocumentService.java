@@ -11,7 +11,7 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lsp4mp.ls;
+package org.eclipse.lsp4mp.ls.java;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,6 +31,7 @@ import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.CompletionParams;
+import org.eclipse.lsp4j.DefinitionParams;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
@@ -38,23 +39,36 @@ import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.DidSaveTextDocumentParams;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.HoverParams;
+import org.eclipse.lsp4j.Location;
+import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.MarkupKind;
+import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
+import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.CompletableFutures;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4mp.commons.DocumentFormat;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeActionParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeLensParams;
+import org.eclipse.lsp4mp.commons.MicroProfileJavaDefinitionParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaDiagnosticsParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaHoverParams;
 import org.eclipse.lsp4mp.commons.MicroProfilePropertiesChangeEvent;
-import org.eclipse.lsp4mp.ls.JavaTextDocuments.JavaTextDocument;
+import org.eclipse.lsp4mp.ls.AbstractTextDocumentService;
+import org.eclipse.lsp4mp.ls.MicroProfileLanguageServer;
 import org.eclipse.lsp4mp.ls.commons.BadLocationException;
 import org.eclipse.lsp4mp.ls.commons.TextDocument;
 import org.eclipse.lsp4mp.ls.commons.client.CommandKind;
+import org.eclipse.lsp4mp.ls.java.JavaTextDocuments.JavaTextDocument;
+import org.eclipse.lsp4mp.ls.properties.IPropertiesModelProvider;
+import org.eclipse.lsp4mp.model.Node;
+import org.eclipse.lsp4mp.model.PropertiesModel;
+import org.eclipse.lsp4mp.model.Property;
 import org.eclipse.lsp4mp.settings.MicroProfileCodeLensSettings;
 import org.eclipse.lsp4mp.settings.SharedSettings;
 import org.eclipse.lsp4mp.snippets.SnippetContextForJava;
+import org.eclipse.lsp4mp.utils.MicroProfilePropertiesUtils;
+import org.eclipse.lsp4mp.utils.PositionUtils;
 
 /**
  * LSP text document service for Java file.
@@ -62,19 +76,17 @@ import org.eclipse.lsp4mp.snippets.SnippetContextForJava;
  * @author Angelo ZERR
  *
  */
-public class JavaTextDocumentService extends AbstractTextDocumentService {
+public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 
-	private static final Logger LOGGER = Logger.getLogger(JavaTextDocumentService.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(JavaFileTextDocumentService.class.getName());
 
-	private final MicroProfileLanguageServer microprofileLanguageServer;
-	private final SharedSettings sharedSettings;
-
+	private final IPropertiesModelProvider propertiesModelProvider;
 	private final JavaTextDocuments documents;
 
-	public JavaTextDocumentService(MicroProfileLanguageServer microprofileLanguageServer,
-			SharedSettings sharedSettings) {
-		this.microprofileLanguageServer = microprofileLanguageServer;
-		this.sharedSettings = sharedSettings;
+	public JavaFileTextDocumentService(MicroProfileLanguageServer microprofileLanguageServer,
+			IPropertiesModelProvider propertiesModelProvider, SharedSettings sharedSettings) {
+		super(microprofileLanguageServer, sharedSettings);
+		this.propertiesModelProvider = propertiesModelProvider;
 		this.documents = new JavaTextDocuments(microprofileLanguageServer, microprofileLanguageServer);
 	}
 
@@ -186,6 +198,64 @@ public class JavaTextDocumentService extends AbstractTextDocumentService {
 								.collect(Collectors.toList());
 					});
 		}, Collections.emptyList());
+	}
+
+	// ------------------------------ Definition ------------------------------
+
+	@Override
+	public CompletableFuture<Either<List<? extends Location>, List<? extends LocationLink>>> definition(
+			DefinitionParams params) {
+		JavaTextDocument document = documents.get(params.getTextDocument().getUri());
+		return document.executeIfInMicroProfileProject((projectinfo) -> {
+			MicroProfileJavaDefinitionParams javaParams = new MicroProfileJavaDefinitionParams(
+					params.getTextDocument().getUri(), params.getPosition());
+			return microprofileLanguageServer.getLanguageClient().getJavaDefinition(javaParams)
+					.thenApply(definitions -> {
+						List<LocationLink> locations = definitions.stream() //
+								.filter(definition -> definition.getLocation() != null) //
+								.map(definition -> {
+									LocationLink location = definition.getLocation();
+									String propertyName = definition.getSelectPropertyName();
+									if (propertyName != null) {
+										Range targetRange = null;
+										// The target range must be resolved
+										String documentURI = location.getTargetUri();
+										if (documentURI.endsWith(".properties")) {
+											PropertiesModel model = propertiesModelProvider
+													.getPropertiesModel(documentURI);
+											if (model == null) {
+												model = MicroProfilePropertiesUtils.loadProperties(documentURI);
+											}
+											if (model != null) {
+												for (Node node : model.getChildren()) {
+													if (node.getNodeType() == Node.NodeType.PROPERTY) {
+														Property property = (Property) node;
+														if (propertyName
+																.equals(property.getPropertyNameWithProfile())) {
+															targetRange = PositionUtils.createRange(property.getKey());
+														}
+													}
+												}
+											}
+										}
+										if (targetRange == null) {
+											targetRange = new Range(new Position(0, 0), new Position(0, 0));
+										}
+										location.setTargetRange(targetRange);
+										location.setTargetSelectionRange(targetRange);
+									}
+									return location;
+								}).collect(Collectors.toList());
+						if (isDefinitionLinkSupport()) {
+							// I don't understand
+							// return Either.forRight(locations);
+						}
+						return Either.forLeft(locations.stream() //
+								.map((link) -> {
+									return new Location(link.getTargetUri(), link.getTargetRange());
+								}).collect(Collectors.toList()));
+					});
+		}, null);
 	}
 
 	// ------------------------------ Hover ------------------------------

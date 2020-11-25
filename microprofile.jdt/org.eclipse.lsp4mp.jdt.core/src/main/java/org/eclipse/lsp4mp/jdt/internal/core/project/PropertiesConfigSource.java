@@ -59,7 +59,7 @@ public class PropertiesConfigSource extends AbstractConfigSource<Properties> {
 					}) //
 					.forEach(matchingKey -> {
 						infos.put(matchingKey, new MicroProfileConfigPropertyInformation(matchingKey,
-								getProperty(matchingKey), getConfigFileName()));
+								getProperty(matchingKey), getSourceConfigFileURI(), getConfigFileName()));
 					});
 		}
 		return infos;
