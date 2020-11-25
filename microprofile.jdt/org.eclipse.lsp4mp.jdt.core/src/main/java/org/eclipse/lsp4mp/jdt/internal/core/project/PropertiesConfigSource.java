@@ -15,10 +15,12 @@ package org.eclipse.lsp4mp.jdt.internal.core.project;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.lsp4mp.jdt.core.project.MicroProfileConfigPropertyInformation;
 
 /**
  * {@link Properties} config file implementation.
@@ -45,8 +47,22 @@ public class PropertiesConfigSource extends AbstractConfigSource<Properties> {
 	}
 
 	@Override
-	protected Set<String> getPropertyKeys(Properties properties) {
-		return properties.stringPropertyNames();
+	public Map<String, MicroProfileConfigPropertyInformation> getPropertyInformations(String propertyKey,
+			Properties properties) {
+		Map<String, MicroProfileConfigPropertyInformation> infos = new HashMap<>();
+		if (properties != null) {
+			properties.stringPropertyNames().stream() //
+					.filter(key -> {
+						return propertyKey
+								.equals(MicroProfileConfigPropertyInformation.getPropertyNameWithoutProfile(key))
+								&& getProperty(key) != null;
+					}) //
+					.forEach(matchingKey -> {
+						infos.put(matchingKey, new MicroProfileConfigPropertyInformation(matchingKey,
+								getProperty(matchingKey), getConfigFileName()));
+					});
+		}
+		return infos;
 	}
 
 }
