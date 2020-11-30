@@ -312,6 +312,26 @@ public class PropertiesModelTest {
 		Assert.assertEquals("}", pvl.getText());
 	}
 
+	@Test
+	public void parsePropertyWithTrailingTab() {
+		String text = "property = hello, world!\t";
+		PropertiesModel model = PropertiesModel.parse(text, "microprofile-config.properties");
+		Assert.assertEquals(1, model.getChildren().size());
+		Property property0 = (Property) model.getChildren().get(0);
+		assertPropertyValue(property0, //
+				new MockNode(11, 25, NodeType.PROPERTY_VALUE_LITERAL));
+	}
+
+	@Test
+	public void parsePropertyWithTrailingSpace() {
+		String text = "property = hello, world! ";
+		PropertiesModel model = PropertiesModel.parse(text, "microprofile-config.properties");
+		Assert.assertEquals(1, model.getChildren().size());
+		Property property0 = (Property) model.getChildren().get(0);
+		assertPropertyValue(property0, //
+				new MockNode(11, 25, NodeType.PROPERTY_VALUE_LITERAL));
+	}
+
 	private static void assertComments(Node comments, int expectedStart, int expectedEnd, String expectedText) {
 		Assert.assertEquals(comments.getNodeType(), NodeType.COMMENTS);
 		Assert.assertEquals(expectedText, comments.getText());
