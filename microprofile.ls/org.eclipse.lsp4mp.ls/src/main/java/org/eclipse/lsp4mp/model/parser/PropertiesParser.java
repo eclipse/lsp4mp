@@ -155,7 +155,7 @@ public class PropertiesParser implements ParseContext {
 				ErrorEvent e = new ErrorEvent(location, location, "Unexpected end of input",
 						ErrorType.UNEXPECTED_END_OF_INPUT);
 				errorHandler.error(this, e);
-			} else if (current < 0x20) {
+			} else if (current < 0x20 && current != '\t') {
 				final Location location = getLocation();
 				ErrorEvent e = new ErrorEvent(location, location, "Expected a valid string character",
 						ErrorType.EXPECTED_STRING_CHARACTER);
@@ -221,7 +221,6 @@ public class PropertiesParser implements ParseContext {
 				break;
 			case Property:
 				handler.startProperty(this);
-				skipWhiteSpace();
 				if (!readPropertyKey()) {
 					// property name continues on the next line
 					parseState = ParseState.PropertyName;
@@ -236,8 +235,8 @@ public class PropertiesParser implements ParseContext {
 
 	/**
 	 * Reads the contents after a PropertyKey. This method should only be called
-	 * after a PropertyKey has been finsished reading: (ProperyKey.start != -1 and
-	 * ProperyKey.end != -1)
+	 * after a PropertyKey has been finished reading: (PropertyKey.start != -1 and
+	 * PropertyKey.end != -1)
 	 */
 	private void readAfterPropertyKey() {
 		skipWhiteSpace();
