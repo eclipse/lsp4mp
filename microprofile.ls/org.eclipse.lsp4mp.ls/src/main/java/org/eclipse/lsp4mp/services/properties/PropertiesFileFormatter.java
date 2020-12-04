@@ -11,7 +11,7 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lsp4mp.services;
+package org.eclipse.lsp4mp.services.properties;
 
 import java.util.Arrays;
 import java.util.List;
@@ -31,7 +31,7 @@ import org.eclipse.lsp4mp.settings.MicroProfileFormattingSettings;
 import org.eclipse.lsp4mp.utils.PositionUtils;
 
 /**
- * Provides formatting support for an application.properties file
+ * Provides formatting support for properties file
  *
  * Formatting rules:
  * <ul>
@@ -43,9 +43,9 @@ import org.eclipse.lsp4mp.utils.PositionUtils;
  * </ul>
  *
  */
-class MicroProfileFormatter {
+class PropertiesFileFormatter {
 
-	private static final Logger LOGGER = Logger.getLogger(MicroProfileFormatter.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(PropertiesFileFormatter.class.getName());
 
 	/**
 	 * Returns a <code>List<TextEdit></code> containing one <code>TextEdit</code>

@@ -30,7 +30,7 @@ import org.eclipse.lsp4mp.commons.metadata.ValueProvider.ValueProviderDefaultNam
 import org.eclipse.lsp4mp.commons.metadata.ValueProviderParameter;
 import org.eclipse.lsp4mp.ls.commons.SnippetsBuilder;
 import org.eclipse.lsp4mp.model.PropertiesModel;
-import org.eclipse.lsp4mp.services.QuarkusModel;
+import org.eclipse.lsp4mp.services.properties.QuarkusModel;
 
 /**
  * MicroProfile project information utilities.

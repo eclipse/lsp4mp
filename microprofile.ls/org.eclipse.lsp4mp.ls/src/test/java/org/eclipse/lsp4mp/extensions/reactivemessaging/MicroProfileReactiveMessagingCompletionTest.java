@@ -13,14 +13,14 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.extensions.reactivemessaging;
 
-import static org.eclipse.lsp4mp.services.MicroProfileAssert.c;
-import static org.eclipse.lsp4mp.services.MicroProfileAssert.load;
-import static org.eclipse.lsp4mp.services.MicroProfileAssert.r;
+import static org.eclipse.lsp4mp.services.PropertiesFileAssert.c;
+import static org.eclipse.lsp4mp.services.PropertiesFileAssert.load;
+import static org.eclipse.lsp4mp.services.PropertiesFileAssert.r;
 
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.ls.commons.BadLocationException;
-import org.eclipse.lsp4mp.services.MicroProfileAssert;
+import org.eclipse.lsp4mp.services.PropertiesFileAssert;
 import org.junit.Test;
 
 /**
@@ -83,7 +83,7 @@ public class MicroProfileReactiveMessagingCompletionTest {
 
 	private static void testCompletionFor(String value, boolean snippetSupport, Integer expectedCount,
 			CompletionItem... expectedItems) throws BadLocationException {
-		MicroProfileAssert.testCompletionFor(value, snippetSupport, null, expectedCount,
+		PropertiesFileAssert.testCompletionFor(value, snippetSupport, null, expectedCount,
 				getMicroProfileReactiveMessagingProjectInfo(), expectedItems);
 	}
 

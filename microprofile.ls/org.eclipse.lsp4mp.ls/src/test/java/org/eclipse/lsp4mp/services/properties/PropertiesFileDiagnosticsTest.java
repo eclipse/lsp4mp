@@ -7,11 +7,11 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lsp4mp.services;
+package org.eclipse.lsp4mp.services.properties;
 
-import static org.eclipse.lsp4mp.services.MicroProfileAssert.d;
-import static org.eclipse.lsp4mp.services.MicroProfileAssert.getDefaultMicroProfileProjectInfo;
-import static org.eclipse.lsp4mp.services.MicroProfileAssert.testDiagnosticsFor;
+import static org.eclipse.lsp4mp.services.PropertiesFileAssert.d;
+import static org.eclipse.lsp4mp.services.PropertiesFileAssert.getDefaultMicroProfileProjectInfo;
+import static org.eclipse.lsp4mp.services.PropertiesFileAssert.testDiagnosticsFor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,7 +35,7 @@ import org.junit.Test;
  * @author Angelo ZERR
  *
  */
-public class ApplicationPropertiesDiagnosticsTest {
+public class PropertiesFileDiagnosticsTest {
 
 	@Test
 	public void validateUnknownProperties() throws BadLocationException {

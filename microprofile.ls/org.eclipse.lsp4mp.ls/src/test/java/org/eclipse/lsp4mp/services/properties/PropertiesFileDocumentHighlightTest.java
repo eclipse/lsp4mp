@@ -12,10 +12,10 @@
  *     Red Hat Inc. - initial API and implementation
  *******************************************************************************/
 
-package org.eclipse.lsp4mp.services;
+package org.eclipse.lsp4mp.services.properties;
 
-import static org.eclipse.lsp4mp.services.MicroProfileAssert.assertDocumentHighlight;
-import static org.eclipse.lsp4mp.services.MicroProfileAssert.r;
+import static org.eclipse.lsp4mp.services.PropertiesFileAssert.assertDocumentHighlight;
+import static org.eclipse.lsp4mp.services.PropertiesFileAssert.r;
 
 import org.eclipse.lsp4mp.ls.commons.BadLocationException;
 import org.junit.Test;
@@ -23,7 +23,7 @@ import org.junit.Test;
 /**
  * Tests for the document highlight in MicroProfile properties files
  */
-public class ApplicationPropertiesDocumentHighlightTest {
+public class PropertiesFileDocumentHighlightTest {
 
 	@Test
 	public void keyHighlightOnePropertyExpression() throws BadLocationException {

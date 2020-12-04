@@ -7,10 +7,10 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lsp4mp.services;
+package org.eclipse.lsp4mp.services.properties;
 
-import static org.eclipse.lsp4mp.services.MicroProfileAssert.assertFormat;
-import static org.eclipse.lsp4mp.services.MicroProfileAssert.assertRangeFormat;
+import static org.eclipse.lsp4mp.services.PropertiesFileAssert.assertFormat;
+import static org.eclipse.lsp4mp.services.PropertiesFileAssert.assertRangeFormat;
 
 import org.eclipse.lsp4mp.ls.commons.BadLocationException;
 import org.junit.Test;
@@ -19,7 +19,7 @@ import org.junit.Test;
  * Test formatting and range formatting for the 'application.properties' file.
  *
  */
-public class ApplicationPropertiesFormatterTest {
+public class PropertiesFileFormatterTest {
 
 	@Test
 	public void testExtraSpacesAroundEquals() throws BadLocationException {

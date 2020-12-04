@@ -7,13 +7,13 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lsp4mp.services;
+package org.eclipse.lsp4mp.services.properties;
 
-import static org.eclipse.lsp4mp.services.MicroProfileAssert.ca;
-import static org.eclipse.lsp4mp.services.MicroProfileAssert.d;
-import static org.eclipse.lsp4mp.services.MicroProfileAssert.te;
-import static org.eclipse.lsp4mp.services.MicroProfileAssert.testCodeActionsFor;
-import static org.eclipse.lsp4mp.services.MicroProfileAssert.testDiagnosticsFor;
+import static org.eclipse.lsp4mp.services.PropertiesFileAssert.ca;
+import static org.eclipse.lsp4mp.services.PropertiesFileAssert.d;
+import static org.eclipse.lsp4mp.services.PropertiesFileAssert.te;
+import static org.eclipse.lsp4mp.services.PropertiesFileAssert.testCodeActionsFor;
+import static org.eclipse.lsp4mp.services.PropertiesFileAssert.testDiagnosticsFor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +34,7 @@ import org.junit.Test;
  * 
  *
  */
-public class ApplicationPropertiesRequiredCodeActionTest {
+public class PropertiesFileRequiredCodeActionTest {
 
 	private static MicroProfileProjectInfo projectInfo;
 	private static MicroProfileValidationSettings validationSettings;

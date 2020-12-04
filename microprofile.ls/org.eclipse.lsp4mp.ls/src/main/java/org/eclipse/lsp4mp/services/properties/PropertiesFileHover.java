@@ -11,7 +11,7 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lsp4mp.services;
+package org.eclipse.lsp4mp.services.properties;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -42,11 +42,11 @@ import org.eclipse.lsp4mp.utils.PositionUtils;
 import org.eclipse.lsp4mp.utils.StringUtils;
 
 /**
- * Retrieves hover documentation and creating Hover object
+ * The properties file hover
  */
-class MicroProfileHover {
+class PropertiesFileHover {
 
-	private static final Logger LOGGER = Logger.getLogger(MicroProfileHover.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(PropertiesFileHover.class.getName());
 
 	/**
 	 * Returns Hover object for the currently hovered token

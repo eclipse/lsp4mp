@@ -12,7 +12,7 @@
  *     Red Hat Inc. - initial API and implementation
  *******************************************************************************/
 
-package org.eclipse.lsp4mp.services;
+package org.eclipse.lsp4mp.services.properties;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,9 +32,9 @@ import org.eclipse.lsp4mp.utils.PositionUtils;
 import org.eclipse.lsp4mp.utils.StringUtils;
 
 /**
- * Highlight for micro profile config documents
+ * Highlight for properties file
  */
-public class MicroProfileDocumentHighlight {
+public class PropertiesFileDocumentHighlight {
 
 	/**
 	 * Returns a list of highlights for a MicroProfile properties document

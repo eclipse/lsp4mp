@@ -11,7 +11,7 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lsp4mp.services;
+package org.eclipse.lsp4mp.services.properties;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,14 +41,14 @@ import org.eclipse.lsp4mp.utils.MicroProfilePropertiesUtils;
 import org.eclipse.lsp4mp.utils.PositionUtils;
 
 /**
- * The MicroProfile definition.
+ * The properties file definition.
  *
  * @author Angelo ZERR
  *
  */
-public class MicroProfileDefinition {
+public class PropertiesFileDefinition {
 
-	private static final Logger LOGGER = Logger.getLogger(MicroProfileDefinition.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(PropertiesFileDefinition.class.getName());
 
 	/**
 	 * Returns as promise the Java field definition location of the property at the

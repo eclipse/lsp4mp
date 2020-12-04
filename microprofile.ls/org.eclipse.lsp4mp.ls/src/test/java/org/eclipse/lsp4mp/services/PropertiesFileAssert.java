@@ -59,6 +59,8 @@ import org.eclipse.lsp4mp.ls.commons.client.CommandKind;
 import org.eclipse.lsp4mp.ls.commons.client.CommandKindCapabilities;
 import org.eclipse.lsp4mp.ls.commons.snippets.TextDocumentSnippetRegistry;
 import org.eclipse.lsp4mp.model.PropertiesModel;
+import org.eclipse.lsp4mp.services.properties.PropertiesFileLanguageService;
+import org.eclipse.lsp4mp.services.properties.ValidationType;
 import org.eclipse.lsp4mp.settings.MicroProfileCommandCapabilities;
 import org.eclipse.lsp4mp.settings.MicroProfileCompletionSettings;
 import org.eclipse.lsp4mp.settings.MicroProfileFormattingSettings;
@@ -79,7 +81,7 @@ import com.google.gson.GsonBuilder;
  * @author Angelo ZERR
  *
  */
-public class MicroProfileAssert {
+public class PropertiesFileAssert {
 
 	private static MicroProfileProjectInfo DEFAULT_PROJECT;
 
@@ -89,7 +91,7 @@ public class MicroProfileAssert {
 
 	public static MicroProfileProjectInfo getDefaultMicroProfileProjectInfo() {
 		if (DEFAULT_PROJECT == null) {
-			DEFAULT_PROJECT = load(MicroProfileAssert.class.getResourceAsStream("all-quarkus-properties.json"));
+			DEFAULT_PROJECT = load(PropertiesFileAssert.class.getResourceAsStream("all-quarkus-properties.json"));
 		}
 		return DEFAULT_PROJECT;
 	}
@@ -178,7 +180,7 @@ public class MicroProfileAssert {
 		MicroProfileFormattingSettings formattingSettings = new MicroProfileFormattingSettings();
 		formattingSettings.setSurroundEqualsWithSpaces(insertSpacing);
 
-		MicroProfileLanguageService languageService = new MicroProfileLanguageService();
+		PropertiesFileLanguageService languageService = new PropertiesFileLanguageService();
 		CompletionList list = languageService.doComplete(model, position, projectInfo, completionSettings,
 				formattingSettings, () -> {
 				});
@@ -360,7 +362,7 @@ public class MicroProfileAssert {
 		PropertiesModel model = parse(value, fileURI);
 		Position position = model.positionAt(offset);
 
-		MicroProfileLanguageService languageService = new MicroProfileLanguageService();
+		PropertiesFileLanguageService languageService = new PropertiesFileLanguageService();
 
 		Hover hover = languageService.doHover(model, position, projectInfo, hoverSettings);
 		if (expectedHoverLabel == null) {
@@ -394,7 +396,7 @@ public class MicroProfileAssert {
 
 		PropertiesModel model = parse(value, fileURI);
 
-		MicroProfileLanguageService languageService = new MicroProfileLanguageService();
+		PropertiesFileLanguageService languageService = new PropertiesFileLanguageService();
 
 		List<SymbolInformation> actual = languageService.findSymbolInformations(model, () -> {
 		});
@@ -419,7 +421,7 @@ public class MicroProfileAssert {
 
 	public static void testDocumentSymbolsFor(String value, String fileURI, DocumentSymbol... expected) {
 		PropertiesModel model = parse(value, fileURI);
-		MicroProfileLanguageService languageService = new MicroProfileLanguageService();
+		PropertiesFileLanguageService languageService = new PropertiesFileLanguageService();
 		List<DocumentSymbol> actual = languageService.findDocumentSymbols(model, () -> {
 		});
 		assertDocumentSymbols(actual, expected);
@@ -459,7 +461,7 @@ public class MicroProfileAssert {
 		int offset = value.indexOf('|');
 		value = value.substring(0, offset) + value.substring(offset + 1);
 
-		MicroProfileLanguageService languageService = new MicroProfileLanguageService();
+		PropertiesFileLanguageService languageService = new PropertiesFileLanguageService();
 		PropertiesModel document = parse(value, documentName);
 		Position position = document.positionAt(offset);
 
@@ -507,7 +509,7 @@ public class MicroProfileAssert {
 			MicroProfileProjectInfo projectInfo, MicroProfileValidationSettings validationSettings,
 			Diagnostic... expected) {
 		PropertiesModel model = parse(value, fileURI);
-		MicroProfileLanguageService languageService = new MicroProfileLanguageService();
+		PropertiesFileLanguageService languageService = new PropertiesFileLanguageService();
 		List<Diagnostic> actual = languageService.doDiagnostics(model, projectInfo, validationSettings, () -> {
 		});
 		if (expectedCount != null) {
@@ -563,7 +565,7 @@ public class MicroProfileAssert {
 			MicroProfileProjectInfo projectInfo, MicroProfileFormattingSettings formattingSettings,
 			CodeAction... expected) {
 		PropertiesModel model = parse(value, null);
-		MicroProfileLanguageService languageService = new MicroProfileLanguageService();
+		PropertiesFileLanguageService languageService = new PropertiesFileLanguageService();
 
 		CodeActionContext context = new CodeActionContext();
 		context.setDiagnostics(diagnostics);
@@ -651,7 +653,7 @@ public class MicroProfileAssert {
 	public static void assertFormat(String value, String expected, MicroProfileFormattingSettings formattingSettings) {
 
 		PropertiesModel model = parse(value, null);
-		MicroProfileLanguageService languageService = new MicroProfileLanguageService();
+		PropertiesFileLanguageService languageService = new PropertiesFileLanguageService();
 		List<? extends TextEdit> edits = languageService.doFormat(model, formattingSettings);
 
 		String formatted = edits.stream().map(edit -> edit.getNewText()).collect(Collectors.joining(""));
@@ -676,7 +678,7 @@ public class MicroProfileAssert {
 		Range range = PositionUtils.createRange(startOffset, endOffset, document);
 
 		PropertiesModel model = parse(value, null);
-		MicroProfileLanguageService languageService = new MicroProfileLanguageService();
+		PropertiesFileLanguageService languageService = new PropertiesFileLanguageService();
 		List<? extends TextEdit> edits = languageService.doRangeFormat(model, range, formattingSettings);
 
 		Range formatRange = edits.get(0).getRange();
@@ -696,7 +698,7 @@ public class MicroProfileAssert {
 		value = value.substring(0, offset) + value.substring(offset + 1);
 		TextDocument document = new TextDocument(value, "application.properties");
 		PropertiesModel model = parse(value, null);
-		MicroProfileLanguageService languageService = new MicroProfileLanguageService();
+		PropertiesFileLanguageService languageService = new PropertiesFileLanguageService();
 		Object[] actual = languageService.findDocumentHighlight(model, document.positionAt(offset)).stream().map(dh -> {
 			return dh.getRange();
 		}).collect(Collectors.toList()).toArray();

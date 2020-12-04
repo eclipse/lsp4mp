@@ -41,7 +41,7 @@ import org.eclipse.lsp4mp.ls.api.MicroProfileLanguageServerAPI;
 import org.eclipse.lsp4mp.ls.commons.ParentProcessWatcher.ProcessLanguageServer;
 import org.eclipse.lsp4mp.ls.commons.client.ExtendedClientCapabilities;
 import org.eclipse.lsp4mp.ls.commons.client.InitializationOptionsExtendedClientCapabilities;
-import org.eclipse.lsp4mp.services.MicroProfileLanguageService;
+import org.eclipse.lsp4mp.services.properties.PropertiesFileLanguageService;
 import org.eclipse.lsp4mp.settings.AllMicroProfileSettings;
 import org.eclipse.lsp4mp.settings.InitializationOptionsSettings;
 import org.eclipse.lsp4mp.settings.MicroProfileCodeLensSettings;
@@ -62,7 +62,7 @@ public class MicroProfileLanguageServer implements LanguageServer, ProcessLangua
 
 	private static final Logger LOGGER = Logger.getLogger(MicroProfileLanguageServer.class.getName());
 
-	private final MicroProfileLanguageService microProfileLanguageService;
+	private final PropertiesFileLanguageService propertiesFileLanguageService;
 	private final MicroProfileTextDocumentService textDocumentService;
 	private final WorkspaceService workspaceService;
 
@@ -73,7 +73,7 @@ public class MicroProfileLanguageServer implements LanguageServer, ProcessLangua
 	private MicroProfileCapabilityManager capabilityManager;
 
 	public MicroProfileLanguageServer() {
-		microProfileLanguageService = new MicroProfileLanguageService();
+		propertiesFileLanguageService = new PropertiesFileLanguageService();
 		textDocumentService = new MicroProfileTextDocumentService(this);
 		workspaceService = new MicroProfileWorkspaceService(this);
 		this.extensionSettings = new MicroProfileExtensionSettings();
@@ -189,8 +189,8 @@ public class MicroProfileLanguageServer implements LanguageServer, ProcessLangua
 		return parentProcessId != null ? parentProcessId : 0;
 	}
 
-	public MicroProfileLanguageService getMicroProfileLanguageService() {
-		return microProfileLanguageService;
+	public PropertiesFileLanguageService getPropertiesFileLanguageService() {
+		return propertiesFileLanguageService;
 	}
 
 	@Override

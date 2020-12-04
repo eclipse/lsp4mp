@@ -11,7 +11,7 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lsp4mp.services;
+package org.eclipse.lsp4mp.services.properties;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -43,13 +43,12 @@ import org.eclipse.lsp4mp.utils.PositionUtils;
 import org.eclipse.lsp4mp.utils.StringUtils;
 
 /**
- * MicroProfile validator to validate properties declared in
- * application.properties.
+ * Properties file validator to validate properties declared in properties file.
  *
  * @author Angelo ZERR
  *
  */
-class MicroProfileValidator {
+class PropertiesFileValidator {
 
 	private static final String MICROPROFILE_DIAGNOSTIC_SOURCE = "microprofile";
 
@@ -61,7 +60,7 @@ class MicroProfileValidator {
 	private final Map<String, List<Property>> existingProperties;
 	private Set<String> allProperties;
 
-	public MicroProfileValidator(MicroProfileProjectInfo projectInfo, List<Diagnostic> diagnostics,
+	public PropertiesFileValidator(MicroProfileProjectInfo projectInfo, List<Diagnostic> diagnostics,
 			MicroProfileValidationSettings validationSettings) {
 		this.projectInfo = projectInfo;
 		this.diagnostics = diagnostics;

@@ -11,7 +11,7 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lsp4mp.services;
+package org.eclipse.lsp4mp.services.properties;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,12 +31,12 @@ import org.eclipse.lsp4mp.utils.PositionUtils;
 import org.eclipse.lsp4mp.utils.StringUtils;
 
 /**
- * The MicroProfile symbols provider
+ * The properties file symbols provider
  *
  * @author Angelo ZERR
  *
  */
-class MicroProfileSymbolsProvider {
+class PropertiesFileSymbolsProvider {
 
 	/**
 	 * Returns symbol information list for the given properties model.

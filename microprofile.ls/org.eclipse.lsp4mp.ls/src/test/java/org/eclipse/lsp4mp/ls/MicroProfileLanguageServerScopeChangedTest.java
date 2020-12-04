@@ -9,9 +9,9 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.ls;
 
-import static org.eclipse.lsp4mp.services.MicroProfileAssert.assertCompletions;
-import static org.eclipse.lsp4mp.services.MicroProfileAssert.c;
-import static org.eclipse.lsp4mp.services.MicroProfileAssert.r;
+import static org.eclipse.lsp4mp.services.PropertiesFileAssert.assertCompletions;
+import static org.eclipse.lsp4mp.services.PropertiesFileAssert.c;
+import static org.eclipse.lsp4mp.services.PropertiesFileAssert.r;
 
 import java.util.ArrayList;
 import java.util.List;

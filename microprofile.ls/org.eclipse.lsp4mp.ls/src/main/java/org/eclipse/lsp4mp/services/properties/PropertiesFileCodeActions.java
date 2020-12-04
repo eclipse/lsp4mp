@@ -11,7 +11,7 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lsp4mp.services;
+package org.eclipse.lsp4mp.services.properties;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -50,16 +50,16 @@ import org.eclipse.lsp4mp.utils.PositionUtils;
 import org.eclipse.lsp4mp.utils.StringUtils;
 
 /**
- * The MicroProfile code actions
+ * The properties file code actions
  *
  * @author Angelo ZERR
  *
  */
-class MicroProfileCodeActions {
+class PropertiesFileCodeActions {
 
 	private static final float MAX_DISTANCE_DIFF_RATIO = 0.1f;
 
-	private static final Logger LOGGER = Logger.getLogger(MicroProfileCodeActions.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(PropertiesFileCodeActions.class.getName());
 
 	/**
 	 * Returns code actions for the given diagnostics of the application.properties

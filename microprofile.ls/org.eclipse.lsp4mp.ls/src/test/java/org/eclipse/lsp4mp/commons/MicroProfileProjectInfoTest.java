@@ -9,7 +9,7 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.commons;
 
-import static org.eclipse.lsp4mp.services.MicroProfileAssert.getDefaultMicroProfileProjectInfo;
+import static org.eclipse.lsp4mp.services.PropertiesFileAssert.getDefaultMicroProfileProjectInfo;
 import static org.eclipse.lsp4mp.utils.MicroProfilePropertiesUtils.formatPropertyForCompletion;
 import static org.eclipse.lsp4mp.utils.MicroProfilePropertiesUtils.formatPropertyForMarkdown;
 import static org.junit.Assert.assertEquals;

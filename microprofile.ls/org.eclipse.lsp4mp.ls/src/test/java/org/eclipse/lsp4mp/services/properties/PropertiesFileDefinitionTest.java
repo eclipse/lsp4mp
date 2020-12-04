@@ -7,11 +7,11 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lsp4mp.services;
+package org.eclipse.lsp4mp.services.properties;
 
-import static org.eclipse.lsp4mp.services.MicroProfileAssert.ll;
-import static org.eclipse.lsp4mp.services.MicroProfileAssert.r;
-import static org.eclipse.lsp4mp.services.MicroProfileAssert.testDefinitionFor;
+import static org.eclipse.lsp4mp.services.PropertiesFileAssert.ll;
+import static org.eclipse.lsp4mp.services.PropertiesFileAssert.r;
+import static org.eclipse.lsp4mp.services.PropertiesFileAssert.testDefinitionFor;
 
 import java.util.concurrent.ExecutionException;
 
@@ -24,7 +24,7 @@ import org.junit.Test;
  * @author Angelo ZERR
  *
  */
-public class ApplicationPropertiesDefinitionTest {
+public class PropertiesFileDefinitionTest {
 
 	private static final String PROPERTY_DOCUMENT_NAME = "/microprofile.properties";
 

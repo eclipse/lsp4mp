@@ -17,7 +17,7 @@ import java.util.concurrent.CompletableFuture;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4mp.commons.MicroProfilePropertyDefinitionParams;
 import org.eclipse.lsp4mp.ls.api.MicroProfilePropertyDefinitionProvider;
-import org.eclipse.lsp4mp.services.MicroProfileAssert;
+import org.eclipse.lsp4mp.services.PropertiesFileAssert;
 
 import com.google.gson.Gson;
 
@@ -44,7 +44,7 @@ public class MockMicroProfilePropertyDefinitionProvider implements MicroProfileP
 	public MockMicroProfilePropertyDefinitionProvider() {
 		cache = new HashMap<>();
 		PropertyDefinition[] definitions = new Gson().fromJson(
-				new InputStreamReader(MicroProfileAssert.class.getResourceAsStream("all-quarkus-definitions.json")),
+				new InputStreamReader(PropertiesFileAssert.class.getResourceAsStream("all-quarkus-definitions.json")),
 				PropertyDefinition[].class);
 		for (PropertyDefinition propertyDefinition : definitions) {
 			cache.put(getKey(propertyDefinition), propertyDefinition.getLocation());

@@ -7,11 +7,11 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lsp4mp.services;
+package org.eclipse.lsp4mp.services.properties;
 
-import static org.eclipse.lsp4mp.services.MicroProfileAssert.c;
-import static org.eclipse.lsp4mp.services.MicroProfileAssert.r;
-import static org.eclipse.lsp4mp.services.MicroProfileAssert.testCompletionFor;
+import static org.eclipse.lsp4mp.services.PropertiesFileAssert.c;
+import static org.eclipse.lsp4mp.services.PropertiesFileAssert.r;
+import static org.eclipse.lsp4mp.services.PropertiesFileAssert.testCompletionFor;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,7 +28,7 @@ import org.junit.Test;
  * @author Angelo ZERR
  *
  */
-public class ApplicationPropertiesCompletionTest {
+public class PropertiesFileCompletionTest {
 
 	@Test
 	public void completionOnComments() throws BadLocationException {

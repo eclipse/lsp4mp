@@ -11,7 +11,7 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lsp4mp.services;
+package org.eclipse.lsp4mp.services.properties;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -58,14 +58,14 @@ import org.eclipse.lsp4mp.utils.MicroProfilePropertiesUtils.FormattedPropertyRes
 import org.eclipse.lsp4mp.utils.StringUtils;
 
 /**
- * The MicroProfile completions
+ * The properties file completions
  *
  * @author Angelo ZERR
  *
  */
-class MicroProfileCompletions {
+class PropertiesFileCompletions {
 
-	private static final Logger LOGGER = Logger.getLogger(MicroProfileCompletions.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(PropertiesFileCompletions.class.getName());
 	private TextDocumentSnippetRegistry snippetRegistry;
 
 	/**

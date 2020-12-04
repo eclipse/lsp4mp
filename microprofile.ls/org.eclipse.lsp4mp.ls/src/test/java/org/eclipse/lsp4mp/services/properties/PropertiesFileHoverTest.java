@@ -8,11 +8,11 @@
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
 
-package org.eclipse.lsp4mp.services;
+package org.eclipse.lsp4mp.services.properties;
 
-import static org.eclipse.lsp4mp.services.MicroProfileAssert.assertHoverMarkdown;
-import static org.eclipse.lsp4mp.services.MicroProfileAssert.assertHoverPlaintext;
-import static org.eclipse.lsp4mp.services.MicroProfileAssert.assertNoHover;
+import static org.eclipse.lsp4mp.services.PropertiesFileAssert.assertHoverMarkdown;
+import static org.eclipse.lsp4mp.services.PropertiesFileAssert.assertHoverPlaintext;
+import static org.eclipse.lsp4mp.services.PropertiesFileAssert.assertNoHover;
 
 import org.eclipse.lsp4mp.ls.commons.BadLocationException;
 import org.junit.Test;
@@ -21,7 +21,7 @@ import org.junit.Test;
  * Test with hover in 'application.properties' file.
  *
  */
-public class ApplicationPropertiesHoverTest {
+public class PropertiesFileHoverTest {
 
 	@Test
 	public void unkwownProperty() throws BadLocationException {
