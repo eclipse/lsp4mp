@@ -76,9 +76,12 @@ public class PropertiesFileTextDocumentService extends AbstractTextDocumentServi
 
 	private MicroProfileProjectInfoCache projectInfoCache;
 
+	private final PropertiesFileLanguageService propertiesFileLanguageService;
+
 	public PropertiesFileTextDocumentService(MicroProfileLanguageServer microprofileLanguageServer,
 			SharedSettings sharedSettings) {
 		super(microprofileLanguageServer, sharedSettings);
+		this.propertiesFileLanguageService = new PropertiesFileLanguageService();
 		this.documents = new ModelTextDocuments<PropertiesModel>((document, cancelChecker) -> {
 			return PropertiesModel.parse(document);
 		});
@@ -244,7 +247,7 @@ public class PropertiesFileTextDocumentService extends AbstractTextDocumentServi
 	}
 
 	private PropertiesFileLanguageService getPropertiesFileLanguageService() {
-		return microprofileLanguageServer.getPropertiesFileLanguageService();
+		return propertiesFileLanguageService;
 	}
 
 	private void triggerValidationFor(ModelTextDocument<PropertiesModel> document) {

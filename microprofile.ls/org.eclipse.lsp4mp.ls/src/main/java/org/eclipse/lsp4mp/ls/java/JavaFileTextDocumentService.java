@@ -42,17 +42,13 @@ import org.eclipse.lsp4j.HoverParams;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.MarkupKind;
-import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
-import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.CompletableFutures;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4mp.commons.DocumentFormat;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeActionParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeLensParams;
-import org.eclipse.lsp4mp.commons.MicroProfileJavaDefinitionParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaDiagnosticsParams;
-import org.eclipse.lsp4mp.commons.MicroProfileJavaHoverParams;
 import org.eclipse.lsp4mp.commons.MicroProfilePropertiesChangeEvent;
 import org.eclipse.lsp4mp.ls.AbstractTextDocumentService;
 import org.eclipse.lsp4mp.ls.MicroProfileLanguageServer;
@@ -61,14 +57,10 @@ import org.eclipse.lsp4mp.ls.commons.TextDocument;
 import org.eclipse.lsp4mp.ls.commons.client.CommandKind;
 import org.eclipse.lsp4mp.ls.java.JavaTextDocuments.JavaTextDocument;
 import org.eclipse.lsp4mp.ls.properties.IPropertiesModelProvider;
-import org.eclipse.lsp4mp.model.Node;
-import org.eclipse.lsp4mp.model.PropertiesModel;
-import org.eclipse.lsp4mp.model.Property;
+import org.eclipse.lsp4mp.services.java.JavaFileLanguageService;
 import org.eclipse.lsp4mp.settings.MicroProfileCodeLensSettings;
 import org.eclipse.lsp4mp.settings.SharedSettings;
 import org.eclipse.lsp4mp.snippets.SnippetContextForJava;
-import org.eclipse.lsp4mp.utils.PropertiesFileUtils;
-import org.eclipse.lsp4mp.utils.PositionUtils;
 
 /**
  * LSP text document service for Java file.
@@ -83,9 +75,12 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 	private final IPropertiesModelProvider propertiesModelProvider;
 	private final JavaTextDocuments documents;
 
+	private final JavaFileLanguageService javaFileLanguageService;
+
 	public JavaFileTextDocumentService(MicroProfileLanguageServer microprofileLanguageServer,
 			IPropertiesModelProvider propertiesModelProvider, SharedSettings sharedSettings) {
 		super(microprofileLanguageServer, sharedSettings);
+		this.javaFileLanguageService = new JavaFileLanguageService();
 		this.propertiesModelProvider = propertiesModelProvider;
 		this.documents = new JavaTextDocuments(microprofileLanguageServer, microprofileLanguageServer);
 	}
@@ -207,54 +202,8 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 			DefinitionParams params) {
 		JavaTextDocument document = documents.get(params.getTextDocument().getUri());
 		return document.executeIfInMicroProfileProject((projectinfo) -> {
-			MicroProfileJavaDefinitionParams javaParams = new MicroProfileJavaDefinitionParams(
-					params.getTextDocument().getUri(), params.getPosition());
-			return microprofileLanguageServer.getLanguageClient().getJavaDefinition(javaParams)
-					.thenApply(definitions -> {
-						List<LocationLink> locations = definitions.stream() //
-								.filter(definition -> definition.getLocation() != null) //
-								.map(definition -> {
-									LocationLink location = definition.getLocation();
-									String propertyName = definition.getSelectPropertyName();
-									if (propertyName != null) {
-										Range targetRange = null;
-										// The target range must be resolved
-										String documentURI = location.getTargetUri();
-										if (documentURI.endsWith(".properties")) {
-											PropertiesModel model = propertiesModelProvider
-													.getPropertiesModel(documentURI);
-											if (model == null) {
-												model = PropertiesFileUtils.loadProperties(documentURI);
-											}
-											if (model != null) {
-												for (Node node : model.getChildren()) {
-													if (node.getNodeType() == Node.NodeType.PROPERTY) {
-														Property property = (Property) node;
-														if (propertyName
-																.equals(property.getPropertyNameWithProfile())) {
-															targetRange = PositionUtils.createRange(property.getKey());
-														}
-													}
-												}
-											}
-										}
-										if (targetRange == null) {
-											targetRange = new Range(new Position(0, 0), new Position(0, 0));
-										}
-										location.setTargetRange(targetRange);
-										location.setTargetSelectionRange(targetRange);
-									}
-									return location;
-								}).collect(Collectors.toList());
-						if (isDefinitionLinkSupport()) {
-							// I don't understand
-							// return Either.forRight(locations);
-						}
-						return Either.forLeft(locations.stream() //
-								.map((link) -> {
-									return new Location(link.getTargetUri(), link.getTargetRange());
-								}).collect(Collectors.toList()));
-					});
+			return javaFileLanguageService.findDefinition(document, params.getPosition(),
+					microprofileLanguageServer.getLanguageClient(), propertiesModelProvider, isDefinitionLinkSupport());
 		}, null);
 	}
 
@@ -264,12 +213,8 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 	public CompletableFuture<Hover> hover(HoverParams params) {
 		JavaTextDocument document = documents.get(params.getTextDocument().getUri());
 		return document.executeIfInMicroProfileProject((projectinfo) -> {
-			boolean markdownSupported = sharedSettings.getHoverSettings().isContentFormatSupported(MarkupKind.MARKDOWN);
-			boolean surroundEqualsWithSpaces = sharedSettings.getFormattingSettings().isSurroundEqualsWithSpaces();
-			DocumentFormat documentFormat = markdownSupported ? DocumentFormat.Markdown : DocumentFormat.PlainText;
-			MicroProfileJavaHoverParams javaParams = new MicroProfileJavaHoverParams(params.getTextDocument().getUri(),
-					params.getPosition(), documentFormat, surroundEqualsWithSpaces);
-			return microprofileLanguageServer.getLanguageClient().getJavaHover(javaParams);
+			return javaFileLanguageService.doHover(document, params.getPosition(),
+					microprofileLanguageServer.getLanguageClient(), sharedSettings);
 		}, null);
 	}
 
