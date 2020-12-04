@@ -57,7 +57,7 @@ import org.eclipse.lsp4mp.ls.api.MicroProfileLanguageServerAPI.JsonSchemaForProj
 import org.eclipse.lsp4mp.ls.commons.ModelTextDocument;
 import org.eclipse.lsp4mp.ls.commons.ModelTextDocuments;
 import org.eclipse.lsp4mp.model.PropertiesModel;
-import org.eclipse.lsp4mp.services.MicroProfileLanguageService;
+import org.eclipse.lsp4mp.services.properties.PropertiesFileLanguageService;
 import org.eclipse.lsp4mp.settings.MicroProfileFormattingSettings;
 import org.eclipse.lsp4mp.settings.MicroProfileSymbolSettings;
 import org.eclipse.lsp4mp.settings.MicroProfileValidationSettings;
@@ -123,7 +123,7 @@ public class PropertiesFileTextDocumentService extends AbstractTextDocumentServi
 			return getPropertiesModel(params.getTextDocument(), (cancelChecker, document) -> {
 				// then return completion by using the MicroProfile project information and the
 				// Properties model document
-				CompletionList list = getMicroProfileLanguageService().doComplete(document, params.getPosition(),
+				CompletionList list = getPropertiesFileLanguageService().doComplete(document, params.getPosition(),
 						projectInfo, sharedSettings.getCompletionSettings(), sharedSettings.getFormattingSettings(),
 						null);
 				return Either.forRight(list);
@@ -144,7 +144,7 @@ public class PropertiesFileTextDocumentService extends AbstractTextDocumentServi
 			return getPropertiesModel(params.getTextDocument(), (cancelChecker, document) -> {
 				// then return hover by using the MicroProfile project information and the
 				// Properties model document
-				return getMicroProfileLanguageService().doHover(document, params.getPosition(), projectInfo,
+				return getPropertiesFileLanguageService().doHover(document, params.getPosition(), projectInfo,
 						sharedSettings.getHoverSettings());
 			});
 		});
@@ -155,7 +155,7 @@ public class PropertiesFileTextDocumentService extends AbstractTextDocumentServi
 			DocumentSymbolParams params) {
 		return getPropertiesModel(params.getTextDocument(), (cancelChecker, document) -> {
 			if (isHierarchicalDocumentSymbolSupport() && sharedSettings.getSymbolSettings().isShowAsTree()) {
-				return getMicroProfileLanguageService().findDocumentSymbols(document, cancelChecker) //
+				return getPropertiesFileLanguageService().findDocumentSymbols(document, cancelChecker) //
 						.stream() //
 						.map(s -> {
 							Either<SymbolInformation, DocumentSymbol> e = Either.forRight(s);
@@ -163,7 +163,7 @@ public class PropertiesFileTextDocumentService extends AbstractTextDocumentServi
 						}) //
 						.collect(Collectors.toList());
 			}
-			return getMicroProfileLanguageService().findSymbolInformations(document, cancelChecker) //
+			return getPropertiesFileLanguageService().findSymbolInformations(document, cancelChecker) //
 					.stream() //
 					.map(s -> {
 						Either<SymbolInformation, DocumentSymbol> e = Either.forLeft(s);
@@ -183,7 +183,7 @@ public class PropertiesFileTextDocumentService extends AbstractTextDocumentServi
 			}
 			// then get the Properties model document
 			return getDocument(params.getTextDocument().getUri()).getModel().thenComposeAsync(document -> {
-				return getMicroProfileLanguageService().findDefinition(document, params.getPosition(), projectInfo,
+				return getPropertiesFileLanguageService().findDefinition(document, params.getPosition(), projectInfo,
 						microprofileLanguageServer.getLanguageClient(), isDefinitionLinkSupport());
 			});
 		});
@@ -192,14 +192,14 @@ public class PropertiesFileTextDocumentService extends AbstractTextDocumentServi
 	@Override
 	public CompletableFuture<List<? extends TextEdit>> formatting(DocumentFormattingParams params) {
 		return getPropertiesModel(params.getTextDocument(), (cancelChecker, document) -> {
-			return getMicroProfileLanguageService().doFormat(document, sharedSettings.getFormattingSettings());
+			return getPropertiesFileLanguageService().doFormat(document, sharedSettings.getFormattingSettings());
 		});
 	}
 
 	@Override
 	public CompletableFuture<List<? extends TextEdit>> rangeFormatting(DocumentRangeFormattingParams params) {
 		return getPropertiesModel(params.getTextDocument(), (cancelChecker, document) -> {
-			return getMicroProfileLanguageService().doRangeFormat(document, params.getRange(),
+			return getPropertiesFileLanguageService().doRangeFormat(document, params.getRange(),
 					sharedSettings.getFormattingSettings());
 		});
 	}
@@ -213,7 +213,7 @@ public class PropertiesFileTextDocumentService extends AbstractTextDocumentServi
 			}
 			// then get the Properties model document
 			return getPropertiesModel(params.getTextDocument(), (cancelChecker, document) -> {
-				return getMicroProfileLanguageService()
+				return getPropertiesFileLanguageService()
 						.doCodeActions(params.getContext(), params.getRange(), document, projectInfo,
 								sharedSettings.getFormattingSettings(), sharedSettings.getCommandCapabilities()) //
 						.stream() //
@@ -229,7 +229,7 @@ public class PropertiesFileTextDocumentService extends AbstractTextDocumentServi
 	@Override
 	public CompletableFuture<List<? extends DocumentHighlight>> documentHighlight(DocumentHighlightParams params) {
 		return getPropertiesModel(params.getTextDocument(), (cancelChecker, document) -> {
-			return getMicroProfileLanguageService().findDocumentHighlight(document, params.getPosition());
+			return getPropertiesFileLanguageService().findDocumentHighlight(document, params.getPosition());
 		});
 	}
 
@@ -243,8 +243,8 @@ public class PropertiesFileTextDocumentService extends AbstractTextDocumentServi
 		return params;
 	}
 
-	private MicroProfileLanguageService getMicroProfileLanguageService() {
-		return microprofileLanguageServer.getMicroProfileLanguageService();
+	private PropertiesFileLanguageService getPropertiesFileLanguageService() {
+		return microprofileLanguageServer.getPropertiesFileLanguageService();
 	}
 
 	private void triggerValidationFor(ModelTextDocument<PropertiesModel> document) {
@@ -260,7 +260,7 @@ public class PropertiesFileTextDocumentService extends AbstractTextDocumentServi
 				// then return do validation by using the MicroProfile project information and
 				// the
 				// Properties model document
-				List<Diagnostic> diagnostics = getMicroProfileLanguageService().doDiagnostics(model, projectInfo,
+				List<Diagnostic> diagnostics = getPropertiesFileLanguageService().doDiagnostics(model, projectInfo,
 						getSharedSettings().getValidationSettings(), cancelChecker);
 				microprofileLanguageServer.getLanguageClient()
 						.publishDiagnostics(new PublishDiagnosticsParams(model.getDocumentURI(), diagnostics));

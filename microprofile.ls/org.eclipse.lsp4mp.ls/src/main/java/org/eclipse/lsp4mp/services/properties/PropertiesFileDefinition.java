@@ -11,7 +11,7 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lsp4mp.services;
+package org.eclipse.lsp4mp.services.properties;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,18 +37,18 @@ import org.eclipse.lsp4mp.model.Property;
 import org.eclipse.lsp4mp.model.PropertyKey;
 import org.eclipse.lsp4mp.model.PropertyValue;
 import org.eclipse.lsp4mp.model.PropertyValueExpression;
-import org.eclipse.lsp4mp.utils.MicroProfilePropertiesUtils;
+import org.eclipse.lsp4mp.utils.PropertiesFileUtils;
 import org.eclipse.lsp4mp.utils.PositionUtils;
 
 /**
- * The MicroProfile definition.
+ * The properties file definition support.
  *
  * @author Angelo ZERR
  *
  */
-public class MicroProfileDefinition {
+public class PropertiesFileDefinition {
 
-	private static final Logger LOGGER = Logger.getLogger(MicroProfileDefinition.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(PropertiesFileDefinition.class.getName());
 
 	/**
 	 * Returns as promise the Java field definition location of the property at the
@@ -85,7 +85,7 @@ public class MicroProfileDefinition {
 			}
 
 			// Get metadata of the property
-			ItemMetadata item = MicroProfilePropertiesUtils.getProperty(key.getPropertyName(), projectInfo);
+			ItemMetadata item = PropertiesFileUtils.getProperty(key.getPropertyName(), projectInfo);
 			if (item == null) {
 				return getEmptyDefinition();
 			}

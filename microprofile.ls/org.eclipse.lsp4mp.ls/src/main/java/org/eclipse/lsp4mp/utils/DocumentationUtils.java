@@ -13,7 +13,7 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.utils;
 
-import static org.eclipse.lsp4mp.utils.MicroProfilePropertiesUtils.formatPropertyForMarkdown;
+import static org.eclipse.lsp4mp.utils.PropertiesFileUtils.formatPropertyForMarkdown;
 
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.MarkupKind;

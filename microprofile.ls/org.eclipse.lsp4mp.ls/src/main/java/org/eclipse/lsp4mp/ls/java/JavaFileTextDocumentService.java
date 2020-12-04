@@ -67,7 +67,7 @@ import org.eclipse.lsp4mp.model.Property;
 import org.eclipse.lsp4mp.settings.MicroProfileCodeLensSettings;
 import org.eclipse.lsp4mp.settings.SharedSettings;
 import org.eclipse.lsp4mp.snippets.SnippetContextForJava;
-import org.eclipse.lsp4mp.utils.MicroProfilePropertiesUtils;
+import org.eclipse.lsp4mp.utils.PropertiesFileUtils;
 import org.eclipse.lsp4mp.utils.PositionUtils;
 
 /**
@@ -224,7 +224,7 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 											PropertiesModel model = propertiesModelProvider
 													.getPropertiesModel(documentURI);
 											if (model == null) {
-												model = MicroProfilePropertiesUtils.loadProperties(documentURI);
+												model = PropertiesFileUtils.loadProperties(documentURI);
 											}
 											if (model != null) {
 												for (Node node : model.getChildren()) {

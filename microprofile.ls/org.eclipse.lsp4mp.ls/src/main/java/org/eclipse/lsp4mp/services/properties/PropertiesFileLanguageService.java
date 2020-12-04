@@ -11,7 +11,7 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lsp4mp.services;
+package org.eclipse.lsp4mp.services.properties;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -43,31 +43,31 @@ import org.eclipse.lsp4mp.settings.MicroProfileHoverSettings;
 import org.eclipse.lsp4mp.settings.MicroProfileValidationSettings;
 
 /**
- * The MicroProfile language service.
+ * The properties file language service.
  *
  * @author Angelo ZERR
  *
  */
-public class MicroProfileLanguageService {
+public class PropertiesFileLanguageService {
 
-	private final MicroProfileCompletions completions;
-	private final MicroProfileSymbolsProvider symbolsProvider;
-	private final MicroProfileHover hover;
-	private final MicroProfileDefinition definition;
-	private final MicroProfileDiagnostics diagnostics;
-	private final MicroProfileFormatter formatter;
-	private final MicroProfileCodeActions codeActions;
-	private final MicroProfileDocumentHighlight documentHighlight;
+	private final PropertiesFileCompletions completions;
+	private final PropertiesFileSymbolsProvider symbolsProvider;
+	private final PropertiesFileHover hover;
+	private final PropertiesFileDefinition definition;
+	private final PropertiesFileDiagnostics diagnostics;
+	private final PropertiesFileFormatter formatter;
+	private final PropertiesFileCodeActions codeActions;
+	private final PropertiesFileDocumentHighlight documentHighlight;
 
-	public MicroProfileLanguageService() {
-		this.completions = new MicroProfileCompletions();
-		this.symbolsProvider = new MicroProfileSymbolsProvider();
-		this.hover = new MicroProfileHover();
-		this.definition = new MicroProfileDefinition();
-		this.diagnostics = new MicroProfileDiagnostics();
-		this.formatter = new MicroProfileFormatter();
-		this.codeActions = new MicroProfileCodeActions();
-		this.documentHighlight = new MicroProfileDocumentHighlight();
+	public PropertiesFileLanguageService() {
+		this.completions = new PropertiesFileCompletions();
+		this.symbolsProvider = new PropertiesFileSymbolsProvider();
+		this.hover = new PropertiesFileHover();
+		this.definition = new PropertiesFileDefinition();
+		this.diagnostics = new PropertiesFileDiagnostics();
+		this.formatter = new PropertiesFileFormatter();
+		this.codeActions = new PropertiesFileCodeActions();
+		this.documentHighlight = new PropertiesFileDocumentHighlight();
 	}
 
 	/**

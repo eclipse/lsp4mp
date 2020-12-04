@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.eclipse.lsp4mp.services.ValidationType;
+import org.eclipse.lsp4mp.services.properties.ValidationType;
 
 import com.google.gson.Gson;
 

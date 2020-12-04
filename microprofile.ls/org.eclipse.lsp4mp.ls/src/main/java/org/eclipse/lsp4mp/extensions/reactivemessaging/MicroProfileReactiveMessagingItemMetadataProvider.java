@@ -29,7 +29,7 @@ import org.eclipse.lsp4mp.model.Node;
 import org.eclipse.lsp4mp.model.Node.NodeType;
 import org.eclipse.lsp4mp.model.PropertiesModel;
 import org.eclipse.lsp4mp.model.Property;
-import org.eclipse.lsp4mp.utils.MicroProfilePropertiesUtils;
+import org.eclipse.lsp4mp.utils.PropertiesFileUtils;
 import org.eclipse.lsp4mp.utils.StringUtils;
 
 /**
@@ -241,7 +241,7 @@ public class MicroProfileReactiveMessagingItemMetadataProvider extends AbstractI
 					String propertyName = property.getPropertyName();
 					ChannelInfo channelInfo = getChannelInfo(propertyName, projectInfo);
 					if (channelInfo != null
-							&& MicroProfilePropertiesUtils.getProperty(propertyName, projectInfo) != null) {
+							&& PropertiesFileUtils.getProperty(propertyName, projectInfo) != null) {
 						// The property exists as metadata and it is a MP Reactive Messaging connector
 						// declaration
 						// - mp.messaging.incoming.*.connector = ...
@@ -333,7 +333,7 @@ public class MicroProfileReactiveMessagingItemMetadataProvider extends AbstractI
 			return null;
 		}
 		start = incoming ? MP_MESSAGING_INCOMING.length() : MP_MESSAGING_OUTGOING.length();
-		ItemMetadata metadata = MicroProfilePropertiesUtils.getProperty(propertyName, projectInfo);
+		ItemMetadata metadata = PropertiesFileUtils.getProperty(propertyName, projectInfo);
 		return new ChannelInfo(propertyName.substring(start, end), incoming, metadata);
 	}
 

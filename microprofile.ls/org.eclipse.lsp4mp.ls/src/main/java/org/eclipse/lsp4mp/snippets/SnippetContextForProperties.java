@@ -20,7 +20,7 @@ import java.util.List;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
 import org.eclipse.lsp4mp.ls.commons.snippets.ISnippetContext;
-import org.eclipse.lsp4mp.utils.MicroProfilePropertiesUtils;
+import org.eclipse.lsp4mp.utils.PropertiesFileUtils;
 
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
@@ -69,7 +69,7 @@ public class SnippetContextForProperties implements ISnippetContext<MicroProfile
 	@Override
 	public boolean isMatch(MicroProfileProjectInfo projectInfo) {
 		for (String propertyName : this.properties) {
-			ItemMetadata metadata = MicroProfilePropertiesUtils.getProperty(propertyName, projectInfo);
+			ItemMetadata metadata = PropertiesFileUtils.getProperty(propertyName, projectInfo);
 			if (metadata == null) {
 				return false;
 			}

@@ -7,13 +7,13 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lsp4mp.services;
+package org.eclipse.lsp4mp.services.properties;
 
-import static org.eclipse.lsp4mp.services.MicroProfileAssert.ca;
-import static org.eclipse.lsp4mp.services.MicroProfileAssert.d;
-import static org.eclipse.lsp4mp.services.MicroProfileAssert.te;
-import static org.eclipse.lsp4mp.services.MicroProfileAssert.testCodeActionsFor;
-import static org.eclipse.lsp4mp.services.MicroProfileAssert.testDiagnosticsFor;
+import static org.eclipse.lsp4mp.services.properties.PropertiesFileAssert.ca;
+import static org.eclipse.lsp4mp.services.properties.PropertiesFileAssert.d;
+import static org.eclipse.lsp4mp.services.properties.PropertiesFileAssert.te;
+import static org.eclipse.lsp4mp.services.properties.PropertiesFileAssert.testCodeActionsFor;
+import static org.eclipse.lsp4mp.services.properties.PropertiesFileAssert.testDiagnosticsFor;
 
 import java.util.Arrays;
 
@@ -33,7 +33,7 @@ import org.junit.Test;
  * @author Angelo ZERR
  *
  */
-public class ApplicationPropertiesCodeActionsTest {
+public class PropertiesFileCodeActionsTest {
 
 	@Test
 	public void codeActionsForUnknownProperties() throws BadLocationException {
@@ -138,8 +138,7 @@ public class ApplicationPropertiesCodeActionsTest {
 	@Test
 	public void codeActionsForUnknownLogLevelValue() throws BadLocationException {
 		String value = "quarkus.log.level=WARNIN";
-		Diagnostic d = d(0, 18, 24,
-				"Invalid enum value: 'WARNIN' is invalid for type java.util.logging.Level",
+		Diagnostic d = d(0, 18, 24, "Invalid enum value: 'WARNIN' is invalid for type java.util.logging.Level",
 				DiagnosticSeverity.Error, ValidationType.value);
 
 		testDiagnosticsFor(value, d);
@@ -149,8 +148,7 @@ public class ApplicationPropertiesCodeActionsTest {
 	@Test
 	public void codeActionsForUnknownLogLevelStartsWith() throws BadLocationException {
 		String value = "quarkus.log.level=F";
-		Diagnostic d = d(0, 18, 19,
-				"Invalid enum value: 'F' is invalid for type java.util.logging.Level",
+		Diagnostic d = d(0, 18, 19, "Invalid enum value: 'F' is invalid for type java.util.logging.Level",
 				DiagnosticSeverity.Error, ValidationType.value);
 
 		testDiagnosticsFor(value, d);
@@ -163,7 +161,8 @@ public class ApplicationPropertiesCodeActionsTest {
 	@Test
 	public void codeActionsForUnknownLogLevelValueMappedProperty() throws BadLocationException {
 		String value = "quarkus.log.category.\"org.acme\".level=WARNIN";
-		Diagnostic d = d(0, 38, 44, "Invalid enum value: 'WARNIN' is invalid for type io.quarkus.runtime.logging.InheritableLevel",
+		Diagnostic d = d(0, 38, 44,
+				"Invalid enum value: 'WARNIN' is invalid for type io.quarkus.runtime.logging.InheritableLevel",
 				DiagnosticSeverity.Error, ValidationType.value);
 
 		testDiagnosticsFor(value, d);
@@ -205,7 +204,9 @@ public class ApplicationPropertiesCodeActionsTest {
 	@Test
 	public void codeActionsForUnknownBoolean() throws BadLocationException {
 		String value = "quarkus.http.cors=fals";
-		Diagnostic d = d(0, 18, 22, "Type mismatch: boolean expected. By default, this value will be interpreted as 'false'", DiagnosticSeverity.Error, ValidationType.value);
+		Diagnostic d = d(0, 18, 22,
+				"Type mismatch: boolean expected. By default, this value will be interpreted as 'false'",
+				DiagnosticSeverity.Error, ValidationType.value);
 
 		testDiagnosticsFor(value, d);
 		testCodeActionsFor(value, d, ca("Did you mean 'false'?", te(0, 18, 0, 22, "false"), d));
@@ -227,7 +228,8 @@ public class ApplicationPropertiesCodeActionsTest {
 	/**
 	 * Returns a code action for <code>diagnostic</code> that causes
 	 * <code>item</code> to be added to
-	 * <code>microprofile.tools.validation.unknown.excluded</code> client configuration
+	 * <code>microprofile.tools.validation.unknown.excluded</code> client
+	 * configuration
 	 * 
 	 * @param item       the item to add to the client configuration array
 	 * @param diagnostic the diagnostic for the <code>CodeAction</code>
@@ -236,8 +238,8 @@ public class ApplicationPropertiesCodeActionsTest {
 	 *         configuration
 	 */
 	private CodeAction caAddToExcluded(String item, Diagnostic diagnostic) {
-		ConfigurationItemEdit configItemEdit = new ConfigurationItemEdit("microprofile.tools.validation.unknown.excluded",
-				ConfigurationItemEditType.add, item);
+		ConfigurationItemEdit configItemEdit = new ConfigurationItemEdit(
+				"microprofile.tools.validation.unknown.excluded", ConfigurationItemEditType.add, item);
 
 		Command command = new Command("Add " + item + " to unknown excluded array",
 				CommandKind.COMMAND_CONFIGURATION_UPDATE, Arrays.asList(configItemEdit));

@@ -11,9 +11,9 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.ls.commons.snippets;
 
-import static org.eclipse.lsp4mp.services.MicroProfileAssert.assertCompletion;
-import static org.eclipse.lsp4mp.services.MicroProfileAssert.c;
-import static org.eclipse.lsp4mp.services.MicroProfileAssert.r;
+import static org.eclipse.lsp4mp.services.properties.PropertiesFileAssert.assertCompletion;
+import static org.eclipse.lsp4mp.services.properties.PropertiesFileAssert.c;
+import static org.eclipse.lsp4mp.services.properties.PropertiesFileAssert.r;
 
 import java.io.IOException;
 import java.io.StringReader;

@@ -30,7 +30,7 @@ import org.eclipse.lsp4mp.commons.metadata.ValueProvider.ValueProviderDefaultNam
 import org.eclipse.lsp4mp.commons.metadata.ValueProviderParameter;
 import org.eclipse.lsp4mp.ls.commons.SnippetsBuilder;
 import org.eclipse.lsp4mp.model.PropertiesModel;
-import org.eclipse.lsp4mp.services.QuarkusModel;
+import org.eclipse.lsp4mp.services.properties.QuarkusModel;
 
 /**
  * MicroProfile project information utilities.
@@ -38,9 +38,9 @@ import org.eclipse.lsp4mp.services.QuarkusModel;
  * @author Angelo ZERR
  *
  */
-public class MicroProfilePropertiesUtils {
+public class PropertiesFileUtils {
 
-	private static final Logger LOGGER = Logger.getLogger(MicroProfilePropertiesUtils.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(PropertiesFileUtils.class.getName());
 
 	private static final BiConsumer<Integer, StringBuilder> KEY_MAP_MARKDOWN_REPLACE = (i, newName) -> newName
 			.append("\\{\\*\\}");
