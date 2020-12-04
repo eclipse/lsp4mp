@@ -11,13 +11,13 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lsp4mp.services;
+package org.eclipse.lsp4mp.services.properties;
 
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4mp.ls.commons.CodeActionFactory;
 
 /**
- * MicroProfile validation types.
+ * Properties file validation types.
  *
  * @author Angelo ZERR
  *

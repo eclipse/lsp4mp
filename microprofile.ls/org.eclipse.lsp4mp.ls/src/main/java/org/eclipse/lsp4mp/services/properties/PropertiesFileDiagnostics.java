@@ -11,7 +11,7 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lsp4mp.services;
+package org.eclipse.lsp4mp.services.properties;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,10 +23,10 @@ import org.eclipse.lsp4mp.model.PropertiesModel;
 import org.eclipse.lsp4mp.settings.MicroProfileValidationSettings;
 
 /**
- * MicroProfile diagnostics support.
+ * The properties file diagnostics support.
  *
  */
-class MicroProfileDiagnostics {
+class PropertiesFileDiagnostics {
 
 	/**
 	 * Validate the given application.properties <code>document</code> by using the
@@ -45,7 +45,7 @@ class MicroProfileDiagnostics {
 		}
 		List<Diagnostic> diagnostics = new ArrayList<Diagnostic>();
 		if (validationSettings.isEnabled()) {
-			MicroProfileValidator validator = new MicroProfileValidator(projectInfo, diagnostics, validationSettings);
+			PropertiesFileValidator validator = new PropertiesFileValidator(projectInfo, diagnostics, validationSettings);
 			validator.validate(document, cancelChecker);
 		}
 		return diagnostics;

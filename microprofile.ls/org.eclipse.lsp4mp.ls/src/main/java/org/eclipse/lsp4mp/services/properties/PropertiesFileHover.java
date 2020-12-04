@@ -11,7 +11,7 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lsp4mp.services;
+package org.eclipse.lsp4mp.services.properties;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -37,16 +37,16 @@ import org.eclipse.lsp4mp.model.PropertyValue;
 import org.eclipse.lsp4mp.model.PropertyValueExpression;
 import org.eclipse.lsp4mp.settings.MicroProfileHoverSettings;
 import org.eclipse.lsp4mp.utils.DocumentationUtils;
-import org.eclipse.lsp4mp.utils.MicroProfilePropertiesUtils;
+import org.eclipse.lsp4mp.utils.PropertiesFileUtils;
 import org.eclipse.lsp4mp.utils.PositionUtils;
 import org.eclipse.lsp4mp.utils.StringUtils;
 
 /**
- * Retrieves hover documentation and creating Hover object
+ * The properties file hover support.
  */
-class MicroProfileHover {
+class PropertiesFileHover {
 
-	private static final Logger LOGGER = Logger.getLogger(MicroProfileHover.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(PropertiesFileHover.class.getName());
 
 	/**
 	 * Returns Hover object for the currently hovered token
@@ -141,7 +141,7 @@ class MicroProfileHover {
 		// retrieve MicroProfile property from the project information
 		String propertyName = key.getPropertyName();
 
-		ItemMetadata item = MicroProfilePropertiesUtils.getProperty(propertyName, projectInfo);
+		ItemMetadata item = PropertiesFileUtils.getProperty(propertyName, projectInfo);
 		PropertyValue valueNode = ((Property) key.getParent()).getValue();
 		String propertyValue = null;
 
@@ -190,7 +190,7 @@ class MicroProfileHover {
 			return null;
 		}
 		String propertyName = ((Property) (value.getParent())).getPropertyName();
-		ItemMetadata item = MicroProfilePropertiesUtils.getProperty(propertyName, projectInfo);
+		ItemMetadata item = PropertiesFileUtils.getProperty(propertyName, projectInfo);
 		ValueHint enumItem = getValueHint(propertyValue, item, projectInfo, value.getOwnerModel());
 		if (enumItem != null) {
 			// MicroProfile property enumeration item, found, display its documentation as
@@ -232,7 +232,7 @@ class MicroProfileHover {
 			}
 		}
 		// Check project info for the default value
-		ItemMetadata projectProp = MicroProfilePropertiesUtils.getProperty(referencedProp, projectInfo);
+		ItemMetadata projectProp = PropertiesFileUtils.getProperty(referencedProp, projectInfo);
 		if (projectProp != null && projectProp.getDefaultValue() != null) {
 			return createHover(projectProp.getDefaultValue(), node);
 		}

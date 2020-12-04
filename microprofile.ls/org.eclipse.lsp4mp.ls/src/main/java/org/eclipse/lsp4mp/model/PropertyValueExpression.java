@@ -15,7 +15,7 @@ package org.eclipse.lsp4mp.model;
 
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
-import org.eclipse.lsp4mp.utils.MicroProfilePropertiesUtils;
+import org.eclipse.lsp4mp.utils.PropertiesFileUtils;
 
 /**
  * Represents a portion of the property value that refers to the value of
@@ -71,7 +71,7 @@ public class PropertyValueExpression extends Node {
 			}
 		}
 		// Check project info for the default value
-		ItemMetadata projectProp = MicroProfilePropertiesUtils.getProperty(referenceName, projectInfo);
+		ItemMetadata projectProp = PropertiesFileUtils.getProperty(referenceName, projectInfo);
 		if (projectProp != null) {
 			return projectProp.getDefaultValue();
 		}

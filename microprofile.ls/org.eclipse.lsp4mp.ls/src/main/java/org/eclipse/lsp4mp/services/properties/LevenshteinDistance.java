@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 // package org.apache.commons.text.similarity;
-package org.eclipse.lsp4mp.services;
+package org.eclipse.lsp4mp.services.properties;
 
 import java.util.Arrays;
 

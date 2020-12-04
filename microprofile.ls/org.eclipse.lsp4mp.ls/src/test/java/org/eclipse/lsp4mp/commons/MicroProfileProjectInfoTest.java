@@ -9,9 +9,9 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.commons;
 
-import static org.eclipse.lsp4mp.services.MicroProfileAssert.getDefaultMicroProfileProjectInfo;
-import static org.eclipse.lsp4mp.utils.MicroProfilePropertiesUtils.formatPropertyForCompletion;
-import static org.eclipse.lsp4mp.utils.MicroProfilePropertiesUtils.formatPropertyForMarkdown;
+import static org.eclipse.lsp4mp.services.properties.PropertiesFileAssert.getDefaultMicroProfileProjectInfo;
+import static org.eclipse.lsp4mp.utils.PropertiesFileUtils.formatPropertyForCompletion;
+import static org.eclipse.lsp4mp.utils.PropertiesFileUtils.formatPropertyForMarkdown;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -22,8 +22,8 @@ import org.eclipse.lsp4mp.commons.metadata.ValueHint;
 import org.eclipse.lsp4mp.model.PropertiesModel;
 import org.eclipse.lsp4mp.model.Property;
 import org.eclipse.lsp4mp.model.PropertyKey;
-import org.eclipse.lsp4mp.utils.MicroProfilePropertiesUtils;
-import org.eclipse.lsp4mp.utils.MicroProfilePropertiesUtils.FormattedPropertyResult;
+import org.eclipse.lsp4mp.utils.PropertiesFileUtils;
+import org.eclipse.lsp4mp.utils.PropertiesFileUtils.FormattedPropertyResult;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -192,7 +192,7 @@ public class MicroProfileProjectInfoTest {
 		assertNotNull(property);
 		assertNotNull(property.getProperty());
 
-		Collection<ValueHint> levels = MicroProfilePropertiesUtils.getEnums(property.getProperty(), info);
+		Collection<ValueHint> levels = PropertiesFileUtils.getEnums(property.getProperty(), info);
 		assertNotNull(levels);
 		assertEquals(14, levels.size());
 		assertEquals("OFF", levels.iterator().next().getValue());
@@ -201,7 +201,7 @@ public class MicroProfileProjectInfoTest {
 	private static PropertyInfo getProperty(String text, MicroProfileProjectInfo info) {
 		PropertiesModel model = PropertiesModel.parse(text, "application.properties");
 		PropertyKey key = (PropertyKey) ((Property) model.getChildren().get(0)).getKey();
-		return new PropertyInfo(MicroProfilePropertiesUtils.getProperty(key.getPropertyName(), info), key.getProfile());
+		return new PropertyInfo(PropertiesFileUtils.getProperty(key.getPropertyName(), info), key.getProfile());
 	}
 
 }

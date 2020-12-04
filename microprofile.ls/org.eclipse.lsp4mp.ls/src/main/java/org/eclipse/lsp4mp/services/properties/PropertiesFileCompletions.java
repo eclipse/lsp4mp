@@ -11,7 +11,7 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lsp4mp.services;
+package org.eclipse.lsp4mp.services.properties;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -53,19 +53,19 @@ import org.eclipse.lsp4mp.settings.MicroProfileFormattingSettings;
 import org.eclipse.lsp4mp.snippets.LanguageId;
 import org.eclipse.lsp4mp.snippets.SnippetContextForProperties;
 import org.eclipse.lsp4mp.utils.DocumentationUtils;
-import org.eclipse.lsp4mp.utils.MicroProfilePropertiesUtils;
-import org.eclipse.lsp4mp.utils.MicroProfilePropertiesUtils.FormattedPropertyResult;
+import org.eclipse.lsp4mp.utils.PropertiesFileUtils;
+import org.eclipse.lsp4mp.utils.PropertiesFileUtils.FormattedPropertyResult;
 import org.eclipse.lsp4mp.utils.StringUtils;
 
 /**
- * The MicroProfile completions
+ * The properties file completions support.
  *
  * @author Angelo ZERR
  *
  */
-class MicroProfileCompletions {
+class PropertiesFileCompletions {
 
-	private static final Logger LOGGER = Logger.getLogger(MicroProfileCompletions.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(PropertiesFileCompletions.class.getName());
 	private TextDocumentSnippetRegistry snippetRegistry;
 
 	/**
@@ -190,7 +190,7 @@ class MicroProfileCompletions {
 			item.setKind(CompletionItemKind.Property);
 
 			String defaultValue = property.getDefaultValue();
-			Collection<ValueHint> enums = MicroProfilePropertiesUtils.getEnums(property, projectInfo);
+			Collection<ValueHint> enums = PropertiesFileUtils.getEnums(property, projectInfo);
 
 			StringBuilder insertText = new StringBuilder();
 			if (profile != null) {
@@ -352,7 +352,7 @@ class MicroProfileCompletions {
 		if (!snippetsSupported) {
 			return new FormattedPropertyResult(propertyName, 0);
 		}
-		return MicroProfilePropertiesUtils.formatPropertyForCompletion(propertyName);
+		return PropertiesFileUtils.formatPropertyForCompletion(propertyName);
 	}
 
 	/**
@@ -384,9 +384,9 @@ class MicroProfileCompletions {
 
 		String propertyName = property.getPropertyName();
 
-		ItemMetadata item = MicroProfilePropertiesUtils.getProperty(propertyName, projectInfo);
+		ItemMetadata item = PropertiesFileUtils.getProperty(propertyName, projectInfo);
 		if (item != null) {
-			Collection<ValueHint> enums = MicroProfilePropertiesUtils.getEnums(item, projectInfo);
+			Collection<ValueHint> enums = PropertiesFileUtils.getEnums(item, projectInfo);
 			if (enums != null && !enums.isEmpty()) {
 				boolean markdownSupported = completionSettings.isDocumentationFormatSupported(MarkupKind.MARKDOWN);
 				for (ValueHint e : enums) {

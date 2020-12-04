@@ -11,7 +11,7 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lsp4mp.services;
+package org.eclipse.lsp4mp.services.properties;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -45,21 +45,21 @@ import org.eclipse.lsp4mp.model.PropertyKey;
 import org.eclipse.lsp4mp.model.PropertyValue;
 import org.eclipse.lsp4mp.settings.MicroProfileCommandCapabilities;
 import org.eclipse.lsp4mp.settings.MicroProfileFormattingSettings;
-import org.eclipse.lsp4mp.utils.MicroProfilePropertiesUtils;
+import org.eclipse.lsp4mp.utils.PropertiesFileUtils;
 import org.eclipse.lsp4mp.utils.PositionUtils;
 import org.eclipse.lsp4mp.utils.StringUtils;
 
 /**
- * The MicroProfile code actions
+ * The properties file code actions support.
  *
  * @author Angelo ZERR
  *
  */
-class MicroProfileCodeActions {
+class PropertiesFileCodeActions {
 
 	private static final float MAX_DISTANCE_DIFF_RATIO = 0.1f;
 
-	private static final Logger LOGGER = Logger.getLogger(MicroProfileCodeActions.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(PropertiesFileCodeActions.class.getName());
 
 	/**
 	 * Returns code actions for the given diagnostics of the application.properties
@@ -117,7 +117,7 @@ class MicroProfileCodeActions {
 			// Loop for each metadata property
 			for (ItemMetadata metaProperty : projectInfo.getProperties()) {
 				String name = metaProperty.getName();
-				if (MicroProfilePropertiesUtils.isMappedProperty(name)) {
+				if (PropertiesFileUtils.isMappedProperty(name)) {
 					// FIXME: support mapped property
 				} else {
 					// Check if the property name is similar to the metadata name
@@ -172,12 +172,12 @@ class MicroProfileCodeActions {
 			String value = propertyValue.getValue();
 			String propertyName = propertyKey.getPropertyName();
 
-			ItemMetadata metaProperty = MicroProfilePropertiesUtils.getProperty(propertyName, projectInfo);
+			ItemMetadata metaProperty = PropertiesFileUtils.getProperty(propertyName, projectInfo);
 			if (metaProperty == null) {
 				return;
 			}
 
-			Collection<ValueHint> enums = MicroProfilePropertiesUtils.getEnums(metaProperty, projectInfo);
+			Collection<ValueHint> enums = PropertiesFileUtils.getEnums(metaProperty, projectInfo);
 			if (enums == null || enums.isEmpty()) {
 				return;
 			}
