@@ -23,6 +23,8 @@ import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
  */
 public class Property extends Node {
 
+	private static final String EMPTY_PROPERTY_NAME = "";
+
 	private PropertyKey key;
 	private Node delimiterAssign;
 	private PropertyValue value;
@@ -101,8 +103,8 @@ public class Property extends Node {
 	}
 
 	/**
-	 * Returns the property name without the profile of the property key and null
-	 * otherwise.
+	 * Returns the property name without the profile of the property key and an
+	 * empty string otherwise.
 	 *
 	 * For multiline property names, this method returns the property name with the
 	 * backslashes and newlines removed.
@@ -114,15 +116,13 @@ public class Property extends Node {
 	 * <li>'key1.\ key2.\ key3' will return 'key1.key2.key3'</li>
 	 * </ul>
 	 *
-	 * @return the property name without the profile of the property key and null
-	 *         otherwise.
+	 * @return the property name without the profile of the property key and an
+	 *         empty string otherwise.
 	 */
 	public String getPropertyName() {
 		PropertyKey key = getKey();
-		if (key == null) {
-			return null;
-		}
-		return key.getPropertyName();
+		String propertyName = key != null ? key.getPropertyName() : null;
+		return propertyName != null ? propertyName : EMPTY_PROPERTY_NAME;
 	}
 
 	/**
@@ -167,10 +167,10 @@ public class Property extends Node {
 	}
 
 	/**
-	 * Gets the value of this property with the property expressions resolved,
-	 * or null if a cycle exists.
+	 * Gets the value of this property with the property expressions resolved, or
+	 * null if a cycle exists.
 	 *
-	 * @param graph The dependency graph of the properties.
+	 * @param graph       The dependency graph of the properties.
 	 * @param projectInfo the project information
 	 * @return The resolved value of this property, or null
 	 */

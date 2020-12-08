@@ -28,7 +28,9 @@ public class PropertiesModelTest {
 
 	@Test
 	public void parseCommentsAndTwoProperties() {
-		String text = " # comment \na = b\n c=d";
+		String text = " # comment \n" + //
+				"a = b\n" + //
+				" c=d";
 		PropertiesModel model = PropertiesModel.parse(text, "application.properties");
 		assertModel(model, text.length(), 3);
 
@@ -75,95 +77,81 @@ public class PropertiesModelTest {
 
 	@Test
 	public void parseMultiPropertyKey() {
-		String text = "quarkus\\" + "\n" +
-			".application\\" + "\n" +
-			".name=name";
+		String text = "quarkus\\\n" + //
+				".application\\\n" + //
+				".name=name";
 		PropertiesModel model = PropertiesModel.parse(text, "application.properties");
 		assertModel(model, text.length(), 1);
 		Node property = model.getChildren().get(0);
-		assertProperty(property, 0, 33, 0, 28, "quarkus.application.name", 28, 29, 33,
-				"name");
+		assertProperty(property, 0, 33, 0, 28, "quarkus.application.name", 28, 29, 33, "name");
 	}
 
 	@Test
 	public void parseMultiPropertyValue() {
-		String text = "mp.openapi.schema.java.util.Date = { \\" + "\n" +
-			"  \"name\": \"EpochMillis\" \\" + "\n" +
-			"  \"type\": \"number\", \\" + "\n" +
-			"  \"format\": \"int64\", \\" + "\n" +
-			"  \"description\": \"Milliseconds since January 1, 1970, 00:00:00 GMT\" \\" + "\n" +
-			"}" + "\n" +
-			"quarkus.http.port=9090";
+		String text = "mp.openapi.schema.java.util.Date = { \\\n" + //
+				"  \"name\": \"EpochMillis\" \\\n" + //
+				"  \"type\": \"number\", \\\n" + //
+				"  \"format\": \"int64\", \\\n" + //
+				"  \"description\": \"Milliseconds since January 1, 1970, 00:00:00 GMT\" \\\n" + //
+				"}\n" + //
+				"quarkus.http.port=9090";
 		PropertiesModel model = PropertiesModel.parse(text, "application.properties");
 		assertModel(model, text.length(), 2);
 
 		Node firstProperty = model.getChildren().get(0);
 		assertProperty(firstProperty, 0, 181, 0, 32, "mp.openapi.schema.java.util.Date", 33, 35, 181,
-				"{ " +
-				"\"name\": \"EpochMillis\" " +
-				"\"type\": \"number\", " +
-				"\"format\": \"int64\", " +
-				"\"description\": \"Milliseconds since January 1, 1970, 00:00:00 GMT\" " +
-				"}");
+				"{ " + "\"name\": \"EpochMillis\" " + "\"type\": \"number\", " + "\"format\": \"int64\", "
+						+ "\"description\": \"Milliseconds since January 1, 1970, 00:00:00 GMT\" " + "}");
 		Node secondProperty = model.getChildren().get(1);
-		assertProperty(secondProperty, 182, 204, 182, 199, "quarkus.http.port", 199, 200, 204,
-				"9090");
+		assertProperty(secondProperty, 182, 204, 182, 199, "quarkus.http.port", 199, 200, 204, "9090");
 	}
 
 	@Test
 	public void parseMultiPropertyValueLeadingSpaces() {
-		String text = "a = hello \\" + "\n" +
-				"how \\" + "\n" +
-				"are \\" + "\n" +
+		String text = "a = hello \\\n" + //
+				"how \\\n" + //
+				"are \\\n" + //
 				"you?";
 		PropertiesModel model = PropertiesModel.parse(text, "application.properties");
 		Node property = model.getChildren().get(0);
-		assertProperty(property, 0, 28, 0, 1, "a", 2, 4, 28,
-				"hello how are you?");
+		assertProperty(property, 0, 28, 0, 1, "a", 2, 4, 28, "hello how are you?");
 
-		text = "a = hello \\" + "\n" +
-				"      how \\" + "\n" +
-				"   are \\" + "\n" +
+		text = "a = hello \\\n" + //
+				"      how \\\n" + //
+				"   are \\\n" + //
 				"      you?";
 		model = PropertiesModel.parse(text, "application.properties");
 		property = model.getChildren().get(0);
-		assertProperty(property, 0, 43, 0, 1, "a", 2, 4, 43,
-				"hello how are you?");
+		assertProperty(property, 0, 43, 0, 1, "a", 2, 4, 43, "hello how are you?");
 	}
 
 	@Test
 	public void parseMultiPropertyKeyAndValue() {
-		String text = "mp\\" + "\n" +
-				".openapi\\" + "\n" +
-				".schema.java.util.Date = { \\" + "\n" +
-				"  \"name\": \"EpochMillis\" \\" + "\n" +
-				"  \"type\": \"number\", \\" + "\n" +
-				"  \"format\": \"int64\", \\" + "\n" +
-				"  \"description\": \"Milliseconds since January 1, 1970, 00:00:00 GMT\" \\" + "\n" +
-				"}" + "\n" +
+		String text = "mp\\\n" + //
+				".openapi\\\n" + //
+				".schema.java.util.Date = { \\\n" + "  \"name\": \"EpochMillis\" \\\n" + //
+				"  \"type\": \"number\", \\\n" + //
+				"  \"format\": \"int64\", \\\n" + //
+				"  \"description\": \"Milliseconds since January 1, 1970, 00:00:00 GMT\" \\\n" + //
+				"}\n" + //
 				"quarkus.http.port=9090";
 		PropertiesModel model = PropertiesModel.parse(text, "application.properties");
 		assertModel(model, text.length(), 2);
 
 		Node firstProperty = model.getChildren().get(0);
 		assertProperty(firstProperty, 0, 185, 0, 36, "mp.openapi.schema.java.util.Date", 37, 39, 185,
-				"{ " +
-				"\"name\": \"EpochMillis\" " +
-				"\"type\": \"number\", " +
-				"\"format\": \"int64\", " +
-				"\"description\": \"Milliseconds since January 1, 1970, 00:00:00 GMT\" " +
-				"}");
+				"{ " + "\"name\": \"EpochMillis\" " + "\"type\": \"number\", " + "\"format\": \"int64\", "
+						+ "\"description\": \"Milliseconds since January 1, 1970, 00:00:00 GMT\" " + "}");
 		Node secondProperty = model.getChildren().get(1);
-		assertProperty(secondProperty, 186, 208, 186, 203, "quarkus.http.port", 203, 204, 208,
-				"9090");
+		assertProperty(secondProperty, 186, 208, 186, 203, "quarkus.http.port", 203, 204, 208, "9090");
 	}
 
 	@Test
 	public void parseSpaceAfterBackSlash() {
 		// in the case where spaces follow the backslash,
 		// the next line is treated as a new property key
-		String text = "greeting.\\ \r\n" +
-				"             message = hello\r\n" +
+		String text = "greeting.\\ \r\n" + //
+				"             message = hello\r\n" + //
 				"greeting.name = quarkus";
 		PropertiesModel model = PropertiesModel.parse(text, "application.properties");
 		assertModel(model, text.length(), 3);
@@ -182,9 +170,9 @@ public class PropertiesModelTest {
 	public void parseSpaceAfterBackSlash2() {
 		// in the case where spaces follow the backslash,
 		// the next line is treated as a new property key
-		String text = "quarkus\\  " + "\n" +
-			".application\\ " + "\n" +
-			".name=name";
+		String text = "quarkus\\  \n" + //
+				".application\\ \n" + //
+				".name=name";
 		PropertiesModel model = PropertiesModel.parse(text, "application.properties");
 		assertModel(model, text.length(), 3);
 
@@ -263,11 +251,10 @@ public class PropertiesModelTest {
 	public void crossLinePropertyExpression() {
 		String text = //
 				"mp.openstacktracking.server.skip = ${http.\\\n" + //
-				"  port}";
+						"  port}";
 		PropertiesModel model = PropertiesModel.parse(text, "application.properties");
 		Property property = (Property) model.getChildren().get(0);
-		assertPropertyValue(property,
-				new MockNode(35, 51, NodeType.PROPERTY_VALUE_EXPRESSION));
+		assertPropertyValue(property, new MockNode(35, 51, NodeType.PROPERTY_VALUE_EXPRESSION));
 	}
 
 	@Test
@@ -332,6 +319,50 @@ public class PropertiesModelTest {
 				new MockNode(11, 25, NodeType.PROPERTY_VALUE_LITERAL));
 	}
 
+	@Test
+	public void emptyPropertyNameAndProfile() {
+		String text = "%=1";
+		PropertiesModel model = PropertiesModel.parse(text, "microprofile-config.properties");
+		Assert.assertEquals(1, model.getChildren().size());
+		Property property = ((Property) model.getChildren().get(0));
+		Assert.assertTrue("".equals(property.getPropertyName()));
+		Assert.assertTrue("%".equals(property.getPropertyNameWithProfile()));
+		Assert.assertTrue("".equals(property.getProfile()));
+	}
+
+	@Test
+	public void emptyPropertyNameAndDevProfile() {
+		String text = "%dev=1";
+		PropertiesModel model = PropertiesModel.parse(text, "microprofile-config.properties");
+		Assert.assertEquals(1, model.getChildren().size());
+		Property property = ((Property) model.getChildren().get(0));
+		Assert.assertTrue("".equals(property.getPropertyName()));
+		Assert.assertTrue("%dev".equals(property.getPropertyNameWithProfile()));
+		Assert.assertTrue("dev".equals(property.getProfile()));
+	}
+
+	@Test
+	public void emptyPropertyNameAndDevProfileWithDot() {
+		String text = "%dev.=1";
+		PropertiesModel model = PropertiesModel.parse(text, "microprofile-config.properties");
+		Assert.assertEquals(1, model.getChildren().size());
+		Property property = ((Property) model.getChildren().get(0));
+		Assert.assertTrue("".equals(property.getPropertyName()));
+		Assert.assertTrue("%dev.".equals(property.getPropertyNameWithProfile()));
+		Assert.assertTrue("dev".equals(property.getProfile()));
+	}
+
+	@Test
+	public void propertyNameAndDevProfile() {
+		String text = "%dev.abcd=1";
+		PropertiesModel model = PropertiesModel.parse(text, "microprofile-config.properties");
+		Assert.assertEquals(1, model.getChildren().size());
+		Property property = ((Property) model.getChildren().get(0));
+		Assert.assertTrue("abcd".equals(property.getPropertyName()));
+		Assert.assertTrue("%dev.abcd".equals(property.getPropertyNameWithProfile()));
+		Assert.assertTrue("dev".equals(property.getProfile()));
+	}
+
 	private static void assertComments(Node comments, int expectedStart, int expectedEnd, String expectedText) {
 		Assert.assertEquals(comments.getNodeType(), NodeType.COMMENTS);
 		Assert.assertEquals(expectedText, comments.getText());
@@ -340,13 +371,12 @@ public class PropertiesModelTest {
 	}
 
 	/**
-	 * NOTE: <code>expectedDelimiterAssign</code> is the start offset of the delimiter.
-	 * The assumption is that the delimiter is only one character long.
+	 * NOTE: <code>expectedDelimiterAssign</code> is the start offset of the
+	 * delimiter. The assumption is that the delimiter is only one character long.
 	 */
-	private static void assertProperty(Node propertyNode, int expectedStart, int expectedEnd,
-			int expectedStartKey, int expectedEndKey, String expectedTextKey,
-			int expectedDelimiterAssign, int expectedStartValue, int expectedEndValue,
-			String expectedTextValue) {
+	private static void assertProperty(Node propertyNode, int expectedStart, int expectedEnd, int expectedStartKey,
+			int expectedEndKey, String expectedTextKey, int expectedDelimiterAssign, int expectedStartValue,
+			int expectedEndValue, String expectedTextValue) {
 		Assert.assertEquals(propertyNode.getNodeType(), NodeType.PROPERTY);
 		Property property = (Property) propertyNode;
 
@@ -421,6 +451,5 @@ public class PropertiesModelTest {
 					&& this.end == otherNode.getEnd();
 		}
 	}
-
 
 }
