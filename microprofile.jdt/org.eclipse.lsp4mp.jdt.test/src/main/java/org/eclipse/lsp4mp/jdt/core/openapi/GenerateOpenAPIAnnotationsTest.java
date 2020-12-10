@@ -39,7 +39,7 @@ public class GenerateOpenAPIAnnotationsTest extends BasePropertiesManagerTest {
 
 	@Test
 	public void GenerateOpenAPIAnnotationsAction() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MavenProjectName.microprofile_openapi);
+		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.microprofile_openapi);
 		IJDTUtils utils = JDT_UTILS;
 
 		IFile javaFile = javaProject.getProject()

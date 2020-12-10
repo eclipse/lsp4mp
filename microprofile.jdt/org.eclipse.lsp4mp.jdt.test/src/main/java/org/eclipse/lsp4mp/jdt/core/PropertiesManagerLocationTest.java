@@ -37,7 +37,7 @@ public class PropertiesManagerLocationTest extends BasePropertiesManagerTest {
 		// Enable classFileContentsSupport to generate jdt Location
 		enableClassFileContentsSupport();
 
-		IJavaProject javaProject = loadMavenProject(MavenProjectName.using_vertx);
+		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.using_vertx);
 
 		// Test with Java sources
 		// myapp.schema.create
@@ -51,7 +51,7 @@ public class PropertiesManagerLocationTest extends BasePropertiesManagerTest {
 		// Enable classFileContentsSupport to generate jdt Location
 		enableClassFileContentsSupport();
 
-		IJavaProject javaProject = loadMavenProject(MavenProjectName.config_properties);
+		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.config_properties);
 
 		// Test with method
 		// greetingInterface.name
@@ -67,7 +67,7 @@ public class PropertiesManagerLocationTest extends BasePropertiesManagerTest {
 		// Enable classFileContentsSupport to generate jdt Location
 		enableClassFileContentsSupport();
 
-		IJavaProject javaProject = loadMavenProject(MavenProjectName.config_quickstart);
+		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.config_quickstart);
 
 		// Test with method with parameters
 		// greeting.constructor.message
@@ -83,7 +83,7 @@ public class PropertiesManagerLocationTest extends BasePropertiesManagerTest {
 		// Enable classFileContentsSupport to generate jdt Location
 		enableClassFileContentsSupport();
 
-		IJavaProject javaProject = loadMavenProject(MavenProjectName.config_quickstart);
+		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.config_quickstart);
 
 		// Test with constructor with parameters
 		// greeting.constructor.message

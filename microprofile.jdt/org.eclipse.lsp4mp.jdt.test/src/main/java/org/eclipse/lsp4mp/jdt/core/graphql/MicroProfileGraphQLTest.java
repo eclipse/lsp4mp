@@ -34,7 +34,7 @@ public class MicroProfileGraphQLTest extends BasePropertiesManagerTest {
     @Test
     public void microprofileContextPropagationPropertiesTest() throws Exception {
         MicroProfileProjectInfo infoFromClasspath = getMicroProfileProjectInfoFromMavenProject(
-				MavenProjectName.microprofile_graphql, MicroProfilePropertiesScope.SOURCES_AND_DEPENDENCIES);
+				MicroProfileMavenProjectName.microprofile_graphql, MicroProfilePropertiesScope.SOURCES_AND_DEPENDENCIES);
 
 		assertProperties(infoFromClasspath,
 

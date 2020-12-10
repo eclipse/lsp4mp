@@ -34,7 +34,7 @@ public class MicroProfileContextPropagationTest extends BasePropertiesManagerTes
 	public void microprofileContextPropagationPropertiesTest() throws Exception {
 
 		MicroProfileProjectInfo infoFromClasspath = getMicroProfileProjectInfoFromMavenProject(
-				MavenProjectName.microprofile_context_propagation, MicroProfilePropertiesScope.SOURCES_AND_DEPENDENCIES);
+				MicroProfileMavenProjectName.microprofile_context_propagation, MicroProfilePropertiesScope.SOURCES_AND_DEPENDENCIES);
 
 		assertProperties(infoFromClasspath,
 

@@ -38,7 +38,7 @@ public class MicroProfileRegisterRestClientTest extends BasePropertiesManagerTes
 	public void restClientQuickstart() throws Exception {
 
 		MicroProfileProjectInfo infoFromClasspath = getMicroProfileProjectInfoFromMavenProject(
-				MavenProjectName.rest_client_quickstart, MicroProfilePropertiesScope.ONLY_SOURCES);
+				MicroProfileMavenProjectName.rest_client_quickstart, MicroProfilePropertiesScope.ONLY_SOURCES);
 
 		// mp-rest Properties
 		assertProperties(infoFromClasspath, 7,

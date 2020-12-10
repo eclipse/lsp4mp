@@ -34,7 +34,7 @@ public class MicroProfileLRATest extends BasePropertiesManagerTest {
 	public void microprofileLRAPropertiesTest() throws Exception {
 
 		MicroProfileProjectInfo infoFromClasspath = getMicroProfileProjectInfoFromMavenProject(
-				MavenProjectName.microprofile_lra, MicroProfilePropertiesScope.SOURCES_AND_DEPENDENCIES);
+				MicroProfileMavenProjectName.microprofile_lra, MicroProfilePropertiesScope.SOURCES_AND_DEPENDENCIES);
 
 		assertProperties(infoFromClasspath,
 

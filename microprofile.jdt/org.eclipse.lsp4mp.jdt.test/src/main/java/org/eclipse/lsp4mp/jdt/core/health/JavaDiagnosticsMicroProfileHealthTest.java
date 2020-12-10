@@ -46,7 +46,7 @@ public class JavaDiagnosticsMicroProfileHealthTest extends BasePropertiesManager
 
 	@Test
 	public void ImplementHealthCheck() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MavenProjectName.microprofile_health_quickstart);
+		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.microprofile_health_quickstart);
 		IJDTUtils utils = JDT_UTILS;
 
 		MicroProfileJavaDiagnosticsParams diagnosticsParams = new MicroProfileJavaDiagnosticsParams();
@@ -76,7 +76,7 @@ public class JavaDiagnosticsMicroProfileHealthTest extends BasePropertiesManager
 
 	@Test
 	public void HealthAnnotationMissing() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MavenProjectName.microprofile_health_quickstart);
+		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.microprofile_health_quickstart);
 		IJDTUtils utils = JDT_UTILS;
 
 		MicroProfileJavaDiagnosticsParams diagnosticsParams = new MicroProfileJavaDiagnosticsParams();

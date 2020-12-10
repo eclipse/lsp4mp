@@ -33,7 +33,7 @@ public class MicroProfileJWTPropertiesTest extends BasePropertiesManagerTest {
 	@Test
 	public void microProfileContextPropagationPropertiesTest() throws Exception {
 		MicroProfileProjectInfo infoFromClasspath = getMicroProfileProjectInfoFromMavenProject(
-			MavenProjectName.microprofile_jwt_quickstart, MicroProfilePropertiesScope.SOURCES_AND_DEPENDENCIES);
+			MicroProfileMavenProjectName.microprofile_jwt_quickstart, MicroProfilePropertiesScope.SOURCES_AND_DEPENDENCIES);
 
 		assertProperties(infoFromClasspath,
 			// confirm properties are being merged with force, should not overwrite properties coming from ConfigProperty provider
