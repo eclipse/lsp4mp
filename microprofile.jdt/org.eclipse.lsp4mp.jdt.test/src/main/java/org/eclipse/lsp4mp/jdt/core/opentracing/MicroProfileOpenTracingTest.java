@@ -38,7 +38,7 @@ public class MicroProfileOpenTracingTest extends BasePropertiesManagerTest {
 	public void microprofileOpenTracingPropertiesTest() throws Exception {
 
 		MicroProfileProjectInfo infoFromClasspath = getMicroProfileProjectInfoFromMavenProject(
-				MavenProjectName.microprofile_opentracing, MicroProfilePropertiesScope.SOURCES_AND_DEPENDENCIES);
+				MicroProfileMavenProjectName.microprofile_opentracing, MicroProfilePropertiesScope.SOURCES_AND_DEPENDENCIES);
 
 		assertProperties(infoFromClasspath,
 

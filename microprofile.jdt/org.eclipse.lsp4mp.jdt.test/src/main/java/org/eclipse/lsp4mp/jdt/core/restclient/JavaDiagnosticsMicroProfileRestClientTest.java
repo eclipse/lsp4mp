@@ -46,7 +46,7 @@ public class JavaDiagnosticsMicroProfileRestClientTest extends BasePropertiesMan
 
 	@Test
 	public void restClientAnnotationMissingForFields() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MavenProjectName.rest_client_quickstart);
+		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.rest_client_quickstart);
 		IJDTUtils utils = JDT_UTILS;
 
 		MicroProfileJavaDiagnosticsParams params = new MicroProfileJavaDiagnosticsParams();
@@ -101,7 +101,7 @@ public class JavaDiagnosticsMicroProfileRestClientTest extends BasePropertiesMan
 
 	@Test
 	public void restClientAnnotationMissingForInterface() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MavenProjectName.rest_client_quickstart);
+		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.rest_client_quickstart);
 		IJDTUtils utils = JDT_UTILS;
 
 		MicroProfileJavaDiagnosticsParams params = new MicroProfileJavaDiagnosticsParams();

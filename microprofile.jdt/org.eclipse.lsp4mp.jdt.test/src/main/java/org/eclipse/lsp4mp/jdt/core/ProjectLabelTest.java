@@ -21,7 +21,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.lsp4mp.commons.ProjectLabelInfoEntry;
 import org.eclipse.lsp4mp.jdt.core.BasePropertiesManagerTest.GradleProjectName;
-import org.eclipse.lsp4mp.jdt.core.BasePropertiesManagerTest.MavenProjectName;
+import org.eclipse.lsp4mp.jdt.core.BasePropertiesManagerTest.MicroProfileMavenProjectName;
 import org.eclipse.lsp4mp.jdt.core.utils.JDTMicroProfileUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -34,7 +34,7 @@ public class ProjectLabelTest {
 
 	@Test
 	public void getProjectLabelInfoOnlyMaven() throws Exception {
-		IJavaProject maven = BasePropertiesManagerTest.loadMavenProject(MavenProjectName.empty_maven_project);
+		IJavaProject maven = BasePropertiesManagerTest.loadMavenProject(MicroProfileMavenProjectName.empty_maven_project);
 		List<ProjectLabelInfoEntry> projectLabelEntries = ProjectLabelManager.getInstance().getProjectLabelInfo();
 		assertProjectLabelInfoContainsProject(projectLabelEntries, maven);
 		assertLabels(projectLabelEntries, maven, "maven");
@@ -50,7 +50,7 @@ public class ProjectLabelTest {
 
 	@Test
 	public void getProjectLabelQuarkusMaven() throws Exception {
-		IJavaProject quarkusMaven = BasePropertiesManagerTest.loadMavenProject(MavenProjectName.using_vertx);
+		IJavaProject quarkusMaven = BasePropertiesManagerTest.loadMavenProject(MicroProfileMavenProjectName.using_vertx);
 		List<ProjectLabelInfoEntry> projectLabelEntries = ProjectLabelManager.getInstance().getProjectLabelInfo();
 		assertProjectLabelInfoContainsProject(projectLabelEntries, quarkusMaven);
 		assertLabels(projectLabelEntries, quarkusMaven, "microprofile", "maven");
@@ -67,10 +67,10 @@ public class ProjectLabelTest {
 
 	@Test
 	public void getProjectLabelMultipleProjects() throws Exception {
-		IJavaProject quarkusMaven = BasePropertiesManagerTest.loadMavenProject(MavenProjectName.using_vertx);
+		IJavaProject quarkusMaven = BasePropertiesManagerTest.loadMavenProject(MicroProfileMavenProjectName.using_vertx);
 		IJavaProject quarkusGradle = BasePropertiesManagerTest
 				.loadGradleProject(GradleProjectName.quarkus_gradle_project);
-		IJavaProject maven = BasePropertiesManagerTest.loadMavenProject(MavenProjectName.empty_maven_project);
+		IJavaProject maven = BasePropertiesManagerTest.loadMavenProject(MicroProfileMavenProjectName.empty_maven_project);
 		IJavaProject gradle = BasePropertiesManagerTest.loadGradleProject(GradleProjectName.empty_gradle_project);
 		List<ProjectLabelInfoEntry> projectLabelEntries = ProjectLabelManager.getInstance().getProjectLabelInfo();
 
@@ -83,9 +83,9 @@ public class ProjectLabelTest {
 
 	@Test
 	public void projectNameMaven() throws Exception {
-		IJavaProject quarkusMaven = BasePropertiesManagerTest.loadMavenProject(MavenProjectName.using_vertx);
-		IJavaProject maven = BasePropertiesManagerTest.loadMavenProject(MavenProjectName.empty_maven_project);
-		IJavaProject folderNameDifferent = BasePropertiesManagerTest.loadMavenProject(MavenProjectName.folder_name_different_maven);
+		IJavaProject quarkusMaven = BasePropertiesManagerTest.loadMavenProject(MicroProfileMavenProjectName.using_vertx);
+		IJavaProject maven = BasePropertiesManagerTest.loadMavenProject(MicroProfileMavenProjectName.empty_maven_project);
+		IJavaProject folderNameDifferent = BasePropertiesManagerTest.loadMavenProject(MicroProfileMavenProjectName.folder_name_different_maven);
 		List<ProjectLabelInfoEntry> projectLabelEntries = ProjectLabelManager.getInstance().getProjectLabelInfo();
 		assertName(projectLabelEntries, quarkusMaven, "using-vertx");
 		assertName(projectLabelEntries, maven, "empty-maven-project");
@@ -94,8 +94,8 @@ public class ProjectLabelTest {
 
 	@Test
 	public void projectNameSameFolderName() throws Exception {
-		IJavaProject empty1 = BasePropertiesManagerTest.loadMavenProject(MavenProjectName.empty_maven_project);
-		IJavaProject empty2 = BasePropertiesManagerTest.loadMavenProjectFromSubFolder(MavenProjectName.other_empty_maven_project, "folder");
+		IJavaProject empty1 = BasePropertiesManagerTest.loadMavenProject(MicroProfileMavenProjectName.empty_maven_project);
+		IJavaProject empty2 = BasePropertiesManagerTest.loadMavenProjectFromSubFolder(MicroProfileMavenProjectName.other_empty_maven_project, "folder");
 		List<ProjectLabelInfoEntry> projectLabelEntries = ProjectLabelManager.getInstance().getProjectLabelInfo();
 		assertName(projectLabelEntries, empty1, "empty-maven-project");
 		assertName(projectLabelEntries, empty2, "other-empty-maven-project");

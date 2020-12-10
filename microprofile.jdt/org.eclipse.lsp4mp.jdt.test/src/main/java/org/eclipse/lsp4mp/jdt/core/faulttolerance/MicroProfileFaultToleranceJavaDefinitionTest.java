@@ -36,7 +36,7 @@ public class MicroProfileFaultToleranceJavaDefinitionTest extends BaseProperties
 
 	@Test
 	public void fallbackMethodsDefinition() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MavenProjectName.microprofile_fault_tolerance);
+		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.microprofile_fault_tolerance);
 		IJDTUtils utils = JDT_UTILS;
 
 		IFile javaFile = javaProject.getProject()

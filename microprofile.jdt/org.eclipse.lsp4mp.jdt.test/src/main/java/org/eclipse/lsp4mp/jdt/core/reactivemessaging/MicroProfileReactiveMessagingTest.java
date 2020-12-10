@@ -39,7 +39,7 @@ public class MicroProfileReactiveMessagingTest extends BasePropertiesManagerTest
 	public void microprofileReactiveMessagingPropertiesTest() throws Exception {
 
 		MicroProfileProjectInfo infoFromClasspath = getMicroProfileProjectInfoFromMavenProject(
-				MavenProjectName.microprofile_reactive_messaging, MicroProfilePropertiesScope.SOURCES_AND_DEPENDENCIES);
+				MicroProfileMavenProjectName.microprofile_reactive_messaging, MicroProfilePropertiesScope.SOURCES_AND_DEPENDENCIES);
 
 		assertProperties(infoFromClasspath,
 

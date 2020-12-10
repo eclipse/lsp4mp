@@ -124,7 +124,7 @@ public class GenerateAllPropertiesAndDefinition extends BasePropertiesManagerTes
 	@Test
 	@Ignore
 	public void generateAllQuarkusExtensionProperties() throws JavaModelException, CoreException, Exception {
-		generateJsonFiles(MavenProjectName.all_quarkus_extensions, JDT_UTILS, false);
+		generateJsonFiles(MicroProfileMavenProjectName.all_quarkus_extensions, JDT_UTILS, false);
 	}
 
 	/**
@@ -154,10 +154,10 @@ public class GenerateAllPropertiesAndDefinition extends BasePropertiesManagerTes
 	@Ignore
 	public void generateAllQuarkusExtensionPropertiesAndDefinitions()
 			throws JavaModelException, CoreException, Exception {
-		generateJsonFiles(MavenProjectName.all_quarkus_extensions, JDT_UTILS, true);
+		generateJsonFiles(MicroProfileMavenProjectName.all_quarkus_extensions, JDT_UTILS, true);
 	}
 
-	private void generateJsonFiles(MavenProjectName mavenProject, IJDTUtils utils, boolean generateDefinition)
+	private void generateJsonFiles(String mavenProject, IJDTUtils utils, boolean generateDefinition)
 			throws JavaModelException, CoreException, Exception {
 
 		Gson gson = new GsonBuilder().registerTypeAdapterFactory(new EnumTypeAdapter.Factory()).setPrettyPrinting()

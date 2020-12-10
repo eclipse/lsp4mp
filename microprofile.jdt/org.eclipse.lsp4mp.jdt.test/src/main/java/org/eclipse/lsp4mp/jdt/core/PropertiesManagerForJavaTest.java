@@ -34,7 +34,7 @@ public class PropertiesManagerForJavaTest extends BasePropertiesManagerTest {
 
 	@Test
 	public void fileInfoWithPackage() throws CoreException, Exception {
-		IJavaProject javaProject = loadMavenProject(MavenProjectName.config_hover);
+		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.config_hover);
 		IProject project = javaProject.getProject();
 		IFile javaFile = project.getFile(new Path("src/main/java/org/acme/config/GreetingResource.java"));
 		String javaFileUri = javaFile.getLocation().toFile().toURI().toString();
@@ -49,7 +49,7 @@ public class PropertiesManagerForJavaTest extends BasePropertiesManagerTest {
 
 	@Test
 	public void fileInfoWithoutPackage() throws CoreException, Exception {
-		IJavaProject javaProject = loadMavenProject(MavenProjectName.config_hover);
+		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.config_hover);
 		IProject project = javaProject.getProject();
 		IFile javaFile = project.getFile(new Path("src/main/java/NoPackage.java"));
 		String javaFileUri = javaFile.getLocation().toFile().toURI().toString();
@@ -64,7 +64,7 @@ public class PropertiesManagerForJavaTest extends BasePropertiesManagerTest {
 
 	@Test
 	public void fileInfoNull() throws CoreException, Exception {
-		IJavaProject javaProject = loadMavenProject(MavenProjectName.config_hover);
+		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.config_hover);
 		IProject project = javaProject.getProject();
 		IFile javaFile = project.getFile(new Path("src/main/java/BAD_JAVA_FILE.java"));
 		String javaFileUri = javaFile.getLocation().toFile().toURI().toString();

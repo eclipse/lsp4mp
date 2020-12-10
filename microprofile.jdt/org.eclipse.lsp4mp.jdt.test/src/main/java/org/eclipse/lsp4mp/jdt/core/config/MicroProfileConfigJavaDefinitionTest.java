@@ -50,7 +50,7 @@ public class MicroProfileConfigJavaDefinitionTest extends BasePropertiesManagerT
 	@Test
 	public void configPropertyNameDefinition() throws Exception {
 
-		javaProject = loadMavenProject(MavenProjectName.config_hover);
+		javaProject = loadMavenProject(MicroProfileMavenProjectName.config_hover);
 		IProject project = javaProject.getProject();
 		IFile javaFile = project.getFile(new Path("src/main/java/org/acme/config/GreetingResource.java"));
 		String javaFileUri = fixURI(javaFile.getLocation().toFile().toURI());

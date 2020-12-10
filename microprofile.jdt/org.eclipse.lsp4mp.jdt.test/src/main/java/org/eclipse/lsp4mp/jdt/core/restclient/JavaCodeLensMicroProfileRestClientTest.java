@@ -40,7 +40,7 @@ public class JavaCodeLensMicroProfileRestClientTest extends BasePropertiesManage
 
 	@Test
 	public void urlCodeLensProperties() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MavenProjectName.rest_client_quickstart);
+		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.rest_client_quickstart);
 		IJDTUtils utils = JDT_UTILS;
 
 		// Initialize file
@@ -79,7 +79,7 @@ public class JavaCodeLensMicroProfileRestClientTest extends BasePropertiesManage
 
 	@Test
 	public void urlCodeLensPropertiesWithAnnotationBaseUri() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MavenProjectName.rest_client_quickstart);
+		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.rest_client_quickstart);
 		IJDTUtils utils = JDT_UTILS;
 
 		// Initialize file
@@ -112,7 +112,7 @@ public class JavaCodeLensMicroProfileRestClientTest extends BasePropertiesManage
 
 	@Test
 	public void urlCodeLensYaml() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MavenProjectName.rest_client_quickstart);
+		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.rest_client_quickstart);
 		IJDTUtils utils = JDT_UTILS;
 
 		// Initialize file

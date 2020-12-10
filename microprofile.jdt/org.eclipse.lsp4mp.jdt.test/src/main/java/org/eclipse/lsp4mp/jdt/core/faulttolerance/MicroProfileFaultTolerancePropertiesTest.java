@@ -40,7 +40,7 @@ public class MicroProfileFaultTolerancePropertiesTest extends BasePropertiesMana
 	public void microprofileFaultTolerancePropertiesTest() throws Exception {
 
 		MicroProfileProjectInfo infoFromClasspath = getMicroProfileProjectInfoFromMavenProject(
-				MavenProjectName.microprofile_fault_tolerance, MicroProfilePropertiesScope.SOURCES_AND_DEPENDENCIES);
+				MicroProfileMavenProjectName.microprofile_fault_tolerance, MicroProfilePropertiesScope.SOURCES_AND_DEPENDENCIES);
 
 		assertProperties(infoFromClasspath,
 

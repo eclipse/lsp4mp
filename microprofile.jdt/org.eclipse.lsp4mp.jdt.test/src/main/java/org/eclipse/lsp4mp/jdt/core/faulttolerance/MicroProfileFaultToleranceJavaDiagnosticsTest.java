@@ -41,7 +41,7 @@ public class MicroProfileFaultToleranceJavaDiagnosticsTest extends BasePropertie
 
 	@Test
 	public void fallbackMethodsMissing() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MavenProjectName.microprofile_fault_tolerance);
+		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.microprofile_fault_tolerance);
 		IJDTUtils utils = JDT_UTILS;
 
 		MicroProfileJavaDiagnosticsParams diagnosticsParams = new MicroProfileJavaDiagnosticsParams();
@@ -59,7 +59,7 @@ public class MicroProfileFaultToleranceJavaDiagnosticsTest extends BasePropertie
 
 	@Test
 	public void fallbackMethodValidationFaultTolerant() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MavenProjectName.microprofile_fault_tolerance);
+		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.microprofile_fault_tolerance);
 		IJDTUtils utils = JDT_UTILS;
 
 		MicroProfileJavaDiagnosticsParams diagnosticsParams = new MicroProfileJavaDiagnosticsParams();

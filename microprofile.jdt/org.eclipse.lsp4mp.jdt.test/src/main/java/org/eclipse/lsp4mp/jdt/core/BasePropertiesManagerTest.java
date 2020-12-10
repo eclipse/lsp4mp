@@ -58,59 +58,39 @@ public class BasePropertiesManagerTest {
 
 	protected static IJDTUtils JDT_UTILS = JDTUtilsLSImpl.getInstance();
 
-	public enum MavenProjectName {
+	public static class MicroProfileMavenProjectName {
 
-		all_quarkus_extensions("all-quarkus-extensions"), //
-		config_hover("config-hover"), //
-		config_properties("config-properties"), //
-		config_quickstart("config-quickstart"), //
-		config_quickstart_test("config-quickstart-test"), //
-		empty_maven_project("empty-maven-project"), //
-		other_empty_maven_project("empty-maven-project"), //
-		folder_name_different_maven("folder-name-different-maven"), //
-		hibernate_orm_resteasy("hibernate-orm-resteasy"), //
-		hibernate_orm_resteasy_yaml("hibernate-orm-resteasy-yaml"), //
-		kubernetes("kubernetes"), //
-		microprofile_fault_tolerance("microprofile-fault-tolerance"), //
-		microprofile_health_quickstart("microprofile-health-quickstart"), //
-		microprofile_lra("microprofile-lra"), //
-		microprofile_context_propagation("microprofile-context-propagation"), //
-		microprofile_metrics("microprofile-metrics"), //
-		microprofile_opentracing("microprofile-opentracing"), //
-		microprofile_openapi("microprofile-openapi"), //
-		microprofile_reactive_messaging("microprofile-reactive-messaging"), //
-		microprofile_graphql("microprofile-graphql"), //
-		microprofile_jwt_quickstart("microprofile-jwt-quickstart"), //
-		quarkus_container_images("quarkus-container-images"), //
-		rest_client_quickstart("rest-client-quickstart"), //
-		using_vertx("using-vertx");
+		public static String all_quarkus_extensions = "all-quarkus-extensions";
+		public static String config_hover = "config-hover";
+		public static String config_properties = "config-properties";
+		public static String config_quickstart = "config-quickstart";
+		public static String config_quickstart_test = "config-quickstart-test";
+		public static String empty_maven_project = "empty-maven-project";
+		public static String other_empty_maven_project = "empty-maven-project";
+		public static String folder_name_different_maven = "folder-name-different-maven";
+		public static String hibernate_orm_resteasy = "hibernate-orm-resteasy";
+		public static String hibernate_orm_resteasy_yaml = "hibernate-orm-resteasy-yaml";
+		public static String microprofile_fault_tolerance = "microprofile-fault-tolerance";
+		public static String microprofile_health_quickstart = "microprofile-health-quickstart";
+		public static String microprofile_lra = "microprofile-lra";
+		public static String microprofile_context_propagation = "microprofile-context-propagation";
+		public static String microprofile_metrics = "microprofile-metrics";
+		public static String microprofile_opentracing = "microprofile-opentracing";
+		public static String microprofile_openapi = "microprofile-openapi";
+		public static String microprofile_reactive_messaging = "microprofile-reactive-messaging";
+		public static String microprofile_graphql = "microprofile-graphql";
+		public static String microprofile_jwt_quickstart = "microprofile-jwt-quickstart";
+		public static String rest_client_quickstart = "rest-client-quickstart";
+		public static String using_vertx = "using-vertx";
 
-		private final String name;
-
-		private MavenProjectName(String name) {
-			this.name = name;
-		}
-
-		public String getName() {
-			return name;
-		}
 	}
 
-	public enum GradleProjectName {
+	public static class GradleProjectName {
 
-		empty_gradle_project("empty-gradle-project"), //
-		quarkus_gradle_project("quarkus-gradle-project"), //
-		renamed_quarkus_gradle_project("renamed-gradle");
+		public static String empty_gradle_project = "empty-gradle-project";
+		public static String quarkus_gradle_project = "quarkus-gradle-project";
+		public static String renamed_quarkus_gradle_project = "renamed-gradle";
 
-		private final String name;
-
-		private GradleProjectName(String name) {
-			this.name = name;
-		}
-
-		public String getName() {
-			return name;
-		}
 	}
 
 	@BeforeClass
@@ -128,31 +108,31 @@ public class BasePropertiesManagerTest {
 		JDT_UTILS = newUtils;
 	}
 
-	protected static MicroProfileProjectInfo getMicroProfileProjectInfoFromMavenProject(MavenProjectName mavenProject)
+	protected static MicroProfileProjectInfo getMicroProfileProjectInfoFromMavenProject(String mavenProject)
 			throws CoreException, Exception, JavaModelException {
 		return getMicroProfileProjectInfoFromMavenProject(mavenProject,
 				MicroProfilePropertiesScope.SOURCES_AND_DEPENDENCIES);
 	}
 
-	protected static MicroProfileProjectInfo getMicroProfileProjectInfoFromMavenProject(MavenProjectName mavenProject,
+	protected static MicroProfileProjectInfo getMicroProfileProjectInfoFromMavenProject(String mavenProject,
 			List<MicroProfilePropertiesScope> scopes) throws CoreException, Exception, JavaModelException {
 		IJavaProject javaProject = loadMavenProject(mavenProject);
 		return PropertiesManager.getInstance().getMicroProfileProjectInfo(javaProject, scopes, ClasspathKind.SRC,
 				JDT_UTILS, DocumentFormat.Markdown, new NullProgressMonitor());
 	}
 
-	public static IJavaProject loadMavenProject(MavenProjectName mavenProject) throws CoreException, Exception {
+	public static IJavaProject loadMavenProject(String mavenProject) throws CoreException, Exception {
 		// Load existing "hibernate-orm-resteasy" maven project
-		return loadJavaProject(mavenProject.getName(), "maven");
+		return loadJavaProject(mavenProject, "maven");
 	}
 
-	public static IJavaProject loadGradleProject(GradleProjectName gradleProject) throws CoreException, Exception {
-		return loadJavaProject(gradleProject.getName(), "gradle");
+	public static IJavaProject loadGradleProject(String gradleProject) throws CoreException, Exception {
+		return loadJavaProject(gradleProject, "gradle");
 	}
 
-	public static IJavaProject loadMavenProjectFromSubFolder(MavenProjectName mavenProject, String subFolder)
+	public static IJavaProject loadMavenProjectFromSubFolder(String mavenProject, String subFolder)
 			throws Exception {
-		return loadJavaProject(mavenProject.getName(), java.nio.file.Paths.get("maven", subFolder).toString());
+		return loadJavaProject(mavenProject, java.nio.file.Paths.get("maven", subFolder).toString());
 	}
 
 	private static IJavaProject loadJavaProject(String projectName, String parentDirName)

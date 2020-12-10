@@ -49,7 +49,7 @@ public class MicroProfileConfigJavaHoverTest extends BasePropertiesManagerTest {
 	@Test
 	public void configPropertyNameHover() throws Exception {
 
-		javaProject = loadMavenProject(MavenProjectName.config_hover);
+		javaProject = loadMavenProject(MicroProfileMavenProjectName.config_hover);
 		IProject project = javaProject.getProject();
 		IFile javaFile = project.getFile(new Path("src/main/java/org/acme/config/GreetingResource.java"));
 		String javaFileUri = fixURI(javaFile.getLocation().toFile().toURI());
@@ -109,7 +109,7 @@ public class MicroProfileConfigJavaHoverTest extends BasePropertiesManagerTest {
 	@Test
 	public void configPropertyNameHoverWithProfiles() throws Exception {
 
-		javaProject = loadMavenProject(MavenProjectName.config_hover);
+		javaProject = loadMavenProject(MicroProfileMavenProjectName.config_hover);
 		IProject project = javaProject.getProject();
 		IFile javaFile = project.getFile(new Path("src/main/java/org/acme/config/GreetingResource.java"));
 		String javaFileUri = fixURI(javaFile.getLocation().toFile().toURI());
@@ -153,7 +153,7 @@ public class MicroProfileConfigJavaHoverTest extends BasePropertiesManagerTest {
 	@Test
 	public void configPropertyNameYaml() throws Exception {
 
-		javaProject = loadMavenProject(MavenProjectName.config_hover);
+		javaProject = loadMavenProject(MicroProfileMavenProjectName.config_hover);
 		IProject project = javaProject.getProject();
 		IFile javaFile = project.getFile(new Path("src/main/java/org/acme/config/GreetingResource.java"));
 		String javaFileUri = fixURI(javaFile.getLocation().toFile().toURI());
@@ -196,7 +196,7 @@ public class MicroProfileConfigJavaHoverTest extends BasePropertiesManagerTest {
 	@Test
 	public void configPropertyNameMethod() throws Exception {
 
-		javaProject = loadMavenProject(MavenProjectName.config_quickstart);
+		javaProject = loadMavenProject(MicroProfileMavenProjectName.config_quickstart);
 		IProject project = javaProject.getProject();
 		IFile javaFile = project.getFile(new Path("src/main/java/org/acme/config/GreetingMethodResource.java"));
 		String javaFileUri = fixURI(javaFile.getLocation().toFile().toURI());
@@ -225,7 +225,7 @@ public class MicroProfileConfigJavaHoverTest extends BasePropertiesManagerTest {
 	@Test
 	public void configPropertyNameConstructor() throws Exception {
 
-		javaProject = loadMavenProject(MavenProjectName.config_quickstart);
+		javaProject = loadMavenProject(MicroProfileMavenProjectName.config_quickstart);
 		IProject project = javaProject.getProject();
 		IFile javaFile = project.getFile(new Path("src/main/java/org/acme/config/GreetingConstructorResource.java"));
 		String javaFileUri = fixURI(javaFile.getLocation().toFile().toURI());
@@ -256,7 +256,7 @@ public class MicroProfileConfigJavaHoverTest extends BasePropertiesManagerTest {
 	@Test
 	public void configPropertyNameRespectsPrecendence() throws Exception {
 
-		javaProject = loadMavenProject(MavenProjectName.config_quickstart);
+		javaProject = loadMavenProject(MicroProfileMavenProjectName.config_quickstart);
 		IProject project = javaProject.getProject();
 		IFile javaFile = project.getFile(new Path("src/main/java/org/acme/config/GreetingConstructorResource.java"));
 		String javaFileUri = fixURI(javaFile.getLocation().toFile().toURI());

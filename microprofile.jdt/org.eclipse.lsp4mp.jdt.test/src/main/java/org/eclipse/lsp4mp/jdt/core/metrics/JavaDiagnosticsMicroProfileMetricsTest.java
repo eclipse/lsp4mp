@@ -45,7 +45,7 @@ public class JavaDiagnosticsMicroProfileMetricsTest extends BasePropertiesManage
 
 	@Test
 	public void ApplicationScopedAnnotationMissing() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MavenProjectName.microprofile_metrics);
+		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.microprofile_metrics);
 		IJDTUtils utils = JDT_UTILS;
 
 		MicroProfileJavaDiagnosticsParams diagnosticsParams = new MicroProfileJavaDiagnosticsParams();
