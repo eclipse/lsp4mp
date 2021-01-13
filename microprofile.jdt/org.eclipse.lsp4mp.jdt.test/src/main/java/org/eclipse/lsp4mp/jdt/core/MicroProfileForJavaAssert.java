@@ -11,7 +11,7 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lsp4mp.jdt.internal.core.java;
+package org.eclipse.lsp4mp.jdt.core;
 
 import static org.junit.Assert.assertEquals;
 

@@ -11,7 +11,7 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lsp4mp.jdt.internal.core;
+package org.eclipse.lsp4mp.jdt.core;
 
 import java.io.File;
 import java.io.IOException;

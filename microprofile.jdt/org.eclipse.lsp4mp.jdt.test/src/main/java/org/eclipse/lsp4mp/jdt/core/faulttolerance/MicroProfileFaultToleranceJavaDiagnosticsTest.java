@@ -13,8 +13,8 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.core.faulttolerance;
 
-import static org.eclipse.lsp4mp.jdt.internal.core.java.MicroProfileForJavaAssert.assertJavaDiagnostics;
-import static org.eclipse.lsp4mp.jdt.internal.core.java.MicroProfileForJavaAssert.d;
+import static org.eclipse.lsp4mp.jdt.core.MicroProfileForJavaAssert.assertJavaDiagnostics;
+import static org.eclipse.lsp4mp.jdt.core.MicroProfileForJavaAssert.d;
 
 import java.util.Arrays;
 

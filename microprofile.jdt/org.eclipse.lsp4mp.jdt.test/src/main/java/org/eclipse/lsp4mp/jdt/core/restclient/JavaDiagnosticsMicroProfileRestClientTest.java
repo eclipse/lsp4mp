@@ -13,12 +13,12 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.core.restclient;
 
-import static org.eclipse.lsp4mp.jdt.internal.core.java.MicroProfileForJavaAssert.assertJavaCodeAction;
-import static org.eclipse.lsp4mp.jdt.internal.core.java.MicroProfileForJavaAssert.assertJavaDiagnostics;
-import static org.eclipse.lsp4mp.jdt.internal.core.java.MicroProfileForJavaAssert.ca;
-import static org.eclipse.lsp4mp.jdt.internal.core.java.MicroProfileForJavaAssert.createCodeActionParams;
-import static org.eclipse.lsp4mp.jdt.internal.core.java.MicroProfileForJavaAssert.d;
-import static org.eclipse.lsp4mp.jdt.internal.core.java.MicroProfileForJavaAssert.te;
+import static org.eclipse.lsp4mp.jdt.core.MicroProfileForJavaAssert.assertJavaCodeAction;
+import static org.eclipse.lsp4mp.jdt.core.MicroProfileForJavaAssert.assertJavaDiagnostics;
+import static org.eclipse.lsp4mp.jdt.core.MicroProfileForJavaAssert.ca;
+import static org.eclipse.lsp4mp.jdt.core.MicroProfileForJavaAssert.createCodeActionParams;
+import static org.eclipse.lsp4mp.jdt.core.MicroProfileForJavaAssert.d;
+import static org.eclipse.lsp4mp.jdt.core.MicroProfileForJavaAssert.te;
 
 import java.util.Arrays;
 

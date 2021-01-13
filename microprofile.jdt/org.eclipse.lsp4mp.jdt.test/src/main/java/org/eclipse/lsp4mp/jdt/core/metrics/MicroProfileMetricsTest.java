@@ -13,9 +13,9 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.core.metrics;
 
-import static org.eclipse.lsp4mp.jdt.internal.core.MicroProfileAssert.assertProperties;
-import static org.eclipse.lsp4mp.jdt.internal.core.MicroProfileAssert.assertPropertiesDuplicate;
-import static org.eclipse.lsp4mp.jdt.internal.core.MicroProfileAssert.p;
+import static org.eclipse.lsp4mp.jdt.core.MicroProfileAssert.assertProperties;
+import static org.eclipse.lsp4mp.jdt.core.MicroProfileAssert.assertPropertiesDuplicate;
+import static org.eclipse.lsp4mp.jdt.core.MicroProfileAssert.p;
 
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.MicroProfilePropertiesScope;

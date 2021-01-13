@@ -13,7 +13,7 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.core;
 
-import static org.eclipse.lsp4mp.jdt.internal.core.JavaUtils.getJarPath;
+import static org.eclipse.lsp4mp.jdt.core.JavaUtils.getJarPath;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
