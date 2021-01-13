@@ -29,6 +29,7 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.lsp4mp.commons.MicroProfilePropertiesChangeEvent;
 import org.eclipse.lsp4mp.jdt.core.IMicroProfilePropertiesChangedListener;
+import org.eclipse.lsp4mp.jdt.core.JavaUtils;
 import org.eclipse.lsp4mp.jdt.core.utils.JDTMicroProfileUtils;
 import org.eclipse.lsp4mp.jdt.internal.core.MicroProfilePropertiesListenerManager;
 import org.junit.After;

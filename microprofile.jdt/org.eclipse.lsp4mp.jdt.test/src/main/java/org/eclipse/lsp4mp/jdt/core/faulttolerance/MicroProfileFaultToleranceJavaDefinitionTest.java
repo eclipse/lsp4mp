@@ -13,11 +13,11 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.core.faulttolerance;
 
-import static org.eclipse.lsp4mp.jdt.internal.core.java.MicroProfileForJavaAssert.assertJavaDefinitions;
-import static org.eclipse.lsp4mp.jdt.internal.core.java.MicroProfileForJavaAssert.def;
-import static org.eclipse.lsp4mp.jdt.internal.core.java.MicroProfileForJavaAssert.fixURI;
-import static org.eclipse.lsp4mp.jdt.internal.core.java.MicroProfileForJavaAssert.p;
-import static org.eclipse.lsp4mp.jdt.internal.core.java.MicroProfileForJavaAssert.r;
+import static org.eclipse.lsp4mp.jdt.core.MicroProfileForJavaAssert.assertJavaDefinitions;
+import static org.eclipse.lsp4mp.jdt.core.MicroProfileForJavaAssert.def;
+import static org.eclipse.lsp4mp.jdt.core.MicroProfileForJavaAssert.fixURI;
+import static org.eclipse.lsp4mp.jdt.core.MicroProfileForJavaAssert.p;
+import static org.eclipse.lsp4mp.jdt.core.MicroProfileForJavaAssert.r;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.Path;

@@ -32,5 +32,4 @@ Export-Package: org.eclipse.lsp4mp.jdt.core,
  org.eclipse.lsp4mp.jdt.core.metrics,
  org.eclipse.lsp4mp.jdt.core.openapi,
  org.eclipse.lsp4mp.jdt.core.opentracing,
- org.eclipse.lsp4mp.jdt.core.restclient,
- org.eclipse.lsp4mp.jdt.internal.core
+ org.eclipse.lsp4mp.jdt.core.restclient

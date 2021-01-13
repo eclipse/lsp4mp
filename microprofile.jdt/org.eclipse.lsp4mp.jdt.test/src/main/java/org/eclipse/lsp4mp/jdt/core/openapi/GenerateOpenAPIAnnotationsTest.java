@@ -13,10 +13,10 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.core.openapi;
 
-import static org.eclipse.lsp4mp.jdt.internal.core.java.MicroProfileForJavaAssert.assertJavaCodeAction;
-import static org.eclipse.lsp4mp.jdt.internal.core.java.MicroProfileForJavaAssert.ca;
-import static org.eclipse.lsp4mp.jdt.internal.core.java.MicroProfileForJavaAssert.createCodeActionParams;
-import static org.eclipse.lsp4mp.jdt.internal.core.java.MicroProfileForJavaAssert.te;
+import static org.eclipse.lsp4mp.jdt.core.MicroProfileForJavaAssert.assertJavaCodeAction;
+import static org.eclipse.lsp4mp.jdt.core.MicroProfileForJavaAssert.ca;
+import static org.eclipse.lsp4mp.jdt.core.MicroProfileForJavaAssert.createCodeActionParams;
+import static org.eclipse.lsp4mp.jdt.core.MicroProfileForJavaAssert.te;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.Path;

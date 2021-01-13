@@ -13,9 +13,9 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.core.config;
 
-import static org.eclipse.lsp4mp.jdt.internal.core.java.MicroProfileForJavaAssert.assertJavaHover;
-import static org.eclipse.lsp4mp.jdt.internal.core.java.MicroProfileForJavaAssert.fixURI;
-import static org.eclipse.lsp4mp.jdt.internal.core.java.MicroProfileForJavaAssert.h;
+import static org.eclipse.lsp4mp.jdt.core.MicroProfileForJavaAssert.assertJavaHover;
+import static org.eclipse.lsp4mp.jdt.core.MicroProfileForJavaAssert.fixURI;
+import static org.eclipse.lsp4mp.jdt.core.MicroProfileForJavaAssert.h;
 
 import java.io.IOException;
 
