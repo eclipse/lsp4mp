@@ -19,6 +19,8 @@ import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.getAnnotationMem
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -130,13 +132,17 @@ public class PropertiesHoverParticipant implements IJavaHoverParticipant {
 			propertyKey = getAnnotationMemberValue(annotation, annotationMemberName);
 			if (propertyKey != null) {
 				ISourceRange r = ((ISourceReference) annotation).getSourceRange();
-				int offset = annotationSource.indexOf(propertyKey);
-				propertyKeyRange = utils.toRange(typeRoot, r.getOffset() + offset, propertyKey.length());
+				Pattern memberPattern = Pattern.compile(".*[^\"]\\s*(" + annotationMemberName + ")\\s*=.*", Pattern.DOTALL);
+				Matcher match = memberPattern.matcher(annotationSource);
+				if (match.matches()) {
+					int offset = annotationSource.indexOf(propertyKey, match.end(1));
+					propertyKeyRange = utils.toRange(typeRoot, r.getOffset() + offset, propertyKey.length());
 
-				if (!hoverPosition.equals(propertyKeyRange.getEnd())
-						&& Ranges.containsPosition(propertyKeyRange, hoverPosition)) {
-					found = true;
-					break;
+					if (!hoverPosition.equals(propertyKeyRange.getEnd())
+							&& Ranges.containsPosition(propertyKeyRange, hoverPosition)) {
+						found = true;
+						break;
+					}
 				}
 			}
 		}
