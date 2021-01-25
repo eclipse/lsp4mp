@@ -29,7 +29,7 @@ import org.junit.Test;
 /**
  * Test collection of MicroProfile properties for MicroProfile Reactive
  * Messaging annotations
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -52,6 +52,11 @@ public class MicroProfileReactiveMessagingTest extends BasePropertiesManagerTest
 				p(null, "mp.messaging.outgoing.my-data-stream.connector",
 						"org.eclipse.microprofile.reactive.messaging.spi.Connector", null, false,
 						"org.acme.kafka.PriceConverter", null, "process(I)D", 0, null),
+
+				// outgoing generated from Emitter
+				p(null, "mp.messaging.outgoing.price-create.connector",
+						"org.eclipse.microprofile.reactive.messaging.spi.Connector", null, false,
+						"org.acme.kafka.PriceResource", "priceEmitter", null, 0, null),
 
 				// mp.messaging.incoming.${connector-name}
 				p(null, "mp.messaging.incoming.${smallrye-kafka}.topic", "java.lang.String",
