@@ -37,7 +37,7 @@ import org.eclipse.lsp4mp.extensions.ExtendedMicroProfileProjectInfo;
 import org.eclipse.lsp4mp.ls.api.MicroProfilePropertyDefinitionProvider;
 import org.eclipse.lsp4mp.model.PropertiesModel;
 import org.eclipse.lsp4mp.settings.MicroProfileCommandCapabilities;
-import org.eclipse.lsp4mp.settings.MicroProfileCompletionSettings;
+import org.eclipse.lsp4mp.settings.MicroProfileCompletionCapabilities;
 import org.eclipse.lsp4mp.settings.MicroProfileFormattingSettings;
 import org.eclipse.lsp4mp.settings.MicroProfileHoverSettings;
 import org.eclipse.lsp4mp.settings.MicroProfileValidationSettings;
@@ -73,18 +73,18 @@ public class PropertiesFileLanguageService {
 	/**
 	 * Returns completion list for the given position
 	 *
-	 * @param document           the properties model document
-	 * @param position           the position where completion was triggered
-	 * @param projectInfo        the MicroProfile project information
-	 * @param completionSettings the completion settings
-	 * @param cancelChecker      the cancel checker
+	 * @param document               the properties model document
+	 * @param position               the position where completion was triggered
+	 * @param projectInfo            the MicroProfile project information
+	 * @param completionCapabilities the completion capabilities
+	 * @param cancelChecker          the cancel checker
 	 * @return completion list for the given position
 	 */
 	public CompletionList doComplete(PropertiesModel document, Position position, MicroProfileProjectInfo projectInfo,
-			MicroProfileCompletionSettings completionSettings, MicroProfileFormattingSettings formattingSettings,
+			MicroProfileCompletionCapabilities completionCapabilities, MicroProfileFormattingSettings formattingSettings,
 			CancelChecker cancelChecker) {
 		updateProperties(projectInfo, document);
-		return completions.doComplete(document, position, projectInfo, completionSettings, formattingSettings,
+		return completions.doComplete(document, position, projectInfo, completionCapabilities, formattingSettings,
 				cancelChecker);
 	}
 

@@ -6,7 +6,7 @@
          <meta.schema plugin="org.eclipse.lsp4mp.jdt.core" id="javaFeatureParticipants" name="Java features participants"/>
       </appinfo>
       <documentation>
-         This extension point allows adding a Java feature (codeAction, codelens, hover, diagnostics, definition) to consume it in the Java editor.
+         This extension point allows adding a Java feature (codeAction, codelens, completion, hover, diagnostics, definition) to consume it in the Java editor.
       </documentation>
    </annotation>
 
@@ -21,6 +21,7 @@
             <choice>
                <element ref="codeAction" minOccurs="0" maxOccurs="unbounded"/>
                <element ref="codeLens" minOccurs="0" maxOccurs="unbounded"/>
+               <element ref="completion" minOccurs="0" maxOccurs="unbounded"/>
                <element ref="diagnostics" minOccurs="0" maxOccurs="unbounded"/>
                <element ref="definition" minOccurs="0" maxOccurs="unbounded"/>
                <element ref="hover" minOccurs="0" maxOccurs="unbounded"/>
@@ -110,7 +111,27 @@
                   Name of a class that implements IJavaCodeLensParticipant.
                </documentation>
                <appinfo>
-                  <meta.attribute kind="java" basedOn=":org.eclipse.lsp4mp.jdt.core.java.IJavaCodeLensParticipant"/>
+                  <meta.attribute kind="java" basedOn=":org.eclipse.lsp4mp.jdt.core.java.codelens.IJavaCodeLensParticipant"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+   
+   <element name="completion">
+      <annotation>
+         <documentation>
+            Java completion participant
+         </documentation>
+      </annotation>
+      <complexType>
+         <attribute name="class" type="string" use="required">
+            <annotation>
+               <documentation>
+                  Name of a class that implements IJavaCodeLensParticipant.
+               </documentation>
+               <appinfo>
+                  <meta.attribute kind="java" basedOn=":org.eclipse.lsp4mp.jdt.core.java.completion.IJavaCompletionParticipant"/>
                </appinfo>
             </annotation>
          </attribute>
@@ -130,7 +151,7 @@
                   Name of a class that implements IJavaDiagnosticsParticipant.
                </documentation>
                <appinfo>
-                  <meta.attribute kind="java" basedOn=":org.eclipse.lsp4mp.jdt.core.java.IJavaDiagnosticsParticipant"/>
+                  <meta.attribute kind="java" basedOn=":org.eclipse.lsp4mp.jdt.core.java.diagnostics.IJavaDiagnosticsParticipant"/>
                </appinfo>
             </annotation>
          </attribute>
@@ -150,7 +171,7 @@
                   Name of a class that implements IJavaHoverParticipant.
                </documentation>
                <appinfo>
-                  <meta.attribute kind="java" basedOn=":org.eclipse.lsp4mp.jdt.core.java.IJavaHoverParticipant"/>
+                  <meta.attribute kind="java" basedOn=":org.eclipse.lsp4mp.jdt.core.java.hover.IJavaHoverParticipant"/>
                </appinfo>
             </annotation>
          </attribute>

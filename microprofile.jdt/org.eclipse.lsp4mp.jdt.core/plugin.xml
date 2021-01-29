@@ -26,6 +26,7 @@
             <command id="microprofile/java/fileInfo"/>
             <command id="microprofile/java/codeAction"/>
             <command id="microprofile/java/codeLens"/>
+            <command id="microprofile/java/completion"/>
             <command id="microprofile/java/definition"/>
             <command id="microprofile/java/diagnostics"/>
             <command id="microprofile/java/hover"/>
@@ -87,6 +88,8 @@
       <definition class="org.eclipse.lsp4mp.jdt.internal.faulttolerance.java.MicroProfileFaultToleranceDefinitionParticipant" />         
       <!-- Diagnostics for fault tolerance annotations -->
    	  <diagnostics class="org.eclipse.lsp4mp.jdt.internal.faulttolerance.java.MicroProfileFaultToleranceDiagnosticsParticipant" />
+   	  <!-- Completion for fault tolerance annotations -->
+   	  <completion class="org.eclipse.lsp4mp.jdt.internal.faulttolerance.java.MicroProfileFaultToleranceCompletionParticipant" />
    </extension>
    
    <!-- Microprofile LRA support -->

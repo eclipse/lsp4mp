@@ -29,6 +29,8 @@ import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeLens;
+import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Position;
@@ -37,12 +39,14 @@ import org.eclipse.lsp4mp.commons.DocumentFormat;
 import org.eclipse.lsp4mp.commons.JavaFileInfo;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeActionParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeLensParams;
+import org.eclipse.lsp4mp.commons.MicroProfileJavaCompletionParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaDefinitionParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaDiagnosticsParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaFileInfoParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaHoverParams;
 import org.eclipse.lsp4mp.commons.MicroProfileDefinition;
 import org.eclipse.lsp4mp.jdt.core.java.codelens.JavaCodeLensContext;
+import org.eclipse.lsp4mp.jdt.core.java.completion.JavaCompletionContext;
 import org.eclipse.lsp4mp.jdt.core.java.definition.JavaDefinitionContext;
 import org.eclipse.lsp4mp.jdt.core.java.diagnostics.JavaDiagnosticsContext;
 import org.eclipse.lsp4mp.jdt.core.java.hover.JavaHoverContext;
@@ -50,12 +54,13 @@ import org.eclipse.lsp4mp.jdt.core.utils.IJDTUtils;
 import org.eclipse.lsp4mp.jdt.internal.core.java.JavaFeaturesRegistry;
 import org.eclipse.lsp4mp.jdt.internal.core.java.codeaction.CodeActionHandler;
 import org.eclipse.lsp4mp.jdt.internal.core.java.codelens.JavaCodeLensDefinition;
+import org.eclipse.lsp4mp.jdt.internal.core.java.completion.JavaCompletionDefinition;
 import org.eclipse.lsp4mp.jdt.internal.core.java.definition.JavaDefinitionDefinition;
 import org.eclipse.lsp4mp.jdt.internal.core.java.diagnostics.JavaDiagnosticsDefinition;
 import org.eclipse.lsp4mp.jdt.internal.core.java.hover.JavaHoverDefinition;
 
 /**
- * JDT quarkus manager for Java files.
+ * JDT MicroProfile manager for Java files.
  *
  * @author Angelo ZERR
  *
@@ -77,7 +82,7 @@ public class PropertiesManagerForJava {
 	/**
 	 * Returns the Java file information (ex : package name) from the given file URI
 	 * and null otherwise.
-	 * 
+	 *
 	 * @param params  the file information parameters.
 	 * @param utils   the utilities class
 	 * @param monitor the monitor
@@ -154,6 +159,54 @@ public class PropertiesManagerForJava {
 			}
 		});
 		definitions.forEach(definition -> definition.endCodeLens(context, monitor));
+	}
+
+	/**
+	 * Returns the CompletionItems given the completion item params
+	 *
+	 * @param params  the completion item params
+	 * @param utils   the IJDTUtils
+	 * @param monitor the progress monitors
+	 * @return the CompletionItems for the given the completion item params
+	 * @throws JavaModelException
+	 */
+	public CompletionList completion(MicroProfileJavaCompletionParams params, IJDTUtils utils,
+			IProgressMonitor monitor) throws JavaModelException {
+		String uri = params.getUri();
+		ITypeRoot typeRoot = resolveTypeRoot(uri, utils, monitor);
+		if (typeRoot == null) {
+			return null;
+		}
+
+		Position completionPosition = params.getPosition();
+		int completionOffset = utils.toOffset(typeRoot.getBuffer(), completionPosition.getLine(),
+				completionPosition.getCharacter());
+
+		List<CompletionItem> completionItems = new ArrayList<>();
+		JavaCompletionContext completionContext = new JavaCompletionContext(uri, typeRoot, utils, completionOffset);
+
+		List<JavaCompletionDefinition> completions = JavaFeaturesRegistry.getInstance().getJavaCompletionDefinitions()
+				.stream().filter(completion -> completion.isAdaptedForCompletion(completionContext, monitor))
+				.collect(Collectors.toList());
+
+		if (completions.isEmpty()) {
+			return null;
+		}
+
+		completions.forEach(completion -> {
+			List<? extends CompletionItem> collectedCompletionItems = completion.collectCompletionItems(completionContext,
+					monitor);
+			if (collectedCompletionItems != null) {
+				completionItems.addAll(collectedCompletionItems);
+			}
+		});
+
+		if (monitor.isCanceled()) {
+			return null;
+		}
+		CompletionList completionList = new CompletionList();
+		completionList.setItems(completionItems);
+		return completionList;
 	}
 
 	/**

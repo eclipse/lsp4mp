@@ -21,7 +21,7 @@ package org.eclipse.lsp4mp.settings;
  */
 public class SharedSettings {
 
-	private final MicroProfileCompletionSettings completionSettings;
+	private final MicroProfileCompletionCapabilities completionCapabilities;
 	private final MicroProfileHoverSettings hoverSettings;
 	private final MicroProfileSymbolSettings symbolSettings;
 	private final MicroProfileValidationSettings validationSettings;
@@ -30,7 +30,7 @@ public class SharedSettings {
 	private final MicroProfileCodeLensSettings codeLensSettings;
 
 	public SharedSettings() {
-		this.completionSettings = new MicroProfileCompletionSettings();
+		this.completionCapabilities = new MicroProfileCompletionCapabilities();
 		this.hoverSettings = new MicroProfileHoverSettings();
 		this.symbolSettings = new MicroProfileSymbolSettings();
 		this.validationSettings = new MicroProfileValidationSettings();
@@ -40,12 +40,12 @@ public class SharedSettings {
 	}
 
 	/**
-	 * Returns the completion settings.
+	 * Returns the completion capabilities.
 	 *
-	 * @return the completion settings.
+	 * @return the completion capabilities.
 	 */
-	public MicroProfileCompletionSettings getCompletionSettings() {
-		return completionSettings;
+	public MicroProfileCompletionCapabilities getCompletionCapabilities() {
+		return completionCapabilities;
 	}
 
 	/**

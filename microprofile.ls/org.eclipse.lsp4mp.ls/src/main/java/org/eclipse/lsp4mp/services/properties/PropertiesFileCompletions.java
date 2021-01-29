@@ -48,7 +48,7 @@ import org.eclipse.lsp4mp.model.Property;
 import org.eclipse.lsp4mp.model.PropertyGraph;
 import org.eclipse.lsp4mp.model.PropertyKey;
 import org.eclipse.lsp4mp.model.PropertyValueExpression;
-import org.eclipse.lsp4mp.settings.MicroProfileCompletionSettings;
+import org.eclipse.lsp4mp.settings.MicroProfileCompletionCapabilities;
 import org.eclipse.lsp4mp.settings.MicroProfileFormattingSettings;
 import org.eclipse.lsp4mp.snippets.LanguageId;
 import org.eclipse.lsp4mp.snippets.SnippetContextForProperties;
@@ -71,15 +71,15 @@ class PropertiesFileCompletions {
 	/**
 	 * Returns completion list for the given position
 	 *
-	 * @param document           the properties model document
-	 * @param position           the position where completion was triggered
-	 * @param projectInfo        the MicroProfile project information
-	 * @param completionSettings the completion settings
-	 * @param cancelChecker      the cancel checker
+	 * @param document               the properties model document
+	 * @param position               the position where completion was triggered
+	 * @param projectInfo            the MicroProfile project information
+	 * @param completionCapabilities the completion capabilities
+	 * @param cancelChecker          the cancel checker
 	 * @return completion list for the given position
 	 */
 	public CompletionList doComplete(PropertiesModel document, Position position, MicroProfileProjectInfo projectInfo,
-			MicroProfileCompletionSettings completionSettings, MicroProfileFormattingSettings formattingSettings,
+			MicroProfileCompletionCapabilities completionCapabilities, MicroProfileFormattingSettings formattingSettings,
 			CancelChecker cancelChecker) {
 		CompletionList list = new CompletionList();
 		int offset = -1;
@@ -103,30 +103,30 @@ class PropertiesFileCompletions {
 		case PROPERTY_VALUE_EXPRESSION:
 			PropertyValueExpression propExpr = (PropertyValueExpression) node;
 			if (offset == propExpr.getStart() || (propExpr.isClosed() && propExpr.getEnd() == offset)) {
-				collectPropertyValueSuggestions(node, document, projectInfo, completionSettings, list);
+				collectPropertyValueSuggestions(node, document, projectInfo, completionCapabilities, list);
 			} else {
-				collectPropertyValueExpressionSuggestions(node, document, projectInfo, completionSettings, list);
+				collectPropertyValueExpressionSuggestions(node, document, projectInfo, completionCapabilities, list);
 			}
 			break;
 
 		case ASSIGN:
 			// Only collect if on right side of =
 			if (offset >= node.getEnd()) {
-				collectPropertyValueSuggestions(node, document, projectInfo, completionSettings, list);
+				collectPropertyValueSuggestions(node, document, projectInfo, completionCapabilities, list);
 			}
 			break;
 		case PROPERTY_VALUE:
 		case PROPERTY_VALUE_LITERAL:
 			// completion on property value
-			collectPropertyValueSuggestions(node, document, projectInfo, completionSettings, list);
+			collectPropertyValueSuggestions(node, document, projectInfo, completionCapabilities, list);
 			break;
 
 		default:
 			// completion on property key
-			collectPropertyKeySuggestions(offset, node, document, projectInfo, completionSettings, formattingSettings,
+			collectPropertyKeySuggestions(offset, node, document, projectInfo, completionCapabilities, formattingSettings,
 					list);
 			// Collect completion items with snippet
-			collectSnippetSuggestions(offset, node, document, projectInfo, completionSettings, getSnippetRegistry(),
+			collectSnippetSuggestions(offset, node, document, projectInfo, completionCapabilities, getSnippetRegistry(),
 					list);
 			break;
 		}
@@ -136,18 +136,18 @@ class PropertiesFileCompletions {
 	/**
 	 * Collect property keys.
 	 *
-	 * @param offset             the offset where completion was invoked
-	 * @param node               the property key node
-	 * @param projectInfo        the MicroProfile project information
-	 * @param completionSettings the completion settings
-	 * @param list               the completion list to fill
+	 * @param offset                 the offset where completion was invoked
+	 * @param node                   the property key node
+	 * @param projectInfo            the MicroProfile project information
+	 * @param completionCapabilities the completion capabilities
+	 * @param list                   the completion list to fill
 	 */
 	private static void collectPropertyKeySuggestions(int offset, Node node, PropertiesModel model,
-			MicroProfileProjectInfo projectInfo, MicroProfileCompletionSettings completionSettings,
+			MicroProfileProjectInfo projectInfo, MicroProfileCompletionCapabilities completionCapabilities,
 			MicroProfileFormattingSettings formattingSettings, CompletionList list) {
 
-		boolean snippetsSupported = completionSettings.isCompletionSnippetsSupported();
-		boolean markdownSupported = completionSettings.isDocumentationFormatSupported(MarkupKind.MARKDOWN);
+		boolean snippetsSupported = completionCapabilities.isCompletionSnippetsSupported();
+		boolean markdownSupported = completionCapabilities.isDocumentationFormatSupported(MarkupKind.MARKDOWN);
 
 		Range range = null;
 		try {
@@ -358,13 +358,13 @@ class PropertiesFileCompletions {
 	/**
 	 * Collect property values.
 	 *
-	 * @param node               the property value node
-	 * @param projectInfo        the MicroProfile project information
-	 * @param completionSettings the completion settings
-	 * @param list               the completion list to fill
+	 * @param node                   the property value node
+	 * @param projectInfo            the MicroProfile project information
+	 * @param completionCapabilities the completion capabilities
+	 * @param list                   the completion list to fill
 	 */
 	private static void collectPropertyValueSuggestions(Node node, PropertiesModel model,
-			MicroProfileProjectInfo projectInfo, MicroProfileCompletionSettings completionSettings,
+			MicroProfileProjectInfo projectInfo, MicroProfileCompletionCapabilities completionCapabilities,
 			CompletionList list) {
 
 		Property property = null;
@@ -388,7 +388,7 @@ class PropertiesFileCompletions {
 		if (item != null) {
 			Collection<ValueHint> enums = PropertiesFileUtils.getEnums(item, projectInfo);
 			if (enums != null && !enums.isEmpty()) {
-				boolean markdownSupported = completionSettings.isDocumentationFormatSupported(MarkupKind.MARKDOWN);
+				boolean markdownSupported = completionCapabilities.isDocumentationFormatSupported(MarkupKind.MARKDOWN);
 				for (ValueHint e : enums) {
 					list.getItems()
 							.add(getValueCompletionItem(e, item.getConverterKinds(), node, model, markdownSupported));
@@ -398,7 +398,7 @@ class PropertiesFileCompletions {
 	}
 
 	private static void collectPropertyValueExpressionSuggestions(Node node, PropertiesModel model,
-			MicroProfileProjectInfo projectInfo, MicroProfileCompletionSettings completionSettings,
+			MicroProfileProjectInfo projectInfo, MicroProfileCompletionCapabilities completionCapabilities,
 			CompletionList list) {
 
 		PropertyGraph graph = new PropertyGraph(node.getOwnerModel());
@@ -485,10 +485,10 @@ class PropertiesFileCompletions {
 	}
 
 	private static void collectSnippetSuggestions(int completionOffset, Node node, PropertiesModel document,
-			MicroProfileProjectInfo projectInfo, MicroProfileCompletionSettings completionSettings,
+			MicroProfileProjectInfo projectInfo, MicroProfileCompletionCapabilities completionCapabilities,
 			TextDocumentSnippetRegistry snippetRegistry, CompletionList list) {
-		boolean markdownSupported = completionSettings.isDocumentationFormatSupported(MarkupKind.MARKDOWN);
-		boolean snippetsSupported = completionSettings.isCompletionSnippetsSupported();
+		boolean markdownSupported = completionCapabilities.isDocumentationFormatSupported(MarkupKind.MARKDOWN);
+		boolean snippetsSupported = completionCapabilities.isCompletionSnippetsSupported();
 		snippetRegistry.getCompletionItems(document.getDocument(), completionOffset, markdownSupported,
 				snippetsSupported, (context, model) -> {
 					if (context instanceof SnippetContextForProperties) {

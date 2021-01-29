@@ -124,7 +124,7 @@ public class PropertiesFileTextDocumentService extends AbstractTextDocumentServi
 				// then return completion by using the MicroProfile project information and the
 				// Properties model document
 				CompletionList list = getPropertiesFileLanguageService().doComplete(document, params.getPosition(),
-						projectInfo, sharedSettings.getCompletionSettings(), sharedSettings.getFormattingSettings(),
+						projectInfo, sharedSettings.getCompletionCapabilities(), sharedSettings.getFormattingSettings(),
 						null);
 				return Either.forRight(list);
 			});
