@@ -30,6 +30,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.CodeLens;
+import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
@@ -39,6 +40,7 @@ import org.eclipse.lsp4mp.commons.DocumentFormat;
 import org.eclipse.lsp4mp.commons.JavaFileInfo;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeActionParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeLensParams;
+import org.eclipse.lsp4mp.commons.MicroProfileJavaCompletionParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaDefinitionParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaDiagnosticsParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaFileInfoParams;
@@ -57,6 +59,7 @@ public class MicroProfileDelegateCommandHandlerForJava extends AbstractMicroProf
 	private static final String FILE_INFO_COMMAND_ID = "microprofile/java/fileInfo";
 	private static final String JAVA_CODEACTION_COMMAND_ID = "microprofile/java/codeAction";
 	private static final String JAVA_CODELENS_COMMAND_ID = "microprofile/java/codeLens";
+	private static final String JAVA_COMPLETION_COMMAND_ID = "microprofile/java/completion";
 	private static final String JAVA_DEFINITION_COMMAND_ID = "microprofile/java/definition";
 	private static final String JAVA_DIAGNOSTICS_COMMAND_ID = "microprofile/java/diagnostics";
 	private static final String JAVA_HOVER_COMMAND_ID = "microprofile/java/hover";
@@ -73,6 +76,8 @@ public class MicroProfileDelegateCommandHandlerForJava extends AbstractMicroProf
 			return getCodeActionForJava(arguments, commandId, progress);
 		case JAVA_CODELENS_COMMAND_ID:
 			return getCodeLensForJava(arguments, commandId, progress);
+		case JAVA_COMPLETION_COMMAND_ID:
+			return getCompletionForJava(arguments, commandId, progress);
 		case JAVA_DEFINITION_COMMAND_ID:
 			return getDefinitionForJava(arguments, commandId, progress);
 		case JAVA_DIAGNOSTICS_COMMAND_ID:
@@ -224,9 +229,55 @@ public class MicroProfileDelegateCommandHandlerForJava extends AbstractMicroProf
 	}
 
 	/**
+	 * Return the completion items for the given arguments
+	 *
+	 * @param arguments
+	 * @param commandId
+	 * @param monitor
+	 * @return the completion items for the given arguments
+	 * @throws JavaModelException
+	 * @throws CoreException
+	 */
+	private static CompletionList getCompletionForJava(List<Object> arguments, String commandId,
+			IProgressMonitor monitor) throws JavaModelException, CoreException {
+		MicroProfileJavaCompletionParams params = createMicroProfileJavaCompletionParams(arguments, commandId);
+		return PropertiesManagerForJava.getInstance().completion(params, JDTUtilsLSImpl.getInstance(), monitor);
+	}
+
+	/**
+	 * Create the completion parameters from the given argument map
+	 *
+	 * @param arguments
+	 * @param commandId
+	 * @return the completion parameters from the given argument map
+	 */
+	private static MicroProfileJavaCompletionParams createMicroProfileJavaCompletionParams(List<Object> arguments,
+			String commandId) {
+		Map<String, Object> obj = getFirst(arguments);
+		if (obj == null) {
+			throw new UnsupportedOperationException(String.format(
+					"Command '%s' must be called with one MicroProfileJavaCompletionParams argument!", commandId));
+		}
+		String javaFileUri = getString(obj, "uri");
+		if (javaFileUri == null) {
+			throw new UnsupportedOperationException(String.format(
+					"Command '%s' must be called with required MicroProfileJavaCompletionParams.uri (java URI)!",
+					commandId));
+		}
+		Position position = getPosition(obj, "position");
+		if (position == null) {
+			throw new UnsupportedOperationException(String.format(
+					"Command '%s' must be called with required MicroProfileJavaCompletionParams.position (completion trigger location)!",
+					commandId));
+		}
+		MicroProfileJavaCompletionParams params = new MicroProfileJavaCompletionParams(javaFileUri, position);
+		return params;
+	}
+
+	/**
 	 * Returns the list o <code>MicroProfileLocationLink</code> for the definition
 	 * described in <code>arguments</code>
-	 * 
+	 *
 	 * @param arguments
 	 * @param commandId
 	 * @param monitor
@@ -244,10 +295,10 @@ public class MicroProfileDelegateCommandHandlerForJava extends AbstractMicroProf
 
 	/**
 	 * Returns the java definition parameters from the given arguments map.
-	 * 
+	 *
 	 * @param arguments
 	 * @param commandId
-	 * 
+	 *
 	 * @return the definition hover parameters
 	 */
 	private static MicroProfileJavaDefinitionParams createMicroProfileJavaDefinitionParams(List<Object> arguments,
@@ -270,7 +321,7 @@ public class MicroProfileDelegateCommandHandlerForJava extends AbstractMicroProf
 
 	/**
 	 * Returns the publish diagnostics list for a given java file URIs.
-	 * 
+	 *
 	 * @param arguments
 	 * @param commandId
 	 * @param monitor

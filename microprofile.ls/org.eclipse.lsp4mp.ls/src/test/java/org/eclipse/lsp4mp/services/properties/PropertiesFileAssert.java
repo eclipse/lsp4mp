@@ -60,7 +60,7 @@ import org.eclipse.lsp4mp.ls.commons.client.CommandKindCapabilities;
 import org.eclipse.lsp4mp.ls.commons.snippets.TextDocumentSnippetRegistry;
 import org.eclipse.lsp4mp.model.PropertiesModel;
 import org.eclipse.lsp4mp.settings.MicroProfileCommandCapabilities;
-import org.eclipse.lsp4mp.settings.MicroProfileCompletionSettings;
+import org.eclipse.lsp4mp.settings.MicroProfileCompletionCapabilities;
 import org.eclipse.lsp4mp.settings.MicroProfileFormattingSettings;
 import org.eclipse.lsp4mp.settings.MicroProfileHoverSettings;
 import org.eclipse.lsp4mp.settings.MicroProfileValidationSettings;
@@ -169,17 +169,17 @@ public class PropertiesFileAssert {
 		Position position = model.positionAt(offset);
 
 		// Add snippet support for completion
-		MicroProfileCompletionSettings completionSettings = new MicroProfileCompletionSettings();
+		MicroProfileCompletionCapabilities microProfileCompletionCapabilities = new MicroProfileCompletionCapabilities();
 		CompletionItemCapabilities completionItemCapabilities = new CompletionItemCapabilities();
 		completionItemCapabilities.setSnippetSupport(snippetSupport);
 		CompletionCapabilities completionCapabilities = new CompletionCapabilities(completionItemCapabilities);
-		completionSettings.setCapabilities(completionCapabilities);
+		microProfileCompletionCapabilities.setCapabilities(completionCapabilities);
 
 		MicroProfileFormattingSettings formattingSettings = new MicroProfileFormattingSettings();
 		formattingSettings.setSurroundEqualsWithSpaces(insertSpacing);
 
 		PropertiesFileLanguageService languageService = new PropertiesFileLanguageService();
-		CompletionList list = languageService.doComplete(model, position, projectInfo, completionSettings,
+		CompletionList list = languageService.doComplete(model, position, projectInfo, microProfileCompletionCapabilities,
 				formattingSettings, () -> {
 				});
 

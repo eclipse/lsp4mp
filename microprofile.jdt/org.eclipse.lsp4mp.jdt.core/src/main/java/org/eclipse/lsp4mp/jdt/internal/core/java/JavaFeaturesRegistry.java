@@ -26,6 +26,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.lsp4mp.jdt.core.MicroProfileCorePlugin;
 import org.eclipse.lsp4mp.jdt.internal.core.java.codeaction.JavaCodeActionDefinition;
 import org.eclipse.lsp4mp.jdt.internal.core.java.codelens.JavaCodeLensDefinition;
+import org.eclipse.lsp4mp.jdt.internal.core.java.completion.JavaCompletionDefinition;
 import org.eclipse.lsp4mp.jdt.internal.core.java.definition.JavaDefinitionDefinition;
 import org.eclipse.lsp4mp.jdt.internal.core.java.diagnostics.JavaDiagnosticsDefinition;
 import org.eclipse.lsp4mp.jdt.internal.core.java.hover.JavaHoverDefinition;
@@ -40,6 +41,7 @@ public class JavaFeaturesRegistry {
 	private static final String EXTENSION_JAVA_FEATURE_PARTICIPANTS = "javaFeatureParticipants";
 	private static final String CODEACTION_ELT = "codeAction";
 	private static final String CODELENS_ELT = "codeLens";
+	private static final String COMPLETION_ELT = "completion";
 	private static final String DEFINITION_ELT = "definition";
 	private static final String DIAGNOSTICS_ELT = "diagnostics";
 	private static final String HOVER_ELT = "hover";
@@ -51,6 +53,8 @@ public class JavaFeaturesRegistry {
 	private final List<JavaCodeActionDefinition> javaCodeActionDefinitions;
 
 	private final List<JavaCodeLensDefinition> javaCodeLensDefinitions;
+
+	private final List<JavaCompletionDefinition> javaCompletionDefinitions;
 
 	private final List<JavaDefinitionDefinition> javaDefinitionDefinitions;
 
@@ -68,9 +72,21 @@ public class JavaFeaturesRegistry {
 		javaFeatureDefinitionsLoaded = false;
 		javaCodeActionDefinitions = new ArrayList<>();
 		javaCodeLensDefinitions = new ArrayList<>();
+		javaCompletionDefinitions = new ArrayList<>();
 		javaDefinitionDefinitions = new ArrayList<>();
 		javaDiagnosticsDefinitions = new ArrayList<>();
 		javaHoverDefinitions = new ArrayList<>();
+	}
+
+	/**
+	 * Returns a list of code action definition.
+	 *
+	 * @return a list of code action definition.
+	 */
+	public List<JavaCodeActionDefinition> getJavaCodeActionDefinitions(String codeActionKind) {
+		loadJavaFeatureDefinitions();
+		return javaCodeActionDefinitions.stream().filter(definition -> codeActionKind.startsWith(definition.getKind()))
+				.collect(Collectors.toList());
 	}
 
 	/**
@@ -81,6 +97,16 @@ public class JavaFeaturesRegistry {
 	public List<JavaCodeLensDefinition> getJavaCodeLensDefinitions() {
 		loadJavaFeatureDefinitions();
 		return javaCodeLensDefinitions;
+	}
+
+	/**
+	 * Returns a list of completion definition
+	 *
+	 * @return a list of completion definition
+	 */
+	public List<JavaCompletionDefinition> getJavaCompletionDefinitions() {
+		loadJavaFeatureDefinitions();
+		return javaCompletionDefinitions;
 	}
 
 	/**
@@ -153,6 +179,13 @@ public class JavaFeaturesRegistry {
 			}
 			break;
 		}
+		case COMPLETION_ELT: {
+			JavaCompletionDefinition definition = new JavaCompletionDefinition(ce);
+			synchronized (javaCompletionDefinitions) {
+				javaCompletionDefinitions.add(definition);
+			}
+			break;
+		}
 		case DIAGNOSTICS_ELT: {
 			JavaDiagnosticsDefinition definition = new JavaDiagnosticsDefinition(ce);
 			synchronized (javaDiagnosticsDefinitions) {
@@ -179,9 +212,4 @@ public class JavaFeaturesRegistry {
 		}
 	}
 
-	public List<JavaCodeActionDefinition> getJavaCodeActionDefinitions(String codeActionKind) {
-		loadJavaFeatureDefinitions();
-		return javaCodeActionDefinitions.stream().filter(definition -> codeActionKind.startsWith(definition.getKind()))
-				.collect(Collectors.toList());
-	}
 }

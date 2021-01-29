@@ -22,12 +22,22 @@ public class ExtendedClientCapabilities {
 
 	private CommandCapabilities commands;
 
+	private ExtendedCompletionCapabilities completion;
+
 	public CommandCapabilities getCommands() {
 		return commands;
 	}
 
 	public void setCommands(CommandCapabilities commands) {
 		this.commands = commands;
+	}
+
+	public ExtendedCompletionCapabilities getCompletion() {
+		return completion;
+	}
+
+	public void setCompletion(ExtendedCompletionCapabilities completion) {
+		this.completion = completion;
 	}
 
 }

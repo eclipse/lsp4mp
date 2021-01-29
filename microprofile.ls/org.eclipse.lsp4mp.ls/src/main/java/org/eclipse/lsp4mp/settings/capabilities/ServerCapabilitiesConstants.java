@@ -49,7 +49,8 @@ public class ServerCapabilitiesConstants {
 
 	public static final CompletionOptions DEFAULT_COMPLETION_OPTIONS = new CompletionOptions(false,
 			Arrays.asList(".", "%", "=", "$" /* triggered characters for properties file */ ,
-					"@" /* triggered characters for java snippets annotation */));
+					"@" /* triggered characters for java snippets annotation */,
+					"\"" /* trigger characters for annotation property value completion */));
 
 	public static final CodeLensOptions DEFAULT_CODELENS_OPTIONS = new CodeLensOptions();
 }

@@ -19,7 +19,7 @@ import org.eclipse.lsp4j.CompletionCapabilities;
  * A wrapper around LSP {@link CompletionCapabilities}.
  *
  */
-public class MicroProfileCompletionSettings {
+public class MicroProfileCompletionCapabilities {
 
 	private CompletionCapabilities completionCapabilities;
 
@@ -56,4 +56,5 @@ public class MicroProfileCompletionSettings {
 				&& completionCapabilities.getCompletionItem().getDocumentationFormat() != null
 				&& completionCapabilities.getCompletionItem().getDocumentationFormat().contains(documentationFormat);
 	}
+
 }

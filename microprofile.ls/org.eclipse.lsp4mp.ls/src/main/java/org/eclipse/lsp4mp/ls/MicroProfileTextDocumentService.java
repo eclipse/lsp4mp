@@ -93,7 +93,7 @@ public class MicroProfileTextDocumentService implements TextDocumentService {
 			ExtendedClientCapabilities extendedClientCapabilities) {
 		TextDocumentClientCapabilities textDocumentClientCapabilities = capabilities.getTextDocument();
 		if (textDocumentClientCapabilities != null) {
-			sharedSettings.getCompletionSettings().setCapabilities(textDocumentClientCapabilities.getCompletion());
+			sharedSettings.getCompletionCapabilities().setCapabilities(textDocumentClientCapabilities.getCompletion());
 			sharedSettings.getHoverSettings().setCapabilities(textDocumentClientCapabilities.getHover());
 		}
 		if (extendedClientCapabilities != null) {

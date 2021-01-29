@@ -50,6 +50,7 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4mp.commons.DocumentFormat;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeActionParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeLensParams;
+import org.eclipse.lsp4mp.commons.MicroProfileJavaCompletionParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaDefinitionParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaDiagnosticsParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaHoverParams;
@@ -59,6 +60,7 @@ import org.eclipse.lsp4mp.ls.MicroProfileLanguageServer;
 import org.eclipse.lsp4mp.ls.commons.BadLocationException;
 import org.eclipse.lsp4mp.ls.commons.TextDocument;
 import org.eclipse.lsp4mp.ls.commons.client.CommandKind;
+import org.eclipse.lsp4mp.ls.commons.client.ExtendedCompletionCapabilities;
 import org.eclipse.lsp4mp.ls.java.JavaTextDocuments.JavaTextDocument;
 import org.eclipse.lsp4mp.ls.properties.IPropertiesModelProvider;
 import org.eclipse.lsp4mp.model.Node;
@@ -67,8 +69,8 @@ import org.eclipse.lsp4mp.model.Property;
 import org.eclipse.lsp4mp.settings.MicroProfileCodeLensSettings;
 import org.eclipse.lsp4mp.settings.SharedSettings;
 import org.eclipse.lsp4mp.snippets.SnippetContextForJava;
-import org.eclipse.lsp4mp.utils.PropertiesFileUtils;
 import org.eclipse.lsp4mp.utils.PositionUtils;
+import org.eclipse.lsp4mp.utils.PropertiesFileUtils;
 
 /**
  * LSP text document service for Java file.
@@ -122,12 +124,23 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 	public CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion(CompletionParams params) {
 		JavaTextDocument document = documents.get(params.getTextDocument().getUri());
 		return document.executeIfInMicroProfileProject((projectInfo) -> {
+			MicroProfileJavaCompletionParams javaParams = new MicroProfileJavaCompletionParams(params.getTextDocument().getUri(), params.getPosition());
+
+			CompletableFuture<CompletionList> javaParticipantCompletionsFuture =
+					CompletableFuture.completedFuture(null);
+			ExtendedCompletionCapabilities extendedCompletionCapabilities =
+					this.microprofileLanguageServer.getCapabilityManager().getClientCapabilities().getExtendedCapabilities().getCompletion();
+			if (!extendedCompletionCapabilities.isSkipSendingJavaCompletionThroughLanguageServer()) {
+				javaParticipantCompletionsFuture =
+						microprofileLanguageServer.getLanguageClient().getJavaCompletion(javaParams);
+			}
+
 			return CompletableFutures.computeAsync(cancel -> {
 				try {
 					// Returns java snippets
 					int completionOffset = document.offsetAt(params.getPosition());
 					boolean canSupportMarkdown = true;
-					boolean snippetsSupported = sharedSettings.getCompletionSettings().isCompletionSnippetsSupported();
+					boolean snippetsSupported = sharedSettings.getCompletionCapabilities().isCompletionSnippetsSupported();
 					CompletionList list = new CompletionList();
 					list.setItems(new ArrayList<>());
 					documents.getSnippetRegistry().getCompletionItems(document, completionOffset, canSupportMarkdown,
@@ -139,11 +152,28 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 							}).forEach(item -> {
 								list.getItems().add(item);
 							});
-					return Either.forRight(list);
+					return list;
 				} catch (BadLocationException e) {
-					LOGGER.log(Level.SEVERE, "Error while getting java completions", e);
-					return Either.forRight(null);
+					LOGGER.log(Level.SEVERE, "Error while getting java snippet completions", e);
+					return null;
 				}
+			}).thenCombine(javaParticipantCompletionsFuture, (list1, list2) -> {
+				if (list1 == null && list2 == null) {
+					return null;
+				}
+				if (list1 == null) {
+					list1 = new CompletionList();
+					list1.setItems(new ArrayList<>());
+				}
+				if (list2 != null) {
+					for (CompletionItem item : list2.getItems()) {
+						list1.getItems().add(item);
+					}
+				}
+				// This reduces the number of completion requests to the server
+				// see https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_completion
+				list1.setIsIncomplete(false);
+				return Either.forRight(list1);
 			});
 		}, Either.forLeft(Collections.emptyList()));
 	}
