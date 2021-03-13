@@ -24,6 +24,7 @@ Require-Bundle: org.junit,
  org.eclipse.lsp4mp.jdt.core
 Import-Package: com.google.gson
 Export-Package: org.eclipse.lsp4mp.jdt.core,
+ org.eclipse.lsp4mp.jdt.core.config,
  org.eclipse.lsp4mp.jdt.core.contextpropagation,
  org.eclipse.lsp4mp.jdt.core.faulttolerance,
  org.eclipse.lsp4mp.jdt.core.health,
