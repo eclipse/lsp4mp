@@ -1,5 +1,32 @@
 # MicroProfile Language Server Changelog
 
+## [0.2.0](https://github.com/eclipse/lsp4mp/milestone/2?closed=1) (March 31, 2021)
+
+### Enhancements
+
+ * Support arbitrary number of member values in `PropertiesHoverParticipant`. See [#124](https://github.com/eclipse/lsp4mp/pull/124).
+ * Add extension point to contribute properties to exclude from validation. See [#95](https://github.com/eclipse/lsp4mp/issues/95).
+ * Definition support from Java to properties for `ConfigProperty/name`. See [#88](https://github.com/eclipse/lsp4mp/issues/88).
+ * Automatically infer package names when inserting class snippets. See [#60](https://github.com/eclipse/lsp4mp/issues/60).
+ * Support `handle-as` for metadata properties. See [#39](https://github.com/eclipse/lsp4mp/issues/39).
+ * Display the different values for the different profiles in Java `@ConfigProperty` Hover. See [#98](https://github.com/eclipse/lsp4mp/issues/98).
+
+### Bug Fixes
+
+ * Trailing tab causes infinite loop in parser. See [#112](https://github.com/eclipse/lsp4mp/issues/112).
+ * Prevent NPEs when working with MP 4.0 features. See [#119](https://github.com/eclipse/lsp4mp/issues/119).
+ * Enhance the error message when out of bounds is detected. See [#114](https://github.com/eclipse/lsp4mp/pull/114).
+ * Use `kill -0` instead of `ps -p` in `ParentProcessWatcher`. See [#110](https://github.com/eclipse/lsp4mp/issues/110).
+ * Move quarkus test project names to quarkus-ls repo. See [#7](https://github.com/eclipse/lsp4mp/issues/7).
+ * Wrong/Missing Log Levels in property files. See [#15](https://github.com/eclipse/lsp4mp/pull/105).
+ * `mp.messaging` properties now work for Emitters. See [#127](https://github.com/eclipse/lsp4mp/pull/127).
+
+### Other
+
+ * Move `MicroProfileForJavaAssert` into `internal.core` class. See [#125](https://github.com/eclipse/lsp4mp/pull/125).
+ * Sequence diagram of properties completion. See [#75](https://github.com/eclipse/lsp4mp/issues/75).
+ * Fix Tools for MP name in sequence diagrams. See [#93](https://github.com/eclipse/lsp4mp/pull/93).
+
 ## [0.1.0](https://github.com/eclipse/lsp4mp/milestone/1?closed=1) (September 21, 2020)
 
 ### Enhancements
