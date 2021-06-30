@@ -43,6 +43,7 @@ public class MicroProfileConfigJavaDefinitionTest extends BasePropertiesManagerT
 	@After
 	public void cleanup() throws JavaModelException, IOException {
 		deleteFile(JDTMicroProfileProject.APPLICATION_YAML_FILE, javaProject);
+		deleteFile(JDTMicroProfileProject.APPLICATION_YML_FILE, javaProject);
 		deleteFile(JDTMicroProfileProject.APPLICATION_PROPERTIES_FILE, javaProject);
 		deleteFile(JDTMicroProfileProject.MICROPROFILE_CONFIG_PROPERTIES_FILE, javaProject);
 	}
@@ -99,6 +100,29 @@ public class MicroProfileConfigJavaDefinitionTest extends BasePropertiesManagerT
 		// Position(23, 33) is the character after the | symbol:
 		// @ConfigProperty(name = "greet|ing.missing")
 		assertJavaDefinitions(p(23, 33), javaFileUri, JDT_UTILS);
+
+	}
+
+	@Test
+	public void configPropertyNameDefinitionYml() throws Exception {
+
+		javaProject = loadMavenProject(MicroProfileMavenProjectName.config_hover);
+		IProject project = javaProject.getProject();
+		IFile javaFile = project.getFile(new Path("src/main/java/org/acme/config/GreetingResource.java"));
+		String javaFileUri = fixURI(javaFile.getLocation().toFile().toURI());
+		IFile applicationYmlFile = project.getFile(new Path("src/main/resources/application.yml"));
+		String applicationYmlFileUri = fixURI(applicationYmlFile.getLocation().toFile().toURI());
+
+		saveFile(JDTMicroProfileProject.APPLICATION_YML_FILE, //
+				"greeting:\n" + //
+				"  message: hello\n" + //
+				"  name: quarkus\n" + //
+				"  number: 100\n",
+				javaProject);
+		// Position(14, 40) is the character after the | symbol:
+		// @ConfigProperty(name = "greeting.mes|sage")
+		assertJavaDefinitions(p(14, 40), javaFileUri, JDT_UTILS, //
+				def(r(14, 28, 44), applicationYmlFileUri, "greeting.message"));
 
 	}
 

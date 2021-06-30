@@ -42,6 +42,7 @@ public class MicroProfileConfigJavaHoverTest extends BasePropertiesManagerTest {
 	@After
 	public void cleanup() throws JavaModelException, IOException {
 		deleteFile(JDTMicroProfileProject.APPLICATION_YAML_FILE, javaProject);
+		deleteFile(JDTMicroProfileProject.APPLICATION_YML_FILE, javaProject);
 		deleteFile(JDTMicroProfileProject.APPLICATION_PROPERTIES_FILE, javaProject);
 		deleteFile(JDTMicroProfileProject.MICROPROFILE_CONFIG_PROPERTIES_FILE, javaProject);
 	}
@@ -187,6 +188,49 @@ public class MicroProfileConfigJavaHoverTest extends BasePropertiesManagerTest {
 		saveFile(JDTMicroProfileProject.APPLICATION_YAML_FILE, //
 				"greeting:\n" + //
 						"  message: message from yaml",
+				javaProject);
+		// fallback to application.properties
+		assertJavaHover(new Position(26, 33), javaFileUri, JDT_UTILS,
+				h("`greeting.number = 100` *in* [application.properties](" + propertiesFileUri + ")", 26, 28, 43));
+	}
+	
+	@Test
+	public void configPropertyNameYml() throws Exception {
+
+		javaProject = loadMavenProject(MicroProfileMavenProjectName.config_hover);
+		IProject project = javaProject.getProject();
+		IFile javaFile = project.getFile(new Path("src/main/java/org/acme/config/GreetingResource.java"));
+		String javaFileUri = fixURI(javaFile.getLocation().toFile().toURI());
+		IFile ymlFile = project.getFile(new Path("src/main/resources/application.yml"));
+		String ymlFileUri = fixURI(ymlFile.getLocation().toFile().toURI());
+		IFile propertiesFile = project.getFile(new Path("src/main/resources/application.properties"));
+		String propertiesFileUri = fixURI(propertiesFile.getLocation().toFile().toURI());
+
+		saveFile(JDTMicroProfileProject.APPLICATION_YML_FILE, //
+				"greeting:\n" + //
+						"  message: message from yml\n" + //
+						"  number: 2001",
+				javaProject);
+
+		saveFile(JDTMicroProfileProject.APPLICATION_PROPERTIES_FILE, //
+				"greeting.message = hello\r\n" + //
+						"greeting.name = quarkus\r\n" + //
+						"greeting.number = 100",
+				javaProject);
+
+		// Position(14, 40) is the character after the | symbol:
+		// @ConfigProperty(name = "greeting.mes|sage")
+		assertJavaHover(new Position(14, 40), javaFileUri, JDT_UTILS,
+				h("`greeting.message = message from yml` *in* [application.yml](" + ymlFileUri + ")", 14, 28, 44));
+
+		// Position(26, 33) is the character after the | symbol:
+		// @ConfigProperty(name = "greet|ing.number", defaultValue="0")
+		assertJavaHover(new Position(26, 33), javaFileUri, JDT_UTILS,
+				h("`greeting.number = 2001` *in* [application.yml](" + ymlFileUri + ")", 26, 28, 43));
+
+		saveFile(JDTMicroProfileProject.APPLICATION_YML_FILE, //
+				"greeting:\n" + //
+						"  message: message from yml",
 				javaProject);
 		// fallback to application.properties
 		assertJavaHover(new Position(26, 33), javaFileUri, JDT_UTILS,

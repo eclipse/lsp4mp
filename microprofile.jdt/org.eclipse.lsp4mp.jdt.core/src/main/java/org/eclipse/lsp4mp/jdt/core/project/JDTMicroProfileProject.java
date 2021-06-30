@@ -38,12 +38,15 @@ public class JDTMicroProfileProject {
 	public static final String APPLICATION_PROPERTIES_FILE = "application.properties";
 	@Deprecated
 	public static final String APPLICATION_YAML_FILE = "application.yaml";
+	@Deprecated
+	public static final String APPLICATION_YML_FILE = "application.yml";
 
 	private final List<IConfigSource> configSources;
 
 	public JDTMicroProfileProject(IJavaProject javaProject) {
 		this.configSources = new ArrayList<IConfigSource>(3);
 		configSources.add(new YamlConfigSource(APPLICATION_YAML_FILE, javaProject));
+		configSources.add(new YamlConfigSource(APPLICATION_YML_FILE, javaProject));
 		configSources.add(new PropertiesConfigSource(APPLICATION_PROPERTIES_FILE, javaProject));
 		configSources.add(new PropertiesConfigSource(MICROPROFILE_CONFIG_PROPERTIES_FILE, javaProject));
 	}
