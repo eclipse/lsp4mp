@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.metadata.ItemHint;
 import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
+import org.eclipse.lsp4mp.commons.utils.StringUtils;
 import org.eclipse.lsp4mp.extensions.AbstractItemMetadataProvider;
 import org.eclipse.lsp4mp.extensions.ExtendedMicroProfileProjectInfo;
 import org.eclipse.lsp4mp.model.Node;
@@ -30,7 +31,6 @@ import org.eclipse.lsp4mp.model.Node.NodeType;
 import org.eclipse.lsp4mp.model.PropertiesModel;
 import org.eclipse.lsp4mp.model.Property;
 import org.eclipse.lsp4mp.utils.PropertiesFileUtils;
-import org.eclipse.lsp4mp.utils.StringUtils;
 
 /**
  * Properties provider implementation to build MicroProfile Reactive Messaging

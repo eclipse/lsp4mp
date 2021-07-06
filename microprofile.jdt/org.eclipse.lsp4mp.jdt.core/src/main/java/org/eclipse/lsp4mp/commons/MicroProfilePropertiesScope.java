@@ -31,7 +31,7 @@ import java.util.List;
  */
 public enum MicroProfilePropertiesScope {
 
-	sources(1), dependencies(2);
+	sources(1), dependencies(2), configfiles(3);
 
 	private final int value;
 
@@ -56,6 +56,9 @@ public enum MicroProfilePropertiesScope {
 	public static final List<MicroProfilePropertiesScope> SOURCES_AND_DEPENDENCIES = Arrays
 			.asList(MicroProfilePropertiesScope.sources, MicroProfilePropertiesScope.dependencies);
 
+	public static final List<MicroProfilePropertiesScope> ONLY_CONFIG_FILES = Collections
+			.singletonList(MicroProfilePropertiesScope.configfiles);
+
 	/**
 	 * Returns true if the given scopes is only sources and false otherwise.
 	 *
@@ -64,5 +67,15 @@ public enum MicroProfilePropertiesScope {
 	 */
 	public static boolean isOnlySources(List<MicroProfilePropertiesScope> scopes) {
 		return scopes != null && scopes.size() == 1 && scopes.get(0) == MicroProfilePropertiesScope.sources;
+	}
+
+	/**
+	 * Returns true if the given scopes is only config files and false otherwise.
+	 *
+	 * @param scopes
+	 * @return true if the given scopes is only config files and false otherwise
+	 */
+	public static boolean isOnlyConfigFiles(List<MicroProfilePropertiesScope> scopes) {
+		return scopes != null && scopes.size() == 1 && scopes.get(0) == MicroProfilePropertiesScope.configfiles;
 	}
 }

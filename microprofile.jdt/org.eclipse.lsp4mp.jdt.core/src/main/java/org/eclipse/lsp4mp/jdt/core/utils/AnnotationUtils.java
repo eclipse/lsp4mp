@@ -74,7 +74,7 @@ public class AnnotationUtils {
 	/**
 	 * Returns true if the given annotation match the given annotation name and
 	 * false otherwise.
-	 * 
+	 *
 	 * @param annotation     the annotation.
 	 * @param annotationName the annotation name.
 	 * @return true if the given annotation match the given annotation name and
@@ -103,7 +103,7 @@ public class AnnotationUtils {
 
 	/**
 	 * Returns the expression for the value of the given member name of the given annotation.
-	 * 
+	 *
 	 * @param annotation the annotation.
 	 * @param memberName the member name.
 	 * @return the expression for the value of the given member name of the given annotation.

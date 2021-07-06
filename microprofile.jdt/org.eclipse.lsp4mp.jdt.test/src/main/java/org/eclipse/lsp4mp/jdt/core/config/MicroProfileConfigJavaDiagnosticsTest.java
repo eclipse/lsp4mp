@@ -25,9 +25,11 @@ import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4mp.commons.DocumentFormat;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaDiagnosticsParams;
+import org.eclipse.lsp4mp.commons.MicroProfileJavaDiagnosticsSettings;
 import org.eclipse.lsp4mp.jdt.core.BasePropertiesManagerTest;
+import org.eclipse.lsp4mp.jdt.core.MicroProfileConfigConstants;
 import org.eclipse.lsp4mp.jdt.core.utils.IJDTUtils;
-import org.eclipse.lsp4mp.jdt.internal.metrics.MicroProfileMetricsConstants;
+import org.eclipse.lsp4mp.jdt.internal.config.java.MicroProfileConfigErrorCode;
 import org.junit.Test;
 
 public class MicroProfileConfigJavaDiagnosticsTest extends BasePropertiesManagerTest {
@@ -43,14 +45,49 @@ public class MicroProfileConfigJavaDiagnosticsTest extends BasePropertiesManager
 		diagnosticsParams.setUris(Arrays.asList(javaFile.getLocation().toFile().toURI().toString()));
 		diagnosticsParams.setDocumentFormat(DocumentFormat.Markdown);
 
-		Diagnostic d1 = d(8, 53, 58, "'foo' does not match the expected type of 'int'.",
-				DiagnosticSeverity.Error, MicroProfileMetricsConstants.DIAGNOSTIC_SOURCE, null);
+		Diagnostic d1 = d(8, 53, 58, "'foo' does not match the expected type of 'int'.", DiagnosticSeverity.Error,
+				MicroProfileConfigConstants.MICRO_PROFILE_CONFIG_DIAGNOSTIC_SOURCE,
+				MicroProfileConfigErrorCode.DEFAULT_VALUE_IS_WRONG_TYPE);
 
-		Diagnostic d2 = d(11, 53, 58, "'bar' does not match the expected type of 'Integer'.",
-				DiagnosticSeverity.Error, MicroProfileMetricsConstants.DIAGNOSTIC_SOURCE, null);
+		Diagnostic d2 = d(11, 53, 58, "'bar' does not match the expected type of 'Integer'.", DiagnosticSeverity.Error,
+				MicroProfileConfigConstants.MICRO_PROFILE_CONFIG_DIAGNOSTIC_SOURCE,
+				MicroProfileConfigErrorCode.DEFAULT_VALUE_IS_WRONG_TYPE);
 
-		Diagnostic d3 = d(17, 53, 58, "'128' does not match the expected type of 'byte'.",
-				DiagnosticSeverity.Error, MicroProfileMetricsConstants.DIAGNOSTIC_SOURCE, null);
+		Diagnostic d3 = d(17, 53, 58, "'128' does not match the expected type of 'byte'.", DiagnosticSeverity.Error,
+				MicroProfileConfigConstants.MICRO_PROFILE_CONFIG_DIAGNOSTIC_SOURCE,
+				MicroProfileConfigErrorCode.DEFAULT_VALUE_IS_WRONG_TYPE);
+		Diagnostic d4 = d(32, 27, 38,
+				"The property greeting9 is not assigned a value in any config file, and must be assigned at runtime",
+				DiagnosticSeverity.Warning, MicroProfileConfigConstants.MICRO_PROFILE_CONFIG_DIAGNOSTIC_SOURCE,
+				MicroProfileConfigErrorCode.NO_VALUE_ASSIGNED_TO_PROPERTY);
+
+		assertJavaDiagnostics(diagnosticsParams, utils, //
+				d1, d2, d3, d4);
+	}
+
+	@Test
+	public void noValueAssignedWithIgnore() throws Exception {
+		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.config_quickstart);
+		IJDTUtils utils = JDT_UTILS;
+
+		MicroProfileJavaDiagnosticsParams diagnosticsParams = new MicroProfileJavaDiagnosticsParams();
+		IFile javaFile = javaProject.getProject()
+				.getFile(new Path("src/main/java/org/acme/config/DefaultValueResource.java"));
+		diagnosticsParams.setSettings(new MicroProfileJavaDiagnosticsSettings(Arrays.asList("greeting?")));
+		diagnosticsParams.setUris(Arrays.asList(javaFile.getLocation().toFile().toURI().toString()));
+		diagnosticsParams.setDocumentFormat(DocumentFormat.Markdown);
+
+		Diagnostic d1 = d(8, 53, 58, "'foo' does not match the expected type of 'int'.", DiagnosticSeverity.Error,
+				MicroProfileConfigConstants.MICRO_PROFILE_CONFIG_DIAGNOSTIC_SOURCE,
+				MicroProfileConfigErrorCode.DEFAULT_VALUE_IS_WRONG_TYPE);
+
+		Diagnostic d2 = d(11, 53, 58, "'bar' does not match the expected type of 'Integer'.", DiagnosticSeverity.Error,
+				MicroProfileConfigConstants.MICRO_PROFILE_CONFIG_DIAGNOSTIC_SOURCE,
+				MicroProfileConfigErrorCode.DEFAULT_VALUE_IS_WRONG_TYPE);
+
+		Diagnostic d3 = d(17, 53, 58, "'128' does not match the expected type of 'byte'.", DiagnosticSeverity.Error,
+				MicroProfileConfigConstants.MICRO_PROFILE_CONFIG_DIAGNOSTIC_SOURCE,
+				MicroProfileConfigErrorCode.DEFAULT_VALUE_IS_WRONG_TYPE);
 
 		assertJavaDiagnostics(diagnosticsParams, utils, //
 				d1, d2, d3);

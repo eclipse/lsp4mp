@@ -13,6 +13,7 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.core.project;
 
+import java.io.File;
 import java.util.Map;
 
 /**
@@ -82,5 +83,13 @@ public interface IConfigSource {
 	default int getOrdinal() {
 		return 100;
 	}
+
+	/**
+	 * Returns true if the given file is the same file as this config source and false otherwise.
+	 *
+	 * @param file the file to check
+	 * @return true if the given file is the same file as this config source and false otherwise
+	 */
+	boolean isSameFile(File file);
 
 }

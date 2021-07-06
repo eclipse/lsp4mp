@@ -13,11 +13,14 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.core.java.diagnostics;
 
+import java.util.Collections;
+
 import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4mp.commons.DocumentFormat;
+import org.eclipse.lsp4mp.commons.MicroProfileJavaDiagnosticsSettings;
 import org.eclipse.lsp4mp.jdt.core.java.AbtractJavaContext;
 import org.eclipse.lsp4mp.jdt.core.utils.IJDTUtils;
 
@@ -31,13 +34,31 @@ public class JavaDiagnosticsContext extends AbtractJavaContext {
 
 	private final DocumentFormat documentFormat;
 
-	public JavaDiagnosticsContext(String uri, ITypeRoot typeRoot, IJDTUtils utils, DocumentFormat documentFormat) {
+	private final MicroProfileJavaDiagnosticsSettings settings;
+
+	public JavaDiagnosticsContext(String uri, ITypeRoot typeRoot, IJDTUtils utils, DocumentFormat documentFormat, MicroProfileJavaDiagnosticsSettings settings) {
 		super(uri, typeRoot, utils);
 		this.documentFormat = documentFormat;
+		if (settings == null) {
+			this.settings = new MicroProfileJavaDiagnosticsSettings(Collections.emptyList());
+		} else {
+			this.settings = settings;
+		}
 	}
 
 	public DocumentFormat getDocumentFormat() {
 		return documentFormat;
+	}
+
+	/**
+	 * Returns the MicroProfileJavaDiagnosticsSettings.
+	 *
+	 * Should not be null.
+	 *
+	 * @return the MicroProfileJavaDiagnosticsSettings
+	 */
+	public MicroProfileJavaDiagnosticsSettings getSettings() {
+		return this.settings;
 	}
 
 	public Diagnostic createDiagnostic(String uri, String message, Range range, String source, IJavaErrorCode code) {

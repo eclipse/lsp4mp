@@ -119,7 +119,6 @@ public class MicroProfileDelegateCommandHandler extends AbstractMicroProfileDele
 			}
 			throw jobException;
 		}
-		;
 
 		return projectInfo[0];
 	}

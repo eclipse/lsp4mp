@@ -27,6 +27,7 @@ import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
 import org.eclipse.lsp4mp.commons.metadata.ValueHint;
 import org.eclipse.lsp4mp.commons.metadata.ValueProvider;
 import org.eclipse.lsp4mp.commons.metadata.ValueProvider.ValueProviderDefaultName;
+import org.eclipse.lsp4mp.commons.utils.StringUtils;
 import org.eclipse.lsp4mp.commons.metadata.ValueProviderParameter;
 import org.eclipse.lsp4mp.ls.commons.SnippetsBuilder;
 import org.eclipse.lsp4mp.model.PropertiesModel;

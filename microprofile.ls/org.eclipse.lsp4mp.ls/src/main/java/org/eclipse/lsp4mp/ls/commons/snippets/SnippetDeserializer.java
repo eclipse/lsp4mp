@@ -17,7 +17,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.lsp4mp.utils.StringUtils;
+import org.eclipse.lsp4mp.commons.utils.StringUtils;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;

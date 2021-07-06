@@ -36,6 +36,8 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.lsp4mp.commons.MicroProfilePropertiesChangeEvent;
 import org.eclipse.lsp4mp.commons.MicroProfilePropertiesScope;
 import org.eclipse.lsp4mp.jdt.core.IMicroProfilePropertiesChangedListener;
+import org.eclipse.lsp4mp.jdt.core.project.IConfigSource;
+import org.eclipse.lsp4mp.jdt.core.project.IConfigSourceProvider;
 import org.eclipse.lsp4mp.jdt.core.utils.JDTMicroProfileUtils;
 
 /**
@@ -159,6 +161,12 @@ public class MicroProfilePropertiesListenerManager {
 					event.setProjectURIs(new HashSet<String>());
 					event.getProjectURIs().add(JDTMicroProfileUtils.getProjectURI(file.getProject()));
 					fireAsyncEvent(event);
+				} else if (isConfigSource(file) && isFileContentChanged(delta)) {
+					MicroProfilePropertiesChangeEvent event = new MicroProfilePropertiesChangeEvent();
+					event.setType(MicroProfilePropertiesScope.ONLY_CONFIG_FILES);
+					event.setProjectURIs(new HashSet<String>());
+					event.getProjectURIs().add(JDTMicroProfileUtils.getProjectURI(file.getProject()));
+					fireAsyncEvent(event);
 				}
 			}
 			return false;
@@ -185,6 +193,21 @@ public class MicroProfilePropertiesListenerManager {
 
 		private boolean isJavaFile(IFile file) {
 			return JAVA_FILE_EXTENSION.equals(file.getFileExtension());
+		}
+
+		private boolean isConfigSource(IFile file) {
+			IJavaProject project = JavaCore.create(file.getProject());
+			if (project == null) {
+				return false;
+			}
+			for (IConfigSourceProvider provider : ConfigSourceProviderRegistry.getInstance().getProviders()) {
+				for (IConfigSource configSource : provider.getConfigSources(project)) {
+					if (configSource.isSameFile(file.getLocation().toFile())) {
+						return true;
+					}
+				}
+			}
+			return false;
 		}
 
 		private boolean isFileContentChanged(IResourceDelta delta) {

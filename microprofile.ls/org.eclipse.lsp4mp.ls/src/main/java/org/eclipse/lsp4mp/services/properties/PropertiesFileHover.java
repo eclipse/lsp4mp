@@ -26,6 +26,7 @@ import org.eclipse.lsp4mp.commons.metadata.ConfigurationMetadata;
 import org.eclipse.lsp4mp.commons.metadata.ItemHint;
 import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
 import org.eclipse.lsp4mp.commons.metadata.ValueHint;
+import org.eclipse.lsp4mp.commons.utils.StringUtils;
 import org.eclipse.lsp4mp.ls.commons.BadLocationException;
 import org.eclipse.lsp4mp.model.Node;
 import org.eclipse.lsp4mp.model.Node.NodeType;
@@ -39,7 +40,6 @@ import org.eclipse.lsp4mp.settings.MicroProfileHoverSettings;
 import org.eclipse.lsp4mp.utils.DocumentationUtils;
 import org.eclipse.lsp4mp.utils.PropertiesFileUtils;
 import org.eclipse.lsp4mp.utils.PositionUtils;
-import org.eclipse.lsp4mp.utils.StringUtils;
 
 /**
  * The properties file hover support.

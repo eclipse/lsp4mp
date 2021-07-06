@@ -37,6 +37,7 @@ import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.metadata.ConverterKind;
 import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
 import org.eclipse.lsp4mp.commons.metadata.ValueHint;
+import org.eclipse.lsp4mp.commons.utils.StringUtils;
 import org.eclipse.lsp4mp.ls.commons.BadLocationException;
 import org.eclipse.lsp4mp.ls.commons.SnippetsBuilder;
 import org.eclipse.lsp4mp.ls.commons.TextDocument;
@@ -55,7 +56,6 @@ import org.eclipse.lsp4mp.snippets.SnippetContextForProperties;
 import org.eclipse.lsp4mp.utils.DocumentationUtils;
 import org.eclipse.lsp4mp.utils.PropertiesFileUtils;
 import org.eclipse.lsp4mp.utils.PropertiesFileUtils.FormattedPropertyResult;
-import org.eclipse.lsp4mp.utils.StringUtils;
 
 /**
  * The properties file completions support.

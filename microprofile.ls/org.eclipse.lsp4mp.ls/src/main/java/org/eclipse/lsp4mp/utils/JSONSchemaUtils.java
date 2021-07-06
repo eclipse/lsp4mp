@@ -20,6 +20,7 @@ import org.eclipse.lsp4mp.commons.metadata.ConfigurationMetadata;
 import org.eclipse.lsp4mp.commons.metadata.ItemHint;
 import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
 import org.eclipse.lsp4mp.commons.metadata.ValueHint;
+import org.eclipse.lsp4mp.commons.utils.StringUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;

@@ -42,6 +42,7 @@ import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeLensParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCompletionParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaDefinitionParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaDiagnosticsParams;
+import org.eclipse.lsp4mp.commons.MicroProfileJavaDiagnosticsSettings;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaFileInfoParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaHoverParams;
 import org.eclipse.lsp4mp.commons.MicroProfileDefinition;
@@ -282,7 +283,7 @@ public class PropertiesManagerForJava {
 			List<Diagnostic> diagnostics = new ArrayList<>();
 			PublishDiagnosticsParams publishDiagnostic = new PublishDiagnosticsParams(uri, diagnostics);
 			publishDiagnostics.add(publishDiagnostic);
-			collectDiagnostics(uri, utils, documentFormat, diagnostics, monitor);
+			collectDiagnostics(uri, utils, documentFormat, params.getSettings(), diagnostics, monitor);
 		}
 		if (monitor.isCanceled()) {
 			return Collections.emptyList();
@@ -290,7 +291,7 @@ public class PropertiesManagerForJava {
 		return publishDiagnostics;
 	}
 
-	private void collectDiagnostics(String uri, IJDTUtils utils, DocumentFormat documentFormat,
+	private void collectDiagnostics(String uri, IJDTUtils utils, DocumentFormat documentFormat, MicroProfileJavaDiagnosticsSettings settings,
 			List<Diagnostic> diagnostics, IProgressMonitor monitor) {
 		ITypeRoot typeRoot = resolveTypeRoot(uri, utils, monitor);
 		if (typeRoot == null) {
@@ -298,7 +299,7 @@ public class PropertiesManagerForJava {
 		}
 
 		// Collect all adapted diagnostics participant
-		JavaDiagnosticsContext context = new JavaDiagnosticsContext(uri, typeRoot, utils, documentFormat);
+		JavaDiagnosticsContext context = new JavaDiagnosticsContext(uri, typeRoot, utils, documentFormat, settings);
 		List<JavaDiagnosticsDefinition> definitions = JavaFeaturesRegistry.getInstance().getJavaDiagnosticsDefinitions()
 				.stream().filter(definition -> definition.isAdaptedForDiagnostics(context, monitor))
 				.collect(Collectors.toList());

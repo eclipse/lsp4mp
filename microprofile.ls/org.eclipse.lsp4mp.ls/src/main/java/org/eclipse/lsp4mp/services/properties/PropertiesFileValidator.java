@@ -32,6 +32,7 @@ import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.metadata.ConfigurationMetadata;
 import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
+import org.eclipse.lsp4mp.commons.utils.StringUtils;
 import org.eclipse.lsp4mp.model.Node;
 import org.eclipse.lsp4mp.model.Node.NodeType;
 import org.eclipse.lsp4mp.model.PropertiesModel;
@@ -40,7 +41,6 @@ import org.eclipse.lsp4mp.model.PropertyValueExpression;
 import org.eclipse.lsp4mp.settings.MicroProfileValidationSettings;
 import org.eclipse.lsp4mp.utils.PropertiesFileUtils;
 import org.eclipse.lsp4mp.utils.PositionUtils;
-import org.eclipse.lsp4mp.utils.StringUtils;
 
 /**
  * The properties file validator.
