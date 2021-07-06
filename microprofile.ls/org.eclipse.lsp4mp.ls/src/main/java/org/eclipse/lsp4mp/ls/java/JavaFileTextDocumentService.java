@@ -53,8 +53,10 @@ import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeLensParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCompletionParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaDefinitionParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaDiagnosticsParams;
+import org.eclipse.lsp4mp.commons.MicroProfileJavaDiagnosticsSettings;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaHoverParams;
 import org.eclipse.lsp4mp.commons.MicroProfilePropertiesChangeEvent;
+import org.eclipse.lsp4mp.commons.MicroProfilePropertiesScope;
 import org.eclipse.lsp4mp.ls.AbstractTextDocumentService;
 import org.eclipse.lsp4mp.ls.MicroProfileLanguageServer;
 import org.eclipse.lsp4mp.ls.commons.BadLocationException;
@@ -124,15 +126,16 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 	public CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion(CompletionParams params) {
 		JavaTextDocument document = documents.get(params.getTextDocument().getUri());
 		return document.executeIfInMicroProfileProject((projectInfo) -> {
-			MicroProfileJavaCompletionParams javaParams = new MicroProfileJavaCompletionParams(params.getTextDocument().getUri(), params.getPosition());
+			MicroProfileJavaCompletionParams javaParams = new MicroProfileJavaCompletionParams(
+					params.getTextDocument().getUri(), params.getPosition());
 
-			CompletableFuture<CompletionList> javaParticipantCompletionsFuture =
-					CompletableFuture.completedFuture(null);
-			ExtendedCompletionCapabilities extendedCompletionCapabilities =
-					this.microprofileLanguageServer.getCapabilityManager().getClientCapabilities().getExtendedCapabilities().getCompletion();
+			CompletableFuture<CompletionList> javaParticipantCompletionsFuture = CompletableFuture
+					.completedFuture(null);
+			ExtendedCompletionCapabilities extendedCompletionCapabilities = this.microprofileLanguageServer
+					.getCapabilityManager().getClientCapabilities().getExtendedCapabilities().getCompletion();
 			if (!extendedCompletionCapabilities.isSkipSendingJavaCompletionThroughLanguageServer()) {
-				javaParticipantCompletionsFuture =
-						microprofileLanguageServer.getLanguageClient().getJavaCompletion(javaParams);
+				javaParticipantCompletionsFuture = microprofileLanguageServer.getLanguageClient()
+						.getJavaCompletion(javaParams);
 			}
 
 			return CompletableFutures.computeAsync(cancel -> {
@@ -140,7 +143,8 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 					// Returns java snippets
 					int completionOffset = document.offsetAt(params.getPosition());
 					boolean canSupportMarkdown = true;
-					boolean snippetsSupported = sharedSettings.getCompletionCapabilities().isCompletionSnippetsSupported();
+					boolean snippetsSupported = sharedSettings.getCompletionCapabilities()
+							.isCompletionSnippetsSupported();
 					CompletionList list = new CompletionList();
 					list.setItems(new ArrayList<>());
 					documents.getSnippetRegistry().getCompletionItems(document, completionOffset, canSupportMarkdown,
@@ -171,7 +175,8 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 					}
 				}
 				// This reduces the number of completion requests to the server
-				// see https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_completion
+				// see
+				// https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_completion
 				list1.setIsIncomplete(false);
 				return Either.forRight(list1);
 			});
@@ -326,7 +331,6 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 	private void triggerValidationForAll(Set<String> projectURIs) {
 		triggerValidationFor(documents.all().stream() //
 				.filter(document -> projectURIs == null || projectURIs.contains(document.getProjectURI())) //
-				.filter(JavaTextDocument::isInMicroProfileProject) //
 				.map(TextDocument::getUri) //
 				.collect(Collectors.toList()));
 	}
@@ -340,7 +344,10 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 		if (uris.isEmpty()) {
 			return;
 		}
-		MicroProfileJavaDiagnosticsParams javaParams = new MicroProfileJavaDiagnosticsParams(uris);
+		List<String> excludedUnassignedProperties = sharedSettings.getValidationSettings().getUnassigned()
+				.getExcluded();
+		MicroProfileJavaDiagnosticsParams javaParams = new MicroProfileJavaDiagnosticsParams(uris,
+				new MicroProfileJavaDiagnosticsSettings(excludedUnassignedProperties));
 		boolean markdownSupported = sharedSettings.getHoverSettings().isContentFormatSupported(MarkupKind.MARKDOWN);
 		if (markdownSupported) {
 			javaParams.setDocumentFormat(DocumentFormat.Markdown);
@@ -358,8 +365,8 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 	}
 
 	public void propertiesChanged(MicroProfilePropertiesChangeEvent event) {
-		if (documents.propertiesChanged(event)) {
-			triggerValidationForAll(event.getProjectURIs());
+		if (documents.propertiesChanged(event) || MicroProfilePropertiesScope.isOnlyConfigFiles(event.getType())) {
+			triggerValidationForAll(null);
 		}
 	}
 

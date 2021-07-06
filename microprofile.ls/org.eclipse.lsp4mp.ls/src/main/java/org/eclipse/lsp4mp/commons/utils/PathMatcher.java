@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.eclipse.lsp4mp.utils;
+package org.eclipse.lsp4mp.commons.utils;
 
 import java.util.Comparator;
 import java.util.Map;

@@ -33,6 +33,7 @@ public class MicroProfileValidationSettings {
 	private static final MicroProfileValidationTypeSettings DEFAULT_VALUE;
 	private static final MicroProfileValidationTypeSettings DEFAULT_REQUIRED;
 	private static final MicroProfileValidationTypeSettings DEFAULT_EXPRESSION;
+	private static final MicroProfileValidationTypeSettings DEFAULT_UNASSIGNED;
 
 	static {
 		DEFAULT_SYNTAX = new MicroProfileValidationTypeSettings();
@@ -47,6 +48,8 @@ public class MicroProfileValidationSettings {
 		DEFAULT_REQUIRED.setSeverity(Severity.none.name());
 		DEFAULT_EXPRESSION = new MicroProfileValidationTypeSettings();
 		DEFAULT_EXPRESSION.setSeverity(Severity.error.name());
+		DEFAULT_UNASSIGNED = new MicroProfileValidationTypeSettings();
+		DEFAULT_UNASSIGNED.setSeverity(Severity.warning.name());
 		DEFAULT = new MicroProfileValidationSettings();
 		DEFAULT.updateDefault();
 	}
@@ -61,6 +64,7 @@ public class MicroProfileValidationSettings {
 	private MicroProfileValidationTypeSettings value;
 	private MicroProfileValidationTypeSettings required;
 	private MicroProfileValidationTypeSettings expression;
+	private MicroProfileValidationTypeSettings unassigned;
 
 	public MicroProfileValidationSettings() {
 		setEnabled(true);
@@ -186,6 +190,26 @@ public class MicroProfileValidationSettings {
 	}
 
 	/**
+	 * Returns the settings for unassigned properties validation.
+	 *
+	 * @return the settings for unassigned properties validation
+	 */
+	public MicroProfileValidationTypeSettings getUnassigned() {
+		updateDefault();
+		return this.unassigned;
+	}
+
+	/**
+	 * Set the settings for unassigned properties validation.
+	 *
+	 * @param unassigned the new settings for unassigned properties validation
+	 */
+	public void setUnassigned(MicroProfileValidationTypeSettings unassigned) {
+		this.unassigned = unassigned;
+		this.updated = true;
+	}
+
+	/**
 	 * Update each kind of validation settings with default value if not defined.
 	 */
 	private void updateDefault() {
@@ -198,6 +222,7 @@ public class MicroProfileValidationSettings {
 		setValue(value != null ? value : DEFAULT_VALUE);
 		setRequired(required != null ? required : DEFAULT_REQUIRED);
 		setExpression(expression != null ? expression : DEFAULT_EXPRESSION);
+		setUnassigned(unassigned != null ? unassigned : DEFAULT_UNASSIGNED);
 		updated = true;
 	}
 
@@ -214,5 +239,6 @@ public class MicroProfileValidationSettings {
 		this.setRequired(newValidation.getRequired());
 		this.setValue(newValidation.getValue());
 		this.setExpression(newValidation.getExpression());
+		this.setUnassigned(newValidation.getUnassigned());
 	}
 }

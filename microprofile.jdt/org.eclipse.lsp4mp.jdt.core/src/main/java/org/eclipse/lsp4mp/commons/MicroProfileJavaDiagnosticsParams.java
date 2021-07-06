@@ -27,12 +27,19 @@ public class MicroProfileJavaDiagnosticsParams {
 
 	private DocumentFormat documentFormat;
 
+	private MicroProfileJavaDiagnosticsSettings settings;
+
 	public MicroProfileJavaDiagnosticsParams() {
 		this(null);
 	}
 
 	public MicroProfileJavaDiagnosticsParams(List<String> uris) {
+		this(uris, null);
+	}
+
+	public MicroProfileJavaDiagnosticsParams(List<String> uris, MicroProfileJavaDiagnosticsSettings settings) {
 		setUris(uris);
+		this.settings = settings;
 	}
 
 	/**
@@ -59,6 +66,24 @@ public class MicroProfileJavaDiagnosticsParams {
 
 	public void setDocumentFormat(DocumentFormat documentFormat) {
 		this.documentFormat = documentFormat;
+	}
+
+	/**
+	 * Returns the diagnostics settings.
+	 *
+	 * @return the diagnostics settings
+	 */
+	public MicroProfileJavaDiagnosticsSettings getSettings() {
+		return this.settings;
+	}
+
+	/**
+	 * Sets the diagnostics settings.
+	 *
+	 * @param settings the new value for the diagnostics settings
+	 */
+	public void setSettings(MicroProfileJavaDiagnosticsSettings settings) {
+		this.settings = settings;
 	}
 
 }

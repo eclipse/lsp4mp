@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.eclipse.lsp4j.DiagnosticSeverity;
-import org.eclipse.lsp4mp.utils.AntPathMatcher;
+import org.eclipse.lsp4mp.commons.utils.AntPathMatcher;
 
 /**
  * MicroProfile validation type settings.

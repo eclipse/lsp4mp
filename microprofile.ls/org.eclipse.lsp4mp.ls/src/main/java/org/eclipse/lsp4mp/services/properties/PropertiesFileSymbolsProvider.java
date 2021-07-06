@@ -22,13 +22,13 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.SymbolKind;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
+import org.eclipse.lsp4mp.commons.utils.StringUtils;
 import org.eclipse.lsp4mp.model.Node;
 import org.eclipse.lsp4mp.model.Node.NodeType;
 import org.eclipse.lsp4mp.model.PropertiesModel;
 import org.eclipse.lsp4mp.model.Property;
 import org.eclipse.lsp4mp.model.PropertyKey;
 import org.eclipse.lsp4mp.utils.PositionUtils;
-import org.eclipse.lsp4mp.utils.StringUtils;
 
 /**
  * The properties file symbols provider support.

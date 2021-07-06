@@ -71,13 +71,15 @@
    </extension>
 
    <extension point="org.eclipse.lsp4mp.jdt.core.javaFeatureParticipants">
-       <!-- Java definition for the MicroProfile @ConfigProperty annotation -->
+      <!-- Java definition for the MicroProfile @ConfigProperty annotation -->
       <definition class="org.eclipse.lsp4mp.jdt.internal.config.java.MicroProfileConfigDefinitionParticipant" />      
-       <!-- Java hover for the MicroProfile @ConfigProperty annotation -->
-      <hover class="org.eclipse.lsp4mp.jdt.internal.config.java.MicroProfileConfigHoverParticipant" />   
+      <!-- Java hover for the MicroProfile @ConfigProperty annotation -->
+      <hover class="org.eclipse.lsp4mp.jdt.internal.config.java.MicroProfileConfigHoverParticipant" />  
+      <!-- Java validation for the MicroProfile @ConfigProperty annotation -->
+      <diagnostics class="org.eclipse.lsp4mp.jdt.internal.config.java.MicroProfileConfigDiagnosticsParticipant" /> 
    </extension>
 
-    <!-- Microprofile Context Propagation support -->
+   <!-- Microprofile Context Propagation support -->
 
    <extension point="org.eclipse.lsp4mp.jdt.core.propertiesProviders">
       <!-- Properties provider for MicroProfile Context Propagation -->
@@ -215,11 +217,5 @@
    <extension point="org.eclipse.lsp4mp.jdt.core.javaFeatureParticipants">
       <!-- Java URL codeLens for JAX-RS -->
       <codeLens class="org.eclipse.lsp4mp.jdt.internal.jaxrs.java.JaxRsCodeLensParticipant" />   
-   </extension>
-   <extension
-         point="org.eclipse.lsp4mp.jdt.core.javaFeatureParticipants">
-      <diagnostics
-            class="org.eclipse.lsp4mp.jdt.internal.config.java.MicroProfileConfigPropertyDiagnosticsParticipant">
-      </diagnostics>
    </extension>
 </plugin>

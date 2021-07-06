@@ -43,6 +43,7 @@ import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeLensParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCompletionParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaDefinitionParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaDiagnosticsParams;
+import org.eclipse.lsp4mp.commons.MicroProfileJavaDiagnosticsSettings;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaFileInfoParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaHoverParams;
 import org.eclipse.lsp4mp.commons.MicroProfileDefinition;
@@ -358,7 +359,13 @@ public class MicroProfileDelegateCommandHandlerForJava extends AbstractMicroProf
 					"Command '%s' must be called with required MicroProfileJavaDiagnosticsParams.uri (java URIs)!",
 					commandId));
 		}
-		return new MicroProfileJavaDiagnosticsParams(javaFileUri);
+		MicroProfileJavaDiagnosticsSettings settings = null;
+		Map<String, Object> settingsObj = ArgumentUtils.getObject(obj, "settings");
+		if (settingsObj != null) {
+			List<String> patterns = ArgumentUtils.getStringList(settingsObj, "patterns");
+			settings = new MicroProfileJavaDiagnosticsSettings(patterns);
+		}
+		return new MicroProfileJavaDiagnosticsParams(javaFileUri, settings);
 	}
 
 	/**

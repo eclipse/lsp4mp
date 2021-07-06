@@ -32,6 +32,7 @@ import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.metadata.ConverterKind;
 import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
 import org.eclipse.lsp4mp.commons.metadata.ValueHint;
+import org.eclipse.lsp4mp.commons.utils.StringUtils;
 import org.eclipse.lsp4mp.ls.commons.BadLocationException;
 import org.eclipse.lsp4mp.ls.commons.CodeActionFactory;
 import org.eclipse.lsp4mp.ls.commons.TextDocument;
@@ -47,7 +48,6 @@ import org.eclipse.lsp4mp.settings.MicroProfileCommandCapabilities;
 import org.eclipse.lsp4mp.settings.MicroProfileFormattingSettings;
 import org.eclipse.lsp4mp.utils.PropertiesFileUtils;
 import org.eclipse.lsp4mp.utils.PositionUtils;
-import org.eclipse.lsp4mp.utils.StringUtils;
 
 /**
  * The properties file code actions support.
