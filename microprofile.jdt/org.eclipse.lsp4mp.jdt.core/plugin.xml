@@ -11,6 +11,9 @@
    <extension-point id="projectLabelProviders" 
                     name="%projectLabelProviders.name" 
                     schema="schema/projectLabelProviders.exsd"/>
+   <extension-point id="configSourceProviders"
+                    name="%configSourceProviders.name"
+                    schema="schema/configSourceProviders.exsd"/>
 
    <!-- Delegate command handler for application.properties file -->
    <extension point="org.eclipse.jdt.ls.core.delegateCommandHandler">
@@ -45,6 +48,12 @@
       <provider class="org.eclipse.lsp4mp.jdt.internal.core.providers.MavenProjectLabelProvider" />
       <provider class="org.eclipse.lsp4mp.jdt.internal.core.providers.GradleProjectLabelProvider" />
       <provider class="org.eclipse.lsp4mp.jdt.internal.core.providers.MicroProfileProjectLabelProvider" />
+   </extension>
+
+   <!-- Configuration sources -->
+   <extension point="org.eclipse.lsp4mp.jdt.core.configSourceProviders">
+      <provider class="org.eclipse.lsp4mp.jdt.internal.core.providers.DefaultMicroProfilePropertiesConfigSourceProvider" />
+      <provider class="org.eclipse.lsp4mp.jdt.internal.core.providers.QuarkusConfigSourceProvider" />
    </extension>
 
    <!-- Java Util Logging Config support -->

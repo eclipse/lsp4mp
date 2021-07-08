@@ -33,6 +33,7 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.JavaProject;
+import org.eclipse.lsp4mp.jdt.core.project.IConfigSource;
 import org.eclipse.lsp4mp.jdt.core.project.MicroProfileConfigPropertyInformation;
 
 /**

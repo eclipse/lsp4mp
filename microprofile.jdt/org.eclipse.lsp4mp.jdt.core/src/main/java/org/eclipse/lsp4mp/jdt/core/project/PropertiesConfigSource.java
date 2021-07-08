@@ -11,7 +11,7 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lsp4mp.jdt.internal.core.project;
+package org.eclipse.lsp4mp.jdt.core.project;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.lsp4mp.jdt.core.project.MicroProfileConfigPropertyInformation;
+import org.eclipse.lsp4mp.jdt.internal.core.project.AbstractConfigSource;
 
 /**
  * {@link Properties} config file implementation.
@@ -30,8 +30,16 @@ import org.eclipse.lsp4mp.jdt.core.project.MicroProfileConfigPropertyInformation
  */
 public class PropertiesConfigSource extends AbstractConfigSource<Properties> {
 
+	private final int ordinal;
+
+	public PropertiesConfigSource(String configFileName, IJavaProject javaProject, int ordinal) {
+		super(configFileName, javaProject);
+		this.ordinal = ordinal;
+	}
+
 	public PropertiesConfigSource(String configFileName, IJavaProject javaProject) {
 		super(configFileName, javaProject);
+		this.ordinal = super.getOrdinal();
 	}
 
 	@Override
@@ -63,6 +71,11 @@ public class PropertiesConfigSource extends AbstractConfigSource<Properties> {
 					});
 		}
 		return infos;
+	}
+
+	@Override
+	public int getOrdinal() {
+		return ordinal;
 	}
 
 }

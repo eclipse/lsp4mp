@@ -11,11 +11,9 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lsp4mp.jdt.internal.core.project;
+package org.eclipse.lsp4mp.jdt.core.project;
 
 import java.util.Map;
-
-import org.eclipse.lsp4mp.jdt.core.project.MicroProfileConfigPropertyInformation;
 
 /**
  * Configuration file API
@@ -52,7 +50,7 @@ public interface IConfigSource {
 
 	/**
 	 * Returns the source file URI of the associated config file
-	 * 
+	 *
 	 * @return the source file URI of the associated config file
 	 */
 	String getSourceConfigFileURI();
@@ -73,5 +71,16 @@ public interface IConfigSource {
 	 *         this config source
 	 */
 	Map<String, MicroProfileConfigPropertyInformation> getPropertyInformations(String propertyKey);
+
+	/**
+	 * Returns the ordinal for this config source
+	 *
+	 * See https://download.eclipse.org/microprofile/microprofile-config-2.0/microprofile-config-spec-2.0.html#_configsource_ordering
+	 *
+	 * @return the ordinal for this config source
+	 */
+	default int getOrdinal() {
+		return 100;
+	}
 
 }
