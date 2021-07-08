@@ -412,7 +412,7 @@ public class PropertiesManager {
 	}
 
 	List<IPropertiesProvider> getPropertiesProviders() {
-		return PropertiesProviderRegistry.getInstance().getPropertiesProviders();
+		return PropertiesProviderRegistry.getInstance().getProviders();
 	}
 
 	// ---------------------------------- Properties definition

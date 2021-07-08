@@ -27,6 +27,8 @@ import org.eclipse.lsp4mp.jdt.core.BasePropertiesManagerTest;
 import org.eclipse.lsp4mp.jdt.core.PropertiesManagerForJava;
 import org.eclipse.lsp4mp.jdt.core.project.JDTMicroProfileProject;
 import org.eclipse.lsp4mp.jdt.core.utils.IJDTUtils;
+import org.eclipse.lsp4mp.jdt.internal.core.providers.DefaultMicroProfilePropertiesConfigSourceProvider;
+import org.eclipse.lsp4mp.jdt.internal.core.providers.QuarkusConfigSourceProvider;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -58,12 +60,12 @@ public class JavaCodeLensMicroProfileRestClientTest extends BasePropertiesManage
 		Assert.assertEquals(0, lenses.size());
 
 		// /mp-rest/url
-		saveFile(JDTMicroProfileProject.MICROPROFILE_CONFIG_PROPERTIES_FILE,
+		saveFile(DefaultMicroProfilePropertiesConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE,
 				"org.acme.restclient.CountriesService/mp-rest/url = https://restcountries.url/rest", javaProject);
 		assertCodeLenses("https://restcountries.url/rest", params, utils);
 
 		// /mp-rest/uri
-		saveFile(JDTMicroProfileProject.MICROPROFILE_CONFIG_PROPERTIES_FILE, //
+		saveFile(DefaultMicroProfilePropertiesConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE, //
 				"org.acme.restclient.CountriesService/mp-rest/uri = https://restcountries.uri/rest" + //
 						System.lineSeparator() + //
 						"org.acme.restclient.CountriesService/mp-rest/url = https://restcountries.url/rest", //
@@ -72,9 +74,9 @@ public class JavaCodeLensMicroProfileRestClientTest extends BasePropertiesManage
 	}
 
 	private static void initConfigFile(IJavaProject javaProject) throws JavaModelException, IOException {
-		saveFile(JDTMicroProfileProject.MICROPROFILE_CONFIG_PROPERTIES_FILE, "", javaProject);
-		saveFile(JDTMicroProfileProject.APPLICATION_PROPERTIES_FILE, "", javaProject);
-		saveFile(JDTMicroProfileProject.APPLICATION_YAML_FILE, "", javaProject);
+		saveFile(DefaultMicroProfilePropertiesConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE, "", javaProject);
+		saveFile(QuarkusConfigSourceProvider.APPLICATION_PROPERTIES_FILE, "", javaProject);
+		saveFile(QuarkusConfigSourceProvider.APPLICATION_YAML_FILE, "", javaProject);
 	}
 
 	@Test
@@ -96,13 +98,13 @@ public class JavaCodeLensMicroProfileRestClientTest extends BasePropertiesManage
 		assertCodeLenses("https://restcountries.ann/rest", params, utils);
 
 		// /mp-rest/url overrides @RegisterRestClient/baseUri
-		saveFile(JDTMicroProfileProject.MICROPROFILE_CONFIG_PROPERTIES_FILE,
+		saveFile(DefaultMicroProfilePropertiesConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE,
 				"org.acme.restclient.CountriesServiceWithBaseUri/mp-rest/url = https://restcountries.url/rest",
 				javaProject);
 		assertCodeLenses("https://restcountries.url/rest", params, utils);
 
 		// /mp-rest/uri overrides @RegisterRestClient/baseUri
-		saveFile(JDTMicroProfileProject.MICROPROFILE_CONFIG_PROPERTIES_FILE, //
+		saveFile(DefaultMicroProfilePropertiesConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE, //
 				"org.acme.restclient.CountriesServiceWithBaseUri/mp-rest/uri = https://restcountries.uri/rest" + //
 						System.lineSeparator() + //
 						"org.acme.restclient.CountriesServiceWithBaseUri/mp-rest/url = https://restcountries.url/rest", //
@@ -130,14 +132,14 @@ public class JavaCodeLensMicroProfileRestClientTest extends BasePropertiesManage
 		Assert.assertEquals(0, lenses.size());
 
 		// /mp-rest/url
-		saveFile(JDTMicroProfileProject.APPLICATION_YAML_FILE, "org:\r\n" + //
+		saveFile(QuarkusConfigSourceProvider.APPLICATION_YAML_FILE, "org:\r\n" + //
 				"  acme:\r\n" + //
 				"    restclient:\r\n" + //
 				"      CountriesService/mp-rest/url: https://restcountries.url/rest", javaProject);
 		assertCodeLenses("https://restcountries.url/rest", params, utils);
 
 		// /mp-rest/uri
-		saveFile(JDTMicroProfileProject.APPLICATION_YAML_FILE, //
+		saveFile(QuarkusConfigSourceProvider.APPLICATION_YAML_FILE, //
 				"org:\r\n" + //
 						"  acme:\r\n" + //
 						"    restclient:\r\n" + //
