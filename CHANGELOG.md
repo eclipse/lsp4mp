@@ -1,5 +1,15 @@
 # MicroProfile Language Server Changelog
 
+## [0.3.0](https://github.com/eclipse/lsp4mp/milestone/3?closed=1) (July 15, 2021)
+
+### Enhancements
+
+ * Completion for `fallbackMethod` in `@Fallback` annotation. See [#34](https://github.com/eclipse/lsp4mp/issues/34).
+
+### Other
+
+ * Remove pack200 support. See [#134](https://github.com/eclipse/lsp4mp/pull/134).
+
 ## [0.2.0](https://github.com/eclipse/lsp4mp/milestone/2?closed=1) (March 31, 2021)
 
 ### Enhancements
