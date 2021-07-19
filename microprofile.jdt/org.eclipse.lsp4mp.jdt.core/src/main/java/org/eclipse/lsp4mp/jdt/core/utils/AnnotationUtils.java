@@ -117,7 +117,7 @@ public class AnnotationUtils {
 			NormalAnnotation normalAnnotation = (NormalAnnotation) annotation;
 			for (Object pair : normalAnnotation.values()) {
 				MemberValuePair castPair = (MemberValuePair) pair;
-				if (FALLBACK_METHOD_FALLBACK_ANNOTATION_MEMBER.equals(castPair.getName().toString())) {
+				if (memberName.equals(castPair.getName().toString())) {
 					return castPair.getValue();
 				}
 			}
