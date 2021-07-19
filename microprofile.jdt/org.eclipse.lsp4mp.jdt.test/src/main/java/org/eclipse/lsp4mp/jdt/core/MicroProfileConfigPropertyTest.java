@@ -13,8 +13,6 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.core;
 
-import static org.eclipse.lsp4mp.commons.metadata.ItemMetadata.CONFIG_PHASE_BUILD_AND_RUN_TIME_FIXED;
-import static org.eclipse.lsp4mp.commons.metadata.ItemMetadata.CONFIG_PHASE_BUILD_TIME;
 import static org.eclipse.lsp4mp.jdt.core.MicroProfileAssert.assertProperties;
 import static org.eclipse.lsp4mp.jdt.core.MicroProfileAssert.assertPropertiesDuplicate;
 import static org.eclipse.lsp4mp.jdt.core.MicroProfileAssert.p;
@@ -38,7 +36,7 @@ public class MicroProfileConfigPropertyTest extends BasePropertiesManagerTest {
 				MicroProfileMavenProjectName.config_quickstart, MicroProfilePropertiesScope.SOURCES_AND_DEPENDENCIES);
 
 		assertProperties(infoFromClasspath,
-				9 /* properties from Java sources with ConfigProperty */ + //
+				18 /* properties from Java sources with ConfigProperty */ + //
 				7 /* static properties from microprofile-context-propagation-api */,
 
 				// GreetingResource
@@ -96,7 +94,7 @@ public class MicroProfileConfigPropertyTest extends BasePropertiesManagerTest {
 		MicroProfileProjectInfo infoFromJavaSources = getMicroProfileProjectInfoFromMavenProject(
 				MicroProfileMavenProjectName.config_quickstart, MicroProfilePropertiesScope.ONLY_SOURCES);
 
-		assertProperties(infoFromJavaSources, 9 /* properties from Java sources with ConfigProperty */,
+		assertProperties(infoFromJavaSources, 18 /* properties from Java sources with ConfigProperty */,
 
 				// GreetingResource
 				// @ConfigProperty(name = "greeting.message")

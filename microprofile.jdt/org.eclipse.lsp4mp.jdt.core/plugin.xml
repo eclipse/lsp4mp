@@ -208,4 +208,10 @@
       <!-- Java URL codeLens for JAX-RS -->
       <codeLens class="org.eclipse.lsp4mp.jdt.internal.jaxrs.java.JaxRsCodeLensParticipant" />   
    </extension>
+   <extension
+         point="org.eclipse.lsp4mp.jdt.core.javaFeatureParticipants">
+      <diagnostics
+            class="org.eclipse.lsp4mp.jdt.internal.config.java.MicroProfileConfigPropertyDiagnosticsParticipant">
+      </diagnostics>
+   </extension>
 </plugin>
