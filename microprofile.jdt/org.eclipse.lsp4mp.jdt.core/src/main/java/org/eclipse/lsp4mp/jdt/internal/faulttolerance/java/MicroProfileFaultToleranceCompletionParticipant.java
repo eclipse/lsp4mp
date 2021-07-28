@@ -79,7 +79,9 @@ public class MicroProfileFaultToleranceCompletionParticipant implements IJavaCom
 		}
 		List<CompletionItem> completionItems = new ArrayList<>();
 		for (IMethod method : context.getTypeRoot().findPrimaryType().getMethods()) {
-			completionItems.add(makeMethodCompletionItem(method.getElementName(), range));
+			if (!method.equals(fallbackAnnotation.getParent())) {
+				completionItems.add(makeMethodCompletionItem(method.getElementName(), range));
+			}
 		}
 		return completionItems;
 	}
