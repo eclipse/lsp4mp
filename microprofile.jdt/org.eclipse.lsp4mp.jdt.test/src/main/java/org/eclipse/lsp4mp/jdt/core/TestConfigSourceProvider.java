@@ -11,36 +11,29 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lsp4mp.jdt.internal.core.providers;
+package org.eclipse.lsp4mp.jdt.core;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.lsp4mp.jdt.core.project.IConfigSource;
 import org.eclipse.lsp4mp.jdt.core.project.IConfigSourceProvider;
 import org.eclipse.lsp4mp.jdt.core.project.PropertiesConfigSource;
-import org.eclipse.lsp4mp.jdt.internal.core.project.YamlConfigSource;
 
 /**
- * Provides configuration sources specific to Quarkus
+ * Defines the config file <code>META-INF/microprofile-config-test.properties</code> for use in tests.
  *
- * This should be moved to quarkus-ls in the future
+ * The config file has a higher ordinal than <code>META-INF/microprofile-config.properties</code>.
  *
- * @author datho7561
  */
-@Deprecated
-public class QuarkusConfigSourceProvider implements IConfigSourceProvider {
+public class TestConfigSourceProvider implements IConfigSourceProvider {
 
-	public static final String APPLICATION_PROPERTIES_FILE = "application.properties";
-	public static final String APPLICATION_YAML_FILE = "application.yaml";
-	public static final String APPLICATION_YML_FILE = "application.yml";
+	public static final String MICROPROFILE_CONFIG_TEST = "META-INF/microprofile-config-test.properties";
 
 	@Override
 	public List<IConfigSource> getConfigSources(IJavaProject project) {
-		return Arrays.asList(new YamlConfigSource(APPLICATION_YAML_FILE, project),
-				new YamlConfigSource(APPLICATION_YML_FILE, project),
-				new PropertiesConfigSource(APPLICATION_PROPERTIES_FILE, project, 250));
+		return Collections.singletonList(new PropertiesConfigSource(MICROPROFILE_CONFIG_TEST, project, 101));
 	}
 
 }

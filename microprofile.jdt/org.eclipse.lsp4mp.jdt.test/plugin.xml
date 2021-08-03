@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin>
+   <!-- Test config source provider -->
+   <extension point="org.eclipse.lsp4mp.jdt.core.configSourceProviders">
+      <provider class="org.eclipse.lsp4mp.jdt.core.TestConfigSourceProvider" />
+   </extension>
+</plugin>
