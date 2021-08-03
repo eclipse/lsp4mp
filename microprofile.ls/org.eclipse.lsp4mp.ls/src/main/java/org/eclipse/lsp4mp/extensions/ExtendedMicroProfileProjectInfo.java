@@ -111,11 +111,13 @@ public class ExtendedMicroProfileProjectInfo extends MicroProfileProjectInfo {
 	}
 
 	/**
-	 * Add the new MicroProfile properties in the cache coming java sources.
+	 * Update the new MicroProfile properties in the cache coming java sources.
 	 *
 	 * @param propertiesFromJavaSource properties to add in the cache.
+	 * @param hintsFromJavaSource      hints to add in the cache.
 	 */
-	public synchronized void update(List<ItemMetadata> propertiesFromJavaSource, List<ItemHint> hintsFromJavaSource) {
+	public synchronized void updateSourcesProperties(List<ItemMetadata> propertiesFromJavaSource,
+			List<ItemHint> hintsFromJavaSource) {
 		// remove old hints from Java sources
 		if (hintsFromJavaSource != null) {
 			updateListFromPropertiesSources(getHints(), hintsFromJavaSource);
@@ -126,7 +128,10 @@ public class ExtendedMicroProfileProjectInfo extends MicroProfileProjectInfo {
 			List<ItemMetadata> dynamicProperties = computeDynamicProperties(staticProperties);
 			staticProperties.removeAll(dynamicProperties);
 
+			// expand properties by using new dynamic properties
 			expandProperties(staticProperties, dynamicProperties, getHint);
+			// expand properties by using old dynamic properties (coming from binary properties)
+			expandProperties(staticProperties, getDynamicProperties(), getHint);
 			updateListFromPropertiesSources(getProperties(), staticProperties);
 			updateListFromPropertiesSources(getDynamicProperties(), dynamicProperties);
 		}

@@ -10,6 +10,7 @@
 package org.eclipse.lsp4mp.extensions;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.metadata.ItemHint;
@@ -64,5 +65,57 @@ public class ExtendedMicroProfileProjectInfoTest {
 		Assert.assertEquals("long", first.getType());
 		Assert.assertEquals("Timeout specified in milliseconds to wait to connect to the remote endpoint.",
 				first.getDescription());
+	}
+
+	@Test
+	public void expandWithSourcesUpdate() {
+		MicroProfileProjectInfo info = new MicroProfileProjectInfo();
+		info.setProperties(new ArrayList<>());
+		info.setHints(new ArrayList<>());
+
+		// fill properties
+
+		// Create a binary dynamic properties
+		ItemMetadata p = new ItemMetadata();
+		p.setName("quarkus.cache.caffeine.${quarkus.cache.name}.initial-capacity");
+		p.setSource(Boolean.FALSE);
+		info.getProperties().add(p);
+
+		// Create a source hint
+		ItemHint hint = new ItemHint();
+		hint.setName("${quarkus.cache.name}");
+		hint.setValues(new ArrayList<>());
+		hint.setSource(Boolean.TRUE);
+		info.getHints().add(hint);
+
+		ValueHint value = new ValueHint();
+		value.setValue("A");
+		hint.getValues().add(value);
+
+		value = new ValueHint();
+		value.setValue("B");
+		hint.getValues().add(value);
+
+		ExtendedMicroProfileProjectInfo wrapper = new ExtendedMicroProfileProjectInfo(info);
+
+		Assert.assertEquals(2, wrapper.getProperties().size());
+		Assert.assertEquals("quarkus.cache.caffeine.A.initial-capacity", wrapper.getProperties().get(0).getName());
+		Assert.assertEquals("quarkus.cache.caffeine.B.initial-capacity", wrapper.getProperties().get(1).getName());
+
+		// Update with empty hints
+		wrapper.updateSourcesProperties(new ArrayList<>(), new ArrayList<>());
+		Assert.assertEquals(0, wrapper.getProperties().size());
+
+		// Update with 3 hints
+		value = new ValueHint();
+		value.setValue("C");
+		hint.getValues().add(value);
+
+		wrapper.updateSourcesProperties(new ArrayList<>(), Arrays.asList(hint));
+		Assert.assertEquals(3, wrapper.getProperties().size());
+		Assert.assertEquals("quarkus.cache.caffeine.A.initial-capacity", wrapper.getProperties().get(0).getName());
+		Assert.assertEquals("quarkus.cache.caffeine.B.initial-capacity", wrapper.getProperties().get(1).getName());
+		Assert.assertEquals("quarkus.cache.caffeine.C.initial-capacity", wrapper.getProperties().get(2).getName());
+
 	}
 }
