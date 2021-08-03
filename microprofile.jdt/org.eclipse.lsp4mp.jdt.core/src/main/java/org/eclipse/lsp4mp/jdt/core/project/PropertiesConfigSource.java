@@ -20,7 +20,6 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.lsp4mp.jdt.internal.core.project.AbstractConfigSource;
 
 /**
  * {@link Properties} config file implementation.

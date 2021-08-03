@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: quarkus.jdt.ls Test Plugin
-Bundle-SymbolicName: org.eclipse.lsp4mp.jdt.test
+Bundle-SymbolicName: org.eclipse.lsp4mp.jdt.test;singleton:=true
 Bundle-Version: 0.4.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.junit,

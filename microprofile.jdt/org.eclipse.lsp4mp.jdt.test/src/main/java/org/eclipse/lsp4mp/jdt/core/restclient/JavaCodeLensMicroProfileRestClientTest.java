@@ -25,10 +25,8 @@ import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeLensParams;
 import org.eclipse.lsp4mp.jdt.core.BasePropertiesManagerTest;
 import org.eclipse.lsp4mp.jdt.core.PropertiesManagerForJava;
-import org.eclipse.lsp4mp.jdt.core.project.JDTMicroProfileProject;
 import org.eclipse.lsp4mp.jdt.core.utils.IJDTUtils;
 import org.eclipse.lsp4mp.jdt.internal.core.providers.DefaultMicroProfilePropertiesConfigSourceProvider;
-import org.eclipse.lsp4mp.jdt.internal.core.providers.QuarkusConfigSourceProvider;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -75,8 +73,6 @@ public class JavaCodeLensMicroProfileRestClientTest extends BasePropertiesManage
 
 	private static void initConfigFile(IJavaProject javaProject) throws JavaModelException, IOException {
 		saveFile(DefaultMicroProfilePropertiesConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE, "", javaProject);
-		saveFile(QuarkusConfigSourceProvider.APPLICATION_PROPERTIES_FILE, "", javaProject);
-		saveFile(QuarkusConfigSourceProvider.APPLICATION_YAML_FILE, "", javaProject);
 	}
 
 	@Test
@@ -108,44 +104,6 @@ public class JavaCodeLensMicroProfileRestClientTest extends BasePropertiesManage
 				"org.acme.restclient.CountriesServiceWithBaseUri/mp-rest/uri = https://restcountries.uri/rest" + //
 						System.lineSeparator() + //
 						"org.acme.restclient.CountriesServiceWithBaseUri/mp-rest/url = https://restcountries.url/rest", //
-				javaProject);
-		assertCodeLenses("https://restcountries.uri/rest", params, utils);
-	}
-
-	@Test
-	public void urlCodeLensYaml() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.rest_client_quickstart);
-		IJDTUtils utils = JDT_UTILS;
-
-		// Initialize file
-		initConfigFile(javaProject);
-
-		MicroProfileJavaCodeLensParams params = new MicroProfileJavaCodeLensParams();
-		IFile javaFile = javaProject.getProject()
-				.getFile(new Path("src/main/java/org/acme/restclient/CountriesService.java"));
-		params.setUri(javaFile.getLocation().toFile().toURI().toString());
-		params.setUrlCodeLensEnabled(true);
-
-		// No configuration of base url
-		List<? extends CodeLens> lenses = PropertiesManagerForJava.getInstance().codeLens(params, utils,
-				new NullProgressMonitor());
-		Assert.assertEquals(0, lenses.size());
-
-		// /mp-rest/url
-		saveFile(QuarkusConfigSourceProvider.APPLICATION_YAML_FILE, "org:\r\n" + //
-				"  acme:\r\n" + //
-				"    restclient:\r\n" + //
-				"      CountriesService/mp-rest/url: https://restcountries.url/rest", javaProject);
-		assertCodeLenses("https://restcountries.url/rest", params, utils);
-
-		// /mp-rest/uri
-		saveFile(QuarkusConfigSourceProvider.APPLICATION_YAML_FILE, //
-				"org:\r\n" + //
-						"  acme:\r\n" + //
-						"    restclient:\r\n" + //
-						"      CountriesService/mp-rest/url: https://restcountries.url/rest\r\n" + //
-						"      CountriesService/mp-rest/uri: https://restcountries.uri/rest\r\n" + //
-						"", //
 				javaProject);
 		assertCodeLenses("https://restcountries.uri/rest", params, utils);
 	}

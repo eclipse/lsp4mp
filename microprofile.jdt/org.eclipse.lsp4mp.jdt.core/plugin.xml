@@ -53,7 +53,6 @@
    <!-- Configuration sources -->
    <extension point="org.eclipse.lsp4mp.jdt.core.configSourceProviders">
       <provider class="org.eclipse.lsp4mp.jdt.internal.core.providers.DefaultMicroProfilePropertiesConfigSourceProvider" />
-      <provider class="org.eclipse.lsp4mp.jdt.internal.core.providers.QuarkusConfigSourceProvider" />
    </extension>
 
    <!-- Java Util Logging Config support -->
