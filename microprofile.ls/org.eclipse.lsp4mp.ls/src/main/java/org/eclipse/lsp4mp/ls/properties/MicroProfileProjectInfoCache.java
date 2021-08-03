@@ -97,7 +97,7 @@ class MicroProfileProjectInfoCache {
 					thenApply(info ->
 					// then update the cache with the new properties
 					{
-						wrapper.update(info.getProperties(), info.getHints());
+						wrapper.updateSourcesProperties(info.getProperties(), info.getHints());
 						return wrapper;
 					});
 		}
