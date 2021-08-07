@@ -23,7 +23,7 @@ public class MicroProfileMetricsConstants {
 
 	public static final String METRIC_ID = "org.eclipse.microprofile.metrics.MetricID";
 
-	public static final String GAUGE_ANNOTATION = "org.eclipse.microprofile.metrics.Gauge";
+	public static final String GAUGE_ANNOTATION = "org.eclipse.microprofile.metrics.annotation.Gauge";
 
 	public static final String DIAGNOSTIC_SOURCE = "microprofile-metrics";
 

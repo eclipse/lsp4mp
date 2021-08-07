@@ -215,7 +215,19 @@ public class PropertiesManager {
 
 						@Override
 						public void acceptSearchMatch(SearchMatch match) throws CoreException {
-							collectProperties(match, context, subMonitor);
+							// We collect only references from java code and not from JavaDoc
+
+							// --> In this case ConfigProperties will be collected :
+							// @ConfigProperties
+							// class A
+
+							// --> In this case ConfigProperties will not be collected :
+							// /* Demonstrate {@link ConfigProperties} */
+							// class A
+
+							if (!match.isInsideDocComment()) {
+								collectProperties(match, context, subMonitor);
+							}
 						}
 					}, subMonitor);
 			endSearch(context, subMonitor);

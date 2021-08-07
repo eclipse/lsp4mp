@@ -68,7 +68,8 @@ public class BasePropertiesManagerTest {
 		public static String other_empty_maven_project = "empty-maven-project";
 		public static String folder_name_different_maven = "folder-name-different-maven";
 		public static String hibernate_orm_resteasy = "hibernate-orm-resteasy";
-		public static String hibernate_orm_resteasy_yaml = "hibernate-orm-resteasy-yaml";
+		public static String hibernate_orm_resteasy_yaml = "hibernate-orm-resteasy-yaml";		
+		public static String microprofile_configproperties = "microprofile-configproperties";
 		public static String microprofile_fault_tolerance = "microprofile-fault-tolerance";
 		public static String microprofile_health_quickstart = "microprofile-health-quickstart";
 		public static String microprofile_lra = "microprofile-lra";
