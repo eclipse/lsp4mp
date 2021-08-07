@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.internal.config.java;
 
+import static org.eclipse.lsp4mp.jdt.core.MicroProfileConfigConstants.CONFIG_PROPERTIES_ANNOTATION_PREFIX;
 import static org.eclipse.lsp4mp.jdt.core.MicroProfileConfigConstants.CONFIG_PROPERTY_ANNOTATION;
 import static org.eclipse.lsp4mp.jdt.core.MicroProfileConfigConstants.CONFIG_PROPERTY_ANNOTATION_DEFAULT_VALUE;
 import static org.eclipse.lsp4mp.jdt.core.MicroProfileConfigConstants.CONFIG_PROPERTY_ANNOTATION_NAME;
@@ -38,6 +39,7 @@ import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
 import org.eclipse.jdt.core.dom.StringLiteral;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Range;
@@ -49,6 +51,7 @@ import org.eclipse.lsp4mp.jdt.core.project.JDTMicroProfileProject;
 import org.eclipse.lsp4mp.jdt.core.project.JDTMicroProfileProjectManager;
 import org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils;
 import org.eclipse.lsp4mp.jdt.core.utils.JDTTypeUtils;
+import org.eclipse.lsp4mp.jdt.internal.config.properties.MicroProfileConfigPropertyProvider;
 
 /**
  * Collects diagnostics related to the <code>@ConfigProperty</code> annotation
@@ -97,14 +100,46 @@ public class MicroProfileConfigDiagnosticsParticipant implements IJavaDiagnostic
 	private static class AnnotationDiagnosticCollector extends ASTVisitor {
 
 		private final List<Diagnostic> diagnostics;
-		private JavaDiagnosticsContext context;
-		private List<String> patterns;
+		private final JavaDiagnosticsContext context;
+		private final List<String> patterns;
+		// prefix from @ConfigProperties(prefix="")
+		private String currentPrefix;
 
 		public AnnotationDiagnosticCollector(JavaDiagnosticsContext context, List<Diagnostic> diagnostics) {
 			super();
 			this.diagnostics = diagnostics;
 			this.context = context;
+			this.currentPrefix = null;
 			this.patterns = getPatternsFromContext(context);
+		}
+
+		@Override
+		public boolean visit(TypeDeclaration typeDeclaration) {
+			super.visit(typeDeclaration);
+			// Get prefix from @ConfigProperties(prefix="")
+			@SuppressWarnings("rawtypes")
+			List modifiers = typeDeclaration.modifiers();
+			for (Object modifier : modifiers) {
+				if (modifier instanceof NormalAnnotation) {
+					try {
+						Expression prefixExpr = AnnotationUtils.getAnnotationMemberValueExpression(
+								(NormalAnnotation) modifier, CONFIG_PROPERTIES_ANNOTATION_PREFIX);
+						if (prefixExpr != null) {
+							currentPrefix = ((StringLiteral) prefixExpr).getLiteralValue();
+						}
+					} catch (JavaModelException e) {
+						LOGGER.log(Level.WARNING,
+								"Exception when trying to get prefix of a @ConfigProperties annotation", e);
+					}
+				}
+			}
+			return true;
+		}
+
+		@Override
+		public void endVisit(TypeDeclaration node) {
+			this.currentPrefix = null;
+			super.endVisit(node);
 		}
 
 		@Override
@@ -112,7 +147,6 @@ public class MicroProfileConfigDiagnosticsParticipant implements IJavaDiagnostic
 			if (AnnotationUtils.isMatchAnnotation(annotation, MicroProfileConfigConstants.CONFIG_PROPERTY_ANNOTATION)
 					&& annotation.getParent() instanceof FieldDeclaration) {
 				try {
-
 					Expression defaultValueExpr = AnnotationUtils.getAnnotationMemberValueExpression(annotation,
 							CONFIG_PROPERTY_ANNOTATION_DEFAULT_VALUE);
 					validatePropertyDefaultValue(annotation, defaultValueExpr);
@@ -180,6 +214,7 @@ public class MicroProfileConfigDiagnosticsParticipant implements IJavaDiagnostic
 
 				if (nameExpression != null) {
 					name = ((StringLiteral) nameExpression).getLiteralValue();
+					name = MicroProfileConfigPropertyProvider.getPropertyName(name, currentPrefix);
 				}
 
 				if (name != null && !hasDefaultValue && !doesPropertyHaveValue(name, context)

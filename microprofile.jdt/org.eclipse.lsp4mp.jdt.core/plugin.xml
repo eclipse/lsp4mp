@@ -68,6 +68,8 @@
    <extension point="org.eclipse.lsp4mp.jdt.core.propertiesProviders">
       <!-- Properties provider from the MicroProfile @ConfigProperty annotation -->
       <provider class="org.eclipse.lsp4mp.jdt.internal.config.properties.MicroProfileConfigPropertyProvider" />
+      <!-- Properties provider from the MicroProfile @ConfigProperties annotation -->
+      <provider class="org.eclipse.lsp4mp.jdt.internal.config.properties.MicroProfileConfigPropertiesProvider" />      
    </extension>
 
    <extension point="org.eclipse.lsp4mp.jdt.core.javaFeatureParticipants">

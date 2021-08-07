@@ -15,6 +15,10 @@ package org.eclipse.lsp4mp.jdt.core.utils;
 
 import org.eclipse.jdt.core.IAnnotatable;
 import org.eclipse.jdt.core.IAnnotation;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IImportContainer;
+import org.eclipse.jdt.core.IImportDeclaration;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMemberValuePair;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.Annotation;
@@ -22,6 +26,8 @@ import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.MemberValuePair;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
 import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
+import org.eclipse.jdt.internal.core.ImportContainerInfo;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 
 /**
  * Java annotations utilities.
@@ -68,7 +74,92 @@ public class AnnotationUtils {
 	 *         false otherwise.
 	 */
 	public static boolean isMatchAnnotation(IAnnotation annotation, String annotationName) {
-		return annotationName.endsWith(annotation.getElementName());
+		// Annotation name is the fully qualified name of the annotation class (ex :
+		// org.eclipse.microprofile.config.inject.ConfigProperties)
+		// - when IAnnotation comes from binary, IAnnotation#getElementName() =
+		// 'org.eclipse.microprofile.config.inject.ConfigProperties'
+		// - when IAnnotation comes from source, IAnnotation#getElementName() =
+		// 'ConfigProperties'
+		if (!annotationName.endsWith(annotation.getElementName())) {
+			return false;
+		}
+		if (annotationName.equals(annotation.getElementName())) {
+			return true;
+		}
+		// Here IAnnotation comes from source and match only 'ConfigProperties', we must
+		// check if the CU declares the proper import (ex : import
+		// org.eclipse.microprofile.config.inject.ConfigProperties;)
+		return isMatchAnnotationFullyQualifiedName(annotation, annotationName);
+	}
+
+	private static boolean isMatchAnnotationFullyQualifiedName(IAnnotation annotation, String annotationName) {
+
+		// The clean code should use resolveType:
+
+		// IJavaElement parent = annotation.getParent();
+		// if (parent instanceof IMember) {
+		// IType declaringType = parent instanceof IType ? (IType) parent : ((IMember)
+		// parent).getDeclaringType();
+		// String elementName = annotation.getElementName();
+		// try {
+		// String[][] fullyQualifiedName = declaringType.resolveType(elementName);
+		// return annotationName.equals(fullyQualifiedName[0][0] + "." +
+		// fullyQualifiedName[0][1]);
+		// } catch (JavaModelException e) {
+		// }
+		// }
+
+		// But for performance reason, we check if the import of annotation name is
+		// declared
+
+		ICompilationUnit unit = (ICompilationUnit) annotation.getAncestor(IJavaElement.COMPILATION_UNIT);
+		if (unit == null) {
+			return false;
+		}
+		IImportContainer container = unit.getImportContainer();
+		if (container == null) {
+			return false;
+		}
+
+		// The following code uses JDT internal class and looks like
+		// ICompilationUnit#getImports()
+		// To avoid creating an array of IImportDeclaration, we do the following code:
+
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		Object info = manager.getInfo(container);
+		if (info == null) {
+			if (manager.getInfo(unit) != null) {
+				// CU was opened, but no import container, then no imports
+				// return NO_IMPORTS;
+				return false;
+			} else {
+				try {
+					unit.open(null);
+				} catch (JavaModelException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} // force opening of CU
+				info = manager.getInfo(container);
+				if (info == null)
+					// after opening, if no import container, then no imports
+					// return NO_IMPORTS;
+					return false;
+			}
+		}
+		IJavaElement[] elements = ((ImportContainerInfo) info).getChildren();
+		for (IJavaElement child : elements) {
+			IImportDeclaration importDeclaration = (IImportDeclaration) child;
+			if (importDeclaration.isOnDemand()) {
+				String fqn = importDeclaration.getElementName();
+				String qualifier = fqn.substring(0, fqn.lastIndexOf('.'));
+				if (qualifier.equals(annotationName.substring(0, annotationName.lastIndexOf('.')))) {
+					return true;
+				}
+			} else if (importDeclaration.getElementName().equals(annotationName)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -102,11 +193,13 @@ public class AnnotationUtils {
 	}
 
 	/**
-	 * Returns the expression for the value of the given member name of the given annotation.
-	 *
+	 * Returns the expression for the value of the given member name of the given
+	 * annotation.
+	 * 
 	 * @param annotation the annotation.
 	 * @param memberName the member name.
-	 * @return the expression for the value of the given member name of the given annotation.
+	 * @return the expression for the value of the given member name of the given
+	 *         annotation.
 	 * @throws JavaModelException
 	 */
 	public static Expression getAnnotationMemberValueExpression(Annotation annotation, String memberName)
