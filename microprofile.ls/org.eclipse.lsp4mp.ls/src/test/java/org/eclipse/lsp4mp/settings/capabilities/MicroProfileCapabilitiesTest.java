@@ -66,7 +66,7 @@ public class MicroProfileCapabilitiesTest {
 				.getNonDynamicServerCapabilities(manager.getClientCapabilities());
 
 		assertEquals(null, serverCapabilities.getCompletionProvider());
-		assertEquals(false, serverCapabilities.getHoverProvider());
+		assertEquals(false, serverCapabilities.getHoverProvider().getLeft());
 	}
 
 	@Test
@@ -80,7 +80,7 @@ public class MicroProfileCapabilitiesTest {
 				.getNonDynamicServerCapabilities(manager.getClientCapabilities());
 
 		assertEquals(DEFAULT_COMPLETION_OPTIONS, serverCapabilities.getCompletionProvider());
-		assertEquals(true, serverCapabilities.getHoverProvider());
+		assertEquals(true, serverCapabilities.getHoverProvider().getLeft());
 	}
 
 	@Test
@@ -103,7 +103,7 @@ public class MicroProfileCapabilitiesTest {
 		ServerCapabilities serverCapabilities = ServerCapabilitiesInitializer
 				.getNonDynamicServerCapabilities(manager.getClientCapabilities());
 
-		assertEquals(true, serverCapabilities.getHoverProvider());
+		assertEquals(true, serverCapabilities.getHoverProvider().getLeft());
 		assertEquals(null, serverCapabilities.getCompletionProvider());
 	}
 

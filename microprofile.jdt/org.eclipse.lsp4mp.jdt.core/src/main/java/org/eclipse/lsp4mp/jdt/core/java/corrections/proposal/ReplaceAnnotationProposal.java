@@ -42,7 +42,7 @@ import org.eclipse.jdt.internal.corext.codemanipulation.ContextSensitiveImportRe
  * 
  * @author Kathryn Kodama
  */
-public class ReplaceAnnotationProposal extends NewAnnotationProposal {
+public class ReplaceAnnotationProposal extends InsertAnnotationProposal {
 
 	private final String[] removeAnnotations;
 

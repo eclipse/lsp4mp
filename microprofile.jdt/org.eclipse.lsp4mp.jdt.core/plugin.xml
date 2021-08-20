@@ -78,7 +78,14 @@
       <!-- Java hover for the MicroProfile @ConfigProperty annotation -->
       <hover class="org.eclipse.lsp4mp.jdt.internal.config.java.MicroProfileConfigHoverParticipant" />  
       <!-- Java validation for the MicroProfile @ConfigProperty annotation -->
-      <diagnostics class="org.eclipse.lsp4mp.jdt.internal.config.java.MicroProfileConfigDiagnosticsParticipant" /> 
+      <diagnostics class="org.eclipse.lsp4mp.jdt.internal.config.java.MicroProfileConfigDiagnosticsParticipant" />
+      <!-- Java codeActions for MicroProfile @ConfigProperty -->
+      <codeAction kind="quickfix"
+                  targetDiagnostic="microprofile-config#NO_VALUE_ASSIGNED_TO_PROPERTY"
+                  class="org.eclipse.lsp4mp.jdt.internal.config.java.NoValueAssignedToPropertyQuickFix" />
+      <codeAction kind="quickfix"
+                  targetDiagnostic="microprofile-config#NO_VALUE_ASSIGNED_TO_PROPERTY"
+                  class="org.eclipse.lsp4mp.jdt.internal.config.java.InsertDefaultValueAnnotationAttributeQuickFix" />
    </extension>
 
    <!-- Microprofile Context Propagation support -->
@@ -96,11 +103,11 @@
    </extension>
    
    <extension point="org.eclipse.lsp4mp.jdt.core.javaFeatureParticipants" >
-       <!-- Java definition for the MicroProfile @ConfigProperty annotation -->
+       <!-- Java definition for the MicroProfile Fault Tolerance annotations -->
       <definition class="org.eclipse.lsp4mp.jdt.internal.faulttolerance.java.MicroProfileFaultToleranceDefinitionParticipant" />         
-      <!-- Diagnostics for fault tolerance annotations -->
+      <!-- Diagnostics for Fault Tolerance annotations -->
    	  <diagnostics class="org.eclipse.lsp4mp.jdt.internal.faulttolerance.java.MicroProfileFaultToleranceDiagnosticsParticipant" />
-   	  <!-- Completion for fault tolerance annotations -->
+   	  <!-- Completion for Fault Tolerance annotations -->
    	  <completion class="org.eclipse.lsp4mp.jdt.internal.faulttolerance.java.MicroProfileFaultToleranceCompletionParticipant" />
    </extension>
    

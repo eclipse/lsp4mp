@@ -17,11 +17,14 @@ import static org.eclipse.lsp4mp.jdt.core.MicroProfileConfigConstants.CONFIG_PRO
 import static org.eclipse.lsp4mp.jdt.core.MicroProfileConfigConstants.CONFIG_PROPERTY_ANNOTATION;
 import static org.eclipse.lsp4mp.jdt.core.MicroProfileConfigConstants.CONFIG_PROPERTY_ANNOTATION_DEFAULT_VALUE;
 import static org.eclipse.lsp4mp.jdt.core.MicroProfileConfigConstants.CONFIG_PROPERTY_ANNOTATION_NAME;
+import static org.eclipse.lsp4mp.jdt.core.MicroProfileConfigConstants.DIAGNOSTIC_DATA_NAME;
 import static org.eclipse.lsp4mp.jdt.core.MicroProfileConfigConstants.MICRO_PROFILE_CONFIG_DIAGNOSTIC_SOURCE;
 import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.getAnnotationMemberValueExpression;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -228,6 +231,7 @@ public class MicroProfileConfigDiagnosticsParticipant implements IJavaDiagnostic
 									+ " is not assigned a value in any config file, and must be assigned at runtime",
 							range, MICRO_PROFILE_CONFIG_DIAGNOSTIC_SOURCE,
 							MicroProfileConfigErrorCode.NO_VALUE_ASSIGNED_TO_PROPERTY);
+					setDataForUnassigned(name, d);
 					diagnostics.add(d);
 				}
 			} catch (JavaModelException e) {
@@ -297,6 +301,12 @@ public class MicroProfileConfigDiagnosticsParticipant implements IJavaDiagnostic
 			LOGGER.log(Level.SEVERE, "@ConfigProperty validation attempted in a non MicroProfile project", e);
 			return false;
 		}
+	}
+
+	public static void setDataForUnassigned(String name, Diagnostic diagnostic) {
+		Map<String, String> data = new HashMap<>();
+		data.put(DIAGNOSTIC_DATA_NAME, name);
+		diagnostic.setData(data);
 	}
 
 }

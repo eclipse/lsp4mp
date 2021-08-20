@@ -179,8 +179,8 @@ public class PropertiesFileAssert {
 		formattingSettings.setSurroundEqualsWithSpaces(insertSpacing);
 
 		PropertiesFileLanguageService languageService = new PropertiesFileLanguageService();
-		CompletionList list = languageService.doComplete(model, position, projectInfo, microProfileCompletionCapabilities,
-				formattingSettings, () -> {
+		CompletionList list = languageService.doComplete(model, position, projectInfo,
+				microProfileCompletionCapabilities, formattingSettings, () -> {
 				});
 
 		assertCompletions(list, expectedCount, expectedItems);
@@ -225,12 +225,15 @@ public class PropertiesFileAssert {
 		 * expected.kind); }
 		 */
 		// if (expected.getTextEdit() != null && match.getTextEdit() != null) {
-		if (expected.getTextEdit().getNewText() != null) {
-			Assert.assertEquals(expected.getTextEdit().getNewText(), match.getTextEdit().getNewText());
+		if (expected.getTextEdit() != null && expected.getTextEdit().getLeft() != null) {
+			Assert.assertEquals(expected.getTextEdit().getLeft().getNewText(),
+					match.getTextEdit().getLeft().getNewText());
 		}
-		Range r = expected.getTextEdit().getRange();
+		Range r = expected.getTextEdit() != null && expected.getTextEdit().getLeft() != null
+				? expected.getTextEdit().getLeft().getRange()
+				: null;
 		if (r != null && r.getStart() != null && r.getEnd() != null) {
-			Assert.assertEquals(expected.getTextEdit().getRange(), match.getTextEdit().getRange());
+			Assert.assertEquals(expected.getTextEdit().getLeft().getRange(), match.getTextEdit().getLeft().getRange());
 		}
 		// }
 		if (expected.getFilterText() != null && match.getFilterText() != null) {
@@ -262,7 +265,7 @@ public class PropertiesFileAssert {
 		CompletionItem item = new CompletionItem();
 		item.setLabel(label);
 		item.setFilterText(filterText);
-		item.setTextEdit(textEdit);
+		item.setTextEdit(Either.forLeft(textEdit));
 		item.setDocumentation(documentation);
 		return item;
 	}

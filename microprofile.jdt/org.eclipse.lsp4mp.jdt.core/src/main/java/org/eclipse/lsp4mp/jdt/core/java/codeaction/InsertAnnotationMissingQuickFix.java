@@ -25,10 +25,10 @@ import org.eclipse.jdt.internal.corext.dom.Bindings;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4mp.jdt.core.java.corrections.proposal.ChangeCorrectionProposal;
-import org.eclipse.lsp4mp.jdt.core.java.corrections.proposal.NewAnnotationProposal;
+import org.eclipse.lsp4mp.jdt.core.java.corrections.proposal.InsertAnnotationProposal;
 
 /**
- * QuickFix for inserting annoations.
+ * QuickFix for inserting annotations.
  *
  * @author Angelo ZERR
  *
@@ -68,7 +68,7 @@ public class InsertAnnotationMissingQuickFix implements IJavaCodeActionParticipa
 	@Override
 	public List<? extends CodeAction> getCodeActions(JavaCodeActionContext context, Diagnostic diagnostic,
 			IProgressMonitor monitor) throws CoreException {
-		ASTNode node = context.getCoveredNode();
+		ASTNode node = context.getCoveringNode();
 		IBinding parentType = getBinding(node);
 		if (parentType != null) {
 			List<CodeAction> codeActions = new ArrayList<>();
@@ -80,7 +80,6 @@ public class InsertAnnotationMissingQuickFix implements IJavaCodeActionParticipa
 
 	protected IBinding getBinding(ASTNode node) {
 		if (node.getParent() instanceof VariableDeclarationFragment) {
-			VariableDeclarationFragment fragment = (VariableDeclarationFragment) node.getParent();
 			return ((VariableDeclarationFragment) node.getParent()).resolveBinding();
 		}
 		return Bindings.getBindingOfParentType(node);
@@ -106,7 +105,7 @@ public class InsertAnnotationMissingQuickFix implements IJavaCodeActionParticipa
 		// Insert the annotation and the proper import by using JDT Core Manipulation
 		// API
 		String name = getLabel(annotations);
-		ChangeCorrectionProposal proposal = new NewAnnotationProposal(name, context.getCompilationUnit(),
+		ChangeCorrectionProposal proposal = new InsertAnnotationProposal(name, context.getCompilationUnit(),
 				context.getASTRoot(), parentType, 0, annotations);
 		// Convert the proposal to LSP4J CodeAction
 		CodeAction codeAction = context.convertToCodeAction(proposal, diagnostic);

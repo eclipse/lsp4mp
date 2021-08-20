@@ -42,7 +42,7 @@ public class ConfigItemIntBoolDefaultValueTest extends BasePropertiesManagerTest
 		String intDefault = "0";
 
 		assertProperties(infoFromClasspath,
-				18 /* properties from Java sources with ConfigProperty */ + //
+				20 /* properties from Java sources with ConfigProperty */ + //
 				7 /* static properties from microprofile-context-propagation-api */,
 
 				// GreetingConstructorResource(

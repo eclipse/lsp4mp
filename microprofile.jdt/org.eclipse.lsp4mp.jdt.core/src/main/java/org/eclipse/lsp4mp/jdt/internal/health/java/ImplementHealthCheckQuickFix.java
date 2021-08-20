@@ -42,7 +42,7 @@ public class ImplementHealthCheckQuickFix implements IJavaCodeActionParticipant 
 	@Override
 	public List<? extends CodeAction> getCodeActions(JavaCodeActionContext context, Diagnostic diagnostic,
 			IProgressMonitor monitor) throws CoreException {
-		ASTNode node = context.getCoveredNode();
+		ASTNode node = context.getCoveringNode();
 		ITypeBinding parentType = Bindings.getBindingOfParentType(node);
 		if (parentType != null) {
 			List<CodeAction> codeActions = new ArrayList<>();

@@ -31,6 +31,18 @@ import org.eclipse.lsp4j.TextDocumentIdentifier;
  */
 public class ArgumentUtils {
 
+	private static final String DATA_PROPERTY = "data";
+	private static final String SOURCE_PROPERTY = "source";
+	private static final String MESSAGE_PROPERTY = "message";
+	private static final String CODE_PROPERTY = "code";
+	private static final String RANGE_PROPERTY = "range";
+	private static final String DIAGNOSTICS_PROPERTY = "diagnostics";
+	private static final String END_PROPERTY = "end";
+	private static final String START_PROPERTY = "start";
+	private static final String CHARACTER_PROPERTY = "character";
+	private static final String LINE_PROPERTY = "line";
+	private static final String URI_PROPERTY = "uri";
+
 	public static Map<String, Object> getFirst(List<Object> arguments) {
 		return arguments.isEmpty() ? null : (Map<String, Object>) arguments.get(0);
 	}
@@ -59,7 +71,7 @@ public class ArgumentUtils {
 		if (textDocumentIdentifierObj == null) {
 			return null;
 		}
-		String uri = getString(textDocumentIdentifierObj, "uri");
+		String uri = getString(textDocumentIdentifierObj, URI_PROPERTY);
 		return new TextDocumentIdentifier(uri);
 	}
 
@@ -68,8 +80,8 @@ public class ArgumentUtils {
 		if (positionObj == null) {
 			return null;
 		}
-		int line = getInt(positionObj, "line");
-		int character = getInt(positionObj, "character");
+		int line = getInt(positionObj, LINE_PROPERTY);
+		int character = getInt(positionObj, CHARACTER_PROPERTY);
 		return new Position(line, character);
 	}
 
@@ -78,8 +90,8 @@ public class ArgumentUtils {
 		if (rangeObj == null) {
 			return null;
 		}
-		Position start = getPosition(rangeObj, "start");
-		Position end = getPosition(rangeObj, "end");
+		Position start = getPosition(rangeObj, START_PROPERTY);
+		Position end = getPosition(rangeObj, END_PROPERTY);
 		return new Range(start, end);
 	}
 
@@ -88,13 +100,14 @@ public class ArgumentUtils {
 		if (contextObj == null) {
 			return null;
 		}
-		List<Map<String, Object>> diagnosticsObj = (List<Map<String, Object>>) contextObj.get("diagnostics");
+		List<Map<String, Object>> diagnosticsObj = (List<Map<String, Object>>) contextObj.get(DIAGNOSTICS_PROPERTY);
 		List<Diagnostic> diagnostics = diagnosticsObj.stream().map(diagnosticObj -> {
 			Diagnostic diagnostic = new Diagnostic();
-			diagnostic.setRange(getRange(diagnosticObj, "range"));
-			diagnostic.setCode(getString(diagnosticObj, "code"));
-			diagnostic.setMessage(getString(diagnosticObj, "message"));
-			diagnostic.setSource(getString(diagnosticObj, "source"));
+			diagnostic.setRange(getRange(diagnosticObj, RANGE_PROPERTY));
+			diagnostic.setCode(getString(diagnosticObj, CODE_PROPERTY));
+			diagnostic.setMessage(getString(diagnosticObj, MESSAGE_PROPERTY));
+			diagnostic.setSource(getString(diagnosticObj, SOURCE_PROPERTY));
+			diagnostic.setData(getObject(diagnosticObj, DATA_PROPERTY));
 			return diagnostic;
 		}).collect(Collectors.toList());
 		List<String> only = null;
