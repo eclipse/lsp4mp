@@ -33,6 +33,7 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.metadata.ConverterKind;
 import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
@@ -79,8 +80,8 @@ class PropertiesFileCompletions {
 	 * @return completion list for the given position
 	 */
 	public CompletionList doComplete(PropertiesModel document, Position position, MicroProfileProjectInfo projectInfo,
-			MicroProfileCompletionCapabilities completionCapabilities, MicroProfileFormattingSettings formattingSettings,
-			CancelChecker cancelChecker) {
+			MicroProfileCompletionCapabilities completionCapabilities,
+			MicroProfileFormattingSettings formattingSettings, CancelChecker cancelChecker) {
 		CompletionList list = new CompletionList();
 		int offset = -1;
 		Node node = null;
@@ -123,8 +124,8 @@ class PropertiesFileCompletions {
 
 		default:
 			// completion on property key
-			collectPropertyKeySuggestions(offset, node, document, projectInfo, completionCapabilities, formattingSettings,
-					list);
+			collectPropertyKeySuggestions(offset, node, document, projectInfo, completionCapabilities,
+					formattingSettings, list);
 			// Collect completion items with snippet
 			collectSnippetSuggestions(offset, node, document, projectInfo, completionCapabilities, getSnippetRegistry(),
 					list);
@@ -238,8 +239,7 @@ class PropertiesFileCompletions {
 				}
 			}
 
-			TextEdit textEdit = new TextEdit(range, insertText.toString());
-			item.setTextEdit(textEdit);
+			item.setTextEdit(Either.forLeft(new TextEdit(range, insertText.toString())));
 
 			item.setInsertTextFormat(snippetsSupported ? InsertTextFormat.Snippet : InsertTextFormat.PlainText);
 			item.setDocumentation(DocumentationUtils.getDocumentation(property, profile, null, markdownSupported));
@@ -292,8 +292,7 @@ class PropertiesFileCompletions {
 
 			String insertText = new StringBuilder("%").append(p).append(addPeriod ? "." : "").toString();
 			range.setEnd(currPosition);
-			TextEdit textEdit = new TextEdit(range, insertText);
-			item.setTextEdit(textEdit);
+			item.setTextEdit(Either.forLeft(new TextEdit(range, insertText)));
 			item.setInsertTextFormat(InsertTextFormat.PlainText);
 			item.setFilterText(insertText);
 			addDocumentationIfDefaultProfile(item, markdownSupported);
@@ -457,8 +456,7 @@ class PropertiesFileCompletions {
 			LOGGER.log(Level.SEVERE, "In MicroProfileCompletion#getEnumCompletionItem, position error", e);
 		}
 
-		TextEdit textEdit = new TextEdit(range, value);
-		completionItem.setTextEdit(textEdit);
+		completionItem.setTextEdit(Either.forLeft(new TextEdit(range, value)));
 		completionItem.setDocumentation(DocumentationUtils.getDocumentation(item, markdownSupported));
 
 		return completionItem;
@@ -477,7 +475,7 @@ class PropertiesFileCompletions {
 		try {
 			Range range = new Range(model.getDocument().positionAt(propertyValueExpression.getStart()),
 					model.getDocument().positionAt(propertyValueExpression.getEnd()));
-			completionItem.setTextEdit(new TextEdit(range, completionText));
+			completionItem.setTextEdit(Either.forLeft(new TextEdit(range, completionText)));
 			return completionItem;
 		} catch (BadLocationException e) {
 			return null;

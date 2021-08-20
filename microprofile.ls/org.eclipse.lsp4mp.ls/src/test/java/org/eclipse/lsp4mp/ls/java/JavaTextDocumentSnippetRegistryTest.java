@@ -197,7 +197,7 @@ public class JavaTextDocumentSnippetRegistryTest {
 				"import javax.ws.rs.GET;" + //
 				System.lineSeparator() + //
 				"import javax.ws.rs.Path;" //
-				, item.getTextEdit().getNewText());
+				, item.getTextEdit().getLeft().getNewText());
 	}
 
 	@Test
@@ -226,7 +226,7 @@ public class JavaTextDocumentSnippetRegistryTest {
 				"import javax.ws.rs.GET;" + //
 				System.lineSeparator() + //
 				"import javax.ws.rs.Path;" //
-				, item.getTextEdit().getNewText());
+				, item.getTextEdit().getLeft().getNewText());
 	}
 
 	@Test
@@ -252,7 +252,7 @@ public class JavaTextDocumentSnippetRegistryTest {
 		assertEquals("import javax.ws.rs.GET;" + //
 				System.lineSeparator() + //
 				"import javax.ws.rs.Path;" //
-				, item.getTextEdit().getNewText());
+				, item.getTextEdit().getLeft().getNewText());
 	}
 
 	private static Optional<Snippet> findByPrefix(String prefix, SnippetRegistry registry) {

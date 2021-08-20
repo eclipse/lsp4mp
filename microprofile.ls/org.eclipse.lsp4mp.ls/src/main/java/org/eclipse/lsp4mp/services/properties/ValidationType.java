@@ -34,7 +34,7 @@ public enum ValidationType {
 	 * @return true if the given code matches the validation type and false
 	 *         otherwise.
 	 */
-	public boolean isValidationType(Either<String, Number> code) {
+	public boolean isValidationType(Either<String, Integer> code) {
 		return CodeActionFactory.isDiagnosticCode(code, name());
 	}
 

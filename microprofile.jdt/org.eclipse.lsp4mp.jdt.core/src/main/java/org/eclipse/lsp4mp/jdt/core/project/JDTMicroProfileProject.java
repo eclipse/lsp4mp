@@ -18,7 +18,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.eclipse.jdt.core.IJavaProject;
@@ -110,7 +109,12 @@ public class JDTMicroProfileProject {
 				.collect(Collectors.toList());
 	}
 
-	private List<IConfigSource> getConfigSources() {
+	/**
+	 * Returns the list of config sources.
+	 * 
+	 * @return the list of config sources.
+	 */
+	public List<IConfigSource> getConfigSources() {
 		List<IConfigSource> configSources = new ArrayList<>();
 		for (IConfigSourceProvider provider : ConfigSourceProviderRegistry.getInstance().getProviders()) {
 			configSources.addAll(provider.getConfigSources(javaProject));

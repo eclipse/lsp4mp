@@ -32,14 +32,14 @@ import org.eclipse.jdt.internal.core.manipulation.dom.ASTResolving;
 import org.eclipse.jdt.internal.corext.codemanipulation.ContextSensitiveImportRewriteContext;
 import org.eclipse.lsp4j.CodeActionKind;
 
-public class NewAnnotationProposal extends ASTRewriteCorrectionProposal {
+public class InsertAnnotationProposal extends ASTRewriteCorrectionProposal {
 
 	private final CompilationUnit fInvocationNode;
 	private final IBinding fBinding;
 
 	private final String[] annotations;
 
-	public NewAnnotationProposal(String label, ICompilationUnit targetCU, CompilationUnit invocationNode,
+	public InsertAnnotationProposal(String label, ICompilationUnit targetCU, CompilationUnit invocationNode,
 			IBinding binding, int relevance, String... annotations) {
 		super(label, CodeActionKind.QuickFix, targetCU, null, relevance);
 		fInvocationNode = invocationNode;

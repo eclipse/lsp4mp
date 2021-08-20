@@ -11,7 +11,7 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lsp4mp.ls.commons;
+package org.eclipse.lsp4mp.jdt.core.java.codeaction;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -85,8 +85,8 @@ public class CodeActionFactory {
 		TextDocumentEdit textDocumentEdit = new TextDocumentEdit(versionedTextDocumentIdentifier,
 				Collections.singletonList(edit));
 		WorkspaceEdit workspaceEdit = new WorkspaceEdit(Collections.singletonList(Either.forLeft(textDocumentEdit)));
-
 		insertContentAction.setEdit(workspaceEdit);
+		workspaceEdit.setChanges(Collections.emptyMap());
 		return insertContentAction;
 	}
 
@@ -102,12 +102,12 @@ public class CodeActionFactory {
 		TextDocumentEdit textDocumentEdit = new TextDocumentEdit(versionedTextDocumentIdentifier,
 				Collections.singletonList(edit));
 		WorkspaceEdit workspaceEdit = new WorkspaceEdit(Collections.singletonList(Either.forLeft(textDocumentEdit)));
-
 		replaceContentAction.setEdit(workspaceEdit);
+		workspaceEdit.setChanges(Collections.emptyMap());
 		return replaceContentAction;
 	}
 
-	public static boolean isDiagnosticCode(Either<String, Integer> diagnosticCode, String code) {
+	public static boolean isDiagnosticCode(Either<String, Number> diagnosticCode, String code) {
 		if (diagnosticCode == null || diagnosticCode.isRight()) {
 			return false;
 		}
