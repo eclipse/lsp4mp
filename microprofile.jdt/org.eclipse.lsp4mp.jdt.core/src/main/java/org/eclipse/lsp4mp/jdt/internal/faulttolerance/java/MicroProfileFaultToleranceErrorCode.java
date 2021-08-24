@@ -17,7 +17,8 @@ import org.eclipse.lsp4mp.jdt.core.java.diagnostics.IJavaErrorCode;
 
 public enum MicroProfileFaultToleranceErrorCode implements IJavaErrorCode {
 
-	FALLBACK_METHOD_DOES_NOT_EXIST;
+	FALLBACK_METHOD_DOES_NOT_EXIST, 
+	FAULT_TOLERANCE_DEFINITION_EXCEPTION;
 
 	@Override
 	public String getCode() {
