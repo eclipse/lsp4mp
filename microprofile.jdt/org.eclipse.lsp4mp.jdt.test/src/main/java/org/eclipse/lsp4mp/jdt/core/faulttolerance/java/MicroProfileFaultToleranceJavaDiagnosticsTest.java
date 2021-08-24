@@ -53,10 +53,41 @@ public class MicroProfileFaultToleranceJavaDiagnosticsTest extends BasePropertie
 		Diagnostic d = d(14, 31, 36, "The referenced fallback method 'aaa' does not exist", DiagnosticSeverity.Error,
 				MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE,
 				MicroProfileFaultToleranceErrorCode.FALLBACK_METHOD_DOES_NOT_EXIST);
-		assertJavaDiagnostics(diagnosticsParams, utils, //
-				d);
+		assertJavaDiagnostics(diagnosticsParams, utils, d);
 	}
+	
+	@Test
+	public void asynchronousNonFutureOrCompletionStage() throws Exception {
+		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.microprofile_fault_tolerance);
+		IJDTUtils utils = JDT_UTILS;
 
+		MicroProfileJavaDiagnosticsParams diagnosticsParams = new MicroProfileJavaDiagnosticsParams();
+		IFile javaFile = javaProject.getProject()
+				.getFile(new Path("src/main/java/org/acme/AsynchronousFaultToleranceResource.java"));
+		diagnosticsParams.setUris(Arrays.asList(javaFile.getLocation().toFile().toURI().toString()));
+		diagnosticsParams.setDocumentFormat(DocumentFormat.Markdown);
+
+		Diagnostic d1 = d(34, 11, 17, 
+				"The annotated method does not return an object of type Future or CompletionStage", 
+				DiagnosticSeverity.Error,
+				MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE,
+				MicroProfileFaultToleranceErrorCode.FAULT_TOLERANCE_DEFINITION_EXCEPTION);
+		
+		Diagnostic d2 = d(39, 11, 15, 
+				"The annotated method does not return an object of type Future or CompletionStage", 
+				DiagnosticSeverity.Error,
+				MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE,
+				MicroProfileFaultToleranceErrorCode.FAULT_TOLERANCE_DEFINITION_EXCEPTION);
+		
+		Diagnostic d3 = d(44, 11, 36, 
+				"The annotated method does not return an object of type Future or CompletionStage", 
+				DiagnosticSeverity.Error,
+				MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE,
+				MicroProfileFaultToleranceErrorCode.FAULT_TOLERANCE_DEFINITION_EXCEPTION);
+		
+		assertJavaDiagnostics(diagnosticsParams, utils, d1, d2, d3);
+	}
+	
 	@Test
 	public void fallbackMethodValidationFaultTolerant() throws Exception {
 		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.microprofile_fault_tolerance);

@@ -18,7 +18,11 @@ import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.isMatchAnnotatio
 import static org.eclipse.lsp4mp.jdt.internal.faulttolerance.MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE;
 import static org.eclipse.lsp4mp.jdt.internal.faulttolerance.MicroProfileFaultToleranceConstants.FALLBACK_ANNOTATION;
 import static org.eclipse.lsp4mp.jdt.internal.faulttolerance.MicroProfileFaultToleranceConstants.FALLBACK_METHOD_FALLBACK_ANNOTATION_MEMBER;
+import static org.eclipse.lsp4mp.jdt.internal.faulttolerance.MicroProfileFaultToleranceConstants.ASYNCHRONOUS_ANNOTATION;
 import static org.eclipse.lsp4mp.jdt.internal.faulttolerance.java.MicroProfileFaultToleranceErrorCode.FALLBACK_METHOD_DOES_NOT_EXIST;
+import static org.eclipse.lsp4mp.jdt.internal.faulttolerance.java.MicroProfileFaultToleranceErrorCode.FAULT_TOLERANCE_DEFINITION_EXCEPTION;
+import static org.eclipse.lsp4mp.jdt.core.MicroProfileConfigConstants.FUTURE_TYPE_UTILITY;
+import static org.eclipse.lsp4mp.jdt.core.MicroProfileConfigConstants.COMPLETION_STAGE_TYPE_UTILITY;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,10 +42,13 @@ import org.eclipse.jdt.core.IOpenable;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.MarkerAnnotation;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
+import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
@@ -59,7 +66,7 @@ public class MicroProfileFaultToleranceDiagnosticsParticipant implements IJavaDi
 	public boolean isAdaptedForDiagnostics(JavaDiagnosticsContext context, IProgressMonitor monitor)
 			throws CoreException {
 		IJavaProject javaProject = context.getJavaProject();
-		return JDTTypeUtils.findType(javaProject, FALLBACK_ANNOTATION) != null;
+		return JDTTypeUtils.findType(javaProject, FALLBACK_ANNOTATION) != null || JDTTypeUtils.findType(javaProject, ASYNCHRONOUS_ANNOTATION) != null;
 	}
 
 	@Override
@@ -96,16 +103,16 @@ public class MicroProfileFaultToleranceDiagnosticsParticipant implements IJavaDi
 			try {
 				validateMethod(node, diagnostics, context);
 			} catch (JavaModelException e) {
-				LOGGER.log(Level.WARNING, "An exception occured when attempting to validate the fallback method");
+				LOGGER.log(Level.WARNING, "An exception occurred when attempting to validate the fallback method");
 			}
 			super.visit(node);
 			return true;
 		}
 
 		/**
-		 * Checks if the given method declaration has a fallback annotation, and if so,
-		 * provides diagnostics for the fallbackMethod
-		 * 
+		 * Checks if the given method declaration has a supported annotation, and if so,
+		 * provides diagnostics if necessary
+		 *
 		 * @param node        The method declaration to validate
 		 * @param diagnostics A list where the diagnostics will be added
 		 * @param context     The context, used to create the diagnostics
@@ -116,27 +123,76 @@ public class MicroProfileFaultToleranceDiagnosticsParticipant implements IJavaDi
 			@SuppressWarnings("rawtypes")
 			List modifiers = node.modifiers();
 			for (Object modifier : modifiers) {
-				if (modifier instanceof NormalAnnotation) {
-					NormalAnnotation annotation = (NormalAnnotation) modifier;
+				if (modifier instanceof Annotation) {
+					Annotation annotation = (Annotation) modifier;
 					if (isMatchAnnotation(annotation, FALLBACK_ANNOTATION)) {
-						Expression fallbackMethodExpr = getAnnotationMemberValueExpression(annotation,
-								FALLBACK_METHOD_FALLBACK_ANNOTATION_MEMBER);
-						if (fallbackMethodExpr != null) {
-							String fallbackMethodName = fallbackMethodExpr.toString();
-							fallbackMethodName = fallbackMethodName.substring(1, fallbackMethodName.length() - 1);
-							if (!getExistingMethods(node).contains(fallbackMethodName)) {
-								IOpenable openable = context.getTypeRoot().getOpenable();
-								Diagnostic d = context.createDiagnostic(context.getUri(),
-										"The referenced fallback method '" + fallbackMethodName + "' does not exist",
-										context.getUtils().toRange(openable, fallbackMethodExpr.getStartPosition(),
-												fallbackMethodExpr.getLength()),
-										DIAGNOSTIC_SOURCE, FALLBACK_METHOD_DOES_NOT_EXIST);
-								d.setSeverity(DiagnosticSeverity.Error);
-								diagnostics.add(d);
-							}
-						}
+						NormalAnnotation normAnnotation = (NormalAnnotation) modifier;
+						validateFallbackAnnotation(node, diagnostics, context, normAnnotation);
+					} else if (isMatchAnnotation(annotation, ASYNCHRONOUS_ANNOTATION)) {
+						MarkerAnnotation markAnnotation = (MarkerAnnotation) modifier;
+						validateAsynchronousAnnotation(node, diagnostics, context, markAnnotation);
 					}
 				}
+			}
+		}
+		
+		/**
+		 * Checks if the given method declaration has a fallback annotation, and if so,
+		 * provides diagnostics for the fallbackMethod
+		 *
+		 * @param node        The method declaration to validate
+		 * @param diagnostics A list where the diagnostics will be added
+		 * @param context     The context, used to create the diagnostics
+		 * @param annotation  The @Fallback annotation 
+		 * @throws JavaModelException
+		 */
+		private void validateFallbackAnnotation(MethodDeclaration node, List<Diagnostic> diagnostics,
+				JavaDiagnosticsContext context, NormalAnnotation annotation) throws JavaModelException {
+			Expression fallbackMethodExpr = getAnnotationMemberValueExpression(annotation,
+					FALLBACK_METHOD_FALLBACK_ANNOTATION_MEMBER);
+			if (fallbackMethodExpr != null) {
+				String fallbackMethodName = fallbackMethodExpr.toString();
+				fallbackMethodName = fallbackMethodName.substring(1, fallbackMethodName.length() - 1);
+				if (!getExistingMethods(node).contains(fallbackMethodName)) {
+					IOpenable openable = context.getTypeRoot().getOpenable();
+					Diagnostic d = context.createDiagnostic(context.getUri(),
+							"The referenced fallback method '" + fallbackMethodName + "' does not exist",
+							context.getUtils().toRange(openable, fallbackMethodExpr.getStartPosition(),
+									fallbackMethodExpr.getLength()),
+							DIAGNOSTIC_SOURCE, FALLBACK_METHOD_DOES_NOT_EXIST);
+					d.setSeverity(DiagnosticSeverity.Error);
+					diagnostics.add(d);
+				}
+			}
+		}
+		
+		/**
+		 * Checks if the given method declaration has an asynchronous annotation, and if so,
+		 * provides diagnostics for the method return type
+		 *
+		 * @param node        The method declaration to validate
+		 * @param diagnostics A list where the diagnostics will be added
+		 * @param context     The context, used to create the diagnostics
+		 * @param annotation  The @Asynchronous annotation 
+		 * @throws JavaModelException
+		 */
+		private void validateAsynchronousAnnotation(MethodDeclaration node, List<Diagnostic> diagnostics,
+				JavaDiagnosticsContext context, MarkerAnnotation annotation) throws JavaModelException {
+			Type methodReturnType = node.getReturnType2();
+			String methodReturnTypeString;
+			try {
+				methodReturnTypeString = methodReturnType.resolveBinding().getErasure().getQualifiedName();
+			} catch (Exception e) {
+				throw e;
+			}
+			if ((!(FUTURE_TYPE_UTILITY.equals(methodReturnTypeString)) && !(COMPLETION_STAGE_TYPE_UTILITY.equals(methodReturnTypeString)))) {
+				IOpenable openable = context.getTypeRoot().getOpenable();
+				Diagnostic d = context.createDiagnostic(context.getUri(),
+						"The annotated method does not return an object of type Future or CompletionStage",
+						context.getUtils().toRange(openable, methodReturnType.getStartPosition(), methodReturnType.getLength()),
+						DIAGNOSTIC_SOURCE, FAULT_TOLERANCE_DEFINITION_EXCEPTION);
+				d.setSeverity(DiagnosticSeverity.Error);
+				diagnostics.add(d);
 			}
 		}
 
