@@ -18,6 +18,9 @@ import static org.eclipse.lsp4j.jsonrpc.CompletableFutures.computeAsync;
 import static org.eclipse.lsp4mp.utils.VersionHelper.getVersion;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import org.eclipse.lsp4j.InitializeParams;
@@ -150,6 +153,10 @@ public class MicroProfileLanguageServer implements LanguageServer, ProcessLangua
 
 	@Override
 	public CompletableFuture<Object> shutdown() {
+		if (capabilityManager.getClientCapabilities().getExtendedCapabilities().shouldLanguageServerExitOnShutdown()) {
+			ScheduledExecutorService delayer = Executors.newScheduledThreadPool(1);
+			delayer.schedule(() -> exit(0) , 1, TimeUnit.SECONDS);
+		}
 		return computeAsync(cc -> new Object());
 	}
 
