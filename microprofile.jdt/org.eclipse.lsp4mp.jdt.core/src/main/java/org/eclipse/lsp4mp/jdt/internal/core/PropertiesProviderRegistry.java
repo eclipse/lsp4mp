@@ -13,19 +13,7 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.internal.core;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import org.eclipse.core.runtime.IConfigurationElement;
-import org.eclipse.core.runtime.IExtensionDelta;
-import org.eclipse.core.runtime.IExtensionRegistry;
-import org.eclipse.core.runtime.IRegistryChangeEvent;
-import org.eclipse.core.runtime.IRegistryChangeListener;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.lsp4mp.jdt.core.IPropertiesProvider;
-import org.eclipse.lsp4mp.jdt.core.MicroProfileCorePlugin;
 
 /**
  * Registry to hold the Extension point

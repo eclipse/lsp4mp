@@ -19,7 +19,7 @@ import static org.eclipse.lsp4mp.jdt.core.MicroProfileForJavaAssert.ca;
 import static org.eclipse.lsp4mp.jdt.core.MicroProfileForJavaAssert.createCodeActionParams;
 import static org.eclipse.lsp4mp.jdt.core.MicroProfileForJavaAssert.d;
 import static org.eclipse.lsp4mp.jdt.core.MicroProfileForJavaAssert.te;
-import static org.eclipse.lsp4mp.jdt.internal.config.java.MicroProfileConfigDiagnosticsParticipant.setDataForUnassigned;
+import static org.eclipse.lsp4mp.jdt.internal.config.java.MicroProfileConfigASTValidator.setDataForUnassigned;
 
 import java.util.Arrays;
 
@@ -63,7 +63,7 @@ public class MicroProfileConfigJavaDiagnosticsTest extends BasePropertiesManager
 				MicroProfileConfigConstants.MICRO_PROFILE_CONFIG_DIAGNOSTIC_SOURCE,
 				MicroProfileConfigErrorCode.DEFAULT_VALUE_IS_WRONG_TYPE);
 		Diagnostic d4 = d(32, 27, 38,
-				"The property greeting9 is not assigned a value in any config file, and must be assigned at runtime",
+				"The property 'greeting9' is not assigned a value in any config file, and must be assigned at runtime.",
 				DiagnosticSeverity.Warning, MicroProfileConfigConstants.MICRO_PROFILE_CONFIG_DIAGNOSTIC_SOURCE,
 				MicroProfileConfigErrorCode.NO_VALUE_ASSIGNED_TO_PROPERTY);
 		setDataForUnassigned("greeting9", d4);
@@ -111,7 +111,7 @@ public class MicroProfileConfigJavaDiagnosticsTest extends BasePropertiesManager
 		diagnosticsParams.setDocumentFormat(DocumentFormat.Markdown);
 
 		Diagnostic d = d(13, 32, 46,
-				"The property server.old.location is not assigned a value in any config file, and must be assigned at runtime",
+				"The property 'server.old.location' is not assigned a value in any config file, and must be assigned at runtime.",
 				DiagnosticSeverity.Warning, MicroProfileConfigConstants.MICRO_PROFILE_CONFIG_DIAGNOSTIC_SOURCE,
 				MicroProfileConfigErrorCode.NO_VALUE_ASSIGNED_TO_PROPERTY);
 		setDataForUnassigned("server.old.location", d);
@@ -134,12 +134,12 @@ public class MicroProfileConfigJavaDiagnosticsTest extends BasePropertiesManager
 		diagnosticsParams.setDocumentFormat(DocumentFormat.Markdown);
 
 		Diagnostic d1 = d(8, 24, 29,
-				"The property foo is not assigned a value in any config file, and must be assigned at runtime",
+				"The property 'foo' is not assigned a value in any config file, and must be assigned at runtime.",
 				DiagnosticSeverity.Warning, MicroProfileConfigConstants.MICRO_PROFILE_CONFIG_DIAGNOSTIC_SOURCE,
 				MicroProfileConfigErrorCode.NO_VALUE_ASSIGNED_TO_PROPERTY);
 		setDataForUnassigned("foo", d1);
 		Diagnostic d2 = d(14, 25, 30,
-				"The property server.url is not assigned a value in any config file, and must be assigned at runtime",
+				"The property 'server.url' is not assigned a value in any config file, and must be assigned at runtime.",
 				DiagnosticSeverity.Warning, MicroProfileConfigConstants.MICRO_PROFILE_CONFIG_DIAGNOSTIC_SOURCE,
 				MicroProfileConfigErrorCode.NO_VALUE_ASSIGNED_TO_PROPERTY);
 		setDataForUnassigned("server.url", d2);

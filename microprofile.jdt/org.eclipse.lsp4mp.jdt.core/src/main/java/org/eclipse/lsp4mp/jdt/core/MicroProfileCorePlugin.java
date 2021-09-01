@@ -15,6 +15,7 @@ package org.eclipse.lsp4mp.jdt.core;
 
 import org.eclipse.lsp4mp.jdt.internal.core.MicroProfilePropertiesListenerManager;
 import org.eclipse.lsp4mp.jdt.internal.core.PropertiesProviderRegistry;
+import org.eclipse.lsp4mp.jdt.internal.core.java.validators.JavaASTValidatorRegistry;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
@@ -33,11 +34,13 @@ public class MicroProfileCorePlugin implements BundleActivator {
 		plugin = this;
 		MicroProfilePropertiesListenerManager.getInstance().initialize();
 		PropertiesProviderRegistry.getInstance().initialize();
+		JavaASTValidatorRegistry.getInstance().initialize();
 	}
 
 	public void stop(BundleContext context) throws Exception {
 		MicroProfilePropertiesListenerManager.getInstance().destroy();
 		PropertiesProviderRegistry.getInstance().destroy();
+		JavaASTValidatorRegistry.getInstance().destroy();
 		plugin = null;
 	}
 

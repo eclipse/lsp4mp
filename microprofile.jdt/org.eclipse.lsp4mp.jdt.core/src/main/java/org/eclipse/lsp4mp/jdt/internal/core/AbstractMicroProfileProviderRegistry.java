@@ -24,9 +24,7 @@ import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.IRegistryChangeEvent;
 import org.eclipse.core.runtime.IRegistryChangeListener;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.lsp4mp.jdt.core.IPropertiesProvider;
 import org.eclipse.lsp4mp.jdt.core.MicroProfileCorePlugin;
-import org.eclipse.lsp4mp.jdt.core.project.IConfigSourceProvider;
 
 /**
  * Registry to hold providers for an extension point
@@ -89,8 +87,7 @@ public abstract class AbstractMicroProfileProviderRegistry<T> implements IRegist
 
 	@Override
 	public void registryChanged(final IRegistryChangeEvent event) {
-		IExtensionDelta[] deltas = event.getExtensionDeltas(MicroProfileCorePlugin.PLUGIN_ID,
-				getProviderExtensionId());
+		IExtensionDelta[] deltas = event.getExtensionDeltas(MicroProfileCorePlugin.PLUGIN_ID, getProviderExtensionId());
 		if (deltas != null) {
 			synchronized (this) {
 				for (IExtensionDelta delta : deltas) {
@@ -122,13 +119,13 @@ public abstract class AbstractMicroProfileProviderRegistry<T> implements IRegist
 	private void removeExtensionProviders(IConfigurationElement[] cf) {
 		for (IConfigurationElement ce : cf) {
 			try {
-				IPropertiesProvider provider = (IPropertiesProvider) ce.createExecutableExtension(CLASS_ATTR);
+				T provider = (T) ce.createExecutableExtension(CLASS_ATTR);
 				synchronized (providers) {
 					providers.remove(provider);
 				}
-				LOGGER.log(Level.INFO, "  Unloaded propertiesProviders: " + provider.getClass().getName());
+				LOGGER.log(Level.INFO, "  Unloaded " + getProviderExtensionId() + ": " + provider.getClass().getName());
 			} catch (Throwable t) {
-				LOGGER.log(Level.SEVERE, "  Unloaded while loading  propertiesProviders", t);
+				LOGGER.log(Level.SEVERE, "  Unloaded while loading " + getProviderExtensionId(), t);
 			}
 		}
 	}

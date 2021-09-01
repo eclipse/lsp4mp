@@ -13,8 +13,6 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.internal.core;
 
-import java.util.List;
-
 import org.eclipse.lsp4mp.jdt.core.project.IConfigSourceProvider;
 
 /**

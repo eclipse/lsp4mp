@@ -36,7 +36,8 @@ public class JavaDiagnosticsContext extends AbtractJavaContext {
 
 	private final MicroProfileJavaDiagnosticsSettings settings;
 
-	public JavaDiagnosticsContext(String uri, ITypeRoot typeRoot, IJDTUtils utils, DocumentFormat documentFormat, MicroProfileJavaDiagnosticsSettings settings) {
+	public JavaDiagnosticsContext(String uri, ITypeRoot typeRoot, IJDTUtils utils, DocumentFormat documentFormat,
+			MicroProfileJavaDiagnosticsSettings settings) {
 		super(uri, typeRoot, utils);
 		this.documentFormat = documentFormat;
 		if (settings == null) {
@@ -62,10 +63,15 @@ public class JavaDiagnosticsContext extends AbtractJavaContext {
 	}
 
 	public Diagnostic createDiagnostic(String uri, String message, Range range, String source, IJavaErrorCode code) {
+		return createDiagnostic(uri, message, range, source, code, DiagnosticSeverity.Warning);
+	}
+
+	public Diagnostic createDiagnostic(String uri, String message, Range range, String source, IJavaErrorCode code,
+			DiagnosticSeverity severity) {
 		Diagnostic diagnostic = new Diagnostic();
 		diagnostic.setSource(source);
 		diagnostic.setMessage(message);
-		diagnostic.setSeverity(DiagnosticSeverity.Warning);
+		diagnostic.setSeverity(severity);
 		diagnostic.setRange(range);
 		if (code != null) {
 			diagnostic.setCode(code.getCode());
