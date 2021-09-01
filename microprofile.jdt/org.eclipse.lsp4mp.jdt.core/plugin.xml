@@ -14,6 +14,9 @@
    <extension-point id="configSourceProviders"
                     name="%configSourceProviders.name"
                     schema="schema/configSourceProviders.exsd"/>
+   <extension-point id="javaASTValidators"
+                    name="%javaASTValidators.name"
+                    schema="schema/javaASTValidators.exsd"/>
 
    <!-- Delegate command handler for application.properties file -->
    <extension point="org.eclipse.jdt.ls.core.delegateCommandHandler">
@@ -55,6 +58,11 @@
       <provider class="org.eclipse.lsp4mp.jdt.internal.core.providers.DefaultMicroProfilePropertiesConfigSourceProvider" />
    </extension>
 
+   <extension point="org.eclipse.lsp4mp.jdt.core.javaFeatureParticipants" >      
+      <!-- Diagnostics managed with Java AST vistor -->
+   	  <diagnostics class="org.eclipse.lsp4mp.jdt.internal.core.java.validators.JavaASTDiagnosticsParticipant" />
+   </extension>
+
    <!-- Java Util Logging Config support -->
 
    <extension point="org.eclipse.lsp4mp.jdt.core.propertiesProviders">
@@ -77,8 +85,6 @@
       <definition class="org.eclipse.lsp4mp.jdt.internal.config.java.MicroProfileConfigDefinitionParticipant" />      
       <!-- Java hover for the MicroProfile @ConfigProperty annotation -->
       <hover class="org.eclipse.lsp4mp.jdt.internal.config.java.MicroProfileConfigHoverParticipant" />  
-      <!-- Java validation for the MicroProfile @ConfigProperty annotation -->
-      <diagnostics class="org.eclipse.lsp4mp.jdt.internal.config.java.MicroProfileConfigDiagnosticsParticipant" />
       <!-- Java codeActions for MicroProfile @ConfigProperty -->
       <codeAction kind="quickfix"
                   targetDiagnostic="microprofile-config#NO_VALUE_ASSIGNED_TO_PROPERTY"
@@ -88,6 +94,11 @@
                   class="org.eclipse.lsp4mp.jdt.internal.config.java.InsertDefaultValueAnnotationAttributeQuickFix" />
    </extension>
 
+   <extension point="org.eclipse.lsp4mp.jdt.core.javaASTValidators">
+      <!-- Java validation for the MicroProfile @ConfigProperty annotation -->
+      <validator class="org.eclipse.lsp4mp.jdt.internal.config.java.MicroProfileConfigASTValidator" />
+   </extension>
+   
    <!-- Microprofile Context Propagation support -->
 
    <extension point="org.eclipse.lsp4mp.jdt.core.propertiesProviders">
@@ -103,14 +114,28 @@
    </extension>
    
    <extension point="org.eclipse.lsp4mp.jdt.core.javaFeatureParticipants" >
-       <!-- Java definition for the MicroProfile Fault Tolerance annotations -->
+      <!-- Java definition for the MicroProfile Fault Tolerance annotations -->
       <definition class="org.eclipse.lsp4mp.jdt.internal.faulttolerance.java.MicroProfileFaultToleranceDefinitionParticipant" />         
-      <!-- Diagnostics for Fault Tolerance annotations -->
-   	  <diagnostics class="org.eclipse.lsp4mp.jdt.internal.faulttolerance.java.MicroProfileFaultToleranceDiagnosticsParticipant" />
-   	  <!-- Completion for Fault Tolerance annotations -->
+   	  <!-- Completion for Fault Tolerance annotations -->s
    	  <completion class="org.eclipse.lsp4mp.jdt.internal.faulttolerance.java.MicroProfileFaultToleranceCompletionParticipant" />
    </extension>
-   
+
+   <extension point="org.eclipse.lsp4mp.jdt.core.javaASTValidators">
+      <!-- Java validation for the MicroProfile @Fallback / @Asynchronous annotations -->
+      <validator class="org.eclipse.lsp4mp.jdt.internal.faulttolerance.java.MicroProfileFaultToleranceASTValidator" />
+   </extension>
+
+   <extension point="org.eclipse.lsp4mp.jdt.core.javaASTValidators">
+      <!-- Java validation for the MicroProfile Fault Tolerance annotations -->
+      <annotationValidator annotation="org.eclipse.microprofile.faulttolerance.CircuitBreaker"
+                           source="microprofile-faulttolerance" >
+         <attribute name="delay" range="0" /> <!-- x >=0 -->
+         <attribute name="requestVolumeThreshold" range="1" /> <!-- x >=1 -->
+         <attribute name="failureRatio" range="[0,1]" /> <!-- 0 <= x <= 1 -->
+         <attribute name="successThreshold" range="1" /> <!-- x >=1 -->         
+      </annotationValidator>
+   </extension>
+
    <!-- Microprofile LRA support -->
 
    <extension point="org.eclipse.lsp4mp.jdt.core.propertiesProviders">
