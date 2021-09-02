@@ -27,8 +27,6 @@ public class MicroProfileJavaCodeLensParams {
 	private String openURICommand;
 	private boolean checkServerAvailable;
 
-	private transient String localBaseURL;
-
 	public MicroProfileJavaCodeLensParams() {
 
 	}
@@ -90,19 +88,6 @@ public class MicroProfileJavaCodeLensParams {
 	 */
 	public void setLocalServerPort(Integer localServerPort) {
 		this.localServerPort = localServerPort;
-		this.localBaseURL = null;
-	}
-
-	/**
-	 * Returns the local base URL.
-	 *
-	 * @return the local base URL.
-	 */
-	public String getLocalBaseURL() {
-		if (localBaseURL == null) {
-			localBaseURL = new StringBuilder("http://localhost:").append(getLocalServerPort()).toString();
-		}
-		return localBaseURL;
 	}
 
 	/**
