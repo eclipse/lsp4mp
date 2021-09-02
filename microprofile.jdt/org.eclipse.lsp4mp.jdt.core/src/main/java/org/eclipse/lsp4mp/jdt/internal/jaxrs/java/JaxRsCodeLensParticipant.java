@@ -72,18 +72,18 @@ public class JaxRsCodeLensParticipant implements IJavaCodeLensParticipant {
 	public List<CodeLens> collectCodeLens(JavaCodeLensContext context, IProgressMonitor monitor) throws CoreException {
 		ITypeRoot typeRoot = context.getTypeRoot();
 		IJavaElement[] elements = typeRoot.getChildren();
-		int serverPort = JaxRsContext.getJaxRsContext(context).getServerPort();
+		JaxRsContext jaxrsContext = JaxRsContext.getJaxRsContext(context);
 		IJDTUtils utils = context.getUtils();
 		MicroProfileJavaCodeLensParams params = context.getParams();
-		params.setLocalServerPort(serverPort);
 		List<CodeLens> lenses = new ArrayList<>();
-		collectURLCodeLenses(elements, null, lenses, params, utils, monitor);
+		collectURLCodeLenses(elements, null, lenses, params, jaxrsContext, utils, monitor);
 		return lenses;
 	}
 
 	private static void collectURLCodeLenses(IJavaElement[] elements, String rootPath, Collection<CodeLens> lenses,
-			MicroProfileJavaCodeLensParams params, IJDTUtils utils, IProgressMonitor monitor)
-			throws JavaModelException {
+			MicroProfileJavaCodeLensParams params, JaxRsContext jaxrsContext, IJDTUtils utils, IProgressMonitor monitor)
+			throws JavaModelException, CoreException {
+
 		for (IJavaElement element : elements) {
 			if (monitor.isCanceled()) {
 				return;
@@ -96,10 +96,11 @@ public class JaxRsCodeLensParticipant implements IJavaCodeLensParticipant {
 					// Class is annotated with @Path
 					// Display code lens only if local server is available.
 					if (!params.isCheckServerAvailable()
-							|| isServerAvailable(LOCALHOST, params.getLocalServerPort(), PING_TIMEOUT)) {
+							|| isServerAvailable(LOCALHOST, jaxrsContext.getServerPort(), PING_TIMEOUT)) {
 						// Loop for each method annotated with @Path to generate URL code lens per
 						// method.
-						collectURLCodeLenses(type.getChildren(), pathValue, lenses, params, utils, monitor);
+						collectURLCodeLenses(type.getChildren(), pathValue, lenses, params, jaxrsContext, utils,
+								monitor);
 					}
 				}
 				continue;
@@ -125,7 +126,7 @@ public class JaxRsCodeLensParticipant implements IJavaCodeLensParticipant {
 				// JAX-RS
 				// annotation
 				if (isJaxRsRequestMethod(method) && Flags.isPublic(method.getFlags())) {
-					String baseURL = params.getLocalBaseURL();
+					String baseURL = jaxrsContext.getLocalBaseURL();
 					String openURICommandId = params.getOpenURICommand();
 					CodeLens lens = createURLCodeLens(baseURL, rootPath, openURICommandId, (IMethod) element, utils);
 					if (lens != null) {
