@@ -54,4 +54,6 @@ public class MicroProfileConfigConstants {
 
 	public static final String DIAGNOSTIC_DATA_NAME = "name";
 
+	public static final String UNI_TYPE_UTILITY = "io.smallrye.mutiny.Uni";
+
 }
