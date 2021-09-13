@@ -47,6 +47,7 @@ public final class ParentProcessWatcher implements Runnable, Function<MessageCon
 	private static final int POLL_DELAY_SECS = 10;
 	private volatile long lastActivityTime;
 	private final ProcessLanguageServer server;
+	private final Function<MessageConsumer, MessageConsumer> wrapper;
 	private ScheduledFuture<?> task;
 	private ScheduledExecutorService service;
 
@@ -57,8 +58,9 @@ public final class ParentProcessWatcher implements Runnable, Function<MessageCon
 		void exit(int exitCode);
 	}
 
-	public ParentProcessWatcher(ProcessLanguageServer server) {
+	public ParentProcessWatcher(ProcessLanguageServer server, Function<MessageConsumer, MessageConsumer> wrapper) {
 		this.server = server;
+		this.wrapper = wrapper;
 		service = Executors.newScheduledThreadPool(1);
 		task = service.scheduleWithFixedDelay(this, POLL_DELAY_SECS, POLL_DELAY_SECS, TimeUnit.SECONDS);
 	}
@@ -143,7 +145,7 @@ public final class ParentProcessWatcher implements Runnable, Function<MessageCon
 		// inject our own consumer to refresh the timestamp
 		return message -> {
 			lastActivityTime = System.currentTimeMillis();
-			consumer.consume(message);
+			wrapper.apply(consumer).consume(message);
 		};
 	}
 }

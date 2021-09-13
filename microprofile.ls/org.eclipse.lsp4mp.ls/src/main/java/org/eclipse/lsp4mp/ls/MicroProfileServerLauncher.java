@@ -15,6 +15,7 @@ package org.eclipse.lsp4mp.ls;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Function;
@@ -35,11 +36,9 @@ public class MicroProfileServerLauncher {
 	public static void main(String[] args) {
 		MicroProfileLanguageServer server = new MicroProfileLanguageServer();
 		Function<MessageConsumer, MessageConsumer> wrapper;
-		wrapper = it -> it;
-		if ("false".equals(System.getProperty("watchParentProcess"))) {
-			wrapper = it -> it;
-		} else {
-			wrapper = new ParentProcessWatcher(server);
+		wrapper = it -> msg -> CompletableFuture.runAsync(() -> it.consume(msg));
+		if (!"false".equals(System.getProperty("watchParentProcess"))) {
+			wrapper = new ParentProcessWatcher(server, wrapper);
 		}
 		Launcher<LanguageClient> launcher = createServerLauncher(server, System.in, System.out,
 				Executors.newCachedThreadPool(), wrapper);
