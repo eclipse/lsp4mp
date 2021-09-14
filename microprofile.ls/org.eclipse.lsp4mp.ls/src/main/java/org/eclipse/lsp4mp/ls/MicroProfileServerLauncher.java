@@ -33,10 +33,23 @@ import org.eclipse.lsp4mp.ls.commons.ParentProcessWatcher;
  *
  */
 public class MicroProfileServerLauncher {
+	/**
+	 * Main entry point for the server.
+	 * System properties may influence the behavior:
+	 * <ul><i>watchParentProcess</i>: if defined and value is false then do not watch for the parent
+	 *     process otherwise if parent process is dead then stop this server.</ul>
+	 * <ul><i>runAsync</i>: if defined and value is true then received message are processed in a
+	 *     separate thread than the LSP4J thread.</ul>
+	 *
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		MicroProfileLanguageServer server = new MicroProfileLanguageServer();
 		Function<MessageConsumer, MessageConsumer> wrapper;
-		wrapper = it -> msg -> CompletableFuture.runAsync(() -> it.consume(msg));
+		wrapper = it -> it;
+		if ("true".equals(System.getProperty("runAsync")) ) {
+			wrapper = it -> msg -> CompletableFuture.runAsync(() -> it.consume(msg));
+		}
 		if (!"false".equals(System.getProperty("watchParentProcess"))) {
 			wrapper = new ParentProcessWatcher(server, wrapper);
 		}

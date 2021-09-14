@@ -93,7 +93,7 @@ public class MicroProfileLSTest {
         String javaHome = System.getProperty("java.home");
         String classPath = System.getProperty("java.class.path");
         ProcessBuilder builder = new ProcessBuilder();
-        p = builder.command(javaHome + File.separatorChar + "bin" + File.separatorChar + "java", "-classpath", classPath, MicroProfileServerLauncher.class.getName()).start();
+        p = builder.command(javaHome + File.separatorChar + "bin" + File.separatorChar + "java", "-DrunAsync=true", "-classpath", classPath, MicroProfileServerLauncher.class.getName()).start();
     }
 
     @AfterClass
