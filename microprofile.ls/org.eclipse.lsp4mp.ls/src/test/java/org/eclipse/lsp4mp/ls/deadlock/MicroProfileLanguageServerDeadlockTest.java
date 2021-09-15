@@ -8,7 +8,7 @@
  * Contributors:
  * Red Hat, Inc. - initial API and implementation
  ******************************************************************************/
-package org.eclipse.lsp4mp.ls;
+package org.eclipse.lsp4mp.ls.deadlock;
 
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.MessageActionItem;
@@ -21,6 +21,7 @@ import org.eclipse.lsp4mp.commons.MicroProfileJavaProjectLabelsParams;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfoParams;
 import org.eclipse.lsp4mp.commons.ProjectLabelInfoEntry;
+import org.eclipse.lsp4mp.ls.MicroProfileServerLauncher;
 import org.eclipse.lsp4mp.ls.api.MicroProfileLanguageClientAPI;
 import org.eclipse.lsp4mp.ls.api.MicroProfileLanguageServerAPI;
 import org.junit.AfterClass;
@@ -41,7 +42,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertTrue;
 
-public class MicroProfileLSTest {
+public class MicroProfileLanguageServerDeadlockTest {
     private static class MyLanguageClient implements MicroProfileLanguageClientAPI {
 
         private final CountDownLatch latch;
@@ -115,7 +116,7 @@ public class MicroProfileLSTest {
         CompletableFuture.runAsync(() -> {
             for (int i=1; i < 11;i++) {
                 try {
-                    URL url = MicroProfileLSTest.class.getResource("Class" + i + ".java");
+                    URL url = MicroProfileLanguageServerDeadlockTest.class.getResource("Class" + i + ".java");
                     byte[] content = Files.readAllBytes(Paths.get(url.toURI()));
                     TextDocumentItem item = new TextDocumentItem(url.toURI().toString(), "java", 0, new String(content, 0, content.length, StandardCharsets.UTF_8));
                     launcher.getRemoteProxy().getTextDocumentService().didOpen(new DidOpenTextDocumentParams(item));
