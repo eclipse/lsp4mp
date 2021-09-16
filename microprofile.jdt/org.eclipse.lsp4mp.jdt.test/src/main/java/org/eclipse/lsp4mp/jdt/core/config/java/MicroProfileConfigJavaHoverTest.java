@@ -17,17 +17,14 @@ import static org.eclipse.lsp4mp.jdt.core.MicroProfileForJavaAssert.assertJavaHo
 import static org.eclipse.lsp4mp.jdt.core.MicroProfileForJavaAssert.fixURI;
 import static org.eclipse.lsp4mp.jdt.core.MicroProfileForJavaAssert.h;
 
-import java.io.IOException;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4mp.jdt.core.BasePropertiesManagerTest;
 import org.eclipse.lsp4mp.jdt.core.TestConfigSourceProvider;
-import org.eclipse.lsp4mp.jdt.internal.core.providers.DefaultMicroProfilePropertiesConfigSourceProvider;
+import org.eclipse.lsp4mp.jdt.internal.core.providers.MicroProfileConfigSourceProvider;
 import org.junit.After;
 import org.junit.Test;
 
@@ -41,9 +38,10 @@ public class MicroProfileConfigJavaHoverTest extends BasePropertiesManagerTest {
 	private static IJavaProject javaProject;
 
 	@After
-	public void cleanup() throws JavaModelException, IOException {
-		deleteFile(DefaultMicroProfilePropertiesConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE, javaProject);
-		deleteFile(TestConfigSourceProvider.MICROPROFILE_CONFIG_TEST, javaProject);
+	public void cleanup() throws Exception {
+		deleteFile(MicroProfileConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE, javaProject);
+		deleteFile(TestConfigSourceProvider.MICROPROFILE_CONFIG_TEST_FILE, javaProject);
+		deleteFile(TestConfigSourceProvider.CONFIG_FILE, javaProject);
 	}
 
 	@Test
@@ -56,27 +54,30 @@ public class MicroProfileConfigJavaHoverTest extends BasePropertiesManagerTest {
 		IFile propertiesFile = project.getFile(new Path("src/main/resources/META-INF/microprofile-config.properties"));
 		String propertiesFileUri = fixURI(propertiesFile.getLocation().toFile().toURI());
 
-		saveFile(DefaultMicroProfilePropertiesConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE, //
+		saveFile(MicroProfileConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE, //
 				"greeting.message = hello\r\n" + //
 						"greeting.name = quarkus\r\n" + //
 						"greeting.number = 100",
 				javaProject);
 		// Position(14, 40) is the character after the | symbol:
 		// @ConfigProperty(name = "greeting.mes|sage")
-		assertJavaHover(new Position(14, 40), javaFileUri, JDT_UTILS,
-				h("`greeting.message = hello` *in* [META-INF/microprofile-config.properties](" + propertiesFileUri + ")", 14, 28, 44));
+		assertJavaHover(new Position(14, 40), javaFileUri, JDT_UTILS, h(
+				"`greeting.message = hello` *in* [META-INF/microprofile-config.properties](" + propertiesFileUri + ")",
+				14, 28, 44));
 
 		// Test left edge
 		// Position(14, 28) is the character after the | symbol:
 		// @ConfigProperty(name = "|greeting.message")
-		assertJavaHover(new Position(14, 28), javaFileUri, JDT_UTILS,
-				h("`greeting.message = hello` *in* [META-INF/microprofile-config.properties](" + propertiesFileUri + ")", 14, 28, 44));
+		assertJavaHover(new Position(14, 28), javaFileUri, JDT_UTILS, h(
+				"`greeting.message = hello` *in* [META-INF/microprofile-config.properties](" + propertiesFileUri + ")",
+				14, 28, 44));
 
 		// Test right edge
 		// Position(14, 43) is the character after the | symbol:
 		// @ConfigProperty(name = "greeting.messag|e")
-		assertJavaHover(new Position(14, 43), javaFileUri, JDT_UTILS,
-				h("`greeting.message = hello` *in* [META-INF/microprofile-config.properties](" + propertiesFileUri + ")", 14, 28, 44));
+		assertJavaHover(new Position(14, 43), javaFileUri, JDT_UTILS, h(
+				"`greeting.message = hello` *in* [META-INF/microprofile-config.properties](" + propertiesFileUri + ")",
+				14, 28, 44));
 
 		// Test no hover
 		// Position(14, 27) is the character after the | symbol:
@@ -98,7 +99,8 @@ public class MicroProfileConfigJavaHoverTest extends BasePropertiesManagerTest {
 		// Position(26, 33) is the character after the | symbol:
 		// @ConfigProperty(name = "greet|ing.number", defaultValue="0")
 		assertJavaHover(new Position(26, 33), javaFileUri, JDT_UTILS,
-				h("`greeting.number = 100` *in* [META-INF/microprofile-config.properties](" + propertiesFileUri + ")", 26, 28, 43));
+				h("`greeting.number = 100` *in* [META-INF/microprofile-config.properties](" + propertiesFileUri + ")",
+						26, 28, 43));
 
 		// Hover when no value
 		// Position(23, 33) is the character after the | symbol:
@@ -116,7 +118,7 @@ public class MicroProfileConfigJavaHoverTest extends BasePropertiesManagerTest {
 		IFile propertiesFile = project.getFile(new Path("src/main/resources/META-INF/microprofile-config.properties"));
 		String propertiesFileUri = fixURI(propertiesFile.getLocation().toFile().toURI());
 
-		saveFile(DefaultMicroProfilePropertiesConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE, //
+		saveFile(MicroProfileConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE, //
 				"greeting.message = hello\r\n" + //
 						"%dev.greeting.message = hello dev\r\n" + //
 						"%prod.greeting.message = hello prod\r\n" + //
@@ -127,13 +129,15 @@ public class MicroProfileConfigJavaHoverTest extends BasePropertiesManagerTest {
 		// Position(14, 40) is the character after the | symbol:
 		// @ConfigProperty(name = "greeting.mes|sage")
 		assertJavaHover(new Position(14, 40), javaFileUri, JDT_UTILS, //
-				h("`%dev.greeting.message = hello dev` *in* [META-INF/microprofile-config.properties](" + propertiesFileUri + ")  \n" + //
-						"`%prod.greeting.message = hello prod` *in* [META-INF/microprofile-config.properties](" + propertiesFileUri
-						+ ")  \n" + //
-						"`greeting.message = hello` *in* [META-INF/microprofile-config.properties](" + propertiesFileUri + ")", //
+				h("`%dev.greeting.message = hello dev` *in* [META-INF/microprofile-config.properties]("
+						+ propertiesFileUri + ")  \n" + //
+						"`%prod.greeting.message = hello prod` *in* [META-INF/microprofile-config.properties]("
+						+ propertiesFileUri + ")  \n" + //
+						"`greeting.message = hello` *in* [META-INF/microprofile-config.properties](" + propertiesFileUri
+						+ ")", //
 						14, 28, 44));
 
-		saveFile(DefaultMicroProfilePropertiesConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE, //
+		saveFile(MicroProfileConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE, //
 				"%dev.greeting.message = hello dev\r\n" + //
 						"%prod.greeting.message = hello prod\r\n" + //
 						"my.greeting.message\r\n" + //
@@ -143,9 +147,10 @@ public class MicroProfileConfigJavaHoverTest extends BasePropertiesManagerTest {
 		// Position(14, 40) is the character after the | symbol:
 		// @ConfigProperty(name = "greeting.mes|sage")
 		assertJavaHover(new Position(14, 40), javaFileUri, JDT_UTILS, //
-				h("`%dev.greeting.message = hello dev` *in* [META-INF/microprofile-config.properties](" + propertiesFileUri + ")  \n" + //
-						"`%prod.greeting.message = hello prod` *in* [META-INF/microprofile-config.properties](" + propertiesFileUri
-						+ ")  \n" + //
+				h("`%dev.greeting.message = hello dev` *in* [META-INF/microprofile-config.properties]("
+						+ propertiesFileUri + ")  \n" + //
+						"`%prod.greeting.message = hello prod` *in* [META-INF/microprofile-config.properties]("
+						+ propertiesFileUri + ")  \n" + //
 						"`greeting.message` is not set", //
 						14, 28, 44));
 	}
@@ -160,13 +165,14 @@ public class MicroProfileConfigJavaHoverTest extends BasePropertiesManagerTest {
 		IFile propertiesFile = project.getFile(new Path("src/main/resources/META-INF/microprofile-config.properties"));
 		String propertiesFileUri = fixURI(propertiesFile.getLocation().toFile().toURI());
 
-		saveFile(DefaultMicroProfilePropertiesConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE, "greeting.method.message = hello", javaProject);
+		saveFile(MicroProfileConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE,
+				"greeting.method.message = hello", javaProject);
 
 		// Position(22, 61) is the character after the | symbol:
 		// @ConfigProperty(name = "greeting.m|ethod.message")
 		assertJavaHover(new Position(22, 61), javaFileUri, JDT_UTILS,
-				h("`greeting.method.message = hello` *in* [META-INF/microprofile-config.properties](" + propertiesFileUri + ")", 22, 51,
-						74));
+				h("`greeting.method.message = hello` *in* [META-INF/microprofile-config.properties]("
+						+ propertiesFileUri + ")", 22, 51, 74));
 
 		// Position(27, 60) is the character after the | symbol:
 		// @ConfigProperty(name = "greeting.m|ethod.suffix" , defaultValue="!")
@@ -189,14 +195,14 @@ public class MicroProfileConfigJavaHoverTest extends BasePropertiesManagerTest {
 		IFile propertiesFile = project.getFile(new Path("src/main/resources/META-INF/microprofile-config.properties"));
 		String propertiesFileUri = fixURI(propertiesFile.getLocation().toFile().toURI());
 
-		saveFile(DefaultMicroProfilePropertiesConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE, "greeting.constructor.message = hello",
-				javaProject);
+		saveFile(MicroProfileConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE,
+				"greeting.constructor.message = hello", javaProject);
 
 		// Position(23, 48) is the character after the | symbol:
 		// @ConfigProperty(name = "greeting.con|structor.message")
 		assertJavaHover(new Position(23, 48), javaFileUri, JDT_UTILS, //
-				h("`greeting.constructor.message = hello` *in* [META-INF/microprofile-config.properties](" + propertiesFileUri + ")", 23,
-						36, 64));
+				h("`greeting.constructor.message = hello` *in* [META-INF/microprofile-config.properties]("
+						+ propertiesFileUri + ")", 23, 36, 64));
 
 		// Position(24, 48) is the character after the | symbol:
 		// @ConfigProperty(name = "greeting.con|structor.suffix" , defaultValue="!")
@@ -219,28 +225,61 @@ public class MicroProfileConfigJavaHoverTest extends BasePropertiesManagerTest {
 		String javaFileUri = fixURI(javaFile.getLocation().toFile().toURI());
 		IFile propertiesFile = project.getFile(new Path("src/main/resources/META-INF/microprofile-config.properties"));
 		String propertiesFileUri = fixURI(propertiesFile.getLocation().toFile().toURI());
-		IFile testPropertiesFile = project.getFile(new Path("src/main/resources/META-INF/microprofile-config-test.properties"));
-		String testPropertiesFileUri = fixURI(testPropertiesFile.getLocation().toFile().toURI());
+		IFile configPropertiesFile = project.getFile(new Path("src/main/resources/META-INF/config.properties"));
+		String configPropertiesFileUri = fixURI(configPropertiesFile.getLocation().toFile().toURI());
 
-		saveFile(DefaultMicroProfilePropertiesConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE, //
-				"greeting.message = hello\r\n",
-				javaProject);
-		saveFile(TestConfigSourceProvider.MICROPROFILE_CONFIG_TEST, //
-				"greeting.message = hi\r\n",
-				javaProject);
+		saveFile(MicroProfileConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE, //
+				"greeting.message = hello\r\n", javaProject);
+		saveFile(TestConfigSourceProvider.CONFIG_FILE, //
+				"greeting.message = hi\r\n", javaProject);
 
 		// Position(14, 40) is the character after the | symbol:
 		// @ConfigProperty(name = "greeting.mes|sage")
 		assertJavaHover(new Position(14, 40), javaFileUri, JDT_UTILS,
-				h("`greeting.message = hi` *in* [META-INF/microprofile-config-test.properties](" + testPropertiesFileUri + ")", 14, 28, 44));
+				h("`greeting.message = hi` *in* [META-INF/config.properties](" + configPropertiesFileUri + ")", 14, 28,
+						44));
 
-		saveFile(TestConfigSourceProvider.MICROPROFILE_CONFIG_TEST, //
-				"\r\n",
-				javaProject);
+		saveFile(TestConfigSourceProvider.CONFIG_FILE, //
+				"\r\n", javaProject);
 
-		assertJavaHover(new Position(14, 40), javaFileUri, JDT_UTILS,
-				h("`greeting.message = hello` *in* [META-INF/microprofile-config.properties](" + propertiesFileUri + ")", 14, 28, 44));
+		assertJavaHover(new Position(14, 40), javaFileUri, JDT_UTILS, h(
+				"`greeting.message = hello` *in* [META-INF/microprofile-config.properties](" + propertiesFileUri + ")",
+				14, 28, 44));
 
 	}
 
+	@Test
+	public void configPropertyNameProfile() throws Exception {
+
+		javaProject = loadMavenProject(MicroProfileMavenProjectName.config_hover);
+		IProject project = javaProject.getProject();
+		IFile javaFile = project.getFile(new Path("src/main/java/org/acme/config/GreetingResource.java"));
+		String javaFileUri = fixURI(javaFile.getLocation().toFile().toURI());
+		IFile propertiesFile = project.getFile(new Path("src/main/resources/META-INF/microprofile-config.properties"));
+		String propertiesFileUri = fixURI(propertiesFile.getLocation().toFile().toURI());
+		IFile testPropertiesFile = project
+				.getFile(new Path("src/main/resources/META-INF/microprofile-config-test.properties"));
+		String testPropertiesFileUri = fixURI(testPropertiesFile.getLocation().toFile().toURI());
+
+		saveFile(MicroProfileConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE, //
+				"greeting.message = hello\r\n", javaProject);
+		saveFile(TestConfigSourceProvider.MICROPROFILE_CONFIG_TEST_FILE, //
+				"greeting.message = hi\r\n", javaProject);
+
+		// Position(14, 40) is the character after the | symbol:
+		// @ConfigProperty(name = "greeting.mes|sage")
+		assertJavaHover(new Position(14, 40), javaFileUri, JDT_UTILS,
+				h("`%test.greeting.message = hi` *in* [META-INF/microprofile-config-test.properties]("
+						+ testPropertiesFileUri + ")  \n" + //
+						"`greeting.message = hi` *in* [META-INF/microprofile-config-test.properties](" + testPropertiesFileUri
+						+ ")", 14, 28, 44));
+
+		saveFile(TestConfigSourceProvider.MICROPROFILE_CONFIG_TEST_FILE, //
+				"\r\n", javaProject);
+
+		assertJavaHover(new Position(14, 40), javaFileUri, JDT_UTILS, h(
+				"`greeting.message = hello` *in* [META-INF/microprofile-config.properties](" + propertiesFileUri + ")",
+				14, 28, 44));
+
+	}
 }

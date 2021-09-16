@@ -36,8 +36,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.lsp4mp.commons.MicroProfilePropertiesChangeEvent;
 import org.eclipse.lsp4mp.commons.MicroProfilePropertiesScope;
 import org.eclipse.lsp4mp.jdt.core.IMicroProfilePropertiesChangedListener;
-import org.eclipse.lsp4mp.jdt.core.project.IConfigSource;
-import org.eclipse.lsp4mp.jdt.core.project.IConfigSourceProvider;
+import org.eclipse.lsp4mp.jdt.core.project.JDTMicroProfileProjectManager;
 import org.eclipse.lsp4mp.jdt.core.utils.JDTMicroProfileUtils;
 
 /**
@@ -196,18 +195,7 @@ public class MicroProfilePropertiesListenerManager {
 		}
 
 		private boolean isConfigSource(IFile file) {
-			IJavaProject project = JavaCore.create(file.getProject());
-			if (project == null) {
-				return false;
-			}
-			for (IConfigSourceProvider provider : ConfigSourceProviderRegistry.getInstance().getProviders()) {
-				for (IConfigSource configSource : provider.getConfigSources(project)) {
-					if (configSource.isSameFile(file.getLocation().toFile())) {
-						return true;
-					}
-				}
-			}
-			return false;
+			return JDTMicroProfileProjectManager.getInstance().isConfigSource(file);
 		}
 
 		private boolean isFileContentChanged(IResourceDelta delta) {

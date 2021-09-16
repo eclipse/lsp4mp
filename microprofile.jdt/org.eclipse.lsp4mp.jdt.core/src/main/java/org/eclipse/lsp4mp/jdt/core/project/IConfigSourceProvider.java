@@ -13,6 +13,7 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.core.project;
 
+import java.io.File;
 import java.util.List;
 
 import org.eclipse.jdt.core.IJavaProject;
@@ -30,6 +31,17 @@ public interface IConfigSourceProvider {
 	 * @param project the Java project to get configuration sources for
 	 * @return a list of configuration sources for a given Java project
 	 */
-	List<IConfigSource> getConfigSources(IJavaProject project);
+	List<IConfigSource> getConfigSources(IJavaProject javaProject, File outputFolder);
+
+	/**
+	 * Returns true if the given file name is a config source (ex :
+	 * microprofile-config.properties) and false otherwise.
+	 * 
+	 * @param fileName the file name to check.
+	 * 
+	 * @return true if the given file name is a config source (ex :
+	 *         microprofile-config.properties) and false otherwise.
+	 */
+	boolean isConfigSource(String fileName);
 
 }

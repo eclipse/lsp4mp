@@ -15,7 +15,9 @@ package org.eclipse.lsp4mp.jdt.core.project;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -29,52 +31,65 @@ import org.eclipse.jdt.core.IJavaProject;
  */
 public class PropertiesConfigSource extends AbstractConfigSource<Properties> {
 
-	private final int ordinal;
-
-	public PropertiesConfigSource(String configFileName, IJavaProject javaProject, int ordinal) {
-		super(configFileName, javaProject);
-		this.ordinal = ordinal;
+	public PropertiesConfigSource(String configFileName, String profile, int ordinal, IJavaProject javaProject) {
+		super(configFileName, profile, ordinal, javaProject);
 	}
 
 	public PropertiesConfigSource(String configFileName, IJavaProject javaProject) {
 		super(configFileName, javaProject);
-		this.ordinal = super.getOrdinal();
+	}
+
+	public PropertiesConfigSource(String configFileName, int profile, IJavaProject javaProject) {
+		super(configFileName, profile, javaProject);
 	}
 
 	@Override
-	protected String getProperty(String key, Properties properties) {
-		return properties.getProperty(key);
+	public String getProperty(String key) {
+		Properties properties = getConfig();
+		return properties != null ? properties.getProperty(key) : null;
 	}
 
 	@Override
 	protected Properties loadConfig(InputStream input) throws IOException {
 		Properties properties = new Properties();
 		properties.load(input);
+		String profile = getProfile();
+		if (profile != null) {
+			// Prefix all properties with profile
+			Properties adjustedProperties = new Properties();
+			properties.forEach((key, val) -> {
+				// Ignore any properties with a profile,
+				// since they are not valid
+				if (!((String) key).startsWith("%")) {
+					adjustedProperties.putIfAbsent("%" + profile + "." + key, val);
+				}
+			});
+			return adjustedProperties;
+		}
 		return properties;
 	}
 
 	@Override
-	public Map<String, MicroProfileConfigPropertyInformation> getPropertyInformations(String propertyKey,
-			Properties properties) {
-		Map<String, MicroProfileConfigPropertyInformation> infos = new HashMap<>();
-		if (properties != null) {
-			properties.stringPropertyNames().stream() //
-					.filter(key -> {
-						return propertyKey
-								.equals(MicroProfileConfigPropertyInformation.getPropertyNameWithoutProfile(key))
-								&& getProperty(key) != null;
-					}) //
-					.forEach(matchingKey -> {
-						infos.put(matchingKey, new MicroProfileConfigPropertyInformation(matchingKey,
-								getProperty(matchingKey), getSourceConfigFileURI(), getConfigFileName()));
-					});
-		}
-		return infos;
-	}
+	protected Map<String, List<MicroProfileConfigPropertyInformation>> loadPropertyInformations() {
+		Properties config = super.getConfig();
+		Map<String /* property key without profile */, List<MicroProfileConfigPropertyInformation>> propertiesMap = new HashMap<>();
+		config.forEach((key, val) -> {
+			if (key != null) {
+				String propertyKeyWithProfile = key.toString();
+				String propertyValue = val != null ? val.toString() : null;
 
-	@Override
-	public int getOrdinal() {
-		return ordinal;
+				String propertyKey = MicroProfileConfigPropertyInformation
+						.getPropertyNameWithoutProfile(propertyKeyWithProfile);
+				List<MicroProfileConfigPropertyInformation> info = propertiesMap.get(propertyKey);
+				if (info == null) {
+					info = new ArrayList<>();
+					propertiesMap.put(propertyKey, info);
+				}
+				info.add(new MicroProfileConfigPropertyInformation(propertyKeyWithProfile, propertyValue,
+						getSourceConfigFileURI(), getConfigFileName()));
+			}
+		});
+		return propertiesMap;
 	}
 
 }

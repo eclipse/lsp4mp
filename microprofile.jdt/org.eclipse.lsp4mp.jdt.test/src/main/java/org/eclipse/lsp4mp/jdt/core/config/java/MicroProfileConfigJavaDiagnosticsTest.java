@@ -36,6 +36,7 @@ import org.eclipse.lsp4mp.jdt.core.BasePropertiesManagerTest;
 import org.eclipse.lsp4mp.jdt.core.MicroProfileConfigConstants;
 import org.eclipse.lsp4mp.jdt.core.utils.IJDTUtils;
 import org.eclipse.lsp4mp.jdt.internal.config.java.MicroProfileConfigErrorCode;
+import org.eclipse.lsp4mp.jdt.internal.core.providers.MicroProfileConfigSourceProvider;
 import org.junit.Test;
 
 public class MicroProfileConfigJavaDiagnosticsTest extends BasePropertiesManagerTest {
@@ -124,6 +125,8 @@ public class MicroProfileConfigJavaDiagnosticsTest extends BasePropertiesManager
 		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.config_quickstart);
 		IJDTUtils utils = JDT_UTILS;
 
+		saveFile(MicroProfileConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE, "", javaProject);
+		
 		IFile propertiesFile = javaProject.getProject()
 				.getFile(new Path("src/main/resources/META-INF/microprofile-config.properties"));
 

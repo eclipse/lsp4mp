@@ -13,7 +13,8 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.core;
 
-import java.util.Collections;
+import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.jdt.core.IJavaProject;
@@ -22,18 +23,28 @@ import org.eclipse.lsp4mp.jdt.core.project.IConfigSourceProvider;
 import org.eclipse.lsp4mp.jdt.core.project.PropertiesConfigSource;
 
 /**
- * Defines the config file <code>META-INF/microprofile-config-test.properties</code> for use in tests.
+ * Defines the config file
+ * <code>META-INF/microprofile-config-test.properties</code> for use in tests.
  *
- * The config file has a higher ordinal than <code>META-INF/microprofile-config.properties</code>.
+ * The config file has a higher ordinal than
+ * <code>META-INF/microprofile-config.properties</code>.
  *
  */
 public class TestConfigSourceProvider implements IConfigSourceProvider {
 
-	public static final String MICROPROFILE_CONFIG_TEST = "META-INF/microprofile-config-test.properties";
+	public static final String MICROPROFILE_CONFIG_TEST_FILE = "META-INF/microprofile-config-test.properties";
+
+	public static final String CONFIG_FILE = "META-INF/config.properties";
 
 	@Override
-	public List<IConfigSource> getConfigSources(IJavaProject project) {
-		return Collections.singletonList(new PropertiesConfigSource(MICROPROFILE_CONFIG_TEST, project, 101));
+	public List<IConfigSource> getConfigSources(IJavaProject project, File outputFolder) {
+		return Arrays.asList(new PropertiesConfigSource(MICROPROFILE_CONFIG_TEST_FILE, 101, project),
+				new PropertiesConfigSource(CONFIG_FILE, 102, project));
+	}
+
+	@Override
+	public boolean isConfigSource(String fileName) {
+		return MICROPROFILE_CONFIG_TEST_FILE.equals(fileName) || CONFIG_FILE.equals(fileName);
 	}
 
 }
