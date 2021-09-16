@@ -13,11 +13,10 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.core.project;
 
-import java.io.File;
-import java.util.Map;
+import java.util.List;
 
 /**
- * Configuration file API
+ * Configuration source (ex : META-INF/microprofile-config.properties) API
  *
  * @author Angelo ZERR
  *
@@ -57,39 +56,36 @@ public interface IConfigSource {
 	String getSourceConfigFileURI();
 
 	/**
-	 * Returns a map from the property and profile, in the format used by
-	 * <code>microprofile-config.properties</code>, to the related property
-	 * information, for each property and profile that's assigned a value in this
-	 * config source
-	 *
-	 * A map is used so that it can be merged with another map and override any
-	 * property informations from that map
+	 * Returns a list of all values for properties and different profiles that are
+	 * defined in this config source.
+	 * 
+	 * <p>
+	 * This list contains information for the property (ex : greeting.message) and
+	 * profile property (ex : %dev.greeting.message).
+	 * </p>
 	 *
 	 * @param propertyKey the name of the property to collect the values for
-	 * @return a map from the property and profile, in the format used by
-	 *         <code>microprofile-config.properties</code>, to the related property
-	 *         information, for each property and profile that's assigned a value in
-	 *         this config source
+	 * 
+	 * @return a list of all values for properties and different profiles that are
+	 *         defined in this config source.
 	 */
-	Map<String, MicroProfileConfigPropertyInformation> getPropertyInformations(String propertyKey);
+	List<MicroProfileConfigPropertyInformation> getPropertyInformations(String propertyKey);
 
 	/**
 	 * Returns the ordinal for this config source
 	 *
-	 * See https://download.eclipse.org/microprofile/microprofile-config-2.0/microprofile-config-spec-2.0.html#_configsource_ordering
+	 * See
+	 * https://download.eclipse.org/microprofile/microprofile-config-2.0/microprofile-config-spec-2.0.html#_configsource_ordering
 	 *
 	 * @return the ordinal for this config source
 	 */
-	default int getOrdinal() {
-		return 100;
-	}
+	int getOrdinal();
 
 	/**
-	 * Returns true if the given file is the same file as this config source and false otherwise.
-	 *
-	 * @param file the file to check
-	 * @return true if the given file is the same file as this config source and false otherwise
+	 * Returns the profile of the config source and null otherwise.
+	 * 
+	 * @return the profile of the config source and null otherwise.
 	 */
-	boolean isSameFile(File file);
+	String getProfile();
 
 }

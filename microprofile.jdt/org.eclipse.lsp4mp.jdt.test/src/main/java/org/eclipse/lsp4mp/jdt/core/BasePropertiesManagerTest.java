@@ -13,16 +13,20 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.core;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
+import java.io.InputStream;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.io.FileUtils;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -68,7 +72,7 @@ public class BasePropertiesManagerTest {
 		public static String other_empty_maven_project = "empty-maven-project";
 		public static String folder_name_different_maven = "folder-name-different-maven";
 		public static String hibernate_orm_resteasy = "hibernate-orm-resteasy";
-		public static String hibernate_orm_resteasy_yaml = "hibernate-orm-resteasy-yaml";		
+		public static String hibernate_orm_resteasy_yaml = "hibernate-orm-resteasy-yaml";
 		public static String microprofile_configproperties = "microprofile-configproperties";
 		public static String microprofile_fault_tolerance = "microprofile-fault-tolerance";
 		public static String microprofile_health_quickstart = "microprofile-health-quickstart";
@@ -130,8 +134,7 @@ public class BasePropertiesManagerTest {
 		return loadJavaProject(gradleProject, "gradle");
 	}
 
-	public static IJavaProject loadMavenProjectFromSubFolder(String mavenProject, String subFolder)
-			throws Exception {
+	public static IJavaProject loadMavenProjectFromSubFolder(String mavenProject, String subFolder) throws Exception {
 		return loadJavaProject(mavenProject, java.nio.file.Paths.get("maven", subFolder).toString());
 	}
 
@@ -176,9 +179,8 @@ public class BasePropertiesManagerTest {
 		// property:
 		// deployment-artifact=io.quarkus\:quarkus-hibernate-orm-deployment\:0.21.1
 
-		IJavaProject javaProject = JavaModelManager.getJavaModelManager().getJavaModel()
+		return JavaModelManager.getJavaModelManager().getJavaModel()
 				.getJavaProject(description.getName());
-		return javaProject;
 	}
 
 	private static File copyProjectToWorkingDirectory(String projectName, String parentDirName) throws IOException {
@@ -203,12 +205,34 @@ public class BasePropertiesManagerTest {
 		JobHelpers.waitForJobsToComplete(monitor);
 	}
 
-	protected static void createFile(File file, String content) throws IOException {
-		Files.createDirectories(file.getParentFile().toPath());
-		Files.write(file.toPath(), content.getBytes());
+	private static void createFile(IFile file, String contents) throws CoreException {
+		createParentFolders(file);
+		file.refreshLocal(IResource.DEPTH_ZERO, null);
+		InputStream fileContents = new ByteArrayInputStream(contents.getBytes());
+		if (file.exists()) {			
+			file.setContents(fileContents, IResource.NONE, null);
+		} else {
+			file.create(fileContents, true, null);
+		}		
 	}
 
-	protected static void updateFile(File file, String content) throws IOException {
+	private static void createParentFolders(final IResource resource) throws CoreException {
+		if (resource == null || resource.exists())
+			return;
+		if (!resource.getParent().exists())
+			createParentFolders(resource.getParent());
+		switch (resource.getType()) {
+		case IResource.FOLDER:
+			((IFolder) resource).create(IResource.NONE, true, new NullProgressMonitor());
+			break;
+		case IResource.PROJECT:
+			((IProject) resource).create(new NullProgressMonitor());
+			((IProject) resource).open(new NullProgressMonitor());
+			break;
+		}
+	}
+
+	private static void updateFile(IFile file, String content) throws CoreException {
 		// For Mac OS, Linux OS, the call of Files.getLastModifiedTime is working for 1
 		// second.
 		// Here we wait for > 1s to be sure that call of Files.getLastModifiedTime will
@@ -222,18 +246,20 @@ public class BasePropertiesManagerTest {
 	}
 
 	protected static void saveFile(String configFileName, String content, IJavaProject javaProject)
-			throws JavaModelException, IOException {
-		IPath output = javaProject.getOutputLocation();
-		File file = javaProject.getProject().getLocation().append(output.removeFirstSegments(1)).append(configFileName)
-				.toFile();
+			throws CoreException {
+		IFile file = getFile(configFileName, javaProject);
 		updateFile(file, content);
 	}
 
 	protected static void deleteFile(String configFileName, IJavaProject javaProject)
-			throws JavaModelException, IOException {
+			throws IOException, CoreException {
+		IFile file = getFile(configFileName, javaProject);
+		file.delete(true, new NullProgressMonitor());
+	}
+
+	private static IFile getFile(String configFileName, IJavaProject javaProject) throws JavaModelException {
 		IPath output = javaProject.getOutputLocation();
-		File file = javaProject.getProject().getLocation().append(output.removeFirstSegments(1)).append(configFileName)
-				.toFile();
-		file.delete();
+		IPath filePath = output.append(configFileName);
+		return ResourcesPlugin.getWorkspace().getRoot().getFile(filePath);
 	}
 }

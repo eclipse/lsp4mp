@@ -13,6 +13,7 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.core;
 
+import org.eclipse.lsp4mp.jdt.core.project.JDTMicroProfileProjectManager;
 import org.eclipse.lsp4mp.jdt.internal.core.MicroProfilePropertiesListenerManager;
 import org.eclipse.lsp4mp.jdt.internal.core.PropertiesProviderRegistry;
 import org.eclipse.lsp4mp.jdt.internal.core.java.validators.JavaASTValidatorRegistry;
@@ -20,7 +21,8 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
 /**
- * The activator class controls the MicroProfile JDT LS Extension plug-in life cycle
+ * The activator class controls the MicroProfile JDT LS Extension plug-in life
+ * cycle
  */
 public class MicroProfileCorePlugin implements BundleActivator {
 
@@ -35,12 +37,14 @@ public class MicroProfileCorePlugin implements BundleActivator {
 		MicroProfilePropertiesListenerManager.getInstance().initialize();
 		PropertiesProviderRegistry.getInstance().initialize();
 		JavaASTValidatorRegistry.getInstance().initialize();
+		JDTMicroProfileProjectManager.getInstance().initialize();
 	}
 
 	public void stop(BundleContext context) throws Exception {
 		MicroProfilePropertiesListenerManager.getInstance().destroy();
 		PropertiesProviderRegistry.getInstance().destroy();
 		JavaASTValidatorRegistry.getInstance().destroy();
+		JDTMicroProfileProjectManager.getInstance().destroy();
 		plugin = null;
 	}
 

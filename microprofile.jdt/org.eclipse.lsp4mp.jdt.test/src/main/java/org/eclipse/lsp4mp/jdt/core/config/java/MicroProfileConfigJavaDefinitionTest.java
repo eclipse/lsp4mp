@@ -19,15 +19,12 @@ import static org.eclipse.lsp4mp.jdt.core.MicroProfileForJavaAssert.fixURI;
 import static org.eclipse.lsp4mp.jdt.core.MicroProfileForJavaAssert.p;
 import static org.eclipse.lsp4mp.jdt.core.MicroProfileForJavaAssert.r;
 
-import java.io.IOException;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.lsp4mp.jdt.core.BasePropertiesManagerTest;
-import org.eclipse.lsp4mp.jdt.internal.core.providers.DefaultMicroProfilePropertiesConfigSourceProvider;
+import org.eclipse.lsp4mp.jdt.internal.core.providers.MicroProfileConfigSourceProvider;
 import org.junit.After;
 import org.junit.Test;
 
@@ -41,8 +38,8 @@ public class MicroProfileConfigJavaDefinitionTest extends BasePropertiesManagerT
 	private static IJavaProject javaProject;
 
 	@After
-	public void cleanup() throws JavaModelException, IOException {
-		deleteFile(DefaultMicroProfilePropertiesConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE, javaProject);
+	public void cleanup() throws Exception {
+		deleteFile(MicroProfileConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE, javaProject);
 	}
 
 	@Test
@@ -55,7 +52,7 @@ public class MicroProfileConfigJavaDefinitionTest extends BasePropertiesManagerT
 		IFile propertiesFile = project.getFile(new Path("src/main/resources/META-INF/microprofile-config.properties"));
 		String propertiesFileUri = fixURI(propertiesFile.getLocation().toFile().toURI());
 
-		saveFile(DefaultMicroProfilePropertiesConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE, //
+		saveFile(MicroProfileConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE, //
 				"greeting.message = hello\r\n" + //
 						"greeting.name = quarkus\r\n" + //
 						"greeting.number = 100",

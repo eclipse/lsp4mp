@@ -45,16 +45,53 @@ public abstract class AbstractConfigSource<T> implements IConfigSource {
 
 	private static final Logger LOGGER = Logger.getLogger(AbstractConfigSource.class.getName());
 
+	private static final int DEFAULT_ORDINAL = 100;
+
 	private final String configFileName;
+
+	private final String profile;
+
+	private final int ordinal;
+
 	private final IJavaProject javaProject;
 	private Path outputConfigFile;
 	private Path sourceConfigFile;
 	private FileTime lastModified;
 	private T config;
 
+	private Map<String, List<MicroProfileConfigPropertyInformation>> propertyInformations;
+
+	public AbstractConfigSource(String configFileName, int ordinal, IJavaProject javaProject) {
+		this(configFileName, null, ordinal, javaProject);
+	}
+
 	public AbstractConfigSource(String configFileName, IJavaProject javaProject) {
+		this(configFileName, null, javaProject);
+	}
+
+	public AbstractConfigSource(String configFileName, String profile, IJavaProject javaProject) {
+		this(configFileName, profile, DEFAULT_ORDINAL, javaProject);
+	}
+
+	public AbstractConfigSource(String configFileName, String profile, int ordinal, IJavaProject javaProject) {
 		this.configFileName = configFileName;
+		this.profile = profile;
+		this.ordinal = ordinal;
 		this.javaProject = javaProject;
+		// load config file to udpate some fields like lastModified, config instance
+		// which must be updated when the config source is created. It's important that
+		// those fields are initialized here (and not in lazy mode) to prevent from
+		// multi
+		// thread
+		// context.
+		init();
+	}
+
+	private void init() {
+		T config = getConfig();
+		if (config != null && propertyInformations == null) {
+			propertyInformations = loadPropertyInformations();
+		}
 	}
 
 	/**
@@ -113,6 +150,16 @@ public abstract class AbstractConfigSource<T> implements IConfigSource {
 	}
 
 	@Override
+	public String getProfile() {
+		return profile;
+	}
+
+	@Override
+	public int getOrdinal() {
+		return ordinal;
+	}
+
+	@Override
 	public String getSourceConfigFileURI() {
 		getOutputConfigFile();
 		if (sourceConfigFile != null) {
@@ -132,7 +179,7 @@ public abstract class AbstractConfigSource<T> implements IConfigSource {
 	 *
 	 * @return the loaded config and null otherwise
 	 */
-	private T getConfig() {
+	protected final T getConfig() {
 		Path configFile = getOutputConfigFile();
 		if (configFile == null) {
 			reset();
@@ -157,15 +204,6 @@ public abstract class AbstractConfigSource<T> implements IConfigSource {
 	}
 
 	@Override
-	public final String getProperty(String key) {
-		T config = getConfig();
-		if (config == null) {
-			return null;
-		}
-		return getProperty(key, config);
-	}
-
-	@Override
 	public Integer getPropertyAsInt(String key) {
 		String property = getProperty(key);
 		if (property != null && !property.trim().isEmpty()) {
@@ -182,17 +220,13 @@ public abstract class AbstractConfigSource<T> implements IConfigSource {
 
 	private void reset() {
 		config = null;
+		propertyInformations = null;
 	}
 
 	@Override
-	public Map<String, MicroProfileConfigPropertyInformation> getPropertyInformations(String propertyKey) {
-		return getPropertyInformations(propertyKey, getConfig());
-	}
-
-	@Override
-	public boolean isSameFile(File file) {
-		Path configSourceFile = getOutputConfigFile();
-		return configSourceFile != null ? configSourceFile.toFile().equals(file) : false;
+	public List<MicroProfileConfigPropertyInformation> getPropertyInformations(String propertyKey) {
+		init();
+		return propertyInformations != null ? propertyInformations.get(propertyKey) : null;
 	}
 
 	/**
@@ -205,25 +239,10 @@ public abstract class AbstractConfigSource<T> implements IConfigSource {
 	protected abstract T loadConfig(InputStream input) throws IOException;
 
 	/**
-	 * Returns the property from the given <code>key</code> and null otherwise.
-	 *
-	 * @param key
-	 * @param config
-	 * @return the property from the given <code>key</code> and null otherwise.
+	 * Load the property informations.
+	 * 
+	 * @return the property information.
 	 */
-	protected abstract String getProperty(String key, T config);
-
-	/**
-	 * Returns the property informations for the given propertyKey
-	 *
-	 * The property information are returned as a Map from the property and profile
-	 * in the microprofile-config.properties format to the property information
-	 *
-	 * @param propertyKey
-	 * @param config
-	 * @return the property informations for the given propertyKey
-	 */
-	protected abstract Map<String, MicroProfileConfigPropertyInformation> getPropertyInformations(String propertyKey,
-			T config);
+	protected abstract Map<String /* property key without profile */, List<MicroProfileConfigPropertyInformation>> loadPropertyInformations();
 
 }

@@ -13,7 +13,6 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.core.restclient.java;
 
-import java.io.IOException;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
@@ -26,7 +25,7 @@ import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeLensParams;
 import org.eclipse.lsp4mp.jdt.core.BasePropertiesManagerTest;
 import org.eclipse.lsp4mp.jdt.core.PropertiesManagerForJava;
 import org.eclipse.lsp4mp.jdt.core.utils.IJDTUtils;
-import org.eclipse.lsp4mp.jdt.internal.core.providers.DefaultMicroProfilePropertiesConfigSourceProvider;
+import org.eclipse.lsp4mp.jdt.internal.core.providers.MicroProfileConfigSourceProvider;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -58,12 +57,12 @@ public class MicroProfileRestClientJavaCodeLensTest extends BasePropertiesManage
 		Assert.assertEquals(0, lenses.size());
 
 		// /mp-rest/url
-		saveFile(DefaultMicroProfilePropertiesConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE,
+		saveFile(MicroProfileConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE,
 				"org.acme.restclient.CountriesService/mp-rest/url = https://restcountries.url/rest", javaProject);
 		assertCodeLenses("https://restcountries.url/rest", params, utils);
 
 		// /mp-rest/uri
-		saveFile(DefaultMicroProfilePropertiesConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE, //
+		saveFile(MicroProfileConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE, //
 				"org.acme.restclient.CountriesService/mp-rest/uri = https://restcountries.uri/rest" + //
 						System.lineSeparator() + //
 						"org.acme.restclient.CountriesService/mp-rest/url = https://restcountries.url/rest", //
@@ -71,8 +70,8 @@ public class MicroProfileRestClientJavaCodeLensTest extends BasePropertiesManage
 		assertCodeLenses("https://restcountries.uri/rest", params, utils);
 	}
 
-	private static void initConfigFile(IJavaProject javaProject) throws JavaModelException, IOException {
-		saveFile(DefaultMicroProfilePropertiesConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE, "", javaProject);
+	private static void initConfigFile(IJavaProject javaProject) throws Exception {
+		saveFile(MicroProfileConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE, "", javaProject);
 	}
 
 	@Test
@@ -89,18 +88,18 @@ public class MicroProfileRestClientJavaCodeLensTest extends BasePropertiesManage
 		params.setUri(javaFile.getLocation().toFile().toURI().toString());
 		params.setUrlCodeLensEnabled(true);
 
-		// @RegisterRestClient(baseUri = "https://rescountries.fr/rest")
+		// @RegisterRestClient(baseUri = "https://rescountries.ann/rest")
 		// public class CountriesServiceWithBaseUri
 		assertCodeLenses("https://restcountries.ann/rest", params, utils);
 
 		// /mp-rest/url overrides @RegisterRestClient/baseUri
-		saveFile(DefaultMicroProfilePropertiesConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE,
+		saveFile(MicroProfileConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE,
 				"org.acme.restclient.CountriesServiceWithBaseUri/mp-rest/url = https://restcountries.url/rest",
 				javaProject);
 		assertCodeLenses("https://restcountries.url/rest", params, utils);
 
 		// /mp-rest/uri overrides @RegisterRestClient/baseUri
-		saveFile(DefaultMicroProfilePropertiesConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE, //
+		saveFile(MicroProfileConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE, //
 				"org.acme.restclient.CountriesServiceWithBaseUri/mp-rest/uri = https://restcountries.uri/rest" + //
 						System.lineSeparator() + //
 						"org.acme.restclient.CountriesServiceWithBaseUri/mp-rest/url = https://restcountries.url/rest", //
