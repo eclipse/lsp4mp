@@ -22,7 +22,6 @@ import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.getAnnotationMem
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -43,6 +42,9 @@ import org.eclipse.lsp4mp.jdt.core.project.IConfigSource;
 import org.eclipse.lsp4mp.jdt.core.project.JDTMicroProfileProject;
 import org.eclipse.lsp4mp.jdt.core.project.JDTMicroProfileProjectManager;
 import org.eclipse.lsp4mp.jdt.core.utils.IJDTUtils;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 /**
  * QuickFix for fixing
@@ -94,11 +96,10 @@ public class NoValueAssignedToPropertyQuickFix implements IJavaCodeActionPartici
 			throws JavaModelException {
 		if (diagnostic.getData() != null) {
 			// retrieve the property name from the diagnostic data
-			@SuppressWarnings("unchecked")
-			Map<String, String> data = (Map<String, String>) diagnostic.getData();
-			String name = data.get(DIAGNOSTIC_DATA_NAME);
+			JsonObject data = (JsonObject) diagnostic.getData();
+			JsonElement name = data.get(DIAGNOSTIC_DATA_NAME);
 			if (name != null) {
-				return name;
+				return name.getAsString();
 			}
 		}
 

@@ -23,6 +23,9 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
 /**
  * Arguments utilities.
  *
@@ -107,7 +110,9 @@ public class ArgumentUtils {
 			diagnostic.setCode(getString(diagnosticObj, CODE_PROPERTY));
 			diagnostic.setMessage(getString(diagnosticObj, MESSAGE_PROPERTY));
 			diagnostic.setSource(getString(diagnosticObj, SOURCE_PROPERTY));
-			diagnostic.setData(getObject(diagnosticObj, DATA_PROPERTY));
+			// In Eclipse IDE (LSP client), the data is JsonObject, and in JDT-LS (ex : vscode as LSP client) the data is a Map, we
+			// convert the Map to a JsonObject to be consistent with any LSP clients.
+			diagnostic.setData(getObjectAsJson(diagnosticObj, DATA_PROPERTY));
 			return diagnostic;
 		}).collect(Collectors.toList());
 		List<String> only = null;
@@ -125,6 +130,15 @@ public class ArgumentUtils {
 		Object child = obj.get(key);
 		if (child != null && child instanceof Map<?, ?>) {
 			return (Map<String, Object>) child;
+		}
+		return null;
+	}
+
+	public static JsonObject getObjectAsJson(Map<String, Object> obj, String key) {
+		Object child = obj.get(key);
+		if (child != null && child instanceof Map<?, ?>) {
+			Gson gson = new Gson();
+			return (JsonObject) gson.toJsonTree(obj);
 		}
 		return null;
 	}
