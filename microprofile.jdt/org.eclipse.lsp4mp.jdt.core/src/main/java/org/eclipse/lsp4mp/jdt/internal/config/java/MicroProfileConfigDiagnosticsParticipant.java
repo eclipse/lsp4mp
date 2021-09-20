@@ -22,9 +22,7 @@ import static org.eclipse.lsp4mp.jdt.core.MicroProfileConfigConstants.MICRO_PROF
 import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.getAnnotationMemberValueExpression;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -55,6 +53,8 @@ import org.eclipse.lsp4mp.jdt.core.project.JDTMicroProfileProjectManager;
 import org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils;
 import org.eclipse.lsp4mp.jdt.core.utils.JDTTypeUtils;
 import org.eclipse.lsp4mp.jdt.internal.config.properties.MicroProfileConfigPropertyProvider;
+
+import com.google.gson.JsonObject;
 
 /**
  * Collects diagnostics related to the <code>@ConfigProperty</code> annotation
@@ -304,8 +304,8 @@ public class MicroProfileConfigDiagnosticsParticipant implements IJavaDiagnostic
 	}
 
 	public static void setDataForUnassigned(String name, Diagnostic diagnostic) {
-		Map<String, String> data = new HashMap<>();
-		data.put(DIAGNOSTIC_DATA_NAME, name);
+		JsonObject data = new JsonObject();
+		data.addProperty(DIAGNOSTIC_DATA_NAME, name);
 		diagnostic.setData(data);
 	}
 
