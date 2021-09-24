@@ -22,6 +22,8 @@ import static org.eclipse.lsp4mp.jdt.internal.faulttolerance.MicroProfileFaultTo
 import static org.eclipse.lsp4mp.jdt.internal.faulttolerance.MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE;
 import static org.eclipse.lsp4mp.jdt.internal.faulttolerance.MicroProfileFaultToleranceConstants.FALLBACK_ANNOTATION;
 import static org.eclipse.lsp4mp.jdt.internal.faulttolerance.MicroProfileFaultToleranceConstants.FALLBACK_METHOD_FALLBACK_ANNOTATION_MEMBER;
+import static org.eclipse.lsp4mp.jdt.internal.faulttolerance.MicroProfileFaultToleranceConstants.TIMEOUT_ANNOTATION;
+import static org.eclipse.lsp4mp.jdt.internal.faulttolerance.MicroProfileFaultToleranceConstants.VALUE_ANNOTATION_MEMBER;
 import static org.eclipse.lsp4mp.jdt.internal.faulttolerance.java.MicroProfileFaultToleranceErrorCode.FALLBACK_METHOD_DOES_NOT_EXIST;
 import static org.eclipse.lsp4mp.jdt.internal.faulttolerance.java.MicroProfileFaultToleranceErrorCode.FAULT_TOLERANCE_DEFINITION_EXCEPTION;
 
@@ -48,6 +50,7 @@ import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.MarkerAnnotation;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
+import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.lsp4j.DiagnosticSeverity;
@@ -64,6 +67,8 @@ public class MicroProfileFaultToleranceASTValidator extends JavaASTValidator {
 	private static final String FALLBACK_ERROR_MESSAGE = "The referenced fallback method ''{0}'' does not exist.";
 
 	private static final String ASYNCHRONOUS_ERROR_MESSAGE = "The annotated method ''{0}'' with @Asynchronous should return an object of type {1}.";
+
+	private static final String TIMEOUT_ERROR_MESSAGE = "{0} shouldn't be lower than 0.";
 
 	private final Map<TypeDeclaration, Set<String>> methodsCache;
 
@@ -83,7 +88,8 @@ public class MicroProfileFaultToleranceASTValidator extends JavaASTValidator {
 			throws CoreException {
 		IJavaProject javaProject = context.getJavaProject();
 		boolean adapted = JDTTypeUtils.findType(javaProject, FALLBACK_ANNOTATION) != null
-				|| JDTTypeUtils.findType(javaProject, ASYNCHRONOUS_ANNOTATION) != null;
+				|| JDTTypeUtils.findType(javaProject, ASYNCHRONOUS_ANNOTATION) != null
+				|| JDTTypeUtils.findType(javaProject, TIMEOUT_ANNOTATION) != null;
 		if (adapted) {
 			addAllowedReturnTypeForAsynchronousAnnotation(javaProject, UNI_TYPE_UTILITY);
 		}
@@ -150,6 +156,8 @@ public class MicroProfileFaultToleranceASTValidator extends JavaASTValidator {
 				} else if (isMatchAnnotation(annotation, ASYNCHRONOUS_ANNOTATION)) {
 					MarkerAnnotation markAnnotation = (MarkerAnnotation) modifier;
 					validateAsynchronousAnnotation(node, markAnnotation);
+				} else if (isMatchAnnotation(annotation, TIMEOUT_ANNOTATION)) {
+					validateTimeoutAnnotation(node, annotation);
 				}
 			}
 		}
@@ -201,6 +209,33 @@ public class MicroProfileFaultToleranceASTValidator extends JavaASTValidator {
 			String message = MessageFormat.format(ASYNCHRONOUS_ERROR_MESSAGE, node.getName(), allowedTypes);
 			super.addDiagnostic(message, DIAGNOSTIC_SOURCE, methodReturnType, FAULT_TOLERANCE_DEFINITION_EXCEPTION,
 					DiagnosticSeverity.Error);
+		}
+	}
+
+	/**
+	 * Checks if the given method declaration has a timeout annotation, and if so,
+	 * provides diagnostics for the timeout value
+	 *
+	 * @param node       The method declaration to validate
+	 * @param annotation The @Timeout annotation
+	 * @throws JavaModelException
+	 */
+	private void validateTimeoutAnnotation(MethodDeclaration node, Annotation annotation) throws JavaModelException {
+		Expression timeoutExpr = null;
+		if (annotation instanceof SingleMemberAnnotation) {
+			SingleMemberAnnotation singleTimeout = (SingleMemberAnnotation) annotation;
+			timeoutExpr = singleTimeout.getValue();
+		} else if (annotation instanceof NormalAnnotation) {
+			NormalAnnotation normalTimeout = (NormalAnnotation) annotation;
+			timeoutExpr = getAnnotationMemberValueExpression(normalTimeout, VALUE_ANNOTATION_MEMBER);
+		}
+		if (timeoutExpr != null) {
+			int timeoutExprVal = Integer.parseInt(timeoutExpr.toString());
+			if (timeoutExprVal < 0) {
+				String message = MessageFormat.format(TIMEOUT_ERROR_MESSAGE, VALUE_ANNOTATION_MEMBER);
+				super.addDiagnostic(message, DIAGNOSTIC_SOURCE, timeoutExpr, FAULT_TOLERANCE_DEFINITION_EXCEPTION,
+						DiagnosticSeverity.Error);
+			}
 		}
 	}
 
