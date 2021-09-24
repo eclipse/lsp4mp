@@ -42,6 +42,10 @@ public class MicroProfileFaultToleranceConstants {
 
 	public static final String FALLBACK_METHOD_FALLBACK_ANNOTATION_MEMBER = "fallbackMethod";
 
+	public static final String VALUE_BULKHEAD_ANNOTATION_MEMBER = "value";
+
+	public static final String WAITING_TASK_QUEUE_BULKHEAD_ANNOTATION_MEMBER = "waitingTaskQueue";
+
 	// MP_Fault_Tolerance_NonFallback_Enabled
 
 	public static final String MP_FAULT_TOLERANCE_NON_FALLBACK_ENABLED = "MP_Fault_Tolerance_NonFallback_Enabled";
