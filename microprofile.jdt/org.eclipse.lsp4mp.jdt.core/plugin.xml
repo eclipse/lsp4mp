@@ -134,6 +134,17 @@
          <attribute name="failureRatio" range="[0,1]" /> <!-- 0 <= x <= 1 -->
          <attribute name="successThreshold" range="1" /> <!-- x >=1 -->         
       </annotationValidator>
+
+      <annotationValidator annotation="org.eclipse.microprofile.faulttolerance.Bulkhead"
+                   	       source="microprofile-faulttolerance" >
+         <attribute name="value" range="0" /> <!-- x >=0 -->
+         <attribute name="waitingTaskQueue" range="0" /> <!-- x >=0 -->
+      </annotationValidator>
+
+      <annotationValidator annotation="org.eclipse.microprofile.faulttolerance.Timeout"
+                           source="microprofile-faulttolerance" >
+         <attribute name="value" range="0" /> <!-- x >=0 -->
+      </annotationValidator>
    </extension>
 
    <!-- Microprofile LRA support -->

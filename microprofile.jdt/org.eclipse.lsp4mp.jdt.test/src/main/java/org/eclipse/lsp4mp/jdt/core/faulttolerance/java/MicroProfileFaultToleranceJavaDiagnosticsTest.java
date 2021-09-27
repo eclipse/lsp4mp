@@ -147,4 +147,58 @@ public class MicroProfileFaultToleranceJavaDiagnosticsTest extends BasePropertie
 		assertJavaDiagnostics(diagnosticsParams, utils, d1, d2);
 	}
 
+	@Test
+	public void bulkheadClientForValidation() throws Exception {
+		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.microprofile_fault_tolerance);
+		IJDTUtils utils = JDT_UTILS;
+
+		MicroProfileJavaDiagnosticsParams diagnosticsParams = new MicroProfileJavaDiagnosticsParams();
+		IFile javaFile = javaProject.getProject().getFile(new Path(
+				"src/main/java/org/eclipse/microprofile/fault/tolerance/tck/invalidParameters/BulkheadClientForValidation.java"));
+		diagnosticsParams.setUris(Arrays.asList(javaFile.getLocation().toFile().toURI().toString()));
+		diagnosticsParams.setDocumentFormat(DocumentFormat.Markdown);
+
+		Diagnostic d1 = d(34, 14, 16, "The value `-1` must be greater than or equal to `0`.", DiagnosticSeverity.Error,
+				MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE, null);
+
+		Diagnostic d2 = d(39, 20, 22, "The value `-1` must be greater than or equal to `0`.", DiagnosticSeverity.Error,
+				MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE, null);
+
+		Diagnostic d3 = d(44, 31, 33, "The value `-1` must be greater than or equal to `0`.", DiagnosticSeverity.Error,
+				MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE, null);
+
+		Diagnostic d4_a = d(49, 20, 22, "The value `-1` must be greater than or equal to `0`.",
+				DiagnosticSeverity.Error, MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE, null);
+
+		Diagnostic d4_b = d(49, 41, 43, "The value `-1` must be greater than or equal to `0`.",
+				DiagnosticSeverity.Error, MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE, null);
+
+		Diagnostic d5 = d(54, 20, 22, "The value `-1` must be greater than or equal to `0`.", DiagnosticSeverity.Error,
+				MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE, null);
+
+		Diagnostic d6 = d(59, 40, 42, "The value `-1` must be greater than or equal to `0`.", DiagnosticSeverity.Error,
+				MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE, null);
+
+		assertJavaDiagnostics(diagnosticsParams, utils, d1, d2, d3, d4_a, d4_b, d5, d6);
+	}
+
+	@Test
+	public void timeoutClientForValidation() throws Exception {
+		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.microprofile_fault_tolerance);
+		IJDTUtils utils = JDT_UTILS;
+
+		MicroProfileJavaDiagnosticsParams diagnosticsParams = new MicroProfileJavaDiagnosticsParams();
+		IFile javaFile = javaProject.getProject().getFile(new Path(
+				"src/main/java/org/eclipse/microprofile/fault/tolerance/tck/invalidParameters/TimeoutClientForValidation.java"));
+		diagnosticsParams.setUris(Arrays.asList(javaFile.getLocation().toFile().toURI().toString()));
+		diagnosticsParams.setDocumentFormat(DocumentFormat.Markdown);
+
+		Diagnostic d1 = d(33, 13, 15, "The value `-1` must be greater than or equal to `0`.", DiagnosticSeverity.Error,
+				MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE, null);
+
+		Diagnostic d2 = d(38, 19, 21, "The value `-1` must be greater than or equal to `0`.", DiagnosticSeverity.Error,
+				MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE, null);
+
+		assertJavaDiagnostics(diagnosticsParams, utils, d1, d2);
+	}
 }
