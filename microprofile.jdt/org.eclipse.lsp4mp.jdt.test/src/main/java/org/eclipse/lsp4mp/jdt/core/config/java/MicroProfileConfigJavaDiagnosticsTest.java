@@ -29,6 +29,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4mp.commons.DocumentFormat;
+import org.eclipse.lsp4mp.commons.MicroProfileCodeActionFactory;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeActionParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaDiagnosticsParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaDiagnosticsSettings;
@@ -148,6 +149,7 @@ public class MicroProfileConfigJavaDiagnosticsTest extends BasePropertiesManager
 
 		String javaUri = fixURI(javaFile.getLocation().toFile().toURI().toString());
 		String propertiesUri = fixURI(propertiesFile.getLocation().toFile().toURI().toString());
+
 		MicroProfileJavaCodeActionParams codeActionParams1 = createCodeActionParams(javaUri, d1);
 		assertJavaCodeAction(codeActionParams1, utils, //
 				ca(javaUri, "Insert 'defaultValue' attribute", d1, //
@@ -157,9 +159,39 @@ public class MicroProfileConfigJavaDiagnosticsTest extends BasePropertiesManager
 
 		MicroProfileJavaCodeActionParams codeActionParams2 = createCodeActionParams(javaUri, d2);
 		assertJavaCodeAction(codeActionParams2, utils, //
-				ca(javaUri, "Insert 'defaultValue' attribute", d1, //
+				ca(javaUri, "Insert 'defaultValue' attribute", d2, //
 						te(14, 30, 14, 30, ", defaultValue = \"\"")),
 				ca(propertiesUri, "Insert 'server.url' property in 'META-INF/microprofile-config.properties'", d2, //
+						te(0, 0, 0, 0, "server.url=\r\n")));
+
+		// Same code actions but with exclude
+		Diagnostic d1_1 = d(8, 24, 29,
+				"The property 'foo' is not assigned a value in any config file, and must be assigned at runtime.",
+				DiagnosticSeverity.Warning, MicroProfileConfigConstants.MICRO_PROFILE_CONFIG_DIAGNOSTIC_SOURCE,
+				MicroProfileConfigErrorCode.NO_VALUE_ASSIGNED_TO_PROPERTY);
+		setDataForUnassigned("foo", d1_1);
+		Diagnostic d2_1 = d(14, 25, 30,
+				"The property 'server.url' is not assigned a value in any config file, and must be assigned at runtime.",
+				DiagnosticSeverity.Warning, MicroProfileConfigConstants.MICRO_PROFILE_CONFIG_DIAGNOSTIC_SOURCE,
+				MicroProfileConfigErrorCode.NO_VALUE_ASSIGNED_TO_PROPERTY);
+		setDataForUnassigned("server.url", d2_1);
+
+		MicroProfileJavaCodeActionParams codeActionParams1_1 = createCodeActionParams(javaUri, d1_1);
+		codeActionParams1_1.setCommandConfigurationUpdateSupported(true);
+		assertJavaCodeAction(codeActionParams1_1, utils, //
+				MicroProfileCodeActionFactory.createAddToUnassignedExcludedCodeAction("foo", d1_1),
+				ca(javaUri, "Insert 'defaultValue' attribute", d1_1, //
+						te(8, 29, 8, 29, ", defaultValue = \"\"")),
+				ca(propertiesUri, "Insert 'foo' property in 'META-INF/microprofile-config.properties'", d1_1, //
+						te(0, 0, 0, 0, "foo=\r\n")));
+
+		MicroProfileJavaCodeActionParams codeActionParams2_1 = createCodeActionParams(javaUri, d2_1);
+		codeActionParams2_1.setCommandConfigurationUpdateSupported(true);
+		assertJavaCodeAction(codeActionParams2_1, utils, //
+				MicroProfileCodeActionFactory.createAddToUnassignedExcludedCodeAction("server.url", d2_1),
+				ca(javaUri, "Insert 'defaultValue' attribute", d2_1, //
+						te(14, 30, 14, 30, ", defaultValue = \"\"")),
+				ca(propertiesUri, "Insert 'server.url' property in 'META-INF/microprofile-config.properties'", d2_1, //
 						te(0, 0, 0, 0, "server.url=\r\n")));
 
 	}

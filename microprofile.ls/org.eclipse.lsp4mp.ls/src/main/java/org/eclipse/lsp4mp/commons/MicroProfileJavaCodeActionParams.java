@@ -28,6 +28,8 @@ public class MicroProfileJavaCodeActionParams extends CodeActionParams {
 
 	private boolean resourceOperationSupported;
 
+	private boolean commandConfigurationUpdateSupported;
+
 	public MicroProfileJavaCodeActionParams() {
 		super();
 	}
@@ -47,6 +49,14 @@ public class MicroProfileJavaCodeActionParams extends CodeActionParams {
 
 	public void setResourceOperationSupported(boolean resourceOperationSupported) {
 		this.resourceOperationSupported = resourceOperationSupported;
+	}
+
+	public boolean isCommandConfigurationUpdateSupported() {
+		return commandConfigurationUpdateSupported;
+	}
+
+	public void setCommandConfigurationUpdateSupported(boolean commandConfigurationUpdateSupported) {
+		this.commandConfigurationUpdateSupported = commandConfigurationUpdateSupported;
 	}
 
 }

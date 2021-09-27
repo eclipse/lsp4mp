@@ -11,6 +11,7 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.internal.core.ls;
 
+import static org.eclipse.lsp4mp.jdt.internal.core.ls.ArgumentUtils.getObject;
 import static org.eclipse.lsp4mp.jdt.internal.core.ls.ArgumentUtils.getBoolean;
 import static org.eclipse.lsp4mp.jdt.internal.core.ls.ArgumentUtils.getCodeActionContext;
 import static org.eclipse.lsp4mp.jdt.internal.core.ls.ArgumentUtils.getFirst;
@@ -38,6 +39,7 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4mp.commons.DocumentFormat;
 import org.eclipse.lsp4mp.commons.JavaFileInfo;
+import org.eclipse.lsp4mp.commons.MicroProfileDefinition;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeActionParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeLensParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCompletionParams;
@@ -46,7 +48,6 @@ import org.eclipse.lsp4mp.commons.MicroProfileJavaDiagnosticsParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaDiagnosticsSettings;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaFileInfoParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaHoverParams;
-import org.eclipse.lsp4mp.commons.MicroProfileDefinition;
 import org.eclipse.lsp4mp.jdt.core.PropertiesManagerForJava;
 
 /**
@@ -175,10 +176,14 @@ public class MicroProfileDelegateCommandHandlerForJava extends AbstractMicroProf
 		}
 		Range range = getRange(obj, "range");
 		CodeActionContext context = getCodeActionContext(obj, "context");
+		boolean resourceOperationSupported = getBoolean(obj, "resourceOperationSupported");
+		boolean commandConfigurationUpdateSupported = getBoolean(obj, "commandConfigurationUpdateSupported");
 		MicroProfileJavaCodeActionParams params = new MicroProfileJavaCodeActionParams();
 		params.setTextDocument(texdDocumentIdentifier);
 		params.setRange(range);
 		params.setContext(context);
+		params.setResourceOperationSupported(resourceOperationSupported);
+		params.setCommandConfigurationUpdateSupported(commandConfigurationUpdateSupported);
 		return params;
 	}
 
@@ -360,9 +365,9 @@ public class MicroProfileDelegateCommandHandlerForJava extends AbstractMicroProf
 					commandId));
 		}
 		MicroProfileJavaDiagnosticsSettings settings = null;
-		Map<String, Object> settingsObj = ArgumentUtils.getObject(obj, "settings");
+		Map<String, Object> settingsObj = getObject(obj, "settings");
 		if (settingsObj != null) {
-			List<String> patterns = ArgumentUtils.getStringList(settingsObj, "patterns");
+			List<String> patterns = getStringList(settingsObj, "patterns");
 			settings = new MicroProfileJavaDiagnosticsSettings(patterns);
 		}
 		return new MicroProfileJavaDiagnosticsParams(javaFileUri, settings);
