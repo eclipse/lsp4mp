@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.internal.config.java;
 
+import static org.eclipse.lsp4mp.commons.MicroProfileCodeActionFactory.createAddToUnassignedExcludedCodeAction;
 import static org.eclipse.lsp4mp.jdt.core.MicroProfileConfigConstants.CONFIG_PROPERTY_ANNOTATION;
 import static org.eclipse.lsp4mp.jdt.core.MicroProfileConfigConstants.CONFIG_PROPERTY_ANNOTATION_NAME;
 import static org.eclipse.lsp4mp.jdt.core.MicroProfileConfigConstants.DIAGNOSTIC_DATA_NAME;
@@ -35,13 +36,13 @@ import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.TextDocumentItem;
-import org.eclipse.lsp4mp.jdt.core.java.codeaction.CodeActionFactory;
 import org.eclipse.lsp4mp.jdt.core.java.codeaction.IJavaCodeActionParticipant;
 import org.eclipse.lsp4mp.jdt.core.java.codeaction.JavaCodeActionContext;
 import org.eclipse.lsp4mp.jdt.core.project.IConfigSource;
 import org.eclipse.lsp4mp.jdt.core.project.JDTMicroProfileProject;
 import org.eclipse.lsp4mp.jdt.core.project.JDTMicroProfileProjectManager;
 import org.eclipse.lsp4mp.jdt.core.utils.IJDTUtils;
+import org.eclipse.lsp4mp.ls.commons.CodeActionFactory;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -89,6 +90,10 @@ public class NoValueAssignedToPropertyQuickFix implements IJavaCodeActionPartici
 				codeActions.add(codeAction);
 			}
 		}
+		if (context.getParams().isCommandConfigurationUpdateSupported()) {
+			// Exclude validation for the given property
+			codeActions.add(createAddToUnassignedExcludedCodeAction(propertyName, diagnostic));
+		}
 		return codeActions;
 	}
 
@@ -117,4 +122,5 @@ public class NoValueAssignedToPropertyQuickFix implements IJavaCodeActionPartici
 	private static String getTitle(String propertyName, String configFileName) {
 		return MessageFormat.format(CODE_ACTION_LABEL, propertyName, configFileName);
 	}
+
 }

@@ -13,6 +13,7 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.services.properties;
 
+import static org.eclipse.lsp4mp.commons.MicroProfileCodeActionFactory.createAddToUnknownExcludedCodeAction;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -239,41 +240,15 @@ class PropertiesFileCodeActions {
 	private void doCodeActionForIgnoreUnknownValidation(String propertyName, Diagnostic diagnostic,
 			PropertiesModel document, MicroProfileProjectInfo projectInfo, List<CodeAction> codeActions) {
 
-		codeActions.add(createAddToExcludedCodeAction(propertyName, diagnostic));
+		codeActions.add(createAddToUnknownExcludedCodeAction(propertyName, diagnostic));
 
 		while (hasParentKey(propertyName)) {
 			propertyName = getParentKey(propertyName);
 			if (!propertyName.equals("quarkus")) {
 				String globPattern = propertyName + ".*";
-				codeActions.add(createAddToExcludedCodeAction(globPattern, diagnostic));
+				codeActions.add(createAddToUnknownExcludedCodeAction(globPattern, diagnostic));
 			}
 		}
-	}
-
-	/**
-	 * Returns a code action for <code>diagnostic</code> that causes
-	 * <code>item</code> to be added to
-	 * <code>microprofile.tools.validation.unknown.excluded</code> client
-	 * configuration
-	 *
-	 * @param item       the item to add to the client configuration array
-	 * @param diagnostic the diagnostic for the <code>CodeAction</code>
-	 * @return a code action that causes <code>item</code> to be added to
-	 *         <code>microprofile.tools.validation.unknown.excluded</code> client
-	 *         configuration
-	 */
-	private CodeAction createAddToExcludedCodeAction(String item, Diagnostic diagnostic) {
-		CodeAction insertCodeAction = new CodeAction("Exclude '" + item + "' from unknown property validation?");
-
-		ConfigurationItemEdit configItemEdit = new ConfigurationItemEdit(
-				"microprofile.tools.validation.unknown.excluded", ConfigurationItemEditType.add, item);
-
-		Command command = new Command("Add " + item + " to unknown excluded array",
-				CommandKind.COMMAND_CONFIGURATION_UPDATE, Collections.singletonList(configItemEdit));
-		insertCodeAction.setCommand(command);
-		insertCodeAction.setKind(CodeActionKind.QuickFix);
-		insertCodeAction.setDiagnostics(Collections.singletonList(diagnostic));
-		return insertCodeAction;
 	}
 
 	/**

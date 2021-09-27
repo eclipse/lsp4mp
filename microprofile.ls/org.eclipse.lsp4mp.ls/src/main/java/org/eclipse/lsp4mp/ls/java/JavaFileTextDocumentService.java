@@ -69,6 +69,7 @@ import org.eclipse.lsp4mp.model.Node;
 import org.eclipse.lsp4mp.model.PropertiesModel;
 import org.eclipse.lsp4mp.model.Property;
 import org.eclipse.lsp4mp.settings.MicroProfileCodeLensSettings;
+import org.eclipse.lsp4mp.settings.MicroProfileValidationSettings;
 import org.eclipse.lsp4mp.settings.SharedSettings;
 import org.eclipse.lsp4mp.snippets.SnippetContextForJava;
 import org.eclipse.lsp4mp.utils.PositionUtils;
@@ -217,12 +218,15 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 	public CompletableFuture<List<Either<Command, CodeAction>>> codeAction(CodeActionParams params) {
 		JavaTextDocument document = documents.get(params.getTextDocument().getUri());
 		return document.executeIfInMicroProfileProject((projectInfo) -> {
+			boolean commandConfigurationUpdateSupported = sharedSettings.getCommandCapabilities()
+					.isCommandSupported(CommandKind.COMMAND_CONFIGURATION_UPDATE);
 			MicroProfileJavaCodeActionParams javaParams = new MicroProfileJavaCodeActionParams();
 			javaParams.setTextDocument(params.getTextDocument());
 			javaParams.setRange(params.getRange());
 			javaParams.setContext(params.getContext());
 			javaParams.setResourceOperationSupported(microprofileLanguageServer.getCapabilityManager()
 					.getClientCapabilities().isResourceOperationSupported());
+			javaParams.setCommandConfigurationUpdateSupported(commandConfigurationUpdateSupported);
 			return microprofileLanguageServer.getLanguageClient().getJavaCodeAction(javaParams) //
 					.thenApply(codeActions -> {
 						return codeActions.stream() //
@@ -368,6 +372,16 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 		if (documents.propertiesChanged(event) || MicroProfilePropertiesScope.isOnlyConfigFiles(event.getType())) {
 			triggerValidationForAll(null);
 		}
+	}
+
+	public void updateValidationSettings(MicroProfileValidationSettings newValidation) {
+		// Update validation settings
+		MicroProfileValidationSettings validation = sharedSettings.getValidationSettings();
+		validation.update(newValidation);
+		// trigger validation for all opened application.properties
+		documents.all().stream().forEach(document -> {
+			triggerValidationFor(document);
+		});
 	}
 
 }

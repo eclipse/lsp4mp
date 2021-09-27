@@ -241,7 +241,7 @@ public class PropertiesFileCodeActionsTest {
 		ConfigurationItemEdit configItemEdit = new ConfigurationItemEdit(
 				"microprofile.tools.validation.unknown.excluded", ConfigurationItemEditType.add, item);
 
-		Command command = new Command("Add " + item + " to unknown excluded array",
+		Command command = new Command("Add '" + item + "' to unknown excluded array",
 				CommandKind.COMMAND_CONFIGURATION_UPDATE, Arrays.asList(configItemEdit));
 
 		return ca("Exclude '" + item + "' from unknown property validation?", command, diagnostic);

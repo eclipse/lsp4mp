@@ -229,6 +229,7 @@ public class MicroProfileTextDocumentService implements TextDocumentService {
 
 	public void updateValidationSettings(MicroProfileValidationSettings newValidation) {
 		applicationPropertiesTextDocumentService.updateValidationSettings(newValidation);
+		javaTextDocumentService.updateValidationSettings(newValidation);
 	}
 
 	public void updateFormattingSettings(MicroProfileFormattingSettings newFormatting) {
