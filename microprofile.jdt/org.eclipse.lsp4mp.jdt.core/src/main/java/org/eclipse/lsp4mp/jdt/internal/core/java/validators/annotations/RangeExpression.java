@@ -19,9 +19,9 @@ import org.apache.commons.lang3.StringUtils;
 
 /**
  * The range expression used to validate value from an attribute annotation.
- * 
+ *
  * The range is specified like OSGi version syntax:
- * 
+ *
  * <ul>
  * <li>0 -> means >=0</li>
  * <li>[0 -> means >=0</li>
@@ -31,7 +31,7 @@ import org.apache.commons.lang3.StringUtils;
  * <li>(0,1) -> means >0 && <1</li>
  * <li>[0,1) -> means >=0 && <1</li>
  * </ul>
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -91,7 +91,7 @@ public class RangeExpression {
 
 	/**
 	 * Parse the given range <code>expression</code>.
-	 * 
+	 *
 	 * @param expression the range expression to parse.
 	 * @return an instance of range expression.
 	 * @throws RangeExpressionException thrown when expression doesn't respect the
@@ -151,11 +151,19 @@ public class RangeExpression {
 				}
 				valueAsString.append(c);
 				break;
+			case '-':
+				if (valueAsString.length() == 0) {
+					valueAsString.append(c);
+				} else {
+					unexpectedToken(c, i, expression);
+				}
+				break;
 			default:
 				if (Character.isDigit(c)) {
 					valueAsString.append(c);
 				} else {
 					unexpectedToken(c, i, expression);
+					break;
 				}
 			}
 		}
