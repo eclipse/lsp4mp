@@ -20,7 +20,7 @@ import org.junit.Test;
 
 /**
  * Test for annotation based on rules.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -45,6 +45,14 @@ public class AnnotationValidatorTest {
 		assertValidation("[0", "0", null);
 		assertValidation("[0", "1", null);
 		assertValidation("[0", "-1", "The value `-1` must be greater than or equal to `0`.");
+	}
+
+	@Test
+	public void testGreaterThanOrEqualWithNegativeValue() throws RangeExpressionException {
+		assertValidation("-1", "0", null);
+		assertValidation("-1", "1", null);
+		assertValidation("-1", "-1", null);
+		assertValidation("-1", "-2", "The value `-2` must be greater than or equal to `-1`.");
 	}
 
 	@Test

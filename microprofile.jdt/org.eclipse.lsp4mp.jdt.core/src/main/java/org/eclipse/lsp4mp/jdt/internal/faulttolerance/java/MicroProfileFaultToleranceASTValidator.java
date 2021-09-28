@@ -19,13 +19,23 @@ import static org.eclipse.lsp4mp.jdt.core.MicroProfileConfigConstants.UNI_TYPE_U
 import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.getAnnotationMemberValueExpression;
 import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.isMatchAnnotation;
 import static org.eclipse.lsp4mp.jdt.internal.faulttolerance.MicroProfileFaultToleranceConstants.ASYNCHRONOUS_ANNOTATION;
+import static org.eclipse.lsp4mp.jdt.internal.faulttolerance.MicroProfileFaultToleranceConstants.DELAY_RETRY_ANNOTATION_MEMBER;
+import static org.eclipse.lsp4mp.jdt.internal.faulttolerance.MicroProfileFaultToleranceConstants.DELAY_UNIT_RETRY_ANNOTATION_MEMBER;
 import static org.eclipse.lsp4mp.jdt.internal.faulttolerance.MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE;
+import static org.eclipse.lsp4mp.jdt.internal.faulttolerance.MicroProfileFaultToleranceConstants.DURATION_UNIT_RETRY_ANNOTATION_MEMBER;
 import static org.eclipse.lsp4mp.jdt.internal.faulttolerance.MicroProfileFaultToleranceConstants.FALLBACK_ANNOTATION;
 import static org.eclipse.lsp4mp.jdt.internal.faulttolerance.MicroProfileFaultToleranceConstants.FALLBACK_METHOD_FALLBACK_ANNOTATION_MEMBER;
+import static org.eclipse.lsp4mp.jdt.internal.faulttolerance.MicroProfileFaultToleranceConstants.JITTER_DELAY_UNIT_RETRY_ANNOTATION_MEMBER;
+import static org.eclipse.lsp4mp.jdt.internal.faulttolerance.MicroProfileFaultToleranceConstants.JITTER_RETRY_ANNOTATION_MEMBER;
+import static org.eclipse.lsp4mp.jdt.internal.faulttolerance.MicroProfileFaultToleranceConstants.MAX_DURATION_RETRY_ANNOTATION_MEMBER;
+import static org.eclipse.lsp4mp.jdt.internal.faulttolerance.MicroProfileFaultToleranceConstants.RETRY_ANNOTATION;
+import static org.eclipse.lsp4mp.jdt.internal.faulttolerance.java.MicroProfileFaultToleranceErrorCode.DELAY_EXCEEDS_MAX_DURATION;
 import static org.eclipse.lsp4mp.jdt.internal.faulttolerance.java.MicroProfileFaultToleranceErrorCode.FALLBACK_METHOD_DOES_NOT_EXIST;
 import static org.eclipse.lsp4mp.jdt.internal.faulttolerance.java.MicroProfileFaultToleranceErrorCode.FAULT_TOLERANCE_DEFINITION_EXCEPTION;
 
 import java.text.MessageFormat;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -56,14 +66,16 @@ import org.eclipse.lsp4mp.jdt.core.java.validators.JavaASTValidator;
 import org.eclipse.lsp4mp.jdt.core.utils.JDTTypeUtils;
 
 /**
- * Collects diagnostics related to the <code>@Fallback</code> and
- * <code>@Asynchronous</code> annotations.
+ * Collects diagnostics related to the <code>@Fallback</code>,
+ * <code>@Asynchronous</code> and <code>@Retry</code> annotations.
  */
 public class MicroProfileFaultToleranceASTValidator extends JavaASTValidator {
 
 	private static final String FALLBACK_ERROR_MESSAGE = "The referenced fallback method ''{0}'' does not exist.";
 
 	private static final String ASYNCHRONOUS_ERROR_MESSAGE = "The annotated method ''{0}'' with @Asynchronous should return an object of type {1}.";
+
+	private static final String RETRY_ERROR_MESSAGE = "The `delay` member value must be less than the `maxDuration` member value.";
 
 	private final Map<TypeDeclaration, Set<String>> methodsCache;
 
@@ -83,7 +95,8 @@ public class MicroProfileFaultToleranceASTValidator extends JavaASTValidator {
 			throws CoreException {
 		IJavaProject javaProject = context.getJavaProject();
 		boolean adapted = JDTTypeUtils.findType(javaProject, FALLBACK_ANNOTATION) != null
-				|| JDTTypeUtils.findType(javaProject, ASYNCHRONOUS_ANNOTATION) != null;
+				|| JDTTypeUtils.findType(javaProject, ASYNCHRONOUS_ANNOTATION) != null
+				|| JDTTypeUtils.findType(javaProject, RETRY_ANNOTATION) != null;
 		if (adapted) {
 			addAllowedReturnTypeForAsynchronousAnnotation(javaProject, UNI_TYPE_UTILITY);
 		}
@@ -123,7 +136,12 @@ public class MicroProfileFaultToleranceASTValidator extends JavaASTValidator {
 					} catch (JavaModelException e) {
 						LOGGER.log(Level.WARNING, "An exception occurred when attempting to validate the annotation");
 					}
-					break;
+				} else if (isMatchAnnotation(annotation, RETRY_ANNOTATION)) {
+					try {
+						validateRetryAnnotation((NormalAnnotation) modifier);
+					} catch (JavaModelException e) {
+						LOGGER.log(Level.WARNING, "An exception occurred when attempting to validate the annotation");
+					}
 				}
 			}
 		}
@@ -145,11 +163,11 @@ public class MicroProfileFaultToleranceASTValidator extends JavaASTValidator {
 			if (modifier instanceof Annotation) {
 				Annotation annotation = (Annotation) modifier;
 				if (isMatchAnnotation(annotation, FALLBACK_ANNOTATION)) {
-					NormalAnnotation normAnnotation = (NormalAnnotation) modifier;
-					validateFallbackAnnotation(node, normAnnotation);
+					validateFallbackAnnotation(node, (NormalAnnotation) modifier);
 				} else if (isMatchAnnotation(annotation, ASYNCHRONOUS_ANNOTATION)) {
-					MarkerAnnotation markAnnotation = (MarkerAnnotation) modifier;
-					validateAsynchronousAnnotation(node, markAnnotation);
+					validateAsynchronousAnnotation(node, (MarkerAnnotation) modifier);
+				} else if (isMatchAnnotation(annotation, RETRY_ANNOTATION)) {
+					validateRetryAnnotation((NormalAnnotation) modifier);
 				}
 			}
 		}
@@ -201,6 +219,53 @@ public class MicroProfileFaultToleranceASTValidator extends JavaASTValidator {
 			String message = MessageFormat.format(ASYNCHRONOUS_ERROR_MESSAGE, node.getName(), allowedTypes);
 			super.addDiagnostic(message, DIAGNOSTIC_SOURCE, methodReturnType, FAULT_TOLERANCE_DEFINITION_EXCEPTION,
 					DiagnosticSeverity.Error);
+		}
+	}
+
+	/**
+	 * Checks if the given method declaration has a retry annotation, and if so,
+	 * provides diagnostics for the delay and maxDuration value(s)
+	 *
+	 * @param annotation The @Retry annotation
+	 * @throws JavaModelException
+	 */
+	private void validateRetryAnnotation(NormalAnnotation annotation) throws JavaModelException {
+		Expression delayExpr = getAnnotationMemberValueExpression(annotation, DELAY_RETRY_ANNOTATION_MEMBER);
+		Expression maxDurationExpr = getAnnotationMemberValueExpression(annotation,
+				MAX_DURATION_RETRY_ANNOTATION_MEMBER);
+		if (delayExpr != null && maxDurationExpr != null) {
+
+			Expression delayUnitExpr = getAnnotationMemberValueExpression(annotation,
+					DELAY_UNIT_RETRY_ANNOTATION_MEMBER);
+			Expression durationUnitExpr = getAnnotationMemberValueExpression(annotation,
+					DURATION_UNIT_RETRY_ANNOTATION_MEMBER);
+			Expression jitterExpr = getAnnotationMemberValueExpression(annotation, JITTER_RETRY_ANNOTATION_MEMBER);
+			Expression jitterDelayUnitExpr = getAnnotationMemberValueExpression(annotation,
+					JITTER_DELAY_UNIT_RETRY_ANNOTATION_MEMBER);
+
+			int delayNum = (int) delayExpr.resolveConstantExpressionValue();
+			int maxDurationNum = (int) maxDurationExpr.resolveConstantExpressionValue();
+			int jitterNum = jitterExpr != null ? (int) jitterExpr.resolveConstantExpressionValue() : 0;
+
+			String delayUnit = delayUnitExpr != null ? delayUnitExpr.toString().split("\\.")[1] : null;
+			String maxDurationUnit = durationUnitExpr != null ? durationUnitExpr.toString().split("\\.")[1] : null;
+			String jitterDelayUnit = jitterDelayUnitExpr != null ? jitterDelayUnitExpr.toString().split("\\.")[1]
+					: null;
+
+			Duration delayValue = delayUnitExpr != null ? Duration.of(delayNum, ChronoUnit.valueOf(delayUnit))
+					: Duration.of(delayNum, ChronoUnit.MILLIS);
+			Duration maxDurationValue = durationUnitExpr != null
+					? Duration.of(maxDurationNum, ChronoUnit.valueOf(maxDurationUnit))
+					: Duration.of(maxDurationNum, ChronoUnit.MILLIS);
+			Duration jitterValue = jitterDelayUnitExpr != null
+					? Duration.of(jitterNum, ChronoUnit.valueOf(jitterDelayUnit))
+					: Duration.of(jitterNum, ChronoUnit.MILLIS);
+			Duration maxDelayValue = delayValue.plus(jitterValue);
+
+			if (maxDelayValue.compareTo(maxDurationValue) >= 0) {
+				super.addDiagnostic(RETRY_ERROR_MESSAGE, DIAGNOSTIC_SOURCE, delayExpr, DELAY_EXCEEDS_MAX_DURATION,
+						DiagnosticSeverity.Error);
+			}
 		}
 	}
 

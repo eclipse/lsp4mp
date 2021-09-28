@@ -2,14 +2,14 @@
 <?eclipse version="3.5"?>
 <plugin>
 
-   <extension-point id="propertiesProviders" 
+   <extension-point id="propertiesProviders"
 					name="%propertiesProviders.name"
 					schema="schema/propertiesProviders.exsd" />
-   <extension-point id="javaFeatureParticipants" 
+   <extension-point id="javaFeatureParticipants"
 					name="%javaFeatureParticipants.name"
 					schema="schema/javaFeatureParticipants.exsd" />
-   <extension-point id="projectLabelProviders" 
-                    name="%projectLabelProviders.name" 
+   <extension-point id="projectLabelProviders"
+                    name="%projectLabelProviders.name"
                     schema="schema/projectLabelProviders.exsd"/>
    <extension-point id="configSourceProviders"
                     name="%configSourceProviders.name"
@@ -58,7 +58,7 @@
       <provider class="org.eclipse.lsp4mp.jdt.internal.core.providers.DefaultMicroProfilePropertiesConfigSourceProvider" />
    </extension>
 
-   <extension point="org.eclipse.lsp4mp.jdt.core.javaFeatureParticipants" >      
+   <extension point="org.eclipse.lsp4mp.jdt.core.javaFeatureParticipants" >
       <!-- Diagnostics managed with Java AST vistor -->
    	  <diagnostics class="org.eclipse.lsp4mp.jdt.internal.core.java.validators.JavaASTDiagnosticsParticipant" />
    </extension>
@@ -77,14 +77,14 @@
       <!-- Properties provider from the MicroProfile @ConfigProperty annotation -->
       <provider class="org.eclipse.lsp4mp.jdt.internal.config.properties.MicroProfileConfigPropertyProvider" />
       <!-- Properties provider from the MicroProfile @ConfigProperties annotation -->
-      <provider class="org.eclipse.lsp4mp.jdt.internal.config.properties.MicroProfileConfigPropertiesProvider" />      
+      <provider class="org.eclipse.lsp4mp.jdt.internal.config.properties.MicroProfileConfigPropertiesProvider" />
    </extension>
 
    <extension point="org.eclipse.lsp4mp.jdt.core.javaFeatureParticipants">
       <!-- Java definition for the MicroProfile @ConfigProperty annotation -->
-      <definition class="org.eclipse.lsp4mp.jdt.internal.config.java.MicroProfileConfigDefinitionParticipant" />      
+      <definition class="org.eclipse.lsp4mp.jdt.internal.config.java.MicroProfileConfigDefinitionParticipant" />
       <!-- Java hover for the MicroProfile @ConfigProperty annotation -->
-      <hover class="org.eclipse.lsp4mp.jdt.internal.config.java.MicroProfileConfigHoverParticipant" />  
+      <hover class="org.eclipse.lsp4mp.jdt.internal.config.java.MicroProfileConfigHoverParticipant" />
       <!-- Java codeActions for MicroProfile @ConfigProperty -->
       <codeAction kind="quickfix"
                   targetDiagnostic="microprofile-config#NO_VALUE_ASSIGNED_TO_PROPERTY"
@@ -98,7 +98,7 @@
       <!-- Java validation for the MicroProfile @ConfigProperty annotation -->
       <validator class="org.eclipse.lsp4mp.jdt.internal.config.java.MicroProfileConfigASTValidator" />
    </extension>
-   
+
    <!-- Microprofile Context Propagation support -->
 
    <extension point="org.eclipse.lsp4mp.jdt.core.propertiesProviders">
@@ -112,10 +112,10 @@
       <!-- Properties provider from the MicroProfile Fault Tolerance annotations -->
       <provider class="org.eclipse.lsp4mp.jdt.internal.faulttolerance.properties.MicroProfileFaultToleranceProvider" />
    </extension>
-   
+
    <extension point="org.eclipse.lsp4mp.jdt.core.javaFeatureParticipants" >
       <!-- Java definition for the MicroProfile Fault Tolerance annotations -->
-      <definition class="org.eclipse.lsp4mp.jdt.internal.faulttolerance.java.MicroProfileFaultToleranceDefinitionParticipant" />         
+      <definition class="org.eclipse.lsp4mp.jdt.internal.faulttolerance.java.MicroProfileFaultToleranceDefinitionParticipant" />
    	  <!-- Completion for Fault Tolerance annotations -->s
    	  <completion class="org.eclipse.lsp4mp.jdt.internal.faulttolerance.java.MicroProfileFaultToleranceCompletionParticipant" />
    </extension>
@@ -132,7 +132,7 @@
          <attribute name="delay" range="0" /> <!-- x >=0 -->
          <attribute name="requestVolumeThreshold" range="1" /> <!-- x >=1 -->
          <attribute name="failureRatio" range="[0,1]" /> <!-- 0 <= x <= 1 -->
-         <attribute name="successThreshold" range="1" /> <!-- x >=1 -->         
+         <attribute name="successThreshold" range="1" /> <!-- x >=1 -->
       </annotationValidator>
 
       <annotationValidator annotation="org.eclipse.microprofile.faulttolerance.Bulkhead"
@@ -144,6 +144,14 @@
       <annotationValidator annotation="org.eclipse.microprofile.faulttolerance.Timeout"
                            source="microprofile-faulttolerance" >
          <attribute name="value" range="0" /> <!-- x >=0 -->
+      </annotationValidator>
+
+      <annotationValidator annotation="org.eclipse.microprofile.faulttolerance.Retry"
+                           source="microprofile-faulttolerance" >
+         <attribute name="delay" range="0" /> <!-- x >=0 -->
+         <attribute name="maxDuration" range="0" /> <!-- x >=0 -->
+         <attribute name="jitter" range="0" /> <!-- x >=0 -->
+         <attribute name="maxRetries" range="-1" /> <!-- x >=0 -->
       </annotationValidator>
    </extension>
 
@@ -169,12 +177,12 @@
                   targetDiagnostic="microprofile-metrics#ApplicationScopedAnnotationMissing"
                   class="org.eclipse.lsp4mp.jdt.internal.metrics.java.ApplicationScopedAnnotationMissingQuickFix" />
    </extension>
-   
+
    <!-- Microprofile OpenTracing support -->
 
    <extension point="org.eclipse.lsp4mp.jdt.core.propertiesProviders">
       <!-- Properties provider for MicroProfile OpenTracing -->
-      <provider class="org.eclipse.lsp4mp.jdt.internal.opentracing.properties.MicroProfileOpenTracingProvider" />     
+      <provider class="org.eclipse.lsp4mp.jdt.internal.opentracing.properties.MicroProfileOpenTracingProvider" />
    </extension>
 
    <!-- Microprofile OpenAPI support -->
@@ -186,7 +194,7 @@
 
    <extension point="org.eclipse.lsp4mp.jdt.core.javaFeatureParticipants">
       <!-- Java codeAction for generating MicroProfile OpenAPI annotations -->
-      <codeAction kind="source" 
+      <codeAction kind="source"
                   class="org.eclipse.lsp4mp.jdt.internal.openapi.java.MicroProfileGenerateOpenAPIOperation" />
    </extension>
 
@@ -196,14 +204,14 @@
       <!-- Properties provider for MicroProfile Health -->
       <provider class="org.eclipse.lsp4mp.jdt.internal.health.properties.MicroProfileHealthProvider" />
    </extension>
-   
+
    <extension point="org.eclipse.lsp4mp.jdt.core.javaFeatureParticipants">
       <!-- Java diagnostics for the MicroProfile Health -->
       <diagnostics class="org.eclipse.lsp4mp.jdt.internal.health.java.MicroProfileHealthDiagnosticsParticipant" />
       <!-- Java codeActions for the MicroProfile Health -->
       <codeAction kind="quickfix"
                   targetDiagnostic="microprofile-health#ImplementHealthCheck"
-                  class="org.eclipse.lsp4mp.jdt.internal.health.java.ImplementHealthCheckQuickFix" />   
+                  class="org.eclipse.lsp4mp.jdt.internal.health.java.ImplementHealthCheckQuickFix" />
       <codeAction kind="quickfix"
                   targetDiagnostic="microprofile-health#HealthAnnotationMissing"
                   class="org.eclipse.lsp4mp.jdt.internal.health.java.HealthAnnotationMissingQuickFix" />
@@ -224,7 +232,7 @@
    </extension>
 
    <extension point="org.eclipse.lsp4mp.jdt.core.javaFeatureParticipants">
-      <!-- Java URL codeLens for RestClient -->   
+      <!-- Java URL codeLens for RestClient -->
       <codeLens class="org.eclipse.lsp4mp.jdt.internal.restclient.java.MicroProfileRestClientCodeLensParticipant" />
       <!-- Java diagnostics for the MicroProfile RestClient -->
       <diagnostics class="org.eclipse.lsp4mp.jdt.internal.restclient.java.MicroProfileRestClientDiagnosticsParticipant" />
@@ -248,10 +256,10 @@
    <extension point="org.eclipse.lsp4mp.jdt.core.propertiesProviders">
       <!-- Properties provider for MicroProfile JWT -->
       <provider class="org.eclipse.lsp4mp.jdt.internal.jwt.properties.MicroProfileJWTProvider" />
-   </extension> 
+   </extension>
 
     <!-- MicroProfile GraphQL Support -->
-   
+
    <extension point="org.eclipse.lsp4mp.jdt.core.propertiesProviders">
       <!-- Properties provider for MicroProfile GraphQL -->
       <provider class="org.eclipse.lsp4mp.jdt.internal.graphql.properties.MicroProfileGraphQLProvider" />
@@ -261,6 +269,6 @@
 
    <extension point="org.eclipse.lsp4mp.jdt.core.javaFeatureParticipants">
       <!-- Java URL codeLens for JAX-RS -->
-      <codeLens class="org.eclipse.lsp4mp.jdt.internal.jaxrs.java.JaxRsCodeLensParticipant" />   
+      <codeLens class="org.eclipse.lsp4mp.jdt.internal.jaxrs.java.JaxRsCodeLensParticipant" />
    </extension>
 </plugin>
