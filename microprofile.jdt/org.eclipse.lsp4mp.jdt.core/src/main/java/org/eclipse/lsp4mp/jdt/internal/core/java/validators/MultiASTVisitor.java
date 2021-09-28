@@ -20,6 +20,7 @@ import java.util.logging.Logger;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
+import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 
 /**
@@ -35,6 +36,30 @@ public class MultiASTVisitor extends ASTVisitor {
 
 	public MultiASTVisitor(Collection<ASTVisitor> visitors) {
 		this.visitors = visitors;
+	}
+
+	@Override
+	public boolean visit(SingleMemberAnnotation node) {
+		boolean result = false;
+		for (ASTVisitor visitor : visitors) {
+			try {
+				result |= visitor.visit(node);
+			} catch (Exception e) {
+				LOGGER.log(Level.SEVERE, "Error while visiting node with " + visitor.getClass().getName(), e);
+			}
+		}
+		return result;
+	}
+
+	@Override
+	public void endVisit(SingleMemberAnnotation node) {
+		for (ASTVisitor visitor : visitors) {
+			try {
+				visitor.endVisit(node);
+			} catch (Exception e) {
+				LOGGER.log(Level.SEVERE, "Error while end visiting node with " + visitor.getClass().getName(), e);
+			}
+		}
 	}
 
 	@Override
