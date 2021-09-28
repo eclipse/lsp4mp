@@ -37,6 +37,8 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
  */
 public class AnnotationUtils {
 
+	private static final String ATTRIBUTE_VALUE = "value";
+
 	public static boolean hasAnnotation(IAnnotatable annotatable, String annotationName) throws JavaModelException {
 		return getAnnotation(annotatable, annotationName) != null;
 	}
@@ -215,7 +217,9 @@ public class AnnotationUtils {
 			return null;
 		} else if (annotation instanceof SingleMemberAnnotation) {
 			SingleMemberAnnotation singleMemberAnnotation = (SingleMemberAnnotation) annotation;
-			return singleMemberAnnotation.getProperty(memberName) != null ? singleMemberAnnotation.getValue() : null;
+			return ATTRIBUTE_VALUE.equals(memberName) || singleMemberAnnotation.getProperty(memberName) != null
+					? singleMemberAnnotation.getValue()
+					: null;
 		}
 		// MarkerAnnotation has no members
 		return null;

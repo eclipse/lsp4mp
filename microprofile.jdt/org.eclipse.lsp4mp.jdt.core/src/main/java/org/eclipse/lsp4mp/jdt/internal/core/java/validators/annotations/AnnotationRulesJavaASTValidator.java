@@ -20,8 +20,10 @@ import java.util.logging.Logger;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
+import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4mp.jdt.core.java.validators.JavaASTValidator;
 import org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils;
@@ -45,7 +47,18 @@ public class AnnotationRulesJavaASTValidator extends JavaASTValidator {
 	}
 
 	@Override
+	public boolean visit(SingleMemberAnnotation annotation) {
+		validateAnnotation(annotation);
+		return false;
+	}
+
+	@Override
 	public boolean visit(NormalAnnotation annotation) {
+		validateAnnotation(annotation);
+		return false;
+	}
+
+	private void validateAnnotation(Annotation annotation) {
 		// Loop for rules
 		for (AnnotationRule annotationRule : rules) {
 			if (AnnotationUtils.isMatchAnnotation(annotation, annotationRule.getAnnotation())) {
@@ -67,7 +80,6 @@ public class AnnotationRulesJavaASTValidator extends JavaASTValidator {
 
 			}
 		}
-		return false;
 	}
 
 	/**
