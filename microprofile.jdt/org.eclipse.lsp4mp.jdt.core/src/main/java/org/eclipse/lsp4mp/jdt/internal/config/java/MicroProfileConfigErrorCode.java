@@ -22,7 +22,7 @@ import org.eclipse.lsp4mp.jdt.core.java.diagnostics.IJavaErrorCode;
  */
 public enum MicroProfileConfigErrorCode implements IJavaErrorCode {
 
-	NO_VALUE_ASSIGNED_TO_PROPERTY, DEFAULT_VALUE_IS_WRONG_TYPE;
+	NO_VALUE_ASSIGNED_TO_PROPERTY, DEFAULT_VALUE_IS_WRONG_TYPE, EMPTY_KEY;
 
 	@Override
 	public String getCode() {
