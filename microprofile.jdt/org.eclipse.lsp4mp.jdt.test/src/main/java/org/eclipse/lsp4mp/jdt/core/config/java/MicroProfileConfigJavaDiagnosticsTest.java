@@ -196,6 +196,23 @@ public class MicroProfileConfigJavaDiagnosticsTest extends BasePropertiesManager
 
 	}
 
+	@Test
+	public void emptyNameKeyValue() throws Exception {
+		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.microprofile_configproperties);
+		IJDTUtils utils = JDT_UTILS;
+
+		MicroProfileJavaDiagnosticsParams diagnosticsParams = new MicroProfileJavaDiagnosticsParams();
+		IFile javaFile = javaProject.getProject().getFile(new Path("src/main/java/org/acme/EmptyKey.java"));
+		diagnosticsParams.setUris(Arrays.asList(javaFile.getLocation().toFile().toURI().toString()));
+		diagnosticsParams.setDocumentFormat(DocumentFormat.Markdown);
+
+		Diagnostic d1 = d(5, 25, 27, "The member 'name' can't be empty.", DiagnosticSeverity.Error,
+				MicroProfileConfigConstants.MICRO_PROFILE_CONFIG_DIAGNOSTIC_SOURCE,
+				MicroProfileConfigErrorCode.EMPTY_KEY);
+
+		assertJavaDiagnostics(diagnosticsParams, utils, d1);
+	}
+
 	private static String fixURI(String uriString) {
 		return uriString.replaceFirst("file:/([^/])", "file:///$1");
 	}
