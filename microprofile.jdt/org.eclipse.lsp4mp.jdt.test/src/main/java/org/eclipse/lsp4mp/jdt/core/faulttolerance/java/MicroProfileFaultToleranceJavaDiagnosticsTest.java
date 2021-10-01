@@ -37,20 +37,26 @@ import org.junit.Test;
  * @author Angelo ZERR
  *
  */
-public class MicroProfileFaultToleranceJavaDiagnosticsTest extends BasePropertiesManagerTest {
+public class MicroProfileFaultToleranceJavaDiagnosticsTest
+		extends
+			BasePropertiesManagerTest {
 
 	@Test
 	public void fallbackMethodsMissing() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.microprofile_fault_tolerance);
+		IJavaProject javaProject = loadMavenProject(
+				MicroProfileMavenProjectName.microprofile_fault_tolerance);
 		IJDTUtils utils = JDT_UTILS;
 
 		MicroProfileJavaDiagnosticsParams diagnosticsParams = new MicroProfileJavaDiagnosticsParams();
-		IFile javaFile = javaProject.getProject()
-				.getFile(new Path("src/main/java/org/acme/FaultTolerantResource.java"));
-		diagnosticsParams.setUris(Arrays.asList(javaFile.getLocation().toFile().toURI().toString()));
+		IFile javaFile = javaProject.getProject().getFile(
+				new Path("src/main/java/org/acme/FaultTolerantResource.java"));
+		diagnosticsParams.setUris(Arrays
+				.asList(javaFile.getLocation().toFile().toURI().toString()));
 		diagnosticsParams.setDocumentFormat(DocumentFormat.Markdown);
 
-		Diagnostic d = d(14, 31, 36, "The referenced fallback method 'aaa' does not exist.", DiagnosticSeverity.Error,
+		Diagnostic d = d(14, 31, 36,
+				"The referenced fallback method 'aaa' does not exist.",
+				DiagnosticSeverity.Error,
 				MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE,
 				MicroProfileFaultToleranceErrorCode.FALLBACK_METHOD_DOES_NOT_EXIST);
 		assertJavaDiagnostics(diagnosticsParams, utils, d);
@@ -58,28 +64,33 @@ public class MicroProfileFaultToleranceJavaDiagnosticsTest extends BasePropertie
 
 	@Test
 	public void asynchronousNonFutureOrCompletionStage() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.microprofile_fault_tolerance);
+		IJavaProject javaProject = loadMavenProject(
+				MicroProfileMavenProjectName.microprofile_fault_tolerance);
 		IJDTUtils utils = JDT_UTILS;
 
 		MicroProfileJavaDiagnosticsParams diagnosticsParams = new MicroProfileJavaDiagnosticsParams();
-		IFile javaFile = javaProject.getProject()
-				.getFile(new Path("src/main/java/org/acme/AsynchronousFaultToleranceResource.java"));
-		diagnosticsParams.setUris(Arrays.asList(javaFile.getLocation().toFile().toURI().toString()));
+		IFile javaFile = javaProject.getProject().getFile(new Path(
+				"src/main/java/org/acme/AsynchronousFaultToleranceResource.java"));
+		diagnosticsParams.setUris(Arrays
+				.asList(javaFile.getLocation().toFile().toURI().toString()));
 		diagnosticsParams.setDocumentFormat(DocumentFormat.Markdown);
 
 		Diagnostic d1 = d(34, 11, 17,
 				"The annotated method 'objectReturnTypeAsynchronousMethod' with @Asynchronous should return an object of type 'java.util.concurrent.Future', 'java.util.concurrent.CompletionStage'.",
-				DiagnosticSeverity.Error, MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE,
+				DiagnosticSeverity.Error,
+				MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE,
 				MicroProfileFaultToleranceErrorCode.FAULT_TOLERANCE_DEFINITION_EXCEPTION);
 
 		Diagnostic d2 = d(39, 11, 15,
 				"The annotated method 'noReturnTypeAsynchronousMethod' with @Asynchronous should return an object of type 'java.util.concurrent.Future', 'java.util.concurrent.CompletionStage'.",
-				DiagnosticSeverity.Error, MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE,
+				DiagnosticSeverity.Error,
+				MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE,
 				MicroProfileFaultToleranceErrorCode.FAULT_TOLERANCE_DEFINITION_EXCEPTION);
 
 		Diagnostic d3 = d(44, 11, 36,
 				"The annotated method 'completableFutureAsynchronousMethod' with @Asynchronous should return an object of type 'java.util.concurrent.Future', 'java.util.concurrent.CompletionStage'.",
-				DiagnosticSeverity.Error, MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE,
+				DiagnosticSeverity.Error,
+				MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE,
 				MicroProfileFaultToleranceErrorCode.FAULT_TOLERANCE_DEFINITION_EXCEPTION);
 
 		assertJavaDiagnostics(diagnosticsParams, utils, d1, d2, d3);
@@ -87,28 +98,33 @@ public class MicroProfileFaultToleranceJavaDiagnosticsTest extends BasePropertie
 
 	@Test
 	public void asynchronousClassNonFutureOrCompletionStage() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.microprofile_fault_tolerance);
+		IJavaProject javaProject = loadMavenProject(
+				MicroProfileMavenProjectName.microprofile_fault_tolerance);
 		IJDTUtils utils = JDT_UTILS;
 
 		MicroProfileJavaDiagnosticsParams diagnosticsParams = new MicroProfileJavaDiagnosticsParams();
-		IFile javaFile = javaProject.getProject()
-				.getFile(new Path("src/main/java/org/acme/AsynchronousFaultToleranceClassResource.java"));
-		diagnosticsParams.setUris(Arrays.asList(javaFile.getLocation().toFile().toURI().toString()));
+		IFile javaFile = javaProject.getProject().getFile(new Path(
+				"src/main/java/org/acme/AsynchronousFaultToleranceClassResource.java"));
+		diagnosticsParams.setUris(Arrays
+				.asList(javaFile.getLocation().toFile().toURI().toString()));
 		diagnosticsParams.setDocumentFormat(DocumentFormat.Markdown);
 
 		Diagnostic d1 = d(32, 11, 17,
 				"The annotated method 'objectReturnTypeAsynchronousMethod' with @Asynchronous should return an object of type 'java.util.concurrent.Future', 'java.util.concurrent.CompletionStage'.",
-				DiagnosticSeverity.Error, MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE,
+				DiagnosticSeverity.Error,
+				MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE,
 				MicroProfileFaultToleranceErrorCode.FAULT_TOLERANCE_DEFINITION_EXCEPTION);
 
 		Diagnostic d2 = d(36, 11, 15,
 				"The annotated method 'noReturnTypeAsynchronousMethod' with @Asynchronous should return an object of type 'java.util.concurrent.Future', 'java.util.concurrent.CompletionStage'.",
-				DiagnosticSeverity.Error, MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE,
+				DiagnosticSeverity.Error,
+				MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE,
 				MicroProfileFaultToleranceErrorCode.FAULT_TOLERANCE_DEFINITION_EXCEPTION);
 
 		Diagnostic d3 = d(40, 11, 36,
 				"The annotated method 'completableFutureAsynchronousMethod' with @Asynchronous should return an object of type 'java.util.concurrent.Future', 'java.util.concurrent.CompletionStage'.",
-				DiagnosticSeverity.Error, MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE,
+				DiagnosticSeverity.Error,
+				MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE,
 				MicroProfileFaultToleranceErrorCode.FAULT_TOLERANCE_DEFINITION_EXCEPTION);
 
 		assertJavaDiagnostics(diagnosticsParams, utils, d1, d2, d3);
@@ -116,87 +132,118 @@ public class MicroProfileFaultToleranceJavaDiagnosticsTest extends BasePropertie
 
 	@Test
 	public void fallbackMethodValidationFaultTolerant() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.microprofile_fault_tolerance);
+		IJavaProject javaProject = loadMavenProject(
+				MicroProfileMavenProjectName.microprofile_fault_tolerance);
 		IJDTUtils utils = JDT_UTILS;
 
 		MicroProfileJavaDiagnosticsParams diagnosticsParams = new MicroProfileJavaDiagnosticsParams();
-		IFile javaFile = javaProject.getProject()
-				.getFile(new Path("src/main/java/org/acme/OtherFaultTolerantResource.java"));
-		diagnosticsParams.setUris(Arrays.asList(javaFile.getLocation().toFile().toURI().toString()));
+		IFile javaFile = javaProject.getProject().getFile(new Path(
+				"src/main/java/org/acme/OtherFaultTolerantResource.java"));
+		diagnosticsParams.setUris(Arrays
+				.asList(javaFile.getLocation().toFile().toURI().toString()));
 		diagnosticsParams.setDocumentFormat(DocumentFormat.Markdown);
 		assertJavaDiagnostics(diagnosticsParams, utils);
 	}
 
 	@Test
 	public void circuitBreakerClientForValidationDelay() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.microprofile_fault_tolerance);
+		IJavaProject javaProject = loadMavenProject(
+				MicroProfileMavenProjectName.microprofile_fault_tolerance);
 		IJDTUtils utils = JDT_UTILS;
 
 		MicroProfileJavaDiagnosticsParams diagnosticsParams = new MicroProfileJavaDiagnosticsParams();
 		IFile javaFile = javaProject.getProject().getFile(new Path(
 				"src/main/java/org/eclipse/microprofile/fault/tolerance/tck/invalidParameters/CircuitBreakerClientForValidationDelay.java"));
-		diagnosticsParams.setUris(Arrays.asList(javaFile.getLocation().toFile().toURI().toString()));
+		diagnosticsParams.setUris(Arrays
+				.asList(javaFile.getLocation().toFile().toURI().toString()));
 		diagnosticsParams.setDocumentFormat(DocumentFormat.Markdown);
 
-		Diagnostic d1 = d(36, 35, 37, "The value `-1` must be between `0` (inclusive) and `1` (inclusive).",
-				DiagnosticSeverity.Error, MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE, null);
+		Diagnostic d1 = d(36, 35, 37,
+				"The value `-1` must be between `0` (inclusive) and `1` (inclusive).",
+				DiagnosticSeverity.Error,
+				MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE, null);
 
-		Diagnostic d2 = d(41, 35, 36, "The value `2` must be between `0` (inclusive) and `1` (inclusive).",
-				DiagnosticSeverity.Error, MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE, null);
+		Diagnostic d2 = d(41, 35, 36,
+				"The value `2` must be between `0` (inclusive) and `1` (inclusive).",
+				DiagnosticSeverity.Error,
+				MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE, null);
 
 		assertJavaDiagnostics(diagnosticsParams, utils, d1, d2);
 	}
 
 	@Test
 	public void bulkheadClientForValidation() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.microprofile_fault_tolerance);
+		IJavaProject javaProject = loadMavenProject(
+				MicroProfileMavenProjectName.microprofile_fault_tolerance);
 		IJDTUtils utils = JDT_UTILS;
 
 		MicroProfileJavaDiagnosticsParams diagnosticsParams = new MicroProfileJavaDiagnosticsParams();
 		IFile javaFile = javaProject.getProject().getFile(new Path(
 				"src/main/java/org/eclipse/microprofile/fault/tolerance/tck/invalidParameters/BulkheadClientForValidation.java"));
-		diagnosticsParams.setUris(Arrays.asList(javaFile.getLocation().toFile().toURI().toString()));
+		diagnosticsParams.setUris(Arrays
+				.asList(javaFile.getLocation().toFile().toURI().toString()));
 		diagnosticsParams.setDocumentFormat(DocumentFormat.Markdown);
 
-		Diagnostic d1 = d(34, 14, 16, "The value `-1` must be greater than or equal to `0`.", DiagnosticSeverity.Error,
+		Diagnostic d1 = d(34, 14, 16,
+				"The value `-1` must be greater than or equal to `0`.",
+				DiagnosticSeverity.Error,
 				MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE, null);
 
-		Diagnostic d2 = d(39, 20, 22, "The value `-1` must be greater than or equal to `0`.", DiagnosticSeverity.Error,
+		Diagnostic d2 = d(39, 20, 22,
+				"The value `-1` must be greater than or equal to `0`.",
+				DiagnosticSeverity.Error,
 				MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE, null);
 
-		Diagnostic d3 = d(44, 31, 33, "The value `-1` must be greater than or equal to `0`.", DiagnosticSeverity.Error,
+		Diagnostic d3 = d(44, 31, 33,
+				"The value `-1` must be greater than or equal to `0`.",
+				DiagnosticSeverity.Error,
 				MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE, null);
 
-		Diagnostic d4_a = d(49, 20, 22, "The value `-1` must be greater than or equal to `0`.",
-				DiagnosticSeverity.Error, MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE, null);
-
-		Diagnostic d4_b = d(49, 41, 43, "The value `-1` must be greater than or equal to `0`.",
-				DiagnosticSeverity.Error, MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE, null);
-
-		Diagnostic d5 = d(54, 20, 22, "The value `-1` must be greater than or equal to `0`.", DiagnosticSeverity.Error,
+		Diagnostic d4_a = d(49, 20, 22,
+				"The value `-1` must be greater than or equal to `0`.",
+				DiagnosticSeverity.Error,
 				MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE, null);
 
-		Diagnostic d6 = d(59, 40, 42, "The value `-1` must be greater than or equal to `0`.", DiagnosticSeverity.Error,
+		Diagnostic d4_b = d(49, 41, 43,
+				"The value `-1` must be greater than or equal to `0`.",
+				DiagnosticSeverity.Error,
 				MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE, null);
 
-		assertJavaDiagnostics(diagnosticsParams, utils, d1, d2, d3, d4_a, d4_b, d5, d6);
+		Diagnostic d5 = d(54, 20, 22,
+				"The value `-1` must be greater than or equal to `0`.",
+				DiagnosticSeverity.Error,
+				MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE, null);
+
+		Diagnostic d6 = d(59, 40, 42,
+				"The value `-1` must be greater than or equal to `0`.",
+				DiagnosticSeverity.Error,
+				MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE, null);
+
+		assertJavaDiagnostics(diagnosticsParams, utils, d1, d2, d3, d4_a, d4_b,
+				d5, d6);
 	}
 
 	@Test
 	public void timeoutClientForValidation() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.microprofile_fault_tolerance);
+		IJavaProject javaProject = loadMavenProject(
+				MicroProfileMavenProjectName.microprofile_fault_tolerance);
 		IJDTUtils utils = JDT_UTILS;
 
 		MicroProfileJavaDiagnosticsParams diagnosticsParams = new MicroProfileJavaDiagnosticsParams();
 		IFile javaFile = javaProject.getProject().getFile(new Path(
 				"src/main/java/org/eclipse/microprofile/fault/tolerance/tck/invalidParameters/TimeoutClientForValidation.java"));
-		diagnosticsParams.setUris(Arrays.asList(javaFile.getLocation().toFile().toURI().toString()));
+		diagnosticsParams.setUris(Arrays
+				.asList(javaFile.getLocation().toFile().toURI().toString()));
 		diagnosticsParams.setDocumentFormat(DocumentFormat.Markdown);
 
-		Diagnostic d1 = d(33, 13, 15, "The value `-1` must be greater than or equal to `0`.", DiagnosticSeverity.Error,
+		Diagnostic d1 = d(33, 13, 15,
+				"The value `-1` must be greater than or equal to `0`.",
+				DiagnosticSeverity.Error,
 				MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE, null);
 
-		Diagnostic d2 = d(38, 19, 21, "The value `-1` must be greater than or equal to `0`.", DiagnosticSeverity.Error,
+		Diagnostic d2 = d(38, 19, 21,
+				"The value `-1` must be greater than or equal to `0`.",
+				DiagnosticSeverity.Error,
 				MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE, null);
 
 		assertJavaDiagnostics(diagnosticsParams, utils, d1, d2);
@@ -204,33 +251,47 @@ public class MicroProfileFaultToleranceJavaDiagnosticsTest extends BasePropertie
 
 	@Test
 	public void retryClientForValidation() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.microprofile_fault_tolerance);
+		IJavaProject javaProject = loadMavenProject(
+				MicroProfileMavenProjectName.microprofile_fault_tolerance);
 		IJDTUtils utils = JDT_UTILS;
 
 		MicroProfileJavaDiagnosticsParams diagnosticsParams = new MicroProfileJavaDiagnosticsParams();
 		IFile javaFile = javaProject.getProject().getFile(new Path(
 				"src/main/java/org/eclipse/microprofile/fault/tolerance/tck/invalidParameters/RetryClientForValidation.java"));
-		diagnosticsParams.setUris(Arrays.asList(javaFile.getLocation().toFile().toURI().toString()));
+		diagnosticsParams.setUris(Arrays
+				.asList(javaFile.getLocation().toFile().toURI().toString()));
 		diagnosticsParams.setDocumentFormat(DocumentFormat.Markdown);
 
-		Diagnostic d1 = d(33, 19, 21, "The value `-1` must be greater than or equal to `0`.", DiagnosticSeverity.Error,
+		Diagnostic d1 = d(33, 19, 21,
+				"The value `-1` must be greater than or equal to `0`.",
+				DiagnosticSeverity.Error,
 				MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE, null);
 
-		Diagnostic d2 = d(38, 25, 27, "The value `-1` must be greater than or equal to `0`.", DiagnosticSeverity.Error,
+		Diagnostic d2 = d(38, 25, 27,
+				"The value `-1` must be greater than or equal to `0`.",
+				DiagnosticSeverity.Error,
 				MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE, null);
 
-		Diagnostic d3 = d(43, 20, 22, "The value `-1` must be greater than or equal to `0`.", DiagnosticSeverity.Error,
+		Diagnostic d3 = d(43, 20, 22,
+				"The value `-1` must be greater than or equal to `0`.",
+				DiagnosticSeverity.Error,
 				MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE, null);
 
-		Diagnostic d4 = d(48, 24, 26, "The value `-2` must be greater than or equal to `-1`.", DiagnosticSeverity.Error,
+		Diagnostic d4 = d(48, 24, 26,
+				"The value `-2` must be greater than or equal to `-1`.",
+				DiagnosticSeverity.Error,
 				MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE, null);
 
-		Diagnostic d5 = d(53, 19, 23, "The `delay` member value must be less than the `maxDuration` member value.",
-				DiagnosticSeverity.Error, MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE,
+		Diagnostic d5 = d(53, 19, 23,
+				"The effective delay may exceed the `maxDuration` member value.",
+				DiagnosticSeverity.Warning,
+				MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE,
 				MicroProfileFaultToleranceErrorCode.DELAY_EXCEEDS_MAX_DURATION);
 
-		Diagnostic d6 = d(58, 19, 23, "The `delay` member value must be less than the `maxDuration` member value.",
-				DiagnosticSeverity.Error, MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE,
+		Diagnostic d6 = d(58, 19, 23,
+				"The effective delay may exceed the `maxDuration` member value.",
+				DiagnosticSeverity.Warning,
+				MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE,
 				MicroProfileFaultToleranceErrorCode.DELAY_EXCEEDS_MAX_DURATION);
 
 		assertJavaDiagnostics(diagnosticsParams, utils, d1, d2, d3, d4, d5, d6);
@@ -238,29 +299,41 @@ public class MicroProfileFaultToleranceJavaDiagnosticsTest extends BasePropertie
 
 	@Test
 	public void retryClientForValidationClass() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.microprofile_fault_tolerance);
+		IJavaProject javaProject = loadMavenProject(
+				MicroProfileMavenProjectName.microprofile_fault_tolerance);
 		IJDTUtils utils = JDT_UTILS;
 
 		MicroProfileJavaDiagnosticsParams diagnosticsParams = new MicroProfileJavaDiagnosticsParams();
 		IFile javaFile = javaProject.getProject().getFile(new Path(
 				"src/main/java/org/eclipse/microprofile/fault/tolerance/tck/invalidParameters/RetryClientForValidationClass.java"));
-		diagnosticsParams.setUris(Arrays.asList(javaFile.getLocation().toFile().toURI().toString()));
+		diagnosticsParams.setUris(Arrays
+				.asList(javaFile.getLocation().toFile().toURI().toString()));
 		diagnosticsParams.setDocumentFormat(DocumentFormat.Markdown);
 
-		Diagnostic d1 = d(32, 15, 17, "The value `-2` must be greater than or equal to `0`.", DiagnosticSeverity.Error,
+		Diagnostic d1 = d(32, 15, 17,
+				"The value `-2` must be greater than or equal to `0`.",
+				DiagnosticSeverity.Error,
 				MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE, null);
 
-		Diagnostic d2 = d(32, 33, 35, "The value `-1` must be greater than or equal to `0`.", DiagnosticSeverity.Error,
+		Diagnostic d2 = d(32, 33, 35,
+				"The value `-1` must be greater than or equal to `0`.",
+				DiagnosticSeverity.Error,
 				MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE, null);
 
-		Diagnostic d3 = d(32, 46, 48, "The value `-1` must be greater than or equal to `0`.", DiagnosticSeverity.Error,
+		Diagnostic d3 = d(32, 46, 48,
+				"The value `-1` must be greater than or equal to `0`.",
+				DiagnosticSeverity.Error,
 				MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE, null);
 
-		Diagnostic d4 = d(32, 63, 65, "The value `-2` must be greater than or equal to `-1`.", DiagnosticSeverity.Error,
+		Diagnostic d4 = d(32, 63, 65,
+				"The value `-2` must be greater than or equal to `-1`.",
+				DiagnosticSeverity.Error,
 				MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE, null);
 
-		Diagnostic d5 = d(39, 19, 23, "The `delay` member value must be less than the `maxDuration` member value.",
-				DiagnosticSeverity.Error, MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE,
+		Diagnostic d5 = d(39, 19, 23,
+				"The effective delay may exceed the `maxDuration` member value.",
+				DiagnosticSeverity.Warning,
+				MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE,
 				MicroProfileFaultToleranceErrorCode.DELAY_EXCEEDS_MAX_DURATION);
 
 		assertJavaDiagnostics(diagnosticsParams, utils, d1, d2, d3, d4, d5);
