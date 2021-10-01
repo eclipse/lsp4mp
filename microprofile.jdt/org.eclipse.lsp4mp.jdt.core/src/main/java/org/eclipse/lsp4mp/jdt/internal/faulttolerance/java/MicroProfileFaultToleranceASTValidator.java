@@ -36,6 +36,7 @@ import static org.eclipse.lsp4mp.jdt.internal.faulttolerance.java.MicroProfileFa
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.UnsupportedTemporalTypeException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -58,6 +59,8 @@ import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.MarkerAnnotation;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
+import org.eclipse.jdt.core.dom.QualifiedName;
+import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.lsp4j.DiagnosticSeverity;
@@ -75,35 +78,41 @@ public class MicroProfileFaultToleranceASTValidator extends JavaASTValidator {
 
 	private static final String ASYNCHRONOUS_ERROR_MESSAGE = "The annotated method ''{0}'' with @Asynchronous should return an object of type {1}.";
 
-	private static final String RETRY_ERROR_MESSAGE = "The `delay` member value must be less than the `maxDuration` member value.";
+	private static final String RETRY_WARNING_MESSAGE = "The effective delay may exceed the `maxDuration` member value.";
 
 	private final Map<TypeDeclaration, Set<String>> methodsCache;
 
 	private final List<String> allowedReturnTypesForAsynchronousAnnotation;
 
-	private static Logger LOGGER = Logger.getLogger(MicroProfileFaultToleranceASTValidator.class.getName());
+	private static Logger LOGGER = Logger
+			.getLogger(MicroProfileFaultToleranceASTValidator.class.getName());
 
 	public MicroProfileFaultToleranceASTValidator() {
 		super();
 		this.methodsCache = new HashMap<>();
 		this.allowedReturnTypesForAsynchronousAnnotation = new ArrayList<>(
-				Arrays.asList(FUTURE_TYPE_UTILITY, COMPLETION_STAGE_TYPE_UTILITY));
+				Arrays.asList(FUTURE_TYPE_UTILITY,
+						COMPLETION_STAGE_TYPE_UTILITY));
 	}
 
 	@Override
-	public boolean isAdaptedForDiagnostics(JavaDiagnosticsContext context, IProgressMonitor monitor)
-			throws CoreException {
+	public boolean isAdaptedForDiagnostics(JavaDiagnosticsContext context,
+			IProgressMonitor monitor) throws CoreException {
 		IJavaProject javaProject = context.getJavaProject();
-		boolean adapted = JDTTypeUtils.findType(javaProject, FALLBACK_ANNOTATION) != null
-				|| JDTTypeUtils.findType(javaProject, ASYNCHRONOUS_ANNOTATION) != null
+		boolean adapted = JDTTypeUtils.findType(javaProject,
+				FALLBACK_ANNOTATION) != null
+				|| JDTTypeUtils.findType(javaProject,
+						ASYNCHRONOUS_ANNOTATION) != null
 				|| JDTTypeUtils.findType(javaProject, RETRY_ANNOTATION) != null;
 		if (adapted) {
-			addAllowedReturnTypeForAsynchronousAnnotation(javaProject, UNI_TYPE_UTILITY);
+			addAllowedReturnTypeForAsynchronousAnnotation(javaProject,
+					UNI_TYPE_UTILITY);
 		}
 		return adapted;
 	}
 
-	private void addAllowedReturnTypeForAsynchronousAnnotation(IJavaProject javaProject, String returnType) {
+	private void addAllowedReturnTypeForAsynchronousAnnotation(
+			IJavaProject javaProject, String returnType) {
 		if (JDTTypeUtils.findType(javaProject, returnType) != null) {
 			allowedReturnTypesForAsynchronousAnnotation.add(returnType);
 		}
@@ -114,7 +123,8 @@ public class MicroProfileFaultToleranceASTValidator extends JavaASTValidator {
 		try {
 			validateMethod(node);
 		} catch (JavaModelException e) {
-			LOGGER.log(Level.WARNING, "An exception occurred when attempting to validate the annotation marked method");
+			LOGGER.log(Level.WARNING,
+					"An exception occurred when attempting to validate the annotation marked method");
 		}
 		super.visit(node);
 		return true;
@@ -131,16 +141,19 @@ public class MicroProfileFaultToleranceASTValidator extends JavaASTValidator {
 					try {
 						MethodDeclaration[] methods = type.getMethods();
 						for (MethodDeclaration node : methods) {
-							validateAsynchronousAnnotation(node, (MarkerAnnotation) modifier);
+							validateAsynchronousAnnotation(node,
+									(MarkerAnnotation) modifier);
 						}
 					} catch (JavaModelException e) {
-						LOGGER.log(Level.WARNING, "An exception occurred when attempting to validate the annotation");
+						LOGGER.log(Level.WARNING,
+								"An exception occurred when attempting to validate the annotation");
 					}
 				} else if (isMatchAnnotation(annotation, RETRY_ANNOTATION)) {
 					try {
 						validateRetryAnnotation((NormalAnnotation) modifier);
 					} catch (JavaModelException e) {
-						LOGGER.log(Level.WARNING, "An exception occurred when attempting to validate the annotation");
+						LOGGER.log(Level.WARNING,
+								"An exception occurred when attempting to validate the annotation");
 					}
 				}
 			}
@@ -150,22 +163,27 @@ public class MicroProfileFaultToleranceASTValidator extends JavaASTValidator {
 	}
 
 	/**
-	 * Checks if the given method declaration has a supported annotation, and if so,
-	 * provides diagnostics if necessary
+	 * Checks if the given method declaration has a supported annotation, and if
+	 * so, provides diagnostics if necessary
 	 *
-	 * @param node The method declaration to validate
+	 * @param node
+	 *            The method declaration to validate
 	 * @throws JavaModelException
 	 */
-	private void validateMethod(MethodDeclaration node) throws JavaModelException {
+	private void validateMethod(MethodDeclaration node)
+			throws JavaModelException {
 		@SuppressWarnings("rawtypes")
 		List modifiers = node.modifiers();
 		for (Object modifier : modifiers) {
 			if (modifier instanceof Annotation) {
 				Annotation annotation = (Annotation) modifier;
 				if (isMatchAnnotation(annotation, FALLBACK_ANNOTATION)) {
-					validateFallbackAnnotation(node, (NormalAnnotation) modifier);
-				} else if (isMatchAnnotation(annotation, ASYNCHRONOUS_ANNOTATION)) {
-					validateAsynchronousAnnotation(node, (MarkerAnnotation) modifier);
+					validateFallbackAnnotation(node,
+							(NormalAnnotation) modifier);
+				} else if (isMatchAnnotation(annotation,
+						ASYNCHRONOUS_ANNOTATION)) {
+					validateAsynchronousAnnotation(node,
+							(MarkerAnnotation) modifier);
 				} else if (isMatchAnnotation(annotation, RETRY_ANNOTATION)) {
 					validateRetryAnnotation((NormalAnnotation) modifier);
 				}
@@ -174,50 +192,61 @@ public class MicroProfileFaultToleranceASTValidator extends JavaASTValidator {
 	}
 
 	/**
-	 * Checks if the given method declaration has a fallback annotation, and if so,
-	 * provides diagnostics for the fallbackMethod
+	 * Checks if the given method declaration has a fallback annotation, and if
+	 * so, provides diagnostics for the fallbackMethod
 	 *
-	 * @param node       The method declaration to validate
-	 * @param annotation The @Fallback annotation
+	 * @param node
+	 *            The method declaration to validate
+	 * @param annotation
+	 *            The @Fallback annotation
 	 * @throws JavaModelException
 	 */
-	private void validateFallbackAnnotation(MethodDeclaration node, NormalAnnotation annotation)
-			throws JavaModelException {
-		Expression fallbackMethodExpr = getAnnotationMemberValueExpression(annotation,
-				FALLBACK_METHOD_FALLBACK_ANNOTATION_MEMBER);
+	private void validateFallbackAnnotation(MethodDeclaration node,
+			NormalAnnotation annotation) throws JavaModelException {
+		Expression fallbackMethodExpr = getAnnotationMemberValueExpression(
+				annotation, FALLBACK_METHOD_FALLBACK_ANNOTATION_MEMBER);
 		if (fallbackMethodExpr != null) {
 			String fallbackMethodName = fallbackMethodExpr.toString();
-			fallbackMethodName = fallbackMethodName.substring(1, fallbackMethodName.length() - 1);
+			fallbackMethodName = fallbackMethodName.substring(1,
+					fallbackMethodName.length() - 1);
 			if (!getExistingMethods(node).contains(fallbackMethodName)) {
-				String message = MessageFormat.format(FALLBACK_ERROR_MESSAGE, fallbackMethodName);
-				super.addDiagnostic(message, DIAGNOSTIC_SOURCE, fallbackMethodExpr, FALLBACK_METHOD_DOES_NOT_EXIST,
+				String message = MessageFormat.format(FALLBACK_ERROR_MESSAGE,
+						fallbackMethodName);
+				super.addDiagnostic(message, DIAGNOSTIC_SOURCE,
+						fallbackMethodExpr, FALLBACK_METHOD_DOES_NOT_EXIST,
 						DiagnosticSeverity.Error);
 			}
 		}
 	}
 
 	/**
-	 * Checks if the given method declaration has an asynchronous annotation, and if
-	 * so, provides diagnostics for the method return type
+	 * Checks if the given method declaration has an asynchronous annotation,
+	 * and if so, provides diagnostics for the method return type
 	 *
-	 * @param node       The method declaration to validate
-	 * @param annotation The @Asynchronous annotation
+	 * @param node
+	 *            The method declaration to validate
+	 * @param annotation
+	 *            The @Asynchronous annotation
 	 * @throws JavaModelException
 	 */
-	private void validateAsynchronousAnnotation(MethodDeclaration node, MarkerAnnotation annotation)
-			throws JavaModelException {
+	private void validateAsynchronousAnnotation(MethodDeclaration node,
+			MarkerAnnotation annotation) throws JavaModelException {
 		Type methodReturnType = node.getReturnType2();
 		String methodReturnTypeString;
 		try {
-			methodReturnTypeString = methodReturnType.resolveBinding().getErasure().getQualifiedName();
+			methodReturnTypeString = methodReturnType.resolveBinding()
+					.getErasure().getQualifiedName();
 		} catch (Exception e) {
 			throw e;
 		}
-		if ((!isAllowedReturnTypeForAsynchronousAnnotation(methodReturnTypeString))) {
-			String allowedTypes = allowedReturnTypesForAsynchronousAnnotation.stream()
-					.collect(Collectors.joining("', '", "'", "'"));
-			String message = MessageFormat.format(ASYNCHRONOUS_ERROR_MESSAGE, node.getName(), allowedTypes);
-			super.addDiagnostic(message, DIAGNOSTIC_SOURCE, methodReturnType, FAULT_TOLERANCE_DEFINITION_EXCEPTION,
+		if ((!isAllowedReturnTypeForAsynchronousAnnotation(
+				methodReturnTypeString))) {
+			String allowedTypes = allowedReturnTypesForAsynchronousAnnotation
+					.stream().collect(Collectors.joining("', '", "'", "'"));
+			String message = MessageFormat.format(ASYNCHRONOUS_ERROR_MESSAGE,
+					node.getName(), allowedTypes);
+			super.addDiagnostic(message, DIAGNOSTIC_SOURCE, methodReturnType,
+					FAULT_TOLERANCE_DEFINITION_EXCEPTION,
 					DiagnosticSeverity.Error);
 		}
 	}
@@ -226,50 +255,77 @@ public class MicroProfileFaultToleranceASTValidator extends JavaASTValidator {
 	 * Checks if the given method declaration has a retry annotation, and if so,
 	 * provides diagnostics for the delay and maxDuration value(s)
 	 *
-	 * @param annotation The @Retry annotation
+	 * @param annotation
+	 *            The @Retry annotation
 	 * @throws JavaModelException
 	 */
-	private void validateRetryAnnotation(NormalAnnotation annotation) throws JavaModelException {
-		Expression delayExpr = getAnnotationMemberValueExpression(annotation, DELAY_RETRY_ANNOTATION_MEMBER);
-		Expression maxDurationExpr = getAnnotationMemberValueExpression(annotation,
-				MAX_DURATION_RETRY_ANNOTATION_MEMBER);
+	private void validateRetryAnnotation(NormalAnnotation annotation)
+			throws JavaModelException {
+		Expression delayExpr = getAnnotationMemberValueExpression(annotation,
+				DELAY_RETRY_ANNOTATION_MEMBER);
+		Expression maxDurationExpr = getAnnotationMemberValueExpression(
+				annotation, MAX_DURATION_RETRY_ANNOTATION_MEMBER);
 		if (delayExpr != null && maxDurationExpr != null) {
 
-			Expression delayUnitExpr = getAnnotationMemberValueExpression(annotation,
-					DELAY_UNIT_RETRY_ANNOTATION_MEMBER);
-			Expression durationUnitExpr = getAnnotationMemberValueExpression(annotation,
-					DURATION_UNIT_RETRY_ANNOTATION_MEMBER);
-			Expression jitterExpr = getAnnotationMemberValueExpression(annotation, JITTER_RETRY_ANNOTATION_MEMBER);
-			Expression jitterDelayUnitExpr = getAnnotationMemberValueExpression(annotation,
-					JITTER_DELAY_UNIT_RETRY_ANNOTATION_MEMBER);
+			Expression delayUnitExpr = getAnnotationMemberValueExpression(
+					annotation, DELAY_UNIT_RETRY_ANNOTATION_MEMBER);
+			Expression durationUnitExpr = getAnnotationMemberValueExpression(
+					annotation, DURATION_UNIT_RETRY_ANNOTATION_MEMBER);
+			Expression jitterExpr = getAnnotationMemberValueExpression(
+					annotation, JITTER_RETRY_ANNOTATION_MEMBER);
+			Expression jitterUnitExpr = getAnnotationMemberValueExpression(
+					annotation, JITTER_DELAY_UNIT_RETRY_ANNOTATION_MEMBER);
 
 			int delayNum = (int) delayExpr.resolveConstantExpressionValue();
-			int maxDurationNum = (int) maxDurationExpr.resolveConstantExpressionValue();
-			int jitterNum = jitterExpr != null ? (int) jitterExpr.resolveConstantExpressionValue() : 0;
+			int maxDurationNum = (int) maxDurationExpr
+					.resolveConstantExpressionValue();
+			int jitterNum = jitterExpr != null
+					? (int) jitterExpr.resolveConstantExpressionValue()
+					: 0;
 
-			String delayUnit = delayUnitExpr != null ? delayUnitExpr.toString().split("\\.")[1] : null;
-			String maxDurationUnit = durationUnitExpr != null ? durationUnitExpr.toString().split("\\.")[1] : null;
-			String jitterDelayUnit = jitterDelayUnitExpr != null ? jitterDelayUnitExpr.toString().split("\\.")[1]
-					: null;
+			Duration delayValue = findDurationUnit(delayUnitExpr, delayNum);
+			Duration maxDurationValue = findDurationUnit(durationUnitExpr,
+					maxDurationNum);
+			Duration jitterValue = findDurationUnit(jitterUnitExpr, jitterNum);
 
-			Duration delayValue = delayUnitExpr != null ? Duration.of(delayNum, ChronoUnit.valueOf(delayUnit))
-					: Duration.of(delayNum, ChronoUnit.MILLIS);
-			Duration maxDurationValue = durationUnitExpr != null
-					? Duration.of(maxDurationNum, ChronoUnit.valueOf(maxDurationUnit))
-					: Duration.of(maxDurationNum, ChronoUnit.MILLIS);
-			Duration jitterValue = jitterDelayUnitExpr != null
-					? Duration.of(jitterNum, ChronoUnit.valueOf(jitterDelayUnit))
-					: Duration.of(jitterNum, ChronoUnit.MILLIS);
+			if (delayValue == null || maxDurationValue == null
+					|| jitterValue == null) {
+				return;
+			}
+
 			Duration maxDelayValue = delayValue.plus(jitterValue);
 
 			if (maxDelayValue.compareTo(maxDurationValue) >= 0) {
-				super.addDiagnostic(RETRY_ERROR_MESSAGE, DIAGNOSTIC_SOURCE, delayExpr, DELAY_EXCEEDS_MAX_DURATION,
-						DiagnosticSeverity.Error);
+				super.addDiagnostic(RETRY_WARNING_MESSAGE, DIAGNOSTIC_SOURCE,
+						delayExpr, DELAY_EXCEEDS_MAX_DURATION,
+						DiagnosticSeverity.Warning);
 			}
 		}
 	}
 
-	private boolean isAllowedReturnTypeForAsynchronousAnnotation(String returnType) {
+	private Duration findDurationUnit(Expression memberUnitExpr,
+			int memberUnitNum) {
+		String memberUnit = null;
+		if (memberUnitExpr != null) {
+			SimpleName memberUnitName = memberUnitExpr instanceof SimpleName
+					? (SimpleName) memberUnitExpr
+					: ((QualifiedName) memberUnitExpr).getName();
+			memberUnit = memberUnitName.getIdentifier();
+		}
+		Duration memberValue = null;
+		try {
+			memberValue = memberUnit != null
+					? Duration.of(memberUnitNum, ChronoUnit.valueOf(memberUnit))
+					: Duration.of(memberUnitNum, ChronoUnit.MILLIS);
+		} catch (UnsupportedTemporalTypeException
+				| IllegalArgumentException e) {
+			return null;
+		}
+		return memberValue;
+	}
+
+	private boolean isAllowedReturnTypeForAsynchronousAnnotation(
+			String returnType) {
 		return allowedReturnTypesForAsynchronousAnnotation.contains(returnType);
 	}
 
