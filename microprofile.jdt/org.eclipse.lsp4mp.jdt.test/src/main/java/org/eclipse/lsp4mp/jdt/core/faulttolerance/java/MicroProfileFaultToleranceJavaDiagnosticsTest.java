@@ -339,4 +339,44 @@ public class MicroProfileFaultToleranceJavaDiagnosticsTest
 		assertJavaDiagnostics(diagnosticsParams, utils, d1, d2, d3, d4, d5);
 	}
 
+	@Test
+	public void retryClientForValidationChronoUnit() throws Exception {
+		IJavaProject javaProject = loadMavenProject(
+				MicroProfileMavenProjectName.microprofile_fault_tolerance);
+		IJDTUtils utils = JDT_UTILS;
+
+		MicroProfileJavaDiagnosticsParams diagnosticsParams = new MicroProfileJavaDiagnosticsParams();
+		IFile javaFile = javaProject.getProject().getFile(new Path(
+				"src/main/java/org/eclipse/microprofile/fault/tolerance/tck/invalidParameters/RetryClientForValidationChronoUnit.java"));
+		diagnosticsParams.setUris(Arrays
+				.asList(javaFile.getLocation().toFile().toURI().toString()));
+		diagnosticsParams.setDocumentFormat(DocumentFormat.Markdown);
+
+		Diagnostic d1 = d(24, 15, 16,
+				"The effective delay may exceed the `maxDuration` member value.",
+				DiagnosticSeverity.Warning,
+				MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE,
+				MicroProfileFaultToleranceErrorCode.DELAY_EXCEEDS_MAX_DURATION);
+
+		Diagnostic d2 = d(42, 19, 20,
+				"The effective delay may exceed the `maxDuration` member value.",
+				DiagnosticSeverity.Warning,
+				MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE,
+				MicroProfileFaultToleranceErrorCode.DELAY_EXCEEDS_MAX_DURATION);
+
+		Diagnostic d3 = d(47, 19, 20,
+				"The effective delay may exceed the `maxDuration` member value.",
+				DiagnosticSeverity.Warning,
+				MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE,
+				MicroProfileFaultToleranceErrorCode.DELAY_EXCEEDS_MAX_DURATION);
+
+		Diagnostic d4 = d(52, 19, 21,
+				"The effective delay may exceed the `maxDuration` member value.",
+				DiagnosticSeverity.Warning,
+				MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE,
+				MicroProfileFaultToleranceErrorCode.DELAY_EXCEEDS_MAX_DURATION);
+
+		assertJavaDiagnostics(diagnosticsParams, utils, d1, d2, d3, d4);
+	}
+
 }
