@@ -16,6 +16,7 @@ package org.eclipse.lsp4mp.jdt.core.jaxrs;
 import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.getAnnotation;
 import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.getAnnotationMemberValue;
 import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.hasAnnotation;
+import static org.eclipse.lsp4mp.jdt.internal.jaxrs.JaxRsConstants.JAVAX_WS_RS_APPLICATIONPATH_ANNOTATION;
 import static org.eclipse.lsp4mp.jdt.internal.jaxrs.JaxRsConstants.JAVAX_WS_RS_GET_ANNOTATION;
 import static org.eclipse.lsp4mp.jdt.internal.jaxrs.JaxRsConstants.JAVAX_WS_RS_PATH_ANNOTATION;
 import static org.eclipse.lsp4mp.jdt.internal.jaxrs.JaxRsConstants.PATH_VALUE;
@@ -53,6 +54,20 @@ public class JaxRsUtils {
 	 */
 	public static String getJaxRsPathValue(IAnnotatable annotatable) throws JavaModelException {
 		IAnnotation annotationPath = getAnnotation(annotatable, JAVAX_WS_RS_PATH_ANNOTATION);
+		return annotationPath != null ? getAnnotationMemberValue(annotationPath, PATH_VALUE) : null;
+	}
+
+	/**
+	 * Returns the value of the JAX-RS ApplicationPath annotation and null
+	 * otherwise..
+	 *
+	 * @param annotatable
+	 * @return the value of the JAX-RS ApplicationPath annotation and null
+	 *         otherwise..
+	 * @throws JavaModelException
+	 */
+	public static String getJaxRsApplicationPathValue(IAnnotatable annotatable) throws JavaModelException {
+		IAnnotation annotationPath = getAnnotation(annotatable, JAVAX_WS_RS_APPLICATIONPATH_ANNOTATION);
 		return annotationPath != null ? getAnnotationMemberValue(annotationPath, PATH_VALUE) : null;
 	}
 
