@@ -34,9 +34,7 @@ import static org.eclipse.lsp4mp.jdt.internal.faulttolerance.java.MicroProfileFa
 import static org.eclipse.lsp4mp.jdt.internal.faulttolerance.java.MicroProfileFaultToleranceErrorCode.FAULT_TOLERANCE_DEFINITION_EXCEPTION;
 
 import java.text.MessageFormat;
-import java.time.Duration;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.UnsupportedTemporalTypeException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -276,34 +274,42 @@ public class MicroProfileFaultToleranceASTValidator extends JavaASTValidator {
 			Expression jitterUnitExpr = getAnnotationMemberValueExpression(
 					annotation, JITTER_DELAY_UNIT_RETRY_ANNOTATION_MEMBER);
 
-			int delayNum = (int) delayExpr.resolveConstantExpressionValue();
-			int maxDurationNum = (int) maxDurationExpr
-					.resolveConstantExpressionValue();
-			int jitterNum = jitterExpr != null
-					? (int) jitterExpr.resolveConstantExpressionValue()
-					: 0;
+			Object delayConstant = delayExpr != null
+					? delayExpr.resolveConstantExpressionValue()
+					: null;
+			Object maxDurationConstant = maxDurationExpr != null
+					? maxDurationExpr.resolveConstantExpressionValue()
+					: null;
+			Object jitterConstant = jitterExpr != null
+					? jitterExpr.resolveConstantExpressionValue()
+					: null;
 
-			Duration delayValue = findDurationUnit(delayUnitExpr, delayNum);
-			Duration maxDurationValue = findDurationUnit(durationUnitExpr,
-					maxDurationNum);
-			Duration jitterValue = findDurationUnit(jitterUnitExpr, jitterNum);
+			int delayNum = delayConstant != null ? (int) delayConstant : -1;
+			int maxDurationNum = maxDurationConstant != null
+					? (int) maxDurationConstant
+					: -1;
+			int jitterNum = jitterConstant != null ? (int) jitterConstant : 0;
 
-			if (delayValue == null || maxDurationValue == null
-					|| jitterValue == null) {
-				return;
-			}
+			if (delayNum != -1 && maxDurationNum != -1) {
+				double delayValue = findDurationUnit(delayUnitExpr, delayNum);
+				double maxDurationValue = findDurationUnit(durationUnitExpr,
+						maxDurationNum);
+				double jitterValue = findDurationUnit(jitterUnitExpr,
+						jitterNum);
 
-			Duration maxDelayValue = delayValue.plus(jitterValue);
+				double maxDelayValue = delayValue + jitterValue;
 
-			if (maxDelayValue.compareTo(maxDurationValue) >= 0) {
-				super.addDiagnostic(RETRY_WARNING_MESSAGE, DIAGNOSTIC_SOURCE,
-						delayExpr, DELAY_EXCEEDS_MAX_DURATION,
-						DiagnosticSeverity.Warning);
+				if (maxDelayValue >= maxDurationValue) {
+					super.addDiagnostic(RETRY_WARNING_MESSAGE,
+							DIAGNOSTIC_SOURCE, delayExpr,
+							DELAY_EXCEEDS_MAX_DURATION,
+							DiagnosticSeverity.Warning);
+				}
 			}
 		}
 	}
 
-	private Duration findDurationUnit(Expression memberUnitExpr,
+	private double findDurationUnit(Expression memberUnitExpr,
 			int memberUnitNum) {
 		String memberUnit = null;
 		if (memberUnitExpr != null) {
@@ -312,16 +318,16 @@ public class MicroProfileFaultToleranceASTValidator extends JavaASTValidator {
 					: ((QualifiedName) memberUnitExpr).getName();
 			memberUnit = memberUnitName.getIdentifier();
 		}
-		Duration memberValue = null;
-		try {
-			memberValue = memberUnit != null
-					? Duration.of(memberUnitNum, ChronoUnit.valueOf(memberUnit))
-					: Duration.of(memberUnitNum, ChronoUnit.MILLIS);
-		} catch (UnsupportedTemporalTypeException
-				| IllegalArgumentException e) {
-			return null;
-		}
-		return memberValue;
+		return memberUnit != null
+				? getDurationInNanos(ChronoUnit.valueOf(memberUnit),
+						memberUnitNum)
+				: getDurationInNanos(ChronoUnit.MILLIS, memberUnitNum);
+	}
+
+	public double getDurationInNanos(ChronoUnit unit, long unitValue) {
+		double seconds = unit.getDuration().getSeconds();
+		int nanos = unit.getDuration().getNano();
+		return (seconds * 1000000000 * unitValue) + (nanos * unitValue);
 	}
 
 	private boolean isAllowedReturnTypeForAsynchronousAnnotation(
