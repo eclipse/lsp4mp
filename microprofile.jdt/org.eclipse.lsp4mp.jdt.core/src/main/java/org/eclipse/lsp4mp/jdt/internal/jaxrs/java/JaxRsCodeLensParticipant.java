@@ -14,9 +14,11 @@
 package org.eclipse.lsp4mp.jdt.internal.jaxrs.java;
 
 import static org.eclipse.lsp4mp.jdt.core.jaxrs.JaxRsUtils.createURLCodeLens;
+import static org.eclipse.lsp4mp.jdt.core.jaxrs.JaxRsUtils.getJaxRsApplicationPathValue;
 import static org.eclipse.lsp4mp.jdt.core.jaxrs.JaxRsUtils.getJaxRsPathValue;
 import static org.eclipse.lsp4mp.jdt.core.jaxrs.JaxRsUtils.isJaxRsRequestMethod;
 import static org.eclipse.lsp4mp.jdt.core.utils.JDTTypeUtils.overlaps;
+import static org.eclipse.lsp4mp.jdt.internal.jaxrs.JaxRsConstants.JAVAX_WS_RS_APPLICATIONPATH_ANNOTATION;
 import static org.eclipse.lsp4mp.jdt.internal.jaxrs.JaxRsConstants.JAVAX_WS_RS_PATH_ANNOTATION;
 
 import java.io.IOException;
@@ -25,6 +27,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -36,11 +39,19 @@ import org.eclipse.jdt.core.ISourceReference;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.search.IJavaSearchConstants;
+import org.eclipse.jdt.core.search.IJavaSearchScope;
+import org.eclipse.jdt.core.search.SearchEngine;
+import org.eclipse.jdt.core.search.SearchMatch;
+import org.eclipse.jdt.core.search.SearchParticipant;
+import org.eclipse.jdt.core.search.SearchPattern;
+import org.eclipse.jdt.core.search.SearchRequestor;
 import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeLensParams;
 import org.eclipse.lsp4mp.jdt.core.java.codelens.IJavaCodeLensParticipant;
 import org.eclipse.lsp4mp.jdt.core.java.codelens.JavaCodeLensContext;
 import org.eclipse.lsp4mp.jdt.core.jaxrs.JaxRsContext;
+import org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils;
 import org.eclipse.lsp4mp.jdt.core.utils.IJDTUtils;
 import org.eclipse.lsp4mp.jdt.core.utils.JDTTypeUtils;
 
@@ -66,6 +77,14 @@ public class JaxRsCodeLensParticipant implements IJavaCodeLensParticipant {
 		// Collection of URL codeLens is done only if JAX-RS is on the classpath
 		IJavaProject javaProject = context.getJavaProject();
 		return JDTTypeUtils.findType(javaProject, JAVAX_WS_RS_PATH_ANNOTATION) != null;
+	}
+
+	@Override
+	public void beginCodeLens(JavaCodeLensContext context, IProgressMonitor monitor) throws CoreException {
+		IJavaProject javaProject = context.getJavaProject();
+		IType applicationPathType = JDTTypeUtils.findType(javaProject, JAVAX_WS_RS_APPLICATIONPATH_ANNOTATION);
+		String applicationPath = findApplicationPath(applicationPathType, context, monitor);
+		JaxRsContext.getJaxRsContext(context).setApplicationPath(applicationPath);
 	}
 
 	@Override
@@ -97,7 +116,8 @@ public class JaxRsCodeLensParticipant implements IJavaCodeLensParticipant {
 					// Display code lens only if local server is available.
 					if (!params.isCheckServerAvailable()
 							|| isServerAvailable(LOCALHOST, jaxrsContext.getServerPort(), PING_TIMEOUT)) {
-						// Loop for each method annotated with @Path to generate URL code lens per
+						// Loop for each method annotated with @Path to generate
+						// URL code lens per
 						// method.
 						collectURLCodeLenses(type.getChildren(), pathValue, lenses, params, jaxrsContext, utils,
 								monitor);
@@ -108,7 +128,8 @@ public class JaxRsCodeLensParticipant implements IJavaCodeLensParticipant {
 				if (utils.isHiddenGeneratedElement(element)) {
 					continue;
 				}
-				// ignore element if method range overlaps the type range, happens for generated
+				// ignore element if method range overlaps the type range,
+				// happens for generated
 				// bytecode, i.e. with lombok
 				IJavaElement parentType = element.getAncestor(IJavaElement.TYPE);
 				if (parentType != null && overlaps(((ISourceReference) parentType).getNameRange(),
@@ -122,7 +143,8 @@ public class JaxRsCodeLensParticipant implements IJavaCodeLensParticipant {
 			// Here java element is a method
 			if (rootPath != null) {
 				IMethod method = (IMethod) element;
-				// A JAX-RS method is a public method annotated with @GET @POST, @DELETE, @PUT
+				// A JAX-RS method is a public method annotated with @GET @POST,
+				// @DELETE, @PUT
 				// JAX-RS
 				// annotation
 				if (isJaxRsRequestMethod(method) && Flags.isPublic(method.getFlags())) {
@@ -135,6 +157,47 @@ public class JaxRsCodeLensParticipant implements IJavaCodeLensParticipant {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Use the java search engine to search the java project for the location and
+	 * value of the @ApplicationPath annotation, or null if not found
+	 *
+	 * @param annotationType the type representing the @ApplicationPath annotation
+	 * @param context        the java code lens context
+	 * @param monitor        the progress monitor
+	 * @return the value of the @ApplicationPath annotation, or null if not found
+	 * @throws CoreException
+	 */
+	private static String findApplicationPath(IType annotationType, JavaCodeLensContext context,
+			IProgressMonitor monitor) throws CoreException {
+		AtomicReference<String> applicationPathRef = new AtomicReference<String>();
+		SearchPattern pattern = SearchPattern.createPattern(JAVAX_WS_RS_APPLICATIONPATH_ANNOTATION,
+				IJavaSearchConstants.ANNOTATION_TYPE, IJavaSearchConstants.ANNOTATION_TYPE_REFERENCE,
+				SearchPattern.R_EXACT_MATCH);
+		SearchEngine engine = new SearchEngine();
+		engine.search(pattern, new SearchParticipant[] { SearchEngine.getDefaultSearchParticipant() },
+				createSearchScope(annotationType.getJavaProject()), new SearchRequestor() {
+
+					@Override
+					public void acceptSearchMatch(SearchMatch match) throws CoreException {
+						Object o = match.getElement();
+						if (o instanceof IType) {
+							collectApplicationPath((IType) o);
+						}
+					}
+
+					private void collectApplicationPath(IType type) throws CoreException {
+						if (AnnotationUtils.hasAnnotation(type, JAVAX_WS_RS_APPLICATIONPATH_ANNOTATION)) {
+							applicationPathRef.set(getJaxRsApplicationPathValue(type));
+						}
+					}
+				}, monitor);
+		return applicationPathRef.get();
+	}
+
+	private static IJavaSearchScope createSearchScope(IJavaProject javaProject) throws CoreException {
+		return SearchEngine.createJavaSearchScope(new IJavaProject[] { javaProject }, IJavaSearchScope.SOURCES);
 	}
 
 	private static boolean isServerAvailable(String host, int port, int timeout) {

@@ -73,6 +73,7 @@ public class BasePropertiesManagerTest {
 		public static String folder_name_different_maven = "folder-name-different-maven";
 		public static String hibernate_orm_resteasy = "hibernate-orm-resteasy";
 		public static String hibernate_orm_resteasy_yaml = "hibernate-orm-resteasy-yaml";
+		public static String microprofile_applicationpath = "microprofile-applicationpath";
 		public static String microprofile_configproperties = "microprofile-configproperties";
 		public static String microprofile_fault_tolerance = "microprofile-fault-tolerance";
 		public static String microprofile_health_quickstart = "microprofile-health-quickstart";
@@ -179,8 +180,7 @@ public class BasePropertiesManagerTest {
 		// property:
 		// deployment-artifact=io.quarkus\:quarkus-hibernate-orm-deployment\:0.21.1
 
-		return JavaModelManager.getJavaModelManager().getJavaModel()
-				.getJavaProject(description.getName());
+		return JavaModelManager.getJavaModelManager().getJavaModel().getJavaProject(description.getName());
 	}
 
 	private static File copyProjectToWorkingDirectory(String projectName, String parentDirName) throws IOException {
@@ -209,11 +209,11 @@ public class BasePropertiesManagerTest {
 		createParentFolders(file);
 		file.refreshLocal(IResource.DEPTH_ZERO, null);
 		InputStream fileContents = new ByteArrayInputStream(contents.getBytes());
-		if (file.exists()) {			
+		if (file.exists()) {
 			file.setContents(fileContents, IResource.NONE, null);
 		} else {
 			file.create(fileContents, true, null);
-		}		
+		}
 	}
 
 	private static void createParentFolders(final IResource resource) throws CoreException {
