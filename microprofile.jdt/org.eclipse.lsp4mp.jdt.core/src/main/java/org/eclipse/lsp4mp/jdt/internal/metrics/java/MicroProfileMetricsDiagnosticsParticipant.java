@@ -110,18 +110,18 @@ public class MicroProfileMetricsDiagnosticsParticipant implements IJavaDiagnosti
 					return;
 				}
 				if (element.getElementType() == IJavaElement.METHOD) {
-					IMethod field = (IMethod) element;
-					validateField(classType, field, diagnostics, context);
+					IMethod method = (IMethod) element;
+					validateField(classType, method, diagnostics, context);
 				}
 			}
 		}
 	}
 
-	private static void validateField(IType classType, IMethod field, List<Diagnostic> diagnostics,
+	private static void validateField(IType classType, IMethod method, List<Diagnostic> diagnostics,
 			JavaDiagnosticsContext context) throws CoreException {
 		String uri = context.getUri();
 		DocumentFormat documentFormat = context.getDocumentFormat();
-		boolean hasGaugeAnnotation = AnnotationUtils.hasAnnotation(field, GAUGE_ANNOTATION);
+		boolean hasGaugeAnnotation = AnnotationUtils.hasAnnotation(method, GAUGE_ANNOTATION);
 
 		// Diagnostic 1: display @Gauge annotation diagnostic message if
 		// the underlying bean is annotated with @RequestScoped, @SessionScoped or
