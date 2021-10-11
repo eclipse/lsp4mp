@@ -111,13 +111,13 @@ public class MicroProfileMetricsDiagnosticsParticipant implements IJavaDiagnosti
 				}
 				if (element.getElementType() == IJavaElement.METHOD) {
 					IMethod method = (IMethod) element;
-					validateField(classType, method, diagnostics, context);
+					validateMethod(classType, method, diagnostics, context);
 				}
 			}
 		}
 	}
 
-	private static void validateField(IType classType, IMethod method, List<Diagnostic> diagnostics,
+	private static void validateMethod(IType classType, IMethod method, List<Diagnostic> diagnostics,
 			JavaDiagnosticsContext context) throws CoreException {
 		String uri = context.getUri();
 		DocumentFormat documentFormat = context.getDocumentFormat();
