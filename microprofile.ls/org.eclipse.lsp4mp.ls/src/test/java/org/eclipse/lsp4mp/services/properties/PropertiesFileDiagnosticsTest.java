@@ -842,4 +842,13 @@ public class PropertiesFileDiagnosticsTest {
 						ValidationType.expression));
 	}
 
+	@Test
+	public void ignoreErrorForPropertyExpressionWithDefaultValue() {
+		String value = "quarkus.datasource.username = ${DBUSER:sa}";
+		testDiagnosticsFor(value);
+		
+		value = "quarkus.datasource.username = ${DBUSER:}";
+		testDiagnosticsFor(value,//
+				d(0, 32, 39, "Unknown referenced property 'DBUSER'", DiagnosticSeverity.Error, ValidationType.expression));
+	}
 }

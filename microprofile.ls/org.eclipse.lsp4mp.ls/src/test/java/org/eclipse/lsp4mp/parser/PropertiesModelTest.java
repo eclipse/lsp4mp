@@ -205,6 +205,15 @@ public class PropertiesModelTest {
 	}
 
 	@Test
+	public void parseInvalidPropertyExpression() {
+		String text = //
+				"mp.openstracking.server.skip = ${";
+		PropertiesModel model = PropertiesModel.parse(text, "application.properties");
+		Property property = (Property) model.getChildren().get(0);
+		assertPropertyValue(property, new MockNode(31, 33, NodeType.PROPERTY_VALUE_EXPRESSION));
+	}
+	
+	@Test
 	public void parsePropertyExpression() {
 		String text = //
 				"mp.openstracking.server.skip = http://${ip.address}:${port}";
@@ -272,7 +281,7 @@ public class PropertiesModelTest {
 	}
 
 	@Test
-	public void parsePropertyExpressionDefaultValueUnimplemented() {
+	public void parsePropertyExpressionDefaultValue() {
 		String text = "property.one = ${property.two:default-value}\n" + //
 				"property.two = hello";
 		PropertiesModel model = PropertiesModel.parse(text, "microprofile-config.properties");
@@ -280,7 +289,93 @@ public class PropertiesModelTest {
 		assertPropertyValue(property0, //
 				new MockNode(15, 44, NodeType.PROPERTY_VALUE_EXPRESSION));
 		PropertyValueExpression pve = (PropertyValueExpression) property0.getValue().getChildren().get(0);
-		Assert.assertEquals("property.two:default-value", pve.getReferencedPropertyName());
+		Assert.assertTrue(pve.hasDefaultValue());
+		Assert.assertEquals("property.two", pve.getReferencedPropertyName());
+		Assert.assertEquals("default-value", pve.getDefaultValue());
+	}
+
+	@Test
+	public void parsePropertyExpressionWhichEndsWithColon() {
+		String text = "property.one = ${property.two:}\n" + //
+				"property.two = hello";
+		PropertiesModel model = PropertiesModel.parse(text, "microprofile-config.properties");
+		Property property0 = (Property) model.getChildren().get(0);
+		assertPropertyValue(property0, //
+				new MockNode(15, 31, NodeType.PROPERTY_VALUE_EXPRESSION));
+		PropertyValueExpression pve = (PropertyValueExpression) property0.getValue().getChildren().get(0);
+		Assert.assertFalse(pve.hasDefaultValue());
+		Assert.assertEquals("property.two", pve.getReferencedPropertyName());
+		Assert.assertNull(pve.getDefaultValue());
+	}	
+	
+	@Test
+	public void parsePropertyExpressionDefaultValueWithTwoColon() {
+		String text = "property.one = ${property.two:default:value}\n" + //
+				"property.two = hello";
+		PropertiesModel model = PropertiesModel.parse(text, "microprofile-config.properties");
+		Property property0 = (Property) model.getChildren().get(0);
+		assertPropertyValue(property0, //
+				new MockNode(15, 44, NodeType.PROPERTY_VALUE_EXPRESSION));
+		PropertyValueExpression pve = (PropertyValueExpression) property0.getValue().getChildren().get(0);
+		Assert.assertTrue(pve.hasDefaultValue());
+		Assert.assertEquals("property.two", pve.getReferencedPropertyName());
+		Assert.assertEquals("default:value", pve.getDefaultValue());
+	}
+	
+	@Test
+	public void parsePropertyExpressionWithNoReferenceName() {
+		String text = "property.one = ${:property.two}\n" + //
+				"property.two = hello";
+		PropertiesModel model = PropertiesModel.parse(text, "microprofile-config.properties");
+		Property property0 = (Property) model.getChildren().get(0);
+		assertPropertyValue(property0, //
+				new MockNode(15, 31, NodeType.PROPERTY_VALUE_EXPRESSION));
+		PropertyValueExpression pve = (PropertyValueExpression) property0.getValue().getChildren().get(0);
+		Assert.assertTrue(pve.hasDefaultValue());
+		Assert.assertNull(pve.getReferencedPropertyName());
+		Assert.assertEquals("property.two", pve.getDefaultValue());		
+	}
+	
+	@Test
+	public void parsePropertyExpressionWithBlankReferenceName() {
+		String text = "property.one = ${ :property.two}\n" + //
+				"property.two = hello";
+		PropertiesModel model = PropertiesModel.parse(text, "microprofile-config.properties");
+		Property property0 = (Property) model.getChildren().get(0);
+		assertPropertyValue(property0, //
+				new MockNode(15, 32, NodeType.PROPERTY_VALUE_EXPRESSION));
+		PropertyValueExpression pve = (PropertyValueExpression) property0.getValue().getChildren().get(0);
+		Assert.assertTrue(pve.hasDefaultValue());
+		Assert.assertEquals(" ", pve.getReferencedPropertyName());
+		Assert.assertEquals("property.two", pve.getDefaultValue());		
+	}
+	
+	@Test
+	public void parsePropertyExpressionWithOnlyBlank() {
+		String text = "property.one = ${ : }\n" + //
+				"property.two = hello";
+		PropertiesModel model = PropertiesModel.parse(text, "microprofile-config.properties");
+		Property property0 = (Property) model.getChildren().get(0);
+		assertPropertyValue(property0, //
+				new MockNode(15, 21, NodeType.PROPERTY_VALUE_EXPRESSION));
+		PropertyValueExpression pve = (PropertyValueExpression) property0.getValue().getChildren().get(0);
+		Assert.assertTrue(pve.hasDefaultValue());
+		Assert.assertEquals(" ", pve.getReferencedPropertyName());
+		Assert.assertEquals(" ", pve.getDefaultValue());		
+	}
+	
+	@Test
+	public void parsePropertyExpressionWithOnlyColon() {
+		String text = "property.one = ${:}\n" + //
+				"property.two = hello";
+		PropertiesModel model = PropertiesModel.parse(text, "microprofile-config.properties");
+		Property property0 = (Property) model.getChildren().get(0);
+		assertPropertyValue(property0, //
+				new MockNode(15, 19, NodeType.PROPERTY_VALUE_EXPRESSION));
+		PropertyValueExpression pve = (PropertyValueExpression) property0.getValue().getChildren().get(0);
+		Assert.assertFalse(pve.hasDefaultValue());
+		Assert.assertNull(pve.getReferencedPropertyName());
+		Assert.assertNull(pve.getDefaultValue());
 	}
 
 	@Test
