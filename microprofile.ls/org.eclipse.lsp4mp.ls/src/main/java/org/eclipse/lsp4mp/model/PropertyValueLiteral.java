@@ -15,6 +15,12 @@ package org.eclipse.lsp4mp.model;
 
 /**
  * Represents text in a property value that should be interpreted literally.
+ * 
+ * In the following expression
+ * <code>${other.property.name}ConcatWith${other.property.name2}</code>, the
+ * property literal will be 'ConcatWith'.
+ * 
+ * @see https://download.eclipse.org/microprofile/microprofile-config-2.0/microprofile-config-spec-2.0.html#property-expressions
  */
 public class PropertyValueLiteral extends Node {
 

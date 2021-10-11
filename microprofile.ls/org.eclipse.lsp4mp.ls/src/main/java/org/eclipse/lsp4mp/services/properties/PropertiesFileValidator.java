@@ -39,8 +39,8 @@ import org.eclipse.lsp4mp.model.PropertiesModel;
 import org.eclipse.lsp4mp.model.Property;
 import org.eclipse.lsp4mp.model.PropertyValueExpression;
 import org.eclipse.lsp4mp.settings.MicroProfileValidationSettings;
-import org.eclipse.lsp4mp.utils.PropertiesFileUtils;
 import org.eclipse.lsp4mp.utils.PositionUtils;
+import org.eclipse.lsp4mp.utils.PropertiesFileUtils;
 
 /**
  * The properties file validator.
@@ -212,11 +212,15 @@ class PropertiesFileValidator {
 					}
 					String refdProp = propValExpr.getReferencedPropertyName();
 					if (!allProperties.contains(refdProp)) {
-						Range range = PositionUtils.createAdjustedRange(propValExpr, 2,
-								propValExpr.isClosed() ? -1 : 0);
-						if (range != null) {
-							addDiagnostic("Unknown referenced property '" + refdProp + "'", range, expressionSeverity,
-									ValidationType.expression.name());
+						// Check if expression has default value (ex : ${DBUSER:sa}) otherwise the error
+						// is reported
+						if (!propValExpr.hasDefaultValue()) {
+							Range range = PositionUtils.createAdjustedRange(propValExpr, 2,
+									propValExpr.isClosed() ? -1 : 0);
+							if (range != null) {
+								addDiagnostic("Unknown referenced property '" + refdProp + "'", range,
+										expressionSeverity, ValidationType.expression.name());
+							}
 						}
 					}
 				}

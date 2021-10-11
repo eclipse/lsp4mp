@@ -311,6 +311,24 @@ public class PropertiesFileHoverTest {
 	}
 
 	@Test
+	public void hoverKeyWithNoReferenceButWithDefaultValue() throws BadLocationException {
+		String value = "mp.metri|cs.appName=${value:sa}";
+		assertHoverMarkdown(value, //
+				"**mp.metrics.appName**" + //
+						System.lineSeparator() + //
+						System.lineSeparator() + //
+						"The app name." + //
+						System.lineSeparator() + //
+						System.lineSeparator() + //
+						" * Type: `java.lang.String`" + //
+						System.lineSeparator() + //
+						" * Value: `sa`" + //
+						System.lineSeparator() + //
+						" * Extension: `microprofile-metrics-api`",
+				0);
+	}
+	
+	@Test
 	public void hoverKeyUndefinedProperty() throws BadLocationException {
 		String value = "pr|operty = value";
 		assertNoHover(value);

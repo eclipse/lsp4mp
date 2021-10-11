@@ -24,8 +24,20 @@ import org.eclipse.lsp4mp.utils.PropertiesFileUtils;
  * When properties file is processed, the reference is replaced with the value
  * of the other property. In the properties file, it has the form:
  * <code>${other.property.name}</code>
+ * 
+ * @see https://download.eclipse.org/microprofile/microprofile-config-2.0/microprofile-config-spec-2.0.html#property-expressions
  */
 public class PropertyValueExpression extends Node {
+
+	private boolean parsed;
+
+	private int referenceNameStartOffset = -1;
+
+	private int referenceNameEndOffset = -1;
+
+	private int defaultValueStartOffset = -1;
+
+	private int defaultValueEndOffset = -1;
 
 	@Override
 	public NodeType getNodeType() {
@@ -69,6 +81,9 @@ public class PropertyValueExpression extends Node {
 					}
 				}
 			}
+			if (hasDefaultValue()) {
+				return getDefaultValue();
+			}
 		}
 		// Check project info for the default value
 		ItemMetadata projectProp = PropertiesFileUtils.getProperty(referenceName, projectInfo);
@@ -88,13 +103,12 @@ public class PropertyValueExpression extends Node {
 	 *         in the property expression.
 	 */
 	public String getReferencedPropertyName() {
-		String value = getValue();
-		if (value.length() < 2 || !"${".equals(value.substring(0, 2))) {
-			return null;
+		parseExpressionIfNeeded();
+		if (referenceNameStartOffset != -1 && referenceNameEndOffset != -1
+				&& referenceNameStartOffset != referenceNameEndOffset) {
+			return super.getOwnerModel().getText(referenceNameStartOffset, referenceNameEndOffset, true);
 		}
-		int end = value.indexOf("}");
-		end = end == -1 ? value.length() : end;
-		return value.substring(2, end);
+		return null;
 	}
 
 	/**
@@ -105,38 +119,101 @@ public class PropertyValueExpression extends Node {
 	 *         otherwise.
 	 */
 	public boolean isClosed() {
-		String text = getText();
-		return text.charAt(text.length() - 1) == '}';
+		int end = super.getEnd();
+		if (end == -1) {
+			return false;
+		}
+		return super.getOwnerModel().getText().charAt(end - 1) == '}';
 	}
 
 	/**
-	 * Returns the offset of the start of the referenced property name,
-	 * or the offset after the `$` if no property is referenced.
+	 * Returns the offset of the start of the referenced property name, or the
+	 * offset after the `$` if no property is referenced.
 	 * 
-	 * @return the offset of the start of the referenced property name,
-	 * or the offset after the `$` if no property is referenced.
+	 * @return the offset of the start of the referenced property name, or the
+	 *         offset after the `$` if no property is referenced.
 	 */
 	public int getReferenceStartOffset() {
-		String propName = getReferencedPropertyName();
-		if (propName == null) {
-			return getStart() + 1;
-		}
-		return getStart() + getText().indexOf(propName);
+		parseExpressionIfNeeded();
+		return referenceNameStartOffset;
 	}
 
 	/**
-	 * Returns the offset of the end of the referenced property name,
-	 * or the offset after the `$` if no property is referenced.
+	 * Returns the offset of the end of the referenced property name, or the offset
+	 * after the `$` if no property is referenced.
 	 * 
-	 * @return the offset of the end of the referenced property name,
-	 * or the offset after the `$` if no property is referenced.
+	 * @return the offset of the end of the referenced property name, or the offset
+	 *         after the `$` if no property is referenced.
 	 */
 	public int getReferenceEndOffset() {
-		String propName = getReferencedPropertyName();
-		if (propName == null) {
-			return getStart() + 1;
-		}
-		return getStart() + getText().indexOf(propName) + propName.length();
+		parseExpressionIfNeeded();
+		return referenceNameEndOffset;
 	}
 
+	public String getDefaultValue() {
+		parseExpressionIfNeeded();
+		if (hasDefaultValue()) {
+			return super.getOwnerModel().getText(defaultValueStartOffset, defaultValueEndOffset, true);
+		}
+		return null;
+	}
+
+	public boolean hasDefaultValue() {
+		parseExpressionIfNeeded();
+		return defaultValueStartOffset != -1 && defaultValueEndOffset != -1
+				&& defaultValueStartOffset != defaultValueEndOffset;
+	}
+
+	private void parseExpressionIfNeeded() {
+		if (parsed) {
+			return;
+		}
+		parseExpression();
+	}
+
+	private synchronized void parseExpression() {
+		if (parsed) {
+			return;
+		}
+
+		int start = super.getStart();
+		int end = super.getEnd();
+		if (start == -1 || end == -1) {
+			return;
+		}
+		if (start >= end) {
+			return;
+		}
+		boolean nameParsing = true;
+		referenceNameStartOffset = start + 2;
+		String text = super.getOwnerModel().getText();
+		for (int i = referenceNameStartOffset; i < end; i++) {
+			char c = text.charAt(i);
+			switch (c) {
+			case ':':
+				if (nameParsing) {
+					referenceNameEndOffset = i;
+					defaultValueStartOffset = i + 1;
+					nameParsing = false;
+				}
+				break;
+			case '}':
+				if (nameParsing) {
+					referenceNameEndOffset = i;
+				} else {
+					defaultValueEndOffset = i;
+				}
+				break;
+			}
+		}
+		if (nameParsing) {
+			if (referenceNameEndOffset == -1) {
+				referenceNameEndOffset = end;
+			}
+		} else {
+			if (defaultValueEndOffset == -1) {
+				defaultValueEndOffset = end;
+			}
+		}
+	}
 }
