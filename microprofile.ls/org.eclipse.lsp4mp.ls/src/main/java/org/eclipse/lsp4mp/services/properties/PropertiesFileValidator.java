@@ -17,7 +17,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -58,7 +57,8 @@ class PropertiesFileValidator {
 
 	private final MicroProfileValidationSettings validationSettings;
 	private final Map<String, List<Property>> existingProperties;
-	private Set<String> allProperties;
+	private Set<String> allPropertiesFromFile;
+	private Set<String> allPropertiesFromJava;
 
 	public PropertiesFileValidator(MicroProfileProjectInfo projectInfo, List<Diagnostic> diagnostics,
 			MicroProfileValidationSettings validationSettings) {
@@ -66,7 +66,9 @@ class PropertiesFileValidator {
 		this.diagnostics = diagnostics;
 		this.validationSettings = validationSettings;
 		this.existingProperties = new HashMap<String, List<Property>>();
-		this.allProperties = null; // to be lazily init
+		// to be lazily init
+		this.allPropertiesFromFile = null;
+		this.allPropertiesFromJava = null;
 	}
 
 	public void validate(PropertiesModel document, CancelChecker cancelChecker) {
@@ -178,9 +180,7 @@ class PropertiesFileValidator {
 	 * Checks if the property expression is closed, and if the referenced property
 	 * exists.
 	 *
-	 * @param property      The property to validate
-	 * @param allProperties A list of all the properties defined in the property
-	 *                      file and in the project info
+	 * @param property The property to validate
 	 */
 	private void validatePropertyValueExpressions(Property property) {
 		if (property.getValue() == null) {
@@ -197,26 +197,43 @@ class PropertiesFileValidator {
 			if (child != null && child.getNodeType() == NodeType.PROPERTY_VALUE_EXPRESSION) {
 				PropertyValueExpression propValExpr = (PropertyValueExpression) child;
 				if (expressionSeverity != null) {
-					if (allProperties == null) {
+					if (allPropertiesFromFile == null) {
 						// Collect names of all properties defined in the configuration file and the
 						// project information
-						allProperties = new HashSet<>();
-						allProperties.addAll(projectInfo.getProperties().stream().map((ItemMetadata info) -> {
-							return info.getName();
-						}).collect(Collectors.toList()));
-						allProperties.addAll(property.getOwnerModel().getChildren().stream().filter(n -> {
+						allPropertiesFromFile = property.getOwnerModel().getChildren().stream().filter(n -> {
 							return n.getNodeType() == NodeType.PROPERTY;
 						}).map(prop -> {
 							return ((Property) prop).getPropertyNameWithProfile();
-						}).collect(Collectors.toList()));
+						}).collect(Collectors.toSet());
+						allPropertiesFromJava = projectInfo.getProperties().stream().map((ItemMetadata info) -> {
+							return info.getName();
+						}).collect(Collectors.toSet());
 					}
 					String refdProp = propValExpr.getReferencedPropertyName();
-					if (!allProperties.contains(refdProp)) {
-						// Check if expression has default value (ex : ${DBUSER:sa}) otherwise the error
-						// is reported
-						if (!propValExpr.hasDefaultValue()) {
-							Range range = PositionUtils.createAdjustedRange(propValExpr, 2,
-									propValExpr.isClosed() ? -1 : 0);
+					if (!allPropertiesFromFile.contains(refdProp)) {
+						// The referenced property name doesn't reference a property inside the file
+						if (allPropertiesFromJava.contains(refdProp)) {
+							Range range = PositionUtils.createRange(propValExpr.getReferenceStartOffset(),
+									propValExpr.getReferenceEndOffset(), propValExpr.getDocument());
+							if (range != null) {
+								ItemMetadata referencedProperty = PropertiesFileUtils.getProperty(refdProp,
+										projectInfo);
+								if (referencedProperty.getDefaultValue() != null) {
+									// The referenced property has a default value.
+									addDiagnostic("Cannot reference the property '" + refdProp
+											+ "'. A default value defined via annotation like ConfigProperty is not eligible to be expanded since multiple candidates may be available.",
+											range, expressionSeverity, ValidationType.expression.name());
+								} else if (!propValExpr.hasDefaultValue()) {
+									// The referenced property and the property expression have not a default value.
+									addDiagnostic("The referenced property '" + refdProp + "' has no default value.",
+											range, expressionSeverity, ValidationType.expression.name());
+								}
+							}
+						} else if (!propValExpr.hasDefaultValue()) {
+							// The expression has default value (ex : ${DBUSER:sa}) otherwise the error
+							// is reported
+							Range range = PositionUtils.createRange(propValExpr.getReferenceStartOffset(),
+									propValExpr.getReferenceEndOffset(), propValExpr.getDocument());
 							if (range != null) {
 								addDiagnostic("Unknown referenced property '" + refdProp + "'", range,
 										expressionSeverity, ValidationType.expression.name());

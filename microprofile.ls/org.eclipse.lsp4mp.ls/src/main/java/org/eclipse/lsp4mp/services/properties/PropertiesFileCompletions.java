@@ -410,13 +410,16 @@ class PropertiesFileCompletions {
 		for (String independentProperty : independentProperties) {
 			list.getItems().add(getPropertyCompletionItem(independentProperty, (PropertyValueExpression) node, model));
 		}
+
 		// Add all properties not referenced in the properties file as completion
-		// options
+		// options only the property has no default value
 		for (ItemMetadata candidateCompletion : projectInfo.getProperties()) {
-			String candidateCompletionName = candidateCompletion.getName();
-			if (!graph.hasNode(candidateCompletionName)) {
-				list.getItems()
-						.add(getPropertyCompletionItem(candidateCompletionName, (PropertyValueExpression) node, model));
+			if (candidateCompletion.getDefaultValue() == null) {
+				String candidateCompletionName = candidateCompletion.getName();
+				if (!graph.hasNode(candidateCompletionName)) {
+					list.getItems().add(
+							getPropertyCompletionItem(candidateCompletionName, (PropertyValueExpression) node, model));
+				}
 			}
 		}
 	}
