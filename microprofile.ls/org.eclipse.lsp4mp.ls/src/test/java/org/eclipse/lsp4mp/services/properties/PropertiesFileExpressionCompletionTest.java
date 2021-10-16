@@ -62,7 +62,7 @@ public class PropertiesFileExpressionCompletionTest {
 				"test.property = hello\n" + //
 						"other.test.property = ${|";
 		testCompletionFor(text, generateInfoFor("test.property", "other.test.property"),
-				c("${test.property}",  r(1, 22, 24)));
+				c("${test.property}", r(1, 22, 24)));
 	}
 
 	@Test
@@ -205,7 +205,8 @@ public class PropertiesFileExpressionCompletionTest {
 	public void manyUndefinedProperties() throws BadLocationException {
 		String text = "test.property = ${|}\n";
 		testCompletionFor(text, generateInfoFor("test.property", "http.port", "http.ip"),
-				c("${http.port}", r(0, 16, 19)), c("${http.ip}", r(0, 16, 19)));
+				c("${http.port}", r(0, 16, 19)), //
+				c("${http.ip}", r(0, 16, 19)));
 	}
 
 	@Test
@@ -213,7 +214,8 @@ public class PropertiesFileExpressionCompletionTest {
 		String text = "test.property = hi\n" + //
 				"other.property = hello\n" + //
 				"yet.another.property = ${|";
-		testCompletionFor(text, generateInfoFor(), c("${test.property}", r(2, 23, 25)),
+		testCompletionFor(text, generateInfoFor(), //
+				c("${test.property}", r(2, 23, 25)), //
 				c("${other.property}", r(2, 23, 25)));
 	}
 
@@ -266,8 +268,9 @@ public class PropertiesFileExpressionCompletionTest {
 				"D=hi\n" + //
 				"E=${D}${C}\n" + //
 				"F=${D}";
-		testCompletionFor(text, generateInfoFor(),
-				c("${D}", r(2, 2, 4)), c("${F}", r(2, 2, 4)));
+		testCompletionFor(text, generateInfoFor(), //
+				c("${D}", r(2, 2, 4)), //
+				c("${F}", r(2, 2, 4)));
 	}
 
 	@Test
@@ -283,6 +286,25 @@ public class PropertiesFileExpressionCompletionTest {
 		String text = "a = ${a}\n" + //
 				"b = $|";
 		testCompletionFor(text, generateInfoFor(), c("${a}", r(1, 4, 5)));
+	}
+
+	@Test
+	public void referencedJavadPropertyWithoutDefaultValue() throws BadLocationException {
+		String text = "a = ${|}\n" + //
+				"b = c";
+		testCompletionFor(text, generateInfoFor("quarkus.http.port"), //
+				c("${b}", r(0, 4, 7)), //
+				c("${quarkus.http.port}", r(0, 4, 7)));
+	}
+
+	@Test
+	public void referencedJavadPropertyWithDefaultValue() throws BadLocationException {
+		String text = "a = ${|}\n" + //
+				"b = c";
+		MicroProfileProjectInfo info = generateInfoFor("quarkus.http.port");
+		info.getProperties().get(0).setDefaultValue("8080");
+		testCompletionFor(text, info, //
+				c("${b}", r(0, 4, 7)));
 	}
 
 	// Utility functions

@@ -800,7 +800,10 @@ public class PropertiesFileDiagnosticsTest {
 	public void validateMicroProfilePropertyInPropertyExpression() {
 		String value = "test.property = ${mp.opentracing.server.skip-pattern}";
 		testDiagnosticsFor(value, //
-				d(0, 0, 13, "Unknown property 'test.property'", DiagnosticSeverity.Warning, ValidationType.unknown));
+				d(0, 0, 13, "Unknown property 'test.property'", DiagnosticSeverity.Warning, ValidationType.unknown), //
+				d(0, 18, 52,
+						"The referenced property 'mp.opentracing.server.skip-pattern' has no default value.",
+						DiagnosticSeverity.Error, ValidationType.expression));
 	}
 
 	@Test
@@ -846,9 +849,41 @@ public class PropertiesFileDiagnosticsTest {
 	public void ignoreErrorForPropertyExpressionWithDefaultValue() {
 		String value = "quarkus.datasource.username = ${DBUSER:sa}";
 		testDiagnosticsFor(value);
-		
+
 		value = "quarkus.datasource.username = ${DBUSER:}";
-		testDiagnosticsFor(value,//
-				d(0, 32, 39, "Unknown referenced property 'DBUSER'", DiagnosticSeverity.Error, ValidationType.expression));
+		testDiagnosticsFor(value, //
+				d(0, 32, 38, "Unknown referenced property 'DBUSER'", DiagnosticSeverity.Error,
+						ValidationType.expression));
+	}
+
+	@Test
+	public void referencePropertyFromJavaWithoutDefaultValue() {
+
+		// "name": "quarkus.application.name",
+		String value = "quarkus.datasource.username = ${quarkus.application.name}";
+		testDiagnosticsFor(value, //
+				d(0, 32, 56,
+						"The referenced property 'quarkus.application.name' has no default value.",
+						DiagnosticSeverity.Error, ValidationType.expression));
+
+		value = "quarkus.datasource.username = ${quarkus.application.name:sa}";
+		testDiagnosticsFor(value);
+	}
+
+	@Test
+	public void referencePropertyFromJavaWithDefaultValue() {
+		// "name": "quarkus.platform.group-id",
+		// "defaultValue": "io.quarkus",
+		String value = "quarkus.datasource.username = ${quarkus.platform.group-id}";
+		testDiagnosticsFor(value, //
+				d(0, 32, 57,
+						"Cannot reference the property 'quarkus.platform.group-id'. A default value defined via annotation like ConfigProperty is not eligible to be expanded since multiple candidates may be available.",
+						DiagnosticSeverity.Error, ValidationType.expression));
+
+		value = "quarkus.datasource.username = ${quarkus.platform.group-id:sa}";
+		testDiagnosticsFor(value, //
+				d(0, 32, 57,
+						"Cannot reference the property 'quarkus.platform.group-id'. A default value defined via annotation like ConfigProperty is not eligible to be expanded since multiple candidates may be available.",
+						DiagnosticSeverity.Error, ValidationType.expression));
 	}
 }
