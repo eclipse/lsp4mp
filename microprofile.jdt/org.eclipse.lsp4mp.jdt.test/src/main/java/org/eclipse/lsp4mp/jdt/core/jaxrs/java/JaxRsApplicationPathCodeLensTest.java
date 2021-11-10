@@ -46,14 +46,14 @@ public class JaxRsApplicationPathCodeLensTest extends BasePropertiesManagerTest 
 		params.setUri(javaFile.getLocation().toFile().toURI().toString());
 		params.setUrlCodeLensEnabled(true);
 
-		saveFile("org/acme/ApplicationPathResource.java", "package org.acme;\r\n" + //
+		saveFile("org/acme/MyApplication.java", "package org.acme;\r\n" + //
 				"import javax.ws.rs.ApplicationPath;\r\n" + //
 				"import javax.ws.rs.core.Application;\r\n" + //
 				"@ApplicationPath(\"/api\")\r\n" + //
-				"public class MyApplication extends Application {}\r\n", javaProject);
+				"public class MyApplication extends Application {}\r\n", javaProject, true);
 
 		// Default port
-		assertCodeLense(8080, params, utils);
+		assertCodeLense(8080, params, utils, "/api/path");
 	}
 
 	@Test
@@ -68,25 +68,55 @@ public class JaxRsApplicationPathCodeLensTest extends BasePropertiesManagerTest 
 		params.setUri(javaFile.getLocation().toFile().toURI().toString());
 		params.setUrlCodeLensEnabled(true);
 
-		saveFile("org/acme/ApplicationPathResource.java", "package org.acme;\r\n" + //
+		saveFile("org/acme/MyApplication.java", "package org.acme;\r\n" + //
 				"import javax.ws.rs.ApplicationPath;\r\n" + //
 				"import javax.ws.rs.core.Application;\r\n" + //
 				"@ApplicationPath(\"api\")\r\n" + //
-				"public class MyApplication extends Application {}\r\n", javaProject);
+				"public class MyApplication extends Application {}\r\n", javaProject, true);
 
 		// Default port
-		assertCodeLense(8080, params, utils);
+		assertCodeLense(8080, params, utils, "/api/path");
 	}
 
-	private static void assertCodeLense(int port, MicroProfileJavaCodeLensParams params, IJDTUtils utils)
-			throws JavaModelException {
+	@Test
+	public void urlCodeLensApplicationPathChange() throws Exception {
+		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.microprofile_applicationpath);
+		IJDTUtils utils = JDT_UTILS;
+
+		MicroProfileJavaCodeLensParams params = new MicroProfileJavaCodeLensParams();
+		params.setCheckServerAvailable(false);
+		IFile javaFile = javaProject.getProject()
+				.getFile(new Path("src/main/java/org/acme/ApplicationPathResource.java"));
+		params.setUri(javaFile.getLocation().toFile().toURI().toString());
+		params.setUrlCodeLensEnabled(true);
+
+		saveFile("org/acme/MyApplication.java", "package org.acme;\r\n" + //
+				"import javax.ws.rs.ApplicationPath;\r\n" + //
+				"import javax.ws.rs.core.Application;\r\n" + //
+				"@ApplicationPath(\"/api\")\r\n" + //
+				"public class MyApplication extends Application {}\r\n", javaProject, true);
+
+		// Default port
+		assertCodeLense(8080, params, utils, "/api/path");
+
+		saveFile("org/acme/MyApplication.java", "package org.acme;\r\n" + //
+				"import javax.ws.rs.ApplicationPath;\r\n" + //
+				"import javax.ws.rs.core.Application;\r\n" + //
+				"@ApplicationPath(\"/ipa\")\r\n" + //
+				"public class MyApplication extends Application {}\r\n", javaProject, true);
+
+		assertCodeLense(8080, params, utils, "/ipa/path");
+	}
+
+	private static void assertCodeLense(int port, MicroProfileJavaCodeLensParams params, IJDTUtils utils,
+			String actualEndpoint) throws JavaModelException {
 		List<? extends CodeLens> lenses = PropertiesManagerForJava.getInstance().codeLens(params, utils,
 				new NullProgressMonitor());
 		Assert.assertEquals(1, lenses.size());
 
 		CodeLens lenseForEndpoint = lenses.get(0);
 		Assert.assertNotNull(lenseForEndpoint.getCommand());
-		Assert.assertEquals("http://localhost:" + port + "/api/path", lenseForEndpoint.getCommand().getTitle());
+		Assert.assertEquals("http://localhost:" + port + actualEndpoint, lenseForEndpoint.getCommand().getTitle());
 	}
 
 }

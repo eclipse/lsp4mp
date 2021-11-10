@@ -247,17 +247,31 @@ public class BasePropertiesManagerTest {
 
 	protected static void saveFile(String configFileName, String content, IJavaProject javaProject)
 			throws CoreException {
-		IFile file = getFile(configFileName, javaProject);
+		saveFile(configFileName, content, javaProject, false);
+	}
+
+	protected static void saveFile(String configFileName, String content, IJavaProject javaProject, boolean inSource)
+			throws CoreException {
+		IFile file = getFile(configFileName, javaProject, inSource);
 		updateFile(file, content);
 	}
 
 	protected static void deleteFile(String configFileName, IJavaProject javaProject)
 			throws IOException, CoreException {
-		IFile file = getFile(configFileName, javaProject);
+		deleteFile(configFileName, javaProject, false);
+	}
+
+	protected static void deleteFile(String configFileName, IJavaProject javaProject, boolean inSource)
+			throws IOException, CoreException {
+		IFile file = getFile(configFileName, javaProject, inSource);
 		file.delete(true, new NullProgressMonitor());
 	}
 
-	private static IFile getFile(String configFileName, IJavaProject javaProject) throws JavaModelException {
+	private static IFile getFile(String configFileName, IJavaProject javaProject, boolean inSource)
+			throws JavaModelException {
+		if (inSource) {
+			return javaProject.getProject().getFile(new Path("src/main/java/" + configFileName));
+		}
 		IPath output = javaProject.getOutputLocation();
 		IPath filePath = output.append(configFileName);
 		return ResourcesPlugin.getWorkspace().getRoot().getFile(filePath);
