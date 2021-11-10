@@ -13,7 +13,25 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.core.jaxrs;
 
+import static org.eclipse.lsp4mp.jdt.core.jaxrs.JaxRsUtils.getJaxRsApplicationPathValue;
+import static org.eclipse.lsp4mp.jdt.internal.jaxrs.JaxRsConstants.JAVAX_WS_RS_APPLICATIONPATH_ANNOTATION;
+
+import java.util.concurrent.atomic.AtomicReference;
+
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.search.IJavaSearchConstants;
+import org.eclipse.jdt.core.search.IJavaSearchScope;
+import org.eclipse.jdt.core.search.SearchEngine;
+import org.eclipse.jdt.core.search.SearchMatch;
+import org.eclipse.jdt.core.search.SearchParticipant;
+import org.eclipse.jdt.core.search.SearchPattern;
+import org.eclipse.jdt.core.search.SearchRequestor;
 import org.eclipse.lsp4mp.jdt.core.java.codelens.JavaCodeLensContext;
+import org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils;
+import org.eclipse.lsp4mp.jdt.core.utils.JDTTypeUtils;
 
 /**
  * JAX-RS context.
@@ -35,8 +53,11 @@ public class JaxRsContext {
 	// The value of the @ApplicationPath annotation
 	private String applicationPath;
 
-	public JaxRsContext() {
+	private final JavaCodeLensContext javaCodeLensContext;
+
+	public JaxRsContext(JavaCodeLensContext javaCodeLensContext) {
 		setServerPort(DEFAULT_PORT);
+		this.javaCodeLensContext = javaCodeLensContext;
 	}
 
 	public int getServerPort() {
@@ -68,14 +89,21 @@ public class JaxRsContext {
 	/**
 	 * Get the @ApplicationPath annotation value
 	 *
+	 * @param the progress monitor
 	 * @return the @ApplicationPath annotation value
+	 * @throws CoreException
 	 */
-	public String getApplicationPath() {
+	public String getApplicationPath(IProgressMonitor monitor) throws CoreException {
+		if (applicationPath == null) {
+			IType applicationPathType = JDTTypeUtils.findType(javaCodeLensContext.getJavaProject(),
+					JAVAX_WS_RS_APPLICATIONPATH_ANNOTATION);
+			applicationPath = findApplicationPath(applicationPathType, javaCodeLensContext, monitor);
+		}
 		return applicationPath;
 	}
 
 	/**
-	 * Set the quarkus.http.root-path property
+	 * Set the @ApplicationPath annotation value
 	 *
 	 * @param applicationPath as the @ApplicationPath annotation value
 	 */
@@ -86,7 +114,7 @@ public class JaxRsContext {
 	public static JaxRsContext getJaxRsContext(JavaCodeLensContext context) {
 		JaxRsContext jaxRsContext = (JaxRsContext) context.get(CONTEXT_KEY);
 		if (jaxRsContext == null) {
-			jaxRsContext = new JaxRsContext();
+			jaxRsContext = new JaxRsContext(context);
 			context.put(CONTEXT_KEY, jaxRsContext);
 		}
 		return jaxRsContext;
@@ -110,6 +138,50 @@ public class JaxRsContext {
 			localBaseURL.append(applicationPath);
 		}
 		return localBaseURL.toString();
+	}
+
+	/**
+	 * Use the java search engine to search the java project for the location and
+	 * value of the @ApplicationPath annotation, or null if not found
+	 *
+	 * @param annotationType the type representing the @ApplicationPath annotation
+	 * @param context        the java code lens context
+	 * @param monitor        the progress monitor
+	 * @return the value of the @ApplicationPath annotation, or null if not found
+	 * @throws CoreException
+	 */
+	private static String findApplicationPath(IType annotationType, JavaCodeLensContext context,
+			IProgressMonitor monitor) throws CoreException {
+		AtomicReference<String> applicationPathRef = new AtomicReference<String>();
+		SearchPattern pattern = SearchPattern.createPattern(JAVAX_WS_RS_APPLICATIONPATH_ANNOTATION,
+				IJavaSearchConstants.ANNOTATION_TYPE, IJavaSearchConstants.ANNOTATION_TYPE_REFERENCE,
+				SearchPattern.R_EXACT_MATCH);
+		SearchEngine engine = new SearchEngine();
+		engine.search(pattern, new SearchParticipant[] {
+				SearchEngine.getDefaultSearchParticipant()
+		}, createSearchScope(annotationType.getJavaProject()), new SearchRequestor() {
+
+			@Override
+			public void acceptSearchMatch(SearchMatch match) throws CoreException {
+				Object o = match.getElement();
+				if (o instanceof IType) {
+					collectApplicationPath((IType) o);
+				}
+			}
+
+			private void collectApplicationPath(IType type) throws CoreException {
+				if (AnnotationUtils.hasAnnotation(type, JAVAX_WS_RS_APPLICATIONPATH_ANNOTATION)) {
+					applicationPathRef.set(getJaxRsApplicationPathValue(type));
+				}
+			}
+		}, monitor);
+		return applicationPathRef.get();
+	}
+
+	private static IJavaSearchScope createSearchScope(IJavaProject javaProject) throws CoreException {
+		return SearchEngine.createJavaSearchScope(new IJavaProject[] {
+				javaProject
+		}, IJavaSearchScope.SOURCES);
 	}
 
 }

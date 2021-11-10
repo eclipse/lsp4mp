@@ -10,7 +10,7 @@ public class ApplicationPathResource {
 
     @GET
     @Produces(MediaType.TEXT_PLAIN)
-    public String test() {
-        return "ApplicationPath";
+    public String onPath() {
+        return "Followed the application path";
     }
 }

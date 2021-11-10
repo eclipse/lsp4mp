@@ -116,7 +116,7 @@
    <extension point="org.eclipse.lsp4mp.jdt.core.javaFeatureParticipants" >
       <!-- Java definition for the MicroProfile Fault Tolerance annotations -->
       <definition class="org.eclipse.lsp4mp.jdt.internal.faulttolerance.java.MicroProfileFaultToleranceDefinitionParticipant" />
-   	  <!-- Completion for Fault Tolerance annotations -->s
+   	  <!-- Completion for Fault Tolerance annotations -->
    	  <completion class="org.eclipse.lsp4mp.jdt.internal.faulttolerance.java.MicroProfileFaultToleranceCompletionParticipant" />
    </extension>
 
