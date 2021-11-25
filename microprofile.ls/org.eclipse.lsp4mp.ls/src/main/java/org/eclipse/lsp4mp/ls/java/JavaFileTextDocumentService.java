@@ -370,6 +370,9 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 
 	public void propertiesChanged(MicroProfilePropertiesChangeEvent event) {
 		if (documents.propertiesChanged(event) || MicroProfilePropertiesScope.isOnlyConfigFiles(event.getType())) {
+			// Classpath changed or some properties config files (ex :
+			// microprofile-config.properties) has been
+			// saved, revalidate all opened java files.
 			triggerValidationForAll(null);
 		}
 	}

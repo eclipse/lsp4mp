@@ -14,6 +14,7 @@
 package org.eclipse.lsp4mp.ls.properties;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -113,10 +114,19 @@ class MicroProfileProjectInfoCache {
 
 	public Collection<String> propertiesChanged(MicroProfilePropertiesChangeEvent event) {
 		List<MicroProfilePropertiesScope> scopes = event.getType();
+		if (MicroProfilePropertiesScope.isOnlyConfigFiles(scopes)) {
+			// Some properties config files (ex : microprofile-config.properties) has been
+			// saved, ignore this event.
+			return Collections.emptyList();
+		}
 		boolean changedOnlyInSources = MicroProfilePropertiesScope.isOnlySources(scopes);
 		if (changedOnlyInSources) {
+			// Some Java sources files has been saved, evict the cache for item metadata
+			// (properties) computed from Java source files only.
 			return javaSourceChanged(event.getProjectURIs());
 		}
+		// Classpath changed (ex : add, remove maven/gradle dependencies) evict the full
+		// cache.
 		return classpathChanged(event.getProjectURIs());
 	}
 

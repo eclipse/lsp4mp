@@ -18,6 +18,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -122,7 +123,11 @@ public class PropertiesManager {
 			LOGGER.info("Start computing MicroProfile properties for '" + info.getProjectURI() + "' project.");
 		}
 		SubMonitor mainMonitor = SubMonitor.convert(monitor,
-				"Scanning properties for '" + javaProject.getProject().getName() + "' project", 100);
+				"Scanning properties for '" + javaProject.getProject().getName() + "' project in '" + scopes.stream() //
+						.map(MicroProfilePropertiesScope::name) //
+						.collect(Collectors.joining("+")) //
+						+ "'",
+				100);
 		try {
 			boolean excludeTestCode = classpathKind == ClasspathKind.SRC;
 
