@@ -47,7 +47,9 @@ import org.eclipse.lsp4mp.jdt.core.utils.PositionUtils;
 public class MicroProfileFaultToleranceDefinitionParticipant extends AbstractAnnotationDefinitionParticipant {
 
 	public MicroProfileFaultToleranceDefinitionParticipant() {
-		super(FALLBACK_ANNOTATION, FALLBACK_METHOD_FALLBACK_ANNOTATION_MEMBER);
+		super(FALLBACK_ANNOTATION, new String[] {
+				FALLBACK_METHOD_FALLBACK_ANNOTATION_MEMBER
+		});
 	}
 
 	@Override

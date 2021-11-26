@@ -14,6 +14,7 @@
 package org.eclipse.lsp4mp.jdt.core.java.definition;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -29,21 +30,26 @@ import org.eclipse.lsp4mp.jdt.core.project.MicroProfileConfigPropertyInformation
 /**
  * Java definition participant to go to the definition of the the property
  * declared in a member value of annotation.
- * 
+ *
  * For instance:
- * 
+ *
  * <ul>
  * <li>from Java annotation: &#64;ConfigProperty(name="foo.bar")</li>
  * <li>to properties file : foo.bar = 10</li>
  * </ul>
- * 
+ *
  * @author Angelo ZERR
  *
  */
 public class PropertiesDefinitionParticipant extends AbstractAnnotationDefinitionParticipant {
 
-	public PropertiesDefinitionParticipant(String annotationName, String annotationAttributeName) {
-		super(annotationName, annotationAttributeName);
+	public PropertiesDefinitionParticipant(String annotationName, String[] annotationAttributeNames) {
+		super(annotationName, annotationAttributeNames);
+	}
+
+	public PropertiesDefinitionParticipant(String annotationName, String[] annotationAttributeNames,
+			Function<String, String> propertyReplacer) {
+		super(annotationName, annotationAttributeNames, propertyReplacer);
 	}
 
 	@Override
