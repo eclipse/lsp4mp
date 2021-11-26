@@ -32,6 +32,8 @@ import org.eclipse.lsp4mp.jdt.core.java.definition.PropertiesDefinitionParticipa
 public class MicroProfileConfigDefinitionParticipant extends PropertiesDefinitionParticipant {
 
 	public MicroProfileConfigDefinitionParticipant() {
-		super(CONFIG_PROPERTY_ANNOTATION, CONFIG_PROPERTY_ANNOTATION_NAME);
+		super(CONFIG_PROPERTY_ANNOTATION, new String[] {
+				CONFIG_PROPERTY_ANNOTATION_NAME
+		});
 	}
 }

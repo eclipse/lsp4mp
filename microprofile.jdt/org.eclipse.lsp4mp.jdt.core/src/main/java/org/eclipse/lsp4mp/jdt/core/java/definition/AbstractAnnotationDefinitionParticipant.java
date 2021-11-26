@@ -17,6 +17,7 @@ import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.getAnnotation;
 import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.getAnnotationMemberValue;
 
 import java.util.List;
+import java.util.function.Function;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -32,6 +33,7 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.util.Ranges;
 import org.eclipse.lsp4mp.commons.MicroProfileDefinition;
+import org.eclipse.lsp4mp.commons.PropertyReplacerStrategy;
 import org.eclipse.lsp4mp.jdt.core.utils.IJDTUtils;
 import org.eclipse.lsp4mp.jdt.core.utils.JDTTypeUtils;
 
@@ -47,18 +49,36 @@ public abstract class AbstractAnnotationDefinitionParticipant implements IJavaDe
 
 	private final String annotationName;
 
-	private final String annotationMemberName;
+	private final String[] annotationMemberNames;
+
+	private final Function<String, String> propertyReplacer;
 
 	/**
 	 * The definition participant constructor.
-	 * 
-	 * @param annotationName       the annotation name (ex :
-	 *                             org.eclipse.microprofile.config.inject.ConfigProperty)
-	 * @param annotationMemberName the annotation member name (ex : name)
+	 *
+	 * @param annotationName        the annotation name (ex :
+	 *                              org.eclipse.microprofile.config.inject.ConfigProperty)
+	 * @param annotationMemberNames the supported annotation member names (ex :
+	 *                              name)
 	 */
-	public AbstractAnnotationDefinitionParticipant(String annotationName, String annotationMemberName) {
+	public AbstractAnnotationDefinitionParticipant(String annotationName, String[] annotationMemberNames) {
+		this(annotationName, annotationMemberNames, PropertyReplacerStrategy.NULL_REPLACER);
+
+	}
+
+	/**
+	 * The definition participant constructor with a property replacer.
+	 *
+	 * @param annotationName       the annotation name (ex :
+	 *                             io.quarkus.scheduler.Scheduled)
+	 * @param annotationMemberName the supported annotation member names (ex : cron)
+	 * @param propertyReplacer     the replacer function for property expressions
+	 */
+	public AbstractAnnotationDefinitionParticipant(String annotationName, String[] annotationMemberNames,
+			Function<String, String> propertyReplacer) {
 		this.annotationName = annotationName;
-		this.annotationMemberName = annotationMemberName;
+		this.annotationMemberNames = annotationMemberNames;
+		this.propertyReplacer = propertyReplacer;
 	}
 
 	@Override
@@ -98,10 +118,18 @@ public abstract class AbstractAnnotationDefinitionParticipant implements IJavaDe
 
 		// Try to get the annotation member value
 		String annotationSource = ((ISourceReference) annotation).getSource();
-		String annotationMemberValue = getAnnotationMemberValue(annotation, annotationMemberName);
-
+		String annotationMemberValue = null;
+		for (String annotationMemberName : annotationMemberNames) {
+			annotationMemberValue = getAnnotationMemberValue(annotation, annotationMemberName);
+			if (annotationMemberValue != null) {
+				break;
+			}
+		}
 		if (annotationMemberValue == null) {
 			return null;
+		}
+		if (propertyReplacer != null) {
+			annotationMemberValue = propertyReplacer.apply(annotationMemberValue);
 		}
 
 		// Get the annotation member value range
@@ -123,28 +151,29 @@ public abstract class AbstractAnnotationDefinitionParticipant implements IJavaDe
 	/**
 	 * Returns true if the given hyperlinked Java element is adapted for this
 	 * participant and false otherwise.
-	 * 
+	 *
 	 * <p>
-	 * 
+	 *
 	 * By default this method returns true if the hyperlinked annotation belongs to
 	 * a Java field or local variable and false otherwise.
-	 * 
+	 *
 	 * </p>
-	 * 
+	 *
 	 * @param hyperlinkedElement the hyperlinked Java element.
-	 * 
+	 *
 	 * @return true if the given hyperlinked Java element is adapted for this
 	 *         participant and false otherwise.
 	 */
 	protected boolean isAdaptableFor(IJavaElement hyperlinkedElement) {
 		return hyperlinkedElement.getElementType() == IJavaElement.FIELD
-				|| hyperlinkedElement.getElementType() == IJavaElement.LOCAL_VARIABLE;
+				|| hyperlinkedElement.getElementType() == IJavaElement.LOCAL_VARIABLE
+				|| hyperlinkedElement.getElementType() == IJavaElement.METHOD;
 	}
 
 	/**
 	 * Returns the definitions for the given annotation member value and null
 	 * otherwise.
-	 * 
+	 *
 	 * @param annotationMemberValue      the annotation member value content.
 	 * @param annotationMemberValueRange the annotation member value range.
 	 * @param annotation                 the hyperlinked annotation.
