@@ -13,6 +13,9 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.core.utils;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.eclipse.jdt.core.IAnnotatable;
 import org.eclipse.jdt.core.IAnnotation;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -20,6 +23,9 @@ import org.eclipse.jdt.core.IImportContainer;
 import org.eclipse.jdt.core.IImportDeclaration;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMemberValuePair;
+import org.eclipse.jdt.core.ISourceRange;
+import org.eclipse.jdt.core.ISourceReference;
+import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.Expression;
@@ -28,6 +34,9 @@ import org.eclipse.jdt.core.dom.NormalAnnotation;
 import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
 import org.eclipse.jdt.internal.core.ImportContainerInfo;
 import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.util.Ranges;
 
 /**
  * Java annotations utilities.
@@ -197,7 +206,7 @@ public class AnnotationUtils {
 	/**
 	 * Returns the expression for the value of the given member name of the given
 	 * annotation.
-	 * 
+	 *
 	 * @param annotation the annotation.
 	 * @param memberName the member name.
 	 * @return the expression for the value of the given member name of the given
@@ -223,6 +232,47 @@ public class AnnotationUtils {
 		}
 		// MarkerAnnotation has no members
 		return null;
+	}
+
+	/**
+	 * Retrieve the value and range of an annotation member given a supported list
+	 * of annotation members
+	 *
+	 * @param annotation            the annotation of the retrieved members
+	 * @param annotationSource      the qualified name of the annotation
+	 * @param annotationMemberNames the supported members of the annotation
+	 * @param position              the hover position
+	 * @param typeRoot              the java type root
+	 * @param utils                 the utility to retrieve the member range
+	 *
+	 * @return an AnnotationMemberInfo object if the member exists, null otherwise
+	 * @throws JavaModelException
+	 */
+	public static AnnotationMemberInfo getAnnotationMemberAt(IAnnotation annotation, String[] annotationMemberNames,
+			Position position, ITypeRoot typeRoot, IJDTUtils utils) throws JavaModelException {
+		String annotationSource = ((ISourceReference) annotation).getSource();
+		ISourceRange r = ((ISourceReference) annotation).getSourceRange();
+		String annotationMemberValue = null;
+		for (String annotationMemberName : annotationMemberNames) {
+			annotationMemberValue = getAnnotationMemberValue(annotation, annotationMemberName);
+			if (annotationMemberValue != null) {
+				// A regex is used to match the member and member value to find the position
+				Pattern memberPattern = Pattern.compile(".*[^\"]\\s*(" + annotationMemberName + ")\\s*=.*",
+						Pattern.DOTALL);
+				Matcher match = memberPattern.matcher(annotationSource);
+				if (match.matches()) {
+					int offset = annotationSource.indexOf(annotationMemberValue, match.end(1));
+					Range range = utils.toRange(typeRoot, r.getOffset() + offset, annotationMemberValue.length());
+
+					if (!position.equals(range.getEnd()) && Ranges.containsPosition(range, position)) {
+						return new AnnotationMemberInfo(annotationMemberValue, range);
+					}
+				}
+			}
+		}
+
+		return null;
+
 	}
 
 }
