@@ -14,7 +14,7 @@
 package org.eclipse.lsp4mp.jdt.core.java.definition;
 
 import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.getAnnotation;
-import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.getAnnotationMemberValue;
+import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.getAnnotationMemberAt;
 
 import java.util.List;
 import java.util.function.Function;
@@ -25,15 +25,13 @@ import org.eclipse.jdt.core.IAnnotatable;
 import org.eclipse.jdt.core.IAnnotation;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.ISourceRange;
-import org.eclipse.jdt.core.ISourceReference;
 import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4j.util.Ranges;
 import org.eclipse.lsp4mp.commons.MicroProfileDefinition;
 import org.eclipse.lsp4mp.commons.PropertyReplacerStrategy;
+import org.eclipse.lsp4mp.jdt.core.utils.AnnotationMemberInfo;
 import org.eclipse.lsp4mp.jdt.core.utils.IJDTUtils;
 import org.eclipse.lsp4mp.jdt.core.utils.JDTTypeUtils;
 
@@ -93,6 +91,7 @@ public abstract class AbstractAnnotationDefinitionParticipant implements IJavaDe
 	public List<MicroProfileDefinition> collectDefinitions(JavaDefinitionContext context, IProgressMonitor monitor)
 			throws CoreException {
 		ITypeRoot typeRoot = context.getTypeRoot();
+		IJDTUtils utils = context.getUtils();
 		IJavaProject javaProject = typeRoot.getJavaProject();
 		if (javaProject == null) {
 			return null;
@@ -117,32 +116,18 @@ public abstract class AbstractAnnotationDefinitionParticipant implements IJavaDe
 		}
 
 		// Try to get the annotation member value
-		String annotationSource = ((ISourceReference) annotation).getSource();
-		String annotationMemberValue = null;
-		for (String annotationMemberName : annotationMemberNames) {
-			annotationMemberValue = getAnnotationMemberValue(annotation, annotationMemberName);
-			if (annotationMemberValue != null) {
-				break;
-			}
-		}
-		if (annotationMemberValue == null) {
+		AnnotationMemberInfo annotationMemberInfo = getAnnotationMemberAt(annotation, annotationMemberNames,
+				definitionPosition, typeRoot, utils);
+		if (annotationMemberInfo == null) {
 			return null;
 		}
+
+		String annotationMemberValue = annotationMemberInfo.getMemberValue();
 		if (propertyReplacer != null) {
 			annotationMemberValue = propertyReplacer.apply(annotationMemberValue);
 		}
-
 		// Get the annotation member value range
-		ISourceRange r = ((ISourceReference) annotation).getSourceRange();
-		int offset = annotationSource.indexOf(annotationMemberValue);
-		IJDTUtils utils = context.getUtils();
-		final Range annotationMemberValueRange = utils.toRange(typeRoot, r.getOffset() + offset,
-				annotationMemberValue.length());
-
-		if (definitionPosition.equals(annotationMemberValueRange.getEnd())
-				|| !Ranges.containsPosition(annotationMemberValueRange, definitionPosition)) {
-			return null;
-		}
+		final Range annotationMemberValueRange = annotationMemberInfo.getRange();
 
 		// Collect definitions
 		return collectDefinitions(annotationMemberValue, annotationMemberValueRange, annotation, context, monitor);

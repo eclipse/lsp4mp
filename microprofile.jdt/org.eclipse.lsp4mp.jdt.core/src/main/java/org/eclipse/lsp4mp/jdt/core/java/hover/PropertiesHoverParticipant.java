@@ -14,12 +14,11 @@
 package org.eclipse.lsp4mp.jdt.core.java.hover;
 
 import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.getAnnotation;
+import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.getAnnotationMemberAt;
 import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.getAnnotationMemberValue;
 
 import java.util.List;
 import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -27,8 +26,6 @@ import org.eclipse.jdt.core.IAnnotatable;
 import org.eclipse.jdt.core.IAnnotation;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.ISourceRange;
-import org.eclipse.jdt.core.ISourceReference;
 import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.lsp4j.Hover;
@@ -36,11 +33,11 @@ import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.MarkupKind;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4j.util.Ranges;
 import org.eclipse.lsp4mp.commons.DocumentFormat;
 import org.eclipse.lsp4mp.jdt.core.project.JDTMicroProfileProject;
 import org.eclipse.lsp4mp.jdt.core.project.JDTMicroProfileProjectManager;
 import org.eclipse.lsp4mp.jdt.core.project.MicroProfileConfigPropertyInformation;
+import org.eclipse.lsp4mp.jdt.core.utils.AnnotationMemberInfo;
 import org.eclipse.lsp4mp.jdt.core.utils.IJDTUtils;
 import org.eclipse.lsp4mp.jdt.core.utils.JDTTypeUtils;
 
@@ -134,6 +131,10 @@ public class PropertiesHoverParticipant implements IJavaHoverParticipant {
 		}
 
 		ITypeRoot typeRoot = context.getTypeRoot();
+		IJavaProject javaProject = typeRoot.getJavaProject();
+		if (javaProject == null) {
+			return null;
+		}
 		IJDTUtils utils = context.getUtils();
 
 		Position hoverPosition = context.getHoverPosition();
@@ -145,48 +146,23 @@ public class PropertiesHoverParticipant implements IJavaHoverParticipant {
 			return null;
 		}
 
-		String annotationSource = ((ISourceReference) annotation).getSource();
-		String propertyKey = null;
-		Range propertyKeyRange = null;
-		boolean found = false;
-		for (String annotationMemberName : annotationMembers) {
-			propertyKey = getAnnotationMemberValue(annotation, annotationMemberName);
-			if (propertyKey != null) {
-				ISourceRange r = ((ISourceReference) annotation).getSourceRange();
-				Pattern memberPattern = Pattern.compile(".*[^\"]\\s*(" + annotationMemberName + ")\\s*=.*",
-						Pattern.DOTALL);
-				Matcher match = memberPattern.matcher(annotationSource);
-				if (match.matches()) {
-					int offset = annotationSource.indexOf(propertyKey, match.end(1));
-					propertyKeyRange = utils.toRange(typeRoot, r.getOffset() + offset, propertyKey.length());
-
-					if (!hoverPosition.equals(propertyKeyRange.getEnd())
-							&& Ranges.containsPosition(propertyKeyRange, hoverPosition)) {
-						found = true;
-						break;
-					}
-				}
-			}
-		}
-
-		if (!found) {
+		AnnotationMemberInfo annotationMemberInfo = getAnnotationMemberAt(annotation, annotationMembers, hoverPosition,
+				typeRoot, utils);
+		if (annotationMemberInfo == null) {
 			return null;
 		}
 
-		IJavaProject javaProject = typeRoot.getJavaProject();
-
-		if (javaProject == null) {
-			return null;
-		}
+		String annotationMemberValue = annotationMemberInfo.getMemberValue();
+		Range propertyKeyRange = annotationMemberInfo.getRange();
 
 		// property references may be surrounded by curly braces in Java file
 		if (propertyReplacer != null) {
-			propertyKey = propertyReplacer.apply(propertyKey);
+			annotationMemberValue = propertyReplacer.apply(annotationMemberValue);
 		}
 		JDTMicroProfileProject mpProject = JDTMicroProfileProjectManager.getInstance()
 				.getJDTMicroProfileProject(javaProject);
-		List<MicroProfileConfigPropertyInformation> propertyInformation = getConfigPropertyInformation(propertyKey,
-				annotation, defaultValueAnnotationMemberName, typeRoot, mpProject, utils);
+		List<MicroProfileConfigPropertyInformation> propertyInformation = getConfigPropertyInformation(
+				annotationMemberValue, annotation, defaultValueAnnotationMemberName, typeRoot, mpProject, utils);
 		return new Hover(getDocumentation(propertyInformation, context.getDocumentFormat(),
 				context.isSurroundEqualsWithSpaces()), propertyKeyRange);
 	}
