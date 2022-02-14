@@ -1,5 +1,42 @@
 # MicroProfile Language Server Changelog
 
+## [0.4.0](https://github.com/eclipse/lsp4mp/milestone/4?closed=1) (March 16, 2022)
+
+### Enhancements
+ * Support validation and code actions for `@ConfigProperty`. See [#90](https://github.com/eclipse/lsp4mp/issues/90), [#176](https://github.com/eclipse/lsp4mp/issues/176), [#147](https://github.com/eclipse/lsp4mp/issues/147).
+ * Completion for properties defined using `@ConfigProperties`. See [#80](https://github.com/eclipse/lsp4mp/issues/80).
+ * Support validation for `@Retry` annotation and its member values. See [#191](https://github.com/eclipse/lsp4mp/pull/191), [#196](https://github.com/eclipse/lsp4mp/issues/196).
+ * Diagnostics for `@Asynchronous`, `@Bulkhead` & `@Timeout` annotations. See [#74](https://github.com/eclipse/lsp4mp/issues/74), [#184](https://github.com/eclipse/lsp4mp/pull/184), [#185](https://github.com/eclipse/lsp4mp/pull/185).
+ * Support the `@ApplicationPath` annotation to handle the project URL. See [#179](https://github.com/eclipse/lsp4mp/issues/179).
+ * Diagnostics for invalid annotation parameter values. See [#77](https://github.com/eclipse/lsp4mp/issues/77).
+ * Reference only property declared in properties file in property expression. See [#205](https://github.com/eclipse/lsp4mp/issues/205).
+ * Support for default value inside properties expression. See [#201](https://github.com/eclipse/lsp4mp/issues/201).
+ * Exclude unassigned property with code action. See [#187](https://github.com/eclipse/lsp4mp/pull/187).
+ * Binary dynamic properties should be generated after an update. See [#159](https://github.com/eclipse/lsp4mp/pull/159).
+ * Support for config profiles. See [#78](https://github.com/eclipse/lsp4mp/issues/78).
+
+### Bug Fixes
+ * Provide API to configure root path of JAX RS resources. See [#174](https://github.com/eclipse/lsp4mp/pull/174).
+ * projectLabels command doesn't support `jdt://` URIs. See [#220](https://github.com/eclipse/lsp4mp/issues/220).
+ * Fix bug with missing definition hover for multiple annotation members. See [#216](https://github.com/eclipse/lsp4mp/pull/216).
+ * Support optional property reference hover for annotation members. See [#211](https://github.com/eclipse/lsp4mp/pull/211).
+ * Do not rebuild list of configuration properties when MicroProfile config sources are updated in the build directory. See [#162](https://github.com/eclipse/lsp4mp/issues/162).
+ * Deadlock when client is sending burst of request. See [#177](https://github.com/eclipse/lsp4mp/issues/177).
+ * Exclude the method that's being annotated when showing completion for fallback method. See [#148](https://github.com/eclipse/lsp4mp/issues/148).
+ * SingleMemberAnnotation diagnostics not supported by annotationValidator. See [#188](https://github.com/eclipse/lsp4mp/issues/188).
+ * Add 'shouldLanguageServerExitOnShutdown' to ExtendedClientCapabilities. See [#172](https://github.com/eclipse/lsp4mp/pull/172).
+ * Fix class cast exception. See [#182](https://github.com/eclipse/lsp4mp/pull/182).
+
+### Build
+ * Update o.e.jdt.ls.tp dependency to 1.7.0 Release. See [#217](https://github.com/eclipse/lsp4mp/pull/217).
+ * Update eclipse-jarsigner-plugin. See [#157](https://github.com/eclipse/lsp4mp/pull/157).
+
+### Other
+ * Move `@ApplicationPath` SearchEngine to JaxRsContext. See [#208](https://github.com/eclipse/lsp4mp/issues/208).
+ * MicroProfileMetricsDiagnosticsParticipant difficult to read. See [#199](https://github.com/eclipse/lsp4mp/issues/199).
+ * Remove QuarkusConfigSourceProvider. See [#160](https://github.com/eclipse/lsp4mp/pull/160).
+ * Extension point for contributing configuration sources. See [#149](https://github.com/eclipse/lsp4mp/pull/149).
+
 ## [0.3.0](https://github.com/eclipse/lsp4mp/milestone/3?closed=1) (July 15, 2021)
 
 ### Enhancements
