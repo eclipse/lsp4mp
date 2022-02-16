@@ -13,6 +13,7 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.core;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -22,6 +23,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaProjectLabelsParams;
 import org.eclipse.lsp4mp.commons.ProjectLabelInfoEntry;
@@ -89,12 +91,27 @@ public class ProjectLabelManager {
 	 */
 	public ProjectLabelInfoEntry getProjectLabelInfo(MicroProfileJavaProjectLabelsParams params, IJDTUtils utils,
 			IProgressMonitor monitor) {
-		IFile file = utils.findFile(params.getUri());
-		if (file == null || file.getProject() == null) {
+		IProject project = findProject(params.getUri(), utils);
+		if (project == null) {
 			// The uri doesn't belong to an Eclipse project
 			return ProjectLabelInfoEntry.EMPTY_PROJECT_INFO;
 		}
-		return getProjectLabelInfo(file.getProject(), params.getTypes());
+		return getProjectLabelInfo(project, params.getTypes());
+	}
+
+	private static IProject findProject(String uri, IJDTUtils utils) {
+		if (uri.startsWith("jdt://jarentry")) {
+			URI jarEntryUri = URI.create(uri);
+			String rootId = jarEntryUri.getQuery();
+			IPackageFragmentRoot packageRoot = (IPackageFragmentRoot) JavaCore.create(rootId);
+			if (packageRoot != null) {
+				IJavaProject javaProject = packageRoot.getJavaProject();
+				return javaProject != null ? javaProject.getProject() : null;
+			}
+			return null;
+		}
+		IFile file = utils.findFile(uri);
+		return file != null ? file.getProject() : null;
 	}
 
 	/**
