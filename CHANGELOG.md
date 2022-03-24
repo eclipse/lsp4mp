@@ -1,6 +1,6 @@
 # MicroProfile Language Server Changelog
 
-## [0.4.0](https://github.com/eclipse/lsp4mp/milestone/4?closed=1) (March 16, 2022)
+## [0.4.0](https://github.com/eclipse/lsp4mp/milestone/4?closed=1) (March 24, 2022)
 
 ### Enhancements
  * Support validation and code actions for `@ConfigProperty`. See [#90](https://github.com/eclipse/lsp4mp/issues/90), [#176](https://github.com/eclipse/lsp4mp/issues/176), [#147](https://github.com/eclipse/lsp4mp/issues/147).
