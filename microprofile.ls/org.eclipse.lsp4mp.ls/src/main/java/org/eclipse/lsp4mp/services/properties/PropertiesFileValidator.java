@@ -102,11 +102,13 @@ class PropertiesFileValidator {
 			if (metadata == null) {
 				// Validate Unknown property
 				validateUnknownProperty(propertyName, property);
-			} else {
-				// Validate property Value
-				validatePropertyValue(propertyNameWithProfile, metadata, property);
 			}
-			validatePropertyValueExpressions(property);
+			if (!property.isPropertyValueExpression()) {
+				// Validate simple property Value
+				validateSimplePropertyValue(propertyNameWithProfile, metadata, property);
+			} else {
+				validatePropertyValueExpressions(propertyNameWithProfile, metadata, property);
+			}
 		}
 	}
 
@@ -146,9 +148,20 @@ class PropertiesFileValidator {
 				ValidationType.unknown.name());
 	}
 
-	private void validatePropertyValue(String propertyName, ItemMetadata metadata, Property property) {
+	private void validateSimplePropertyValue(String propertyName, ItemMetadata metadata, Property property) {
+		Node propertyValue = property.getValue();
+		if (propertyValue == null) {
+			return;
+		}
+		int start = propertyValue.getStart();
+		int end = propertyValue.getEnd();
+		validatePropertyValue(propertyName, metadata, property.getPropertyValue(), start, end,
+				property.getOwnerModel());
+	}
 
-		if (property.getValue() == null) {
+	private void validatePropertyValue(String propertyName, ItemMetadata metadata, String value, int start, int end,
+			PropertiesModel propertiesModel) {
+		if (metadata == null || StringUtils.isEmpty(value)) {
 			return;
 		}
 
@@ -158,18 +171,14 @@ class PropertiesFileValidator {
 			return;
 		}
 
-		String value = property.getPropertyValue();
-		if (StringUtils.isEmpty(value)) {
-			return;
-		}
-
-		String errorMessage = getErrorIfInvalidEnum(metadata, projectInfo, property.getOwnerModel(), value);
+		String errorMessage = getErrorIfInvalidEnum(metadata, projectInfo, propertiesModel, value);
 		if (errorMessage == null) {
 			errorMessage = getErrorIfValueTypeMismatch(metadata, value);
 		}
 
 		if (errorMessage != null) {
-			addDiagnostic(errorMessage, property.getValue(), severity, ValidationType.value.name());
+			Range range = PositionUtils.createRange(start, end, propertiesModel.getDocument());
+			addDiagnostic(errorMessage, range, severity, ValidationType.value.name());
 		}
 	}
 
@@ -182,7 +191,7 @@ class PropertiesFileValidator {
 	 *
 	 * @param property The property to validate
 	 */
-	private void validatePropertyValueExpressions(Property property) {
+	private void validatePropertyValueExpressions(String propertyName, ItemMetadata metadata, Property property) {
 		if (property.getValue() == null) {
 			return;
 		}
@@ -229,14 +238,23 @@ class PropertiesFileValidator {
 											range, expressionSeverity, ValidationType.expression.name());
 								}
 							}
-						} else if (!propValExpr.hasDefaultValue()) {
-							// The expression has default value (ex : ${DBUSER:sa}) otherwise the error
-							// is reported
-							Range range = PositionUtils.createRange(propValExpr.getReferenceStartOffset(),
-									propValExpr.getReferenceEndOffset(), propValExpr.getDocument());
-							if (range != null) {
-								addDiagnostic("Unknown referenced property '" + refdProp + "'", range,
-										expressionSeverity, ValidationType.expression.name());
+						} else {
+							if (propValExpr.hasDefaultValue()) {
+								int start = propValExpr.getDefaultValueStartOffset();
+								int end = propValExpr.getDefaultValueEndOffset();
+								validatePropertyValue(propertyName, metadata, propValExpr.getDefaultValue(), start, end,
+										propValExpr.getOwnerModel());
+							} else {
+								// The expression has default value (ex : ${DBUSER:sa}) otherwise the error
+								// is reported
+								Range range = PositionUtils.createRange(propValExpr.getReferenceStartOffset(),
+										propValExpr.getReferenceEndOffset(), propValExpr.getDocument());
+								if (range != null) {
+									addDiagnostic("Unknown referenced property '" + refdProp + "'", range,
+											expressionSeverity, ValidationType.expression.name());
+								} else {
+
+								}
 							}
 						}
 					}

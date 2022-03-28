@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2019 Red Hat Inc. and others.
+* Copyright (c) 2022 Red Hat Inc. and others.
 *
 * This program and the accompanying materials are made available under the
 * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,30 +14,25 @@
 package org.eclipse.lsp4mp.model;
 
 /**
- * Assign node
- *
+ * Base class for property value node.
+ * 
  * @author Angelo ZERR
  *
  */
-public class Assign extends Node {
-
-	@Override
-	public NodeType getNodeType() {
-		return NodeType.ASSIGN;
-	}
-
-	@Override
-	public Property getParent() {
-		return (Property) super.getParent();
-	}
+public abstract class BasePropertyValue extends Node {
 
 	/**
-	 * Returns the owner property.
+	 * Returns the property value.
 	 * 
-	 * @return the owner property.
+	 * @return the property value.
 	 */
-	public Property getProperty() {
-		return getParent();
-	}
+	public abstract String getValue();
+
+	/**
+	 * Returns the owner property node.
+	 * 
+	 * @return the owner property node.
+	 */
+	public abstract Property getProperty();
 
 }

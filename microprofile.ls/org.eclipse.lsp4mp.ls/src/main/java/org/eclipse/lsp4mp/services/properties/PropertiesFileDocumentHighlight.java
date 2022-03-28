@@ -109,7 +109,7 @@ public class PropertiesFileDocumentHighlight {
 			if (child.getNodeType() == NodeType.PROPERTY) {
 				Property property = (Property) child;
 				if (property.getValue() != null) {
-					for (Node valueSegment : ((Property) child).getValue().getChildren()) {
+					for (Node valueSegment : property.getValue().getChildren()) {
 						if (valueSegment.getNodeType() == NodeType.PROPERTY_VALUE_EXPRESSION && propertyName
 								.equals(((PropertyValueExpression) valueSegment).getReferencedPropertyName())) {
 							highlights.add(createHighlight(valueSegment, DocumentHighlightKind.Read));

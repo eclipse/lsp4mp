@@ -30,6 +30,7 @@ import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
 import org.eclipse.lsp4mp.commons.metadata.ValueHint;
 import org.eclipse.lsp4mp.ls.api.MicroProfilePropertyDefinitionProvider;
 import org.eclipse.lsp4mp.ls.commons.BadLocationException;
+import org.eclipse.lsp4mp.model.BasePropertyValue;
 import org.eclipse.lsp4mp.model.Node;
 import org.eclipse.lsp4mp.model.Node.NodeType;
 import org.eclipse.lsp4mp.model.PropertiesModel;
@@ -37,8 +38,8 @@ import org.eclipse.lsp4mp.model.Property;
 import org.eclipse.lsp4mp.model.PropertyKey;
 import org.eclipse.lsp4mp.model.PropertyValue;
 import org.eclipse.lsp4mp.model.PropertyValueExpression;
-import org.eclipse.lsp4mp.utils.PropertiesFileUtils;
 import org.eclipse.lsp4mp.utils.PositionUtils;
+import org.eclipse.lsp4mp.utils.PropertiesFileUtils;
 
 /**
  * The properties file definition support.
@@ -67,14 +68,20 @@ public class PropertiesFileDefinition {
 			MicroProfileProjectInfo projectInfo, MicroProfilePropertyDefinitionProvider provider) {
 
 		try {
-			Node node = document.findNodeAt(position);
+			int offset = document.offsetAt(position);
+			Node node = document.findNodeAt(offset);
 			if (node == null) {
 				return getEmptyDefinition();
 			}
 
+			boolean inDefautlValue = false;
 			if (node.getNodeType() == NodeType.PROPERTY_VALUE_EXPRESSION) {
-				return CompletableFuture.completedFuture(
-						findPropertyValueExpressionDefinition(document, (PropertyValueExpression) node));
+				PropertyValueExpression propertyValueExpression = (PropertyValueExpression) node;
+				inDefautlValue = propertyValueExpression.isInDefautlValue(offset);
+				if (!inDefautlValue) {
+					return CompletableFuture
+							.completedFuture(findPropertyValueExpressionDefinition(document, propertyValueExpression));
+				}
 			}
 
 			// Get the property at the given position
@@ -91,16 +98,18 @@ public class PropertiesFileDefinition {
 			}
 
 			MicroProfilePropertyDefinitionParams definitionParams = getPropertyDefinitionParams(document, item,
-					projectInfo, node);
+					projectInfo, node, inDefautlValue);
 			if (definitionParams == null) {
 				return getEmptyDefinition();
 			}
+			boolean selectDefautlValue = inDefautlValue;
 			return provider.getPropertyDefinition(definitionParams).thenApply(target -> {
 				if (target == null) {
 					return Collections.emptyList();
 				}
-				LocationLink link = new LocationLink(target.getUri(), target.getRange(), target.getRange(),
-						PositionUtils.createRange(node));
+				Range range = selectDefautlValue ? PositionUtils.selectDefaultValue((PropertyValueExpression) node)
+						: PositionUtils.createRange(node);
+				LocationLink link = new LocationLink(target.getUri(), target.getRange(), target.getRange(), range);
 				return Collections.singletonList(link);
 			});
 
@@ -154,7 +163,7 @@ public class PropertiesFileDefinition {
 	}
 
 	private static MicroProfilePropertyDefinitionParams getPropertyDefinitionParams(PropertiesModel document,
-			ItemMetadata item, MicroProfileProjectInfo projectInfo, Node node) {
+			ItemMetadata item, MicroProfileProjectInfo projectInfo, Node node, boolean inDefautlValue) {
 
 		if (node.getNodeType() != NodeType.PROPERTY_KEY && node.getNodeType() != NodeType.PROPERTY_VALUE
 				&& node.getNodeType() != NodeType.PROPERTY_VALUE_EXPRESSION
@@ -168,35 +177,34 @@ public class PropertiesFileDefinition {
 		String sourceField = null;
 
 		switch (node.getNodeType()) {
-			case PROPERTY_KEY: {
-				sourceType = item.getSourceType();
-				sourceField = item.getSourceField();
-				break;
-			}
-			case PROPERTY_VALUE_EXPRESSION:
-			case PROPERTY_VALUE_LITERAL:
-				node = node.getParent(); // HACK:
-			case PROPERTY_VALUE: {
-				sourceType = item.getHintType();
-				sourceField = ((PropertyValue) node).getValue();
-				// for the case of property which uses kebab_case, we must get the real value of
-				// the Java enumeration
-				// Ex: for quarkus.datasource.transaction-isolation-level = read-uncommitted
-				// the real value of Java enumeration 'read-uncommitted' is 'READ_UNCOMMITTED'
-				ItemHint itemHint = projectInfo.getHint(sourceType);
-				if (itemHint != null) {
-					ValueHint realValue = itemHint.getValue(sourceField, item.getConverterKinds());
-					if (realValue != null) {
-						sourceField = realValue.getValue();
-						if (realValue.getSourceType() != null) {
-							sourceType = realValue.getSourceType();
-						}
+		case PROPERTY_KEY: {
+			sourceType = item.getSourceType();
+			sourceField = item.getSourceField();
+			break;
+		}
+		case PROPERTY_VALUE_EXPRESSION:
+		case PROPERTY_VALUE_LITERAL:
+		case PROPERTY_VALUE: {
+			sourceType = item.getHintType();
+			sourceField = getSourceField(node, inDefautlValue);
+			// for the case of property which uses kebab_case, we must get the real value of
+			// the Java enumeration
+			// Ex: for quarkus.datasource.transaction-isolation-level = read-uncommitted
+			// the real value of Java enumeration 'read-uncommitted' is 'READ_UNCOMMITTED'
+			ItemHint itemHint = projectInfo.getHint(sourceType);
+			if (itemHint != null) {
+				ValueHint realValue = itemHint.getValue(sourceField, item.getConverterKinds());
+				if (realValue != null) {
+					sourceField = realValue.getValue();
+					if (realValue.getSourceType() != null) {
+						sourceType = realValue.getSourceType();
 					}
 				}
-				break;
 			}
-			default:
-				return null;
+			break;
+		}
+		default:
+			return null;
 		}
 
 		// Find definition (class, field of class, method of class, enum) only when
@@ -214,6 +222,15 @@ public class PropertiesFileDefinition {
 		return definitionParams;
 	}
 
+	private static String getSourceField(Node node, boolean inDefautlValue) {
+		if (inDefautlValue) {
+			return ((PropertyValueExpression) node).getDefaultValue();
+		}
+		PropertyValue propertyValue = node.getNodeType() == NodeType.PROPERTY_VALUE ? (PropertyValue) node
+				: (PropertyValue) node.getParent();
+		return propertyValue.getValue();
+	}
+
 	private static List<LocationLink> getPropertyDefinition(PropertiesModel document,
 			PropertyValueExpression propertyValueExpression, List<Property> referencedProperties) {
 
@@ -221,8 +238,7 @@ public class PropertiesFileDefinition {
 		for (Property referencedProperty : referencedProperties) {
 			Node key = referencedProperty.getKey();
 			Range referencedPropertyRange = PositionUtils.createRange(key);
-			Range propertyReferenceRange = PositionUtils.createRange(propertyValueExpression.getReferenceStartOffset(),
-					propertyValueExpression.getReferenceEndOffset(), referencedProperty.getDocument());
+			Range propertyReferenceRange = PositionUtils.selectReferencedProperty(propertyValueExpression);
 			locationLinks.add(new LocationLink(document.getDocumentURI(), referencedPropertyRange,
 					referencedPropertyRange, propertyReferenceRange));
 		}
@@ -234,15 +250,14 @@ public class PropertiesFileDefinition {
 			return null;
 		}
 		switch (node.getNodeType()) {
-			case PROPERTY_KEY:
-				return (PropertyKey) node;
-			case PROPERTY_VALUE:
-				return ((Property) node.getParent()).getKey();
-			case PROPERTY_VALUE_EXPRESSION:
-			case PROPERTY_VALUE_LITERAL:
-				return ((Property) node.getParent().getParent()).getKey();
-			default:
-				return null;
+		case PROPERTY_KEY:
+			return (PropertyKey) node;
+		case PROPERTY_VALUE:
+		case PROPERTY_VALUE_EXPRESSION:
+		case PROPERTY_VALUE_LITERAL:
+			return ((BasePropertyValue) node).getProperty().getKey();
+		default:
+			return null;
 		}
 	}
 }

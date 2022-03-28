@@ -28,6 +28,7 @@ import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
 import org.eclipse.lsp4mp.commons.metadata.ValueHint;
 import org.eclipse.lsp4mp.commons.utils.StringUtils;
 import org.eclipse.lsp4mp.ls.commons.BadLocationException;
+import org.eclipse.lsp4mp.model.BasePropertyValue;
 import org.eclipse.lsp4mp.model.Node;
 import org.eclipse.lsp4mp.model.Node.NodeType;
 import org.eclipse.lsp4mp.model.PropertiesModel;
@@ -38,8 +39,8 @@ import org.eclipse.lsp4mp.model.PropertyValue;
 import org.eclipse.lsp4mp.model.PropertyValueExpression;
 import org.eclipse.lsp4mp.settings.MicroProfileHoverSettings;
 import org.eclipse.lsp4mp.utils.DocumentationUtils;
-import org.eclipse.lsp4mp.utils.PropertiesFileUtils;
 import org.eclipse.lsp4mp.utils.PositionUtils;
+import org.eclipse.lsp4mp.utils.PropertiesFileUtils;
 
 /**
  * The properties file hover support.
@@ -78,13 +79,17 @@ class PropertiesFileHover {
 			// no hover documentation
 			return null;
 		case PROPERTY_VALUE_EXPRESSION:
-			return getPropertyValueExpressionHover(node, projectInfo, hoverSettings);
+			PropertyValueExpression propExpr = (PropertyValueExpression) node;
+			boolean inDefaultValue = propExpr.isInDefautlValue(offset);
+			if (inDefaultValue) {
+				// quarkus.log.file.level=${ENV:OF|F}
+				return getPropertyValueHover(propExpr, inDefaultValue, projectInfo, hoverSettings);
+			}
+			// quarkus.log.file.level=${E|NV:OFF}
+			return getPropertyValueExpressionHover(propExpr, projectInfo, hoverSettings);
 		case PROPERTY_VALUE_LITERAL:
-			// no hover documentation
-			return getPropertyValueHover(node.getParent(), projectInfo, hoverSettings);
 		case PROPERTY_VALUE:
-			// no hover documentation
-			return getPropertyValueHover(node, projectInfo, hoverSettings);
+			return getPropertyValueHover((BasePropertyValue) node, false, projectInfo, hoverSettings);
 		case PROPERTY_KEY:
 			PropertyKey key = (PropertyKey) node;
 			if (key.isBeforeProfile(offset)) {
@@ -142,7 +147,7 @@ class PropertiesFileHover {
 		String propertyName = key.getPropertyName();
 
 		ItemMetadata item = PropertiesFileUtils.getProperty(propertyName, projectInfo);
-		PropertyValue valueNode = ((Property) key.getParent()).getValue();
+		PropertyValue valueNode = key.getProperty().getValue();
 		String propertyValue = null;
 
 		if (valueNode != null) {
@@ -172,42 +177,43 @@ class PropertiesFileHover {
 	}
 
 	/**
-	 * Returns the documentation hover for property key represented by the property
-	 * key <code>node</code>
+	 * Returns the documentation hover for the given property value.
 	 *
-	 * @param node          the property key node
-	 * @param projectInfo   the MicroProfile project information
-	 * @param hoverSettings the hover settings
-	 * @return the documentation hover for property key represented by token
+	 * @param value          the property value node
+	 * @param inDefaultValue true if it's a default value expression.
+	 * @param projectInfo    the MicroProfile project information
+	 * @param hoverSettings  the hover settings
+	 * 
+	 * @return the documentation hover for the given property value.
 	 */
-	private static Hover getPropertyValueHover(Node node, MicroProfileProjectInfo projectInfo,
-			MicroProfileHoverSettings hoverSettings) {
-		PropertyValue value = ((PropertyValue) node);
-		boolean markdownSupported = hoverSettings.isContentFormatSupported(MarkupKind.MARKDOWN);
+	private static Hover getPropertyValueHover(BasePropertyValue value, boolean inDefaultValue,
+			MicroProfileProjectInfo projectInfo, MicroProfileHoverSettings hoverSettings) {
 		// retrieve MicroProfile property from the project information
 		String propertyValue = value.getValue();
 		if (StringUtils.isEmpty(propertyValue)) {
 			return null;
 		}
-		String propertyName = ((Property) (value.getParent())).getPropertyName();
+		String propertyName = value.getProperty().getPropertyName();
 		ItemMetadata item = PropertiesFileUtils.getProperty(propertyName, projectInfo);
 		ValueHint enumItem = getValueHint(propertyValue, item, projectInfo, value.getOwnerModel());
 		if (enumItem != null) {
 			// MicroProfile property enumeration item, found, display its documentation as
 			// hover
+			boolean markdownSupported = hoverSettings.isContentFormatSupported(MarkupKind.MARKDOWN);
 			MarkupContent markupContent = DocumentationUtils.getDocumentation(enumItem, markdownSupported);
 			Hover hover = new Hover();
 			hover.setContents(markupContent);
-			hover.setRange(PositionUtils.createRange(node));
+			Range range = inDefaultValue ? PositionUtils.selectDefaultValue((PropertyValueExpression) value)
+					: PositionUtils.createRange(value);
+			hover.setRange(range);
 			return hover;
 		}
 		return null;
 	}
 
-	private static Hover getPropertyValueExpressionHover(Node node, MicroProfileProjectInfo projectInfo,
-			MicroProfileHoverSettings hoverSettings) {
-		PropertyValueExpression propValExpr = (PropertyValueExpression) node;
-		String referencedProp = propValExpr.getReferencedPropertyName();
+	private static Hover getPropertyValueExpressionHover(PropertyValueExpression node,
+			MicroProfileProjectInfo projectInfo, MicroProfileHoverSettings hoverSettings) {
+		String referencedProp = node.getReferencedPropertyName();
 		if (referencedProp == null) {
 			return null;
 		}
@@ -215,7 +221,7 @@ class PropertiesFileHover {
 		PropertyGraph graph = new PropertyGraph(node.getOwnerModel());
 
 		if (graph.isAcyclic()) {
-			String resolvedValue = propValExpr.getResolvedValue(graph, projectInfo);
+			String resolvedValue = node.getResolvedValue(graph, projectInfo);
 			if (StringUtils.hasText(resolvedValue)) {
 				return createHover(resolvedValue, node);
 			}

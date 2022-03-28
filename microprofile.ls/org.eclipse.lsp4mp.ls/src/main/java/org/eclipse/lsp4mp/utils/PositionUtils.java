@@ -17,7 +17,14 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4mp.ls.commons.BadLocationException;
 import org.eclipse.lsp4mp.ls.commons.TextDocument;
 import org.eclipse.lsp4mp.model.Node;
+import org.eclipse.lsp4mp.model.PropertyValueExpression;
 
+/**
+ * Properties file position utilities.
+ * 
+ * @author Angelo ZERR
+ *
+ */
 public class PositionUtils {
 
 	public static Range createRange(int startOffset, int endOffset, TextDocument document) {
@@ -30,6 +37,44 @@ public class PositionUtils {
 
 	public static Range createRange(Node node) {
 		return PositionUtils.createRange(node.getStart(), node.getEnd(), node.getDocument());
+	}
+
+	/**
+	 * Select the referenced property from the given expression.
+	 * 
+	 * <p>
+	 * 
+	 * ${|referenced.propert|y:default_value}
+	 * 
+	 * </p>
+	 * 
+	 * @param expression the property expression.
+	 * 
+	 * @return the referenced property range from the given expression.
+	 */
+	public static Range selectReferencedProperty(PropertyValueExpression expression) {
+		int startOffset = expression.getReferenceStartOffset();
+		int endOffset = expression.getReferenceEndOffset();
+		return createRange(startOffset, endOffset, expression.getDocument());
+	}
+
+	/**
+	 * Select the default value from the given expression.
+	 * 
+	 * <p>
+	 * 
+	 * ${referenced.property:|default_valu|e}
+	 * 
+	 * </p>
+	 * 
+	 * @param expression the property expression.
+	 * 
+	 * @return the default value range from the given expression.
+	 */
+	public static Range selectDefaultValue(PropertyValueExpression expression) {
+		int startOffset = expression.getDefaultValueStartOffset();
+		int endOffset = expression.getDefaultValueEndOffset();
+		return createRange(startOffset, endOffset, expression.getDocument());
 	}
 
 }
