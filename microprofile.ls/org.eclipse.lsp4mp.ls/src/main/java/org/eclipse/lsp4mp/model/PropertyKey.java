@@ -137,4 +137,18 @@ public class PropertyKey extends Node {
 		return -1;
 	}
 
+	@Override
+	public Property getParent() {
+		return (Property) super.getParent();
+	}
+
+	/**
+	 * Returns the owner property.
+	 * 
+	 * @return the owner property.
+	 */
+	public Property getProperty() {
+		return getParent();
+	}
+
 }

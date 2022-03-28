@@ -48,7 +48,7 @@ public class ServerCapabilitiesConstants {
 	public static final String DOCUMENT_HIGHLIGHT_ID = UUID.randomUUID().toString();
 
 	public static final CompletionOptions DEFAULT_COMPLETION_OPTIONS = new CompletionOptions(false,
-			Arrays.asList(".", "%", "=", "$" /* triggered characters for properties file */ ,
+			Arrays.asList(".", "%", "=", "$", "{", ":" /* triggered characters for properties file */ ,
 					"@" /* triggered characters for java snippets annotation */,
 					"\"" /* trigger characters for annotation property value completion */));
 

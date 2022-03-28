@@ -211,4 +211,19 @@ public class Property extends Node {
 	public NodeType getNodeType() {
 		return NodeType.PROPERTY;
 	}
+
+	/**
+	 * Returns true if the property value is an expression(ex : ${ENV:SEVERE} and
+	 * false otherwise (SEVERE)).
+	 * 
+	 * @return true if the property value is an expression(ex : ${ENV:SEVERE} and
+	 *         false otherwise (SEVERE)).
+	 */
+	public boolean isPropertyValueExpression() {
+		PropertyValue value = getValue();
+		if (value == null) {
+			return false;
+		}
+		return value.getChildren().stream().anyMatch(node -> node.getNodeType() == NodeType.PROPERTY_VALUE_EXPRESSION);
+	}
 }

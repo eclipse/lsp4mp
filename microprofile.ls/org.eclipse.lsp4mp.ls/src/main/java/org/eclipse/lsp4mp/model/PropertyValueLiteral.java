@@ -22,7 +22,7 @@ package org.eclipse.lsp4mp.model;
  * 
  * @see https://download.eclipse.org/microprofile/microprofile-config-2.0/microprofile-config-spec-2.0.html#property-expressions
  */
-public class PropertyValueLiteral extends Node {
+public class PropertyValueLiteral extends BasePropertyValue {
 
 	@Override
 	public NodeType getNodeType() {
@@ -37,9 +37,19 @@ public class PropertyValueLiteral extends Node {
 	 *
 	 * @return the text this node contains and null otherwise
 	 */
+	@Override
 	public String getValue() {
 		String text = getText(true);
 		return text != null ? text.trim() : null;
 	}
 
+	@Override
+	public PropertyValue getParent() {
+		return (PropertyValue) super.getParent();
+	}
+
+	@Override
+	public Property getProperty() {
+		return (Property) getParent().getProperty();
+	}
 }

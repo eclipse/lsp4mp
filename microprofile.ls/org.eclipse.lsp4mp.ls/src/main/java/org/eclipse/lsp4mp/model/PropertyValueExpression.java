@@ -27,7 +27,7 @@ import org.eclipse.lsp4mp.utils.PropertiesFileUtils;
  * 
  * @see https://download.eclipse.org/microprofile/microprofile-config-2.0/microprofile-config-spec-2.0.html#property-expressions
  */
-public class PropertyValueExpression extends Node {
+public class PropertyValueExpression extends BasePropertyValue {
 
 	private boolean parsed;
 
@@ -50,7 +50,13 @@ public class PropertyValueExpression extends Node {
 	 * Removes backslashes, and newlines. Doesn't not resolve the reference to
 	 * another property.
 	 */
+	@Override
 	public String getValue() {
+		if (hasDefaultValue()) {
+			// ${ENV:SEVERE} --> SEVERE
+			return getDefaultValue();
+		}
+		// ${ENV}
 		String text = getText(true);
 		return text != null ? text.trim() : null;
 	}
@@ -150,6 +156,15 @@ public class PropertyValueExpression extends Node {
 		return referenceNameEndOffset;
 	}
 
+	/**
+	 * Return the default value and null otherwise.
+	 * 
+	 * <p>
+	 * ${ENV:DEFAULT_VALUE}
+	 * </p>
+	 * 
+	 * @return the default value and null otherwise.
+	 */
 	public String getDefaultValue() {
 		parseExpressionIfNeeded();
 		if (hasDefaultValue()) {
@@ -158,10 +173,60 @@ public class PropertyValueExpression extends Node {
 		return null;
 	}
 
+	/**
+	 * Return true if the expression has a default value and false otherwise.
+	 * 
+	 * <p>
+	 * ${ENV:DEFAULT_VALUE}
+	 * </p>
+	 * 
+	 * @return true if the expression has a default value and false otherwise.
+	 */
+
 	public boolean hasDefaultValue() {
 		parseExpressionIfNeeded();
 		return defaultValueStartOffset != -1 && defaultValueEndOffset != -1
 				&& defaultValueStartOffset != defaultValueEndOffset;
+	}
+
+	/**
+	 * Returns the start offset of the default value and -1 otherwise.
+	 *
+	 * <p>
+	 * ${ENV:|DEFAULT_VALUE}
+	 * </p>
+	 * 
+	 * @return the start offset of the default value and -1 otherwise.
+	 */
+	public int getDefaultValueStartOffset() {
+		parseExpressionIfNeeded();
+		return defaultValueStartOffset;
+	}
+
+	/**
+	 * Returns the end offset of the default value and -1 otherwise.
+	 *
+	 * <p>
+	 * ${ENV:DEFAULT_VALU|E}
+	 * </p>
+	 * 
+	 * @return the end offset of the default value and -1 otherwise.
+	 */
+	public int getDefaultValueEndOffset() {
+		parseExpressionIfNeeded();
+		return defaultValueEndOffset;
+	}
+
+	/**
+	 * Returns true if the given offset is in the default value and false otherwise.
+	 * 
+	 * @param offset the offset.
+	 * 
+	 * @return true if the given offset is in the default value and false otherwise.
+	 */
+	public boolean isInDefautlValue(int offset) {
+		parseExpressionIfNeeded();
+		return isIncluded(defaultValueStartOffset, defaultValueEndOffset, offset);
 	}
 
 	private void parseExpressionIfNeeded() {
@@ -216,4 +281,15 @@ public class PropertyValueExpression extends Node {
 			}
 		}
 	}
+
+	@Override
+	public PropertyValue getParent() {
+		return (PropertyValue) super.getParent();
+	}
+
+	@Override
+	public Property getProperty() {
+		return getParent().getProperty();
+	}
+
 }

@@ -48,7 +48,7 @@ public class PropertiesFileCodeActionsTest {
 		testCodeActionsFor(value, d,
 				ca("Did you mean 'quarkus.application.name' ?", te(1, 0, 1, 23, "quarkus.application.name"), d),
 				caAddToExcluded("quarkus.application.nme", d), caAddToExcluded("quarkus.application.*", d));
-	};
+	}
 
 	@Test
 	public void codeActionsForUnknownPropertiesParentKey() throws BadLocationException {
@@ -88,7 +88,7 @@ public class PropertiesFileCodeActionsTest {
 
 		testCodeActionsFor(value, d6, caAddToExcluded("abcdefghij.readiness-probe.period-seconds", d6),
 				caAddToExcluded("abcdefghij.readiness-probe.*", d6), caAddToExcluded("abcdefghij.*", d6));
-	};
+	}
 
 	@Test
 	public void codeActionsForUnknownPropertiesParentKey2() throws BadLocationException {
@@ -106,7 +106,7 @@ public class PropertiesFileCodeActionsTest {
 
 		testCodeActionsFor(value, d2, caAddToExcluded("a.c.d", d2), caAddToExcluded("a.c.*", d2),
 				caAddToExcluded("a.*", d2));
-	};
+	}
 
 	@Test
 	public void codeActionsForUnknownPropertiesParentKey3() throws BadLocationException {
@@ -120,7 +120,7 @@ public class PropertiesFileCodeActionsTest {
 
 		testCodeActionsFor(value, d, caAddToExcluded("quarkus.a.b.c.d", d), caAddToExcluded("quarkus.a.b.c.*", d),
 				caAddToExcluded("quarkus.a.b.*", d), caAddToExcluded("quarkus.a.*", d));
-	};
+	}
 
 	@Test
 	public void codeActionsForUnknownPropertiesParentKey4() throws BadLocationException {
@@ -133,7 +133,7 @@ public class PropertiesFileCodeActionsTest {
 
 		testCodeActionsFor(value, d1, caAddToExcluded("a.b.c.d", d1), caAddToExcluded("a.b.c.*", d1),
 				caAddToExcluded("a.b.*", d1), caAddToExcluded("a.*", d1));
-	};
+	}
 
 	@Test
 	public void codeActionsForUnknownLogLevelValue() throws BadLocationException {
@@ -143,7 +143,7 @@ public class PropertiesFileCodeActionsTest {
 
 		testDiagnosticsFor(value, d);
 		testCodeActionsFor(value, d, ca("Did you mean 'WARNING'?", te(0, 18, 0, 24, "WARNING"), d));
-	};
+	}
 
 	@Test
 	public void codeActionsForUnknownLogLevelStartsWith() throws BadLocationException {
@@ -156,7 +156,7 @@ public class PropertiesFileCodeActionsTest {
 				ca("Did you mean 'FINER'?", te(0, 18, 0, 19, "FINER"), d),
 				ca("Did you mean 'FINEST'?", te(0, 18, 0, 19, "FINEST"), d),
 				ca("Did you mean 'FATAL'?", te(0, 18, 0, 19, "FATAL"), d));
-	};
+	}
 
 	@Test
 	public void codeActionsForUnknownLogLevelValueMappedProperty() throws BadLocationException {
@@ -167,7 +167,7 @@ public class PropertiesFileCodeActionsTest {
 
 		testDiagnosticsFor(value, d);
 		testCodeActionsFor(value, d, ca("Did you mean 'WARNING'?", te(0, 38, 0, 44, "WARNING"), d));
-	};
+	}
 
 	@Test
 	public void codeActionsForUnknownEnum() throws BadLocationException {
@@ -178,7 +178,7 @@ public class PropertiesFileCodeActionsTest {
 
 		testDiagnosticsFor(value, d);
 		testCodeActionsFor(value, d, ca("Did you mean 'BLOCK'?", te(0, 34, 0, 39, "BLOCK"), d));
-	};
+	}
 
 	@Test
 	public void codeActionsForUnknownEnumStartsWith() throws BadLocationException {
@@ -199,7 +199,7 @@ public class PropertiesFileCodeActionsTest {
 
 		testDiagnosticsFor(value, d);
 		testCodeActionsFor(value, d, ca("Did you mean 'block'?", te(0, 34, 0, 35, "block"), d));
-	};
+	}
 
 	@Test
 	public void codeActionsForUnknownBoolean() throws BadLocationException {
@@ -210,7 +210,7 @@ public class PropertiesFileCodeActionsTest {
 
 		testDiagnosticsFor(value, d);
 		testCodeActionsFor(value, d, ca("Did you mean 'false'?", te(0, 18, 0, 22, "false"), d));
-	};
+	}
 
 	@Test
 	public void codeActionsForReplaceUnknown() throws BadLocationException {

@@ -21,7 +21,7 @@ import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
  * @author Angelo ZERR
  *
  */
-public class PropertyValue extends Node {
+public class PropertyValue extends BasePropertyValue {
 
 	@Override
 	public NodeType getNodeType() {
@@ -33,7 +33,6 @@ public class PropertyValue extends Node {
 	 *
 	 * For multiline property values, this method returns the property value with
 	 * backslashes and newlines removed.
-	 *
 	 * @return the property value and null otherwise
 	 */
 	public String getValue() {
@@ -73,6 +72,20 @@ public class PropertyValue extends Node {
 			}
 		}
 		return resolvedValue.toString();
+	}
+
+	@Override
+	public Property getParent() {
+		return (Property) super.getParent();
+	}
+
+	/**
+	 * Returns the owner property.
+	 * 
+	 * @return the owner property.
+	 */
+	public Property getProperty() {
+		return getParent();
 	}
 
 }

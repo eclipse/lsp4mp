@@ -14,9 +14,9 @@
 package org.eclipse.lsp4mp.services.properties;
 
 import static org.eclipse.lsp4mp.commons.MicroProfileCodeActionFactory.createAddToUnknownExcludedCodeAction;
+
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -24,8 +24,6 @@ import java.util.stream.Collectors;
 
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionContext;
-import org.eclipse.lsp4j.CodeActionKind;
-import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -38,17 +36,15 @@ import org.eclipse.lsp4mp.ls.commons.BadLocationException;
 import org.eclipse.lsp4mp.ls.commons.CodeActionFactory;
 import org.eclipse.lsp4mp.ls.commons.TextDocument;
 import org.eclipse.lsp4mp.ls.commons.client.CommandKind;
-import org.eclipse.lsp4mp.ls.commons.client.ConfigurationItemEdit;
-import org.eclipse.lsp4mp.ls.commons.client.ConfigurationItemEditType;
+import org.eclipse.lsp4mp.model.BasePropertyValue;
 import org.eclipse.lsp4mp.model.Node;
+import org.eclipse.lsp4mp.model.Node.NodeType;
 import org.eclipse.lsp4mp.model.PropertiesModel;
-import org.eclipse.lsp4mp.model.Property;
 import org.eclipse.lsp4mp.model.PropertyKey;
-import org.eclipse.lsp4mp.model.PropertyValue;
 import org.eclipse.lsp4mp.settings.MicroProfileCommandCapabilities;
 import org.eclipse.lsp4mp.settings.MicroProfileFormattingSettings;
-import org.eclipse.lsp4mp.utils.PropertiesFileUtils;
 import org.eclipse.lsp4mp.utils.PositionUtils;
+import org.eclipse.lsp4mp.utils.PropertiesFileUtils;
 
 /**
  * The properties file code actions support.
@@ -157,19 +153,14 @@ class PropertiesFileCodeActions {
 			MicroProfileProjectInfo projectInfo, List<CodeAction> codeActions) {
 		try {
 			Node node = document.findNodeAt((diagnostic.getRange().getStart()));
-			PropertyValue propertyValue = null;
-			switch (node.getNodeType()) {
-			case PROPERTY_VALUE:
-				propertyValue = (PropertyValue) document.findNodeAt(diagnostic.getRange().getStart());
-				break;
-			case PROPERTY_VALUE_EXPRESSION:
-			case PROPERTY_VALUE_LITERAL:
-				propertyValue = (PropertyValue) document.findNodeAt(diagnostic.getRange().getStart()).getParent();
-				break;
-			default:
-				assert false;
+			if (node == null || !(node.getNodeType() == NodeType.PROPERTY_VALUE
+					|| node.getNodeType() == NodeType.PROPERTY_VALUE_EXPRESSION
+					|| node.getNodeType() == NodeType.PROPERTY_VALUE_LITERAL)) {
+				// the node is not a property value.
+				return;
 			}
-			PropertyKey propertyKey = ((Property) propertyValue.getParent()).getKey();
+			BasePropertyValue propertyValue = (BasePropertyValue) node;
+			PropertyKey propertyKey = propertyValue.getProperty().getKey();
 			String value = propertyValue.getValue();
 			String propertyName = propertyKey.getPropertyName();
 
@@ -203,7 +194,7 @@ class PropertiesFileCodeActions {
 				}
 			}
 
-			Range range = PositionUtils.createRange(propertyValue);
+			Range range = diagnostic.getRange();
 
 			if (!similarEnums.isEmpty()) {
 				// add code actions for all similar enums

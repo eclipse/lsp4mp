@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020 Red Hat Inc. and others.
+ * Copyright (c) 2022 Red Hat Inc. and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -12,7 +12,7 @@
  *     Red Hat Inc. - initial API and implementation
  *******************************************************************************/
 
-package org.eclipse.lsp4mp.services.properties;
+package org.eclipse.lsp4mp.services.properties.expressions;
 
 import static org.eclipse.lsp4mp.services.properties.PropertiesFileAssert.c;
 import static org.eclipse.lsp4mp.services.properties.PropertiesFileAssert.r;
@@ -26,9 +26,14 @@ import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
 import org.eclipse.lsp4mp.ls.commons.BadLocationException;
 import org.junit.Test;
 
+/**
+ * Test with property expression completion in 'microprofile-config.properties'
+ * file.
+ *
+ * @author Angelo ZERR
+ *
+ */
 public class PropertiesFileExpressionCompletionTest {
-
-	// Tests for where property expression completion should open
 
 	@Test
 	public void justDollarSignNoNewline() throws BadLocationException {
@@ -305,6 +310,14 @@ public class PropertiesFileExpressionCompletionTest {
 		info.getProperties().get(0).setDefaultValue("8080");
 		testCompletionFor(text, info, //
 				c("${b}", r(0, 4, 7)));
+	}
+
+	@Test
+	public void expressionDefaultValue() throws BadLocationException {
+		String text = "quarkus.log.level = ${ENV_LEVEL:|}";
+		testCompletionFor(text, true, //
+				c("OFF", "OFF", r(0, 32, 32)), //
+				c("SEVERE", "SEVERE", r(0, 32, 32)));
 	}
 
 	// Utility functions
