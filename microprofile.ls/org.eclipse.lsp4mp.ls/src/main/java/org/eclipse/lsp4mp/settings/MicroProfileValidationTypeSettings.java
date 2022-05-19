@@ -170,8 +170,33 @@ public class MicroProfileValidationTypeSettings {
 		AntPathMatcher matcher = new AntPathMatcher();
 		matcher.setCachePatterns(true);
 		return excluded.stream() //
-				.map(p -> new ExcludedProperty(p, matcher)) //
-				.collect(Collectors.toList());
+			.map(p -> new ExcludedProperty(p, matcher)) //
+			.collect(Collectors.toList());
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((severity == null) ? 0 : severity.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		MicroProfileValidationTypeSettings other = (MicroProfileValidationTypeSettings) obj;
+		if (severity == null) {
+			if (other.severity != null)
+				return false;
+		} else if (!severity.equals(other.severity))
+			return false;
+		return true;
 	}
 
 }
