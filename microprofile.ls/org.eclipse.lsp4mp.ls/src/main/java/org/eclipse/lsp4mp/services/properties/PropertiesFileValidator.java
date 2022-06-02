@@ -38,6 +38,7 @@ import org.eclipse.lsp4mp.model.PropertiesModel;
 import org.eclipse.lsp4mp.model.Property;
 import org.eclipse.lsp4mp.model.PropertyValueExpression;
 import org.eclipse.lsp4mp.settings.MicroProfileValidationSettings;
+import org.eclipse.lsp4mp.utils.EnvUtils;
 import org.eclipse.lsp4mp.utils.PositionUtils;
 import org.eclipse.lsp4mp.utils.PropertiesFileUtils;
 
@@ -240,20 +241,21 @@ class PropertiesFileValidator {
 							}
 						} else {
 							if (propValExpr.hasDefaultValue()) {
+								// The expression has default value (ex : ${DBUSER:sa})
 								int start = propValExpr.getDefaultValueStartOffset();
 								int end = propValExpr.getDefaultValueEndOffset();
 								validatePropertyValue(propertyName, metadata, propValExpr.getDefaultValue(), start, end,
 									propValExpr.getOwnerModel());
 							} else {
-								// The expression has default value (ex : ${DBUSER:sa}) otherwise the error
-								// is reported
-								Range range = PositionUtils.createRange(propValExpr.getReferenceStartOffset(),
-									propValExpr.getReferenceEndOffset(), propValExpr.getDocument());
-								if (range != null) {
-									addDiagnostic("Unknown referenced property value expression '" + refdProp + "'",
-										range, expressionSeverity, ValidationType.expression.name());
-								} else {
-
+								if (!(EnvUtils.isEnvVariable(refdProp))) {
+									// or the expression is an ENV variable
+									// otherwise the error is reported
+									Range range = PositionUtils.createRange(propValExpr.getReferenceStartOffset(),
+										propValExpr.getReferenceEndOffset(), propValExpr.getDocument());
+									if (range != null) {
+										addDiagnostic("Unknown referenced property value expression '" + refdProp + "'",
+											range, expressionSeverity, ValidationType.expression.name());
+									}
 								}
 							}
 						}
