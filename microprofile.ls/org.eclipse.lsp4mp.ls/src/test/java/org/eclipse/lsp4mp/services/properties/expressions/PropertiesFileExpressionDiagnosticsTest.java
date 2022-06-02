@@ -104,10 +104,33 @@ public class PropertiesFileExpressionDiagnosticsTest {
 	public void ignoreErrorForPropertyExpressionWithDefaultValue() {
 		String value = "quarkus.datasource.username = ${DBUSER:sa}";
 		testDiagnosticsFor(value);
+	}
+
+	@Test
+	public void ignoreErrorForEnvPropertyExpressionWithoutDefaultValue() {
+		String value = "quarkus.datasource.username = ${DBUSER}";
+		testDiagnosticsFor(value);
 
 		value = "quarkus.datasource.username = ${DBUSER:}";
+		testDiagnosticsFor(value);
+	}
+
+	@Test
+	public void throwErrorForNonEnvPropertyExpressionWithDefaultValue() {
+		String value = "quarkus.datasource.username = ${dbuser:sa}";
+		testDiagnosticsFor(value);
+	}
+
+	@Test
+	public void throwErrorForNonEnvPropertyExpressionWithoutDefaultValue() {
+		String value = "quarkus.datasource.username = ${dbuser}";
 		testDiagnosticsFor(value, //
-			d(0, 32, 38, "Unknown referenced property value expression 'DBUSER'", DiagnosticSeverity.Error,
+			d(0, 32, 38, "Unknown referenced property value expression 'dbuser'", DiagnosticSeverity.Error,
+				ValidationType.expression));
+
+		value = "quarkus.datasource.username = ${dbuser:}";
+		testDiagnosticsFor(value, //
+			d(0, 32, 38, "Unknown referenced property value expression 'dbuser'", DiagnosticSeverity.Error,
 				ValidationType.expression));
 	}
 
