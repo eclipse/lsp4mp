@@ -11,7 +11,7 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lsp4mp.commons;
+package org.eclipse.lsp4mp.jdt.core.java;
 
 import java.util.function.Function;
 

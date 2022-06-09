@@ -12,9 +12,9 @@
  *******************************************************************************/
 package org.eclipse.lsp4mp.common;
 
-import static org.eclipse.lsp4mp.commons.PropertyReplacerStrategy.BRACKET_REPLACER;
-import static org.eclipse.lsp4mp.commons.PropertyReplacerStrategy.EXPRESSION_REPLACER;
-import static org.eclipse.lsp4mp.commons.PropertyReplacerStrategy.NULL_REPLACER;
+import static org.eclipse.lsp4mp.jdt.core.java.PropertyReplacerStrategy.BRACKET_REPLACER;
+import static org.eclipse.lsp4mp.jdt.core.java.PropertyReplacerStrategy.EXPRESSION_REPLACER;
+import static org.eclipse.lsp4mp.jdt.core.java.PropertyReplacerStrategy.NULL_REPLACER;
 
 import org.junit.Assert;
 import org.junit.Test;
