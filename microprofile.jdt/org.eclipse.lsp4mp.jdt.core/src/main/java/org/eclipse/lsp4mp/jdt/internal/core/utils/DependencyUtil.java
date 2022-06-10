@@ -135,7 +135,7 @@ public class DependencyUtil {
 	}
 
 	private static CollectResult collectDependencies(org.eclipse.aether.artifact.Artifact artifact,
-			RepositorySystemSession repoSession) throws ArtifactDescriptorException, DependencyCollectionException {
+			RepositorySystemSession repoSession) throws ArtifactDescriptorException, DependencyCollectionException, CoreException {
 		CollectRequest collectRequest = new CollectRequest();
 		collectRequest.setRoot(new Dependency(artifact, JavaScopes.RUNTIME));
 		RepositorySystem repoSystem = MavenPluginActivator.getDefault().getRepositorySystem();

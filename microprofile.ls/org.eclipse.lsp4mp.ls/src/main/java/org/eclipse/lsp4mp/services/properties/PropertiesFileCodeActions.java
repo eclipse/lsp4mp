@@ -27,6 +27,7 @@ import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.metadata.ConverterKind;
 import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
@@ -69,16 +70,18 @@ class PropertiesFileCodeActions {
 	 * @param projectInfo         the MicroProfile project info
 	 * @param formattingSettings  the formatting settings.
 	 * @param commandCapabilities the command capabilities
+	 * @param cancelChecker       the cancel checker
 	 * @return the result of the code actions.
 	 */
 	public List<CodeAction> doCodeActions(CodeActionContext context, Range range, PropertiesModel document,
 			MicroProfileProjectInfo projectInfo, MicroProfileFormattingSettings formattingSettings,
-			MicroProfileCommandCapabilities commandCapabilities) {
+			MicroProfileCommandCapabilities commandCapabilities, CancelChecker cancelChecker) {
 		List<CodeAction> codeActions = new ArrayList<>();
 		if (context.getDiagnostics() != null) {
 			doCodeActionForAllRequired(context.getDiagnostics(), document, formattingSettings, codeActions);
 			// Loop for all diagnostics
 			for (Diagnostic diagnostic : context.getDiagnostics()) {
+				cancelChecker.checkCanceled();
 				if (ValidationType.unknown.isValidationType(diagnostic.getCode())) {
 					// Manage code action for unknown
 					doCodeActionsForUnknown(diagnostic, document, projectInfo, commandCapabilities, codeActions);

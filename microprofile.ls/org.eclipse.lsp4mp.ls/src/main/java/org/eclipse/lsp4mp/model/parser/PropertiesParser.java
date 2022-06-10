@@ -16,6 +16,7 @@
  */
 package org.eclipse.lsp4mp.model.parser;
 
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4mp.model.parser.ErrorEvent.ErrorType;
 
 /**
@@ -34,6 +35,7 @@ public class PropertiesParser implements ParseContext {
 	private PropertiesHandler handler;
 	private ErrorHandler errorHandler;
 	private ParseState parseState;
+	private CancelChecker cancelChecker;
 	private String text;
 	private int bufferOffset;
 	private int index;
@@ -63,10 +65,11 @@ public class PropertiesParser implements ParseContext {
 	 *                        react on some {@link ErrorEvent} by throwing
 	 *                        {@code ParseException}s for them
 	 */
-	public void parse(String text, PropertiesHandler handler, ErrorHandler errorHandler) {
+	public void parse(String text, PropertiesHandler handler, ErrorHandler errorHandler, CancelChecker cancelChecker) {
 		this.handler = handler;
 		this.errorHandler = errorHandler;
 		this.parseState = ParseState.Property;
+		this.cancelChecker = cancelChecker;
 		bufferOffset = 0;
 		index = 0;
 		line = 1;
@@ -93,6 +96,7 @@ public class PropertiesParser implements ParseContext {
 				currentLine = line;
 				readLine();
 			}
+			cancelChecker.checkCanceled();
 		} while (!isEndOfText());
 
 		// reached end of file
@@ -125,14 +129,14 @@ public class PropertiesParser implements ParseContext {
 			return;
 		}
 		switch (current) {
-		case '#':
-		case ';':
-			// comment line
-			readComment();
-			break;
-		default:
-			// property line
-			readProperty();
+			case '#':
+			case ';':
+				// comment line
+				readComment();
+				break;
+			default:
+				// property line
+				readProperty();
 		}
 	}
 
@@ -363,6 +367,7 @@ public class PropertiesParser implements ParseContext {
 		}
 		return false;
 	}
+
 	private boolean readPropertyValueExpression() {
 		handler.startPropertyValueExpression(this);
 		read();

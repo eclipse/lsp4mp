@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.eclipse.lsp4j.CodeAction;
@@ -45,6 +46,7 @@ import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceEdit;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4j.jsonrpc.json.adapters.EnumTypeAdapter;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
@@ -365,7 +367,7 @@ public class PropertiesFileAssert {
 
 		PropertiesFileLanguageService languageService = new PropertiesFileLanguageService();
 
-		Hover hover = languageService.doHover(model, position, projectInfo, hoverSettings);
+		Hover hover = languageService.doHover(model, position, projectInfo, hoverSettings, () -> {});
 		if (expectedHoverLabel == null) {
 			Assert.assertNull(hover);
 		} else {
@@ -467,7 +469,7 @@ public class PropertiesFileAssert {
 		Position position = document.positionAt(offset);
 
 		Either<List<? extends Location>, List<? extends LocationLink>> actual = languageService
-				.findDefinition(document, position, projectInfo, definitionProvider, true).get();
+				.findDefinition(document, position, projectInfo, definitionProvider, true, NOOP_CHECKER).get();
 		assertLocationLink(actual.getRight(), expected);
 
 	}
@@ -580,7 +582,7 @@ public class PropertiesFileAssert {
 		mpCommandCapabilities.setCapabilities(commandCapabilities);
 
 		List<CodeAction> actual = languageService.doCodeActions(context, range, model, projectInfo, formattingSettings,
-				mpCommandCapabilities);
+				mpCommandCapabilities, NOOP_CHECKER);
 		assertCodeActions(actual, expected);
 	}
 
@@ -700,7 +702,7 @@ public class PropertiesFileAssert {
 		TextDocument document = new TextDocument(value, "application.properties");
 		PropertiesModel model = parse(value, null);
 		PropertiesFileLanguageService languageService = new PropertiesFileLanguageService();
-		Object[] actual = languageService.findDocumentHighlight(model, document.positionAt(offset)).stream().map(dh -> {
+		Object[] actual = languageService.findDocumentHighlight(model, document.positionAt(offset), NOOP_CHECKER).stream().map(dh -> {
 			return dh.getRange();
 		}).collect(Collectors.toList()).toArray();
 
@@ -709,7 +711,9 @@ public class PropertiesFileAssert {
 
 	private static PropertiesModel parse(String text, String uri) {
 		TextDocument document = new TextDocument(text, uri != null ? uri : "application.properties");
-		return PropertiesModel.parse(document);
+		return PropertiesModel.parse(document, () -> {});
 	}
+
+	private static final CancelChecker NOOP_CHECKER = () -> {};
 
 }

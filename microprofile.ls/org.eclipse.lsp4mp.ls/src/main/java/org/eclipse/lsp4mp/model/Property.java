@@ -13,6 +13,7 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.model;
 
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 
 /**
@@ -172,16 +173,18 @@ public class Property extends Node {
 	 *
 	 * @param graph       The dependency graph of the properties.
 	 * @param projectInfo the project information
+	 * @param cancelChecker the cancel checker, checks for cancellation each recursive call
 	 * @return The resolved value of this property, or null
 	 */
-	public String getResolvedPropertyValue(PropertyGraph graph, MicroProfileProjectInfo projectInfo) {
+	public String getResolvedPropertyValue(PropertyGraph graph, MicroProfileProjectInfo projectInfo, CancelChecker cancelChecker) {
+		cancelChecker.checkCanceled();
 		if (!graph.isAcyclic()) {
 			return null;
 		}
 		if (getValue() == null) {
 			return null;
 		}
-		return getValue().getResolvedValue(graph, projectInfo);
+		return getValue().getResolvedValue(graph, projectInfo, cancelChecker);
 	}
 
 	@Override
@@ -215,7 +218,7 @@ public class Property extends Node {
 	/**
 	 * Returns true if the property value is an expression(ex : ${ENV:SEVERE} and
 	 * false otherwise (SEVERE)).
-	 * 
+	 *
 	 * @return true if the property value is an expression(ex : ${ENV:SEVERE} and
 	 *         false otherwise (SEVERE)).
 	 */

@@ -23,6 +23,7 @@ import java.util.logging.Logger;
 import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.MicroProfilePropertyDefinitionParams;
 import org.eclipse.lsp4mp.commons.metadata.ItemHint;
@@ -56,16 +57,18 @@ public class PropertiesFileDefinition {
 	 * given <code>position</code> of the given microprofile-config.properties
 	 * <code>document</code>.
 	 *
-	 * @param document    the properties model.
-	 * @param position    the position where definition was triggered
-	 * @param projectInfo the MicroProfile project info
-	 * @param provider    the MicroProfile property definition provider.
+	 * @param document      the properties model.
+	 * @param position      the position where definition was triggered
+	 * @param projectInfo   the MicroProfile project info
+	 * @param provider      the MicroProfile property definition provider.
+	 * @param cancelChecker the cancel checker
 	 * @return as promise the Java field definition location of the property at the
 	 *         given <code>position</code> of the given
 	 *         microprofile-config.properties <code>document</code>.
 	 */
 	public CompletableFuture<List<LocationLink>> findDefinition(PropertiesModel document, Position position,
-			MicroProfileProjectInfo projectInfo, MicroProfilePropertyDefinitionProvider provider) {
+			MicroProfileProjectInfo projectInfo, MicroProfilePropertyDefinitionProvider provider,
+			CancelChecker cancelChecker) {
 
 		try {
 			int offset = document.offsetAt(position);
@@ -77,7 +80,7 @@ public class PropertiesFileDefinition {
 			boolean inDefautlValue = false;
 			if (node.getNodeType() == NodeType.PROPERTY_VALUE_EXPRESSION) {
 				PropertyValueExpression propertyValueExpression = (PropertyValueExpression) node;
-				inDefautlValue = propertyValueExpression.isInDefautlValue(offset);
+				inDefautlValue = propertyValueExpression.isInDefaultValue(offset);
 				if (!inDefautlValue) {
 					return CompletableFuture
 							.completedFuture(findPropertyValueExpressionDefinition(document, propertyValueExpression));
@@ -102,12 +105,13 @@ public class PropertiesFileDefinition {
 			if (definitionParams == null) {
 				return getEmptyDefinition();
 			}
-			boolean selectDefautlValue = inDefautlValue;
+			boolean selectDefaultValue = inDefautlValue;
 			return provider.getPropertyDefinition(definitionParams).thenApply(target -> {
+				cancelChecker.checkCanceled();
 				if (target == null) {
 					return Collections.emptyList();
 				}
-				Range range = selectDefautlValue ? PositionUtils.selectDefaultValue((PropertyValueExpression) node)
+				Range range = selectDefaultValue ? PositionUtils.selectDefaultValue((PropertyValueExpression) node)
 						: PositionUtils.createRange(node);
 				LocationLink link = new LocationLink(target.getUri(), target.getRange(), target.getRange(), range);
 				return Collections.singletonList(link);
@@ -177,34 +181,34 @@ public class PropertiesFileDefinition {
 		String sourceField = null;
 
 		switch (node.getNodeType()) {
-		case PROPERTY_KEY: {
-			sourceType = item.getSourceType();
-			sourceField = item.getSourceField();
-			break;
-		}
-		case PROPERTY_VALUE_EXPRESSION:
-		case PROPERTY_VALUE_LITERAL:
-		case PROPERTY_VALUE: {
-			sourceType = item.getHintType();
-			sourceField = getSourceField(node, inDefautlValue);
-			// for the case of property which uses kebab_case, we must get the real value of
-			// the Java enumeration
-			// Ex: for quarkus.datasource.transaction-isolation-level = read-uncommitted
-			// the real value of Java enumeration 'read-uncommitted' is 'READ_UNCOMMITTED'
-			ItemHint itemHint = projectInfo.getHint(sourceType);
-			if (itemHint != null) {
-				ValueHint realValue = itemHint.getValue(sourceField, item.getConverterKinds());
-				if (realValue != null) {
-					sourceField = realValue.getValue();
-					if (realValue.getSourceType() != null) {
-						sourceType = realValue.getSourceType();
+			case PROPERTY_KEY: {
+				sourceType = item.getSourceType();
+				sourceField = item.getSourceField();
+				break;
+			}
+			case PROPERTY_VALUE_EXPRESSION:
+			case PROPERTY_VALUE_LITERAL:
+			case PROPERTY_VALUE: {
+				sourceType = item.getHintType();
+				sourceField = getSourceField(node, inDefautlValue);
+				// for the case of property which uses kebab_case, we must get the real value of
+				// the Java enumeration
+				// Ex: for quarkus.datasource.transaction-isolation-level = read-uncommitted
+				// the real value of Java enumeration 'read-uncommitted' is 'READ_UNCOMMITTED'
+				ItemHint itemHint = projectInfo.getHint(sourceType);
+				if (itemHint != null) {
+					ValueHint realValue = itemHint.getValue(sourceField, item.getConverterKinds());
+					if (realValue != null) {
+						sourceField = realValue.getValue();
+						if (realValue.getSourceType() != null) {
+							sourceType = realValue.getSourceType();
+						}
 					}
 				}
+				break;
 			}
-			break;
-		}
-		default:
-			return null;
+			default:
+				return null;
 		}
 
 		// Find definition (class, field of class, method of class, enum) only when
@@ -250,14 +254,14 @@ public class PropertiesFileDefinition {
 			return null;
 		}
 		switch (node.getNodeType()) {
-		case PROPERTY_KEY:
-			return (PropertyKey) node;
-		case PROPERTY_VALUE:
-		case PROPERTY_VALUE_EXPRESSION:
-		case PROPERTY_VALUE_LITERAL:
-			return ((BasePropertyValue) node).getProperty().getKey();
-		default:
-			return null;
+			case PROPERTY_KEY:
+				return (PropertyKey) node;
+			case PROPERTY_VALUE:
+			case PROPERTY_VALUE_EXPRESSION:
+			case PROPERTY_VALUE_LITERAL:
+				return ((BasePropertyValue) node).getProperty().getKey();
+			default:
+				return null;
 		}
 	}
 }

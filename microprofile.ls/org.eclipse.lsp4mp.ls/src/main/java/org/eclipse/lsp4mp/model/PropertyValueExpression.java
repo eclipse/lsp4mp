@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.lsp4mp.model;
 
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
 import org.eclipse.lsp4mp.utils.PropertiesFileUtils;
@@ -24,7 +25,7 @@ import org.eclipse.lsp4mp.utils.PropertiesFileUtils;
  * When properties file is processed, the reference is replaced with the value
  * of the other property. In the properties file, it has the form:
  * <code>${other.property.name}</code>
- * 
+ *
  * @see https://download.eclipse.org/microprofile/microprofile-config-2.0/microprofile-config-spec-2.0.html#property-expressions
  */
 public class PropertyValueExpression extends BasePropertyValue {
@@ -70,10 +71,12 @@ public class PropertyValueExpression extends BasePropertyValue {
 	 *
 	 * @param graph       The dependencies between properties as a graph
 	 * @param projectInfo the project information
+	 * @param cancelChecker the cancel checker, checks for cancellation each recursive call
 	 * @return The recursively resolved value of this property expression, or null
 	 *         if a circular dependency exists.
 	 */
-	public String getResolvedValue(PropertyGraph graph, MicroProfileProjectInfo projectInfo) {
+	public String getResolvedValue(PropertyGraph graph, MicroProfileProjectInfo projectInfo, CancelChecker cancelChecker) {
+		cancelChecker.checkCanceled();
 		if (!graph.isAcyclic()) {
 			return null;
 		}
@@ -83,7 +86,7 @@ public class PropertyValueExpression extends BasePropertyValue {
 				if (modelChild.getNodeType() == NodeType.PROPERTY) {
 					Property property = (Property) modelChild;
 					if (referenceName.equals(property.getPropertyNameWithProfile())) {
-						return property.getResolvedPropertyValue(graph, projectInfo);
+						return property.getResolvedPropertyValue(graph, projectInfo, cancelChecker);
 					}
 				}
 			}
@@ -135,7 +138,7 @@ public class PropertyValueExpression extends BasePropertyValue {
 	/**
 	 * Returns the offset of the start of the referenced property name, or the
 	 * offset after the `$` if no property is referenced.
-	 * 
+	 *
 	 * @return the offset of the start of the referenced property name, or the
 	 *         offset after the `$` if no property is referenced.
 	 */
@@ -147,7 +150,7 @@ public class PropertyValueExpression extends BasePropertyValue {
 	/**
 	 * Returns the offset of the end of the referenced property name, or the offset
 	 * after the `$` if no property is referenced.
-	 * 
+	 *
 	 * @return the offset of the end of the referenced property name, or the offset
 	 *         after the `$` if no property is referenced.
 	 */
@@ -158,11 +161,11 @@ public class PropertyValueExpression extends BasePropertyValue {
 
 	/**
 	 * Return the default value and null otherwise.
-	 * 
+	 *
 	 * <p>
 	 * ${ENV:DEFAULT_VALUE}
 	 * </p>
-	 * 
+	 *
 	 * @return the default value and null otherwise.
 	 */
 	public String getDefaultValue() {
@@ -175,11 +178,11 @@ public class PropertyValueExpression extends BasePropertyValue {
 
 	/**
 	 * Return true if the expression has a default value and false otherwise.
-	 * 
+	 *
 	 * <p>
 	 * ${ENV:DEFAULT_VALUE}
 	 * </p>
-	 * 
+	 *
 	 * @return true if the expression has a default value and false otherwise.
 	 */
 
@@ -195,7 +198,7 @@ public class PropertyValueExpression extends BasePropertyValue {
 	 * <p>
 	 * ${ENV:|DEFAULT_VALUE}
 	 * </p>
-	 * 
+	 *
 	 * @return the start offset of the default value and -1 otherwise.
 	 */
 	public int getDefaultValueStartOffset() {
@@ -209,7 +212,7 @@ public class PropertyValueExpression extends BasePropertyValue {
 	 * <p>
 	 * ${ENV:DEFAULT_VALU|E}
 	 * </p>
-	 * 
+	 *
 	 * @return the end offset of the default value and -1 otherwise.
 	 */
 	public int getDefaultValueEndOffset() {
@@ -219,12 +222,12 @@ public class PropertyValueExpression extends BasePropertyValue {
 
 	/**
 	 * Returns true if the given offset is in the default value and false otherwise.
-	 * 
+	 *
 	 * @param offset the offset.
-	 * 
+	 *
 	 * @return true if the given offset is in the default value and false otherwise.
 	 */
-	public boolean isInDefautlValue(int offset) {
+	public boolean isInDefaultValue(int offset) {
 		parseExpressionIfNeeded();
 		return isIncluded(defaultValueStartOffset, defaultValueEndOffset, offset);
 	}
