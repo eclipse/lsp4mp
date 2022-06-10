@@ -16,6 +16,7 @@ package org.eclipse.lsp4mp.model;
 import java.util.List;
 
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4mp.ls.commons.BadLocationException;
 import org.eclipse.lsp4mp.ls.commons.TextDocument;
 import org.eclipse.lsp4mp.model.parser.ErrorEvent;
@@ -155,9 +156,11 @@ public class PropertiesModel extends Node {
 	}
 
 	private final TextDocument document;
+	private CancelChecker cancelChecker;
 
-	PropertiesModel(TextDocument document) {
+	PropertiesModel(TextDocument document, CancelChecker cancelChecker) {
 		this.document = document;
+		this.cancelChecker = cancelChecker;
 	}
 
 	@Override
@@ -172,8 +175,22 @@ public class PropertiesModel extends Node {
 	 * @param uri
 	 * @return the properties model from the given text.
 	 */
+	public static PropertiesModel parse(String text, String uri, CancelChecker cancelChecker) {
+		return parse(new TextDocument(text, uri), cancelChecker);
+	}
+
+	/**
+	 * Returns the properties model from the given text.
+	 *
+	 * This parse request cannot be cancelled
+	 *
+	 * @param text
+	 * @param uri
+	 * @return the properties model from the given text
+	 */
 	public static PropertiesModel parse(String text, String uri) {
-		return parse(new TextDocument(text, uri));
+		return parse(text, uri, () -> {
+		});
 	}
 
 	/**
@@ -182,8 +199,8 @@ public class PropertiesModel extends Node {
 	 * @param document the text document
 	 * @return the properties model from the text of the given document.
 	 */
-	public static PropertiesModel parse(TextDocument document) {
-		PropertiesModel model = new PropertiesModel(document);
+	public static PropertiesModel parse(TextDocument document, CancelChecker cancelChecker) {
+		PropertiesModel model = new PropertiesModel(document, cancelChecker);
 		PropertiesParser parser = new PropertiesParser();
 		parser.parse(document.getText(), new PropertiesModelHandler(model), new ErrorHandler() {
 
@@ -191,7 +208,7 @@ public class PropertiesModel extends Node {
 			public void error(ParseContext context, ErrorEvent errorEvent) throws ParseException {
 
 			}
-		});
+		}, cancelChecker);
 		return model;
 	}
 
@@ -265,6 +282,10 @@ public class PropertiesModel extends Node {
 
 	public String getDocumentURI() {
 		return getDocument().getUri();
+	}
+
+	public CancelChecker getCancelChecker() {
+		return cancelChecker;
 	}
 
 }

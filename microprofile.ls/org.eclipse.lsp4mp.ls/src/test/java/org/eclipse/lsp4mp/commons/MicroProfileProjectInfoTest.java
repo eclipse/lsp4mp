@@ -199,7 +199,7 @@ public class MicroProfileProjectInfoTest {
 	}
 
 	private static PropertyInfo getProperty(String text, MicroProfileProjectInfo info) {
-		PropertiesModel model = PropertiesModel.parse(text, "application.properties");
+		PropertiesModel model = PropertiesModel.parse(text, "application.properties", () -> {});
 		PropertyKey key = (PropertyKey) ((Property) model.getChildren().get(0)).getKey();
 		return new PropertyInfo(PropertiesFileUtils.getProperty(key.getPropertyName(), info), key.getProfile());
 	}

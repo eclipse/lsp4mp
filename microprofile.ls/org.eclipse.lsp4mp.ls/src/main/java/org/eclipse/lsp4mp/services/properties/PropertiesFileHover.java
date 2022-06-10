@@ -21,6 +21,7 @@ import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.MarkupKind;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.metadata.ConfigurationMetadata;
 import org.eclipse.lsp4mp.commons.metadata.ItemHint;
@@ -56,10 +57,11 @@ class PropertiesFileHover {
 	 * @param position      the hover position
 	 * @param projectInfo   the MicroProfile project information
 	 * @param hoverSettings the hover settings
+	 * @param cancelChecker the cancel checker
 	 * @return Hover object for the currently hovered token
 	 */
 	public Hover doHover(PropertiesModel document, Position position, MicroProfileProjectInfo projectInfo,
-			MicroProfileHoverSettings hoverSettings) {
+			MicroProfileHoverSettings hoverSettings, CancelChecker cancelChecker) {
 
 		Node node = null;
 		int offset = -1;
@@ -75,33 +77,33 @@ class PropertiesFileHover {
 		}
 
 		switch (node.getNodeType()) {
-		case COMMENTS:
-			// no hover documentation
-			return null;
-		case PROPERTY_VALUE_EXPRESSION:
-			PropertyValueExpression propExpr = (PropertyValueExpression) node;
-			boolean inDefaultValue = propExpr.isInDefautlValue(offset);
-			if (inDefaultValue) {
-				// quarkus.log.file.level=${ENV:OF|F}
-				return getPropertyValueHover(propExpr, inDefaultValue, projectInfo, hoverSettings);
-			}
-			// quarkus.log.file.level=${E|NV:OFF}
-			return getPropertyValueExpressionHover(propExpr, projectInfo, hoverSettings);
-		case PROPERTY_VALUE_LITERAL:
-		case PROPERTY_VALUE:
-			return getPropertyValueHover((BasePropertyValue) node, false, projectInfo, hoverSettings);
-		case PROPERTY_KEY:
-			PropertyKey key = (PropertyKey) node;
-			if (key.isBeforeProfile(offset)) {
-				// hover documentation on profile
-				return getProfileHover(key, hoverSettings);
-			} else {
-				// hover documentation on property key
-				return getPropertyKeyHover(key, projectInfo, hoverSettings);
-			}
+			case COMMENTS:
+				// no hover documentation
+				return null;
+			case PROPERTY_VALUE_EXPRESSION:
+				PropertyValueExpression propExpr = (PropertyValueExpression) node;
+				boolean inDefaultValue = propExpr.isInDefaultValue(offset);
+				if (inDefaultValue) {
+					// quarkus.log.file.level=${ENV:OF|F}
+					return getPropertyValueHover(propExpr, inDefaultValue, projectInfo, hoverSettings);
+				}
+				// quarkus.log.file.level=${E|NV:OFF}
+				return getPropertyValueExpressionHover(propExpr, projectInfo, hoverSettings, cancelChecker);
+			case PROPERTY_VALUE_LITERAL:
+			case PROPERTY_VALUE:
+				return getPropertyValueHover((BasePropertyValue) node, false, projectInfo, hoverSettings);
+			case PROPERTY_KEY:
+				PropertyKey key = (PropertyKey) node;
+				if (key.isBeforeProfile(offset)) {
+					// hover documentation on profile
+					return getProfileHover(key, hoverSettings);
+				} else {
+					// hover documentation on property key
+					return getPropertyKeyHover(key, projectInfo, hoverSettings, cancelChecker);
+				}
 
-		default:
-			return null;
+			default:
+				return null;
 		}
 	}
 
@@ -138,10 +140,11 @@ class PropertiesFileHover {
 	 * @param offset        the hover offset
 	 * @param projectInfo   the MicroProfile project information
 	 * @param hoverSettings the hover settings
+	 * @param cancelChecker the cancel checker
 	 * @return the documentation hover for property key represented by token
 	 */
 	private static Hover getPropertyKeyHover(PropertyKey key, MicroProfileProjectInfo projectInfo,
-			MicroProfileHoverSettings hoverSettings) {
+			MicroProfileHoverSettings hoverSettings, CancelChecker cancelChecker) {
 		boolean markdownSupported = hoverSettings.isContentFormatSupported(MarkupKind.MARKDOWN);
 		// retrieve MicroProfile property from the project information
 		String propertyName = key.getPropertyName();
@@ -152,7 +155,7 @@ class PropertiesFileHover {
 
 		if (valueNode != null) {
 			PropertyGraph graph = new PropertyGraph(key.getOwnerModel());
-			String resolved = valueNode.getResolvedValue(graph, projectInfo);
+			String resolved = valueNode.getResolvedValue(graph, projectInfo, cancelChecker);
 			if (resolved != null) {
 				propertyValue = resolved;
 			} else {
@@ -183,7 +186,7 @@ class PropertiesFileHover {
 	 * @param inDefaultValue true if it's a default value expression.
 	 * @param projectInfo    the MicroProfile project information
 	 * @param hoverSettings  the hover settings
-	 * 
+	 *
 	 * @return the documentation hover for the given property value.
 	 */
 	private static Hover getPropertyValueHover(BasePropertyValue value, boolean inDefaultValue,
@@ -212,20 +215,23 @@ class PropertiesFileHover {
 	}
 
 	private static Hover getPropertyValueExpressionHover(PropertyValueExpression node,
-			MicroProfileProjectInfo projectInfo, MicroProfileHoverSettings hoverSettings) {
+			MicroProfileProjectInfo projectInfo, MicroProfileHoverSettings hoverSettings, CancelChecker cancelChecker) {
 		String referencedProp = node.getReferencedPropertyName();
 		if (referencedProp == null) {
 			return null;
 		}
 
 		PropertyGraph graph = new PropertyGraph(node.getOwnerModel());
+		cancelChecker.checkCanceled();
 
 		if (graph.isAcyclic()) {
-			String resolvedValue = node.getResolvedValue(graph, projectInfo);
+			cancelChecker.checkCanceled();
+			String resolvedValue = node.getResolvedValue(graph, projectInfo, cancelChecker);
 			if (StringUtils.hasText(resolvedValue)) {
 				return createHover(resolvedValue, node);
 			}
 		}
+		cancelChecker.checkCanceled();
 
 		// Check property file for the value
 		for (Node modelChild : node.getOwnerModel().getChildren()) {

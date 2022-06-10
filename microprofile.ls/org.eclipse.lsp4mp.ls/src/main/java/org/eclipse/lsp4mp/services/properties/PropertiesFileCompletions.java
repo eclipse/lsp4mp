@@ -105,7 +105,7 @@ class PropertiesFileCompletions {
 
 		case PROPERTY_VALUE_EXPRESSION:
 			PropertyValueExpression propExpr = (PropertyValueExpression) node;
-			boolean inDefautlValue = propExpr.isInDefautlValue(offset);
+			boolean inDefautlValue = propExpr.isInDefaultValue(offset);
 			if (inDefautlValue || offset == propExpr.getStart()
 					|| (propExpr.isClosed() && propExpr.getEnd() == offset)) {
 				// other.test.property = ${}|
@@ -115,7 +115,7 @@ class PropertiesFileCompletions {
 			} else {
 				// other.test.property = ${|}
 				collectPropertyValueExpressionSuggestions(propExpr, document, projectInfo, completionCapabilities,
-						list);
+						list, cancelChecker);
 			}
 			break;
 
@@ -142,6 +142,7 @@ class PropertiesFileCompletions {
 					list);
 			break;
 		}
+		cancelChecker.checkCanceled();
 		return list;
 	}
 
@@ -434,14 +435,16 @@ class PropertiesFileCompletions {
 
 	private static void collectPropertyValueExpressionSuggestions(PropertyValueExpression node, PropertiesModel model,
 			MicroProfileProjectInfo projectInfo, MicroProfileCompletionCapabilities completionCapabilities,
-			CompletionList list) {
+			CompletionList list, CancelChecker cancelChecker) {
 
 		PropertyGraph graph = new PropertyGraph(model);
+		cancelChecker.checkCanceled();
 
 		// Find properties that won't make a circular dependency and suggest them for
 		// completion
 		String completionPropertyName = node.getProperty().getPropertyKey();
 		List<String> independentProperties = graph.getIndependentProperties(completionPropertyName);
+		cancelChecker.checkCanceled();
 		// Add all independent properties as completion items
 		for (String independentProperty : independentProperties) {
 			list.getItems().add(getPropertyCompletionItem(independentProperty, node, model));

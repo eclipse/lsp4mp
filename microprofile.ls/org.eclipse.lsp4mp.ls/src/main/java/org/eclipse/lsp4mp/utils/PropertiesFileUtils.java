@@ -327,7 +327,7 @@ public class PropertiesFileUtils {
 	 */
 	public static PropertiesModel loadProperties(String documentURI) {
 		try {
-			return PropertiesModel.parse(IOUtils.convertStreamToString(new URL(documentURI).openStream()), documentURI);
+			return PropertiesModel.parse(IOUtils.convertStreamToString(new URL(documentURI).openStream()), documentURI, () -> {});
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, "Error while loading properties file '" + documentURI + "'.", e);
 			return null;

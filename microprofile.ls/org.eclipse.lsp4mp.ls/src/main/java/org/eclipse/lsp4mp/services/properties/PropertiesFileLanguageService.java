@@ -81,7 +81,8 @@ public class PropertiesFileLanguageService {
 	 * @return completion list for the given position
 	 */
 	public CompletionList doComplete(PropertiesModel document, Position position, MicroProfileProjectInfo projectInfo,
-			MicroProfileCompletionCapabilities completionCapabilities, MicroProfileFormattingSettings formattingSettings,
+			MicroProfileCompletionCapabilities completionCapabilities,
+			MicroProfileFormattingSettings formattingSettings,
 			CancelChecker cancelChecker) {
 		updateProperties(projectInfo, document);
 		return completions.doComplete(document, position, projectInfo, completionCapabilities, formattingSettings,
@@ -98,9 +99,9 @@ public class PropertiesFileLanguageService {
 	 * @return Hover object for the currently hovered token
 	 */
 	public Hover doHover(PropertiesModel document, Position position, MicroProfileProjectInfo projectInfo,
-			MicroProfileHoverSettings hoverSettings) {
+			MicroProfileHoverSettings hoverSettings, CancelChecker cancelChecker) {
 		updateProperties(projectInfo, document);
-		return hover.doHover(document, position, projectInfo, hoverSettings);
+		return hover.doHover(document, position, projectInfo, hoverSettings, cancelChecker);
 	}
 
 	/**
@@ -136,21 +137,24 @@ public class PropertiesFileLanguageService {
 	 * @param provider              the MicroProfile property definition provider.
 	 * @param definitionLinkSupport true if {@link LocationLink} must be returned
 	 *                              and false otherwise.
+	 * @param cancelChecker         the cancel checker
 	 * @return as promise the Java field definition location of the property at the
 	 *         given <code>position</code> of the given application.properties
 	 *         <code>document</code>.
 	 */
 	public CompletableFuture<Either<List<? extends Location>, List<? extends LocationLink>>> findDefinition(
 			PropertiesModel document, Position position, MicroProfileProjectInfo projectInfo,
-			MicroProfilePropertyDefinitionProvider provider, boolean definitionLinkSupport) {
+			MicroProfilePropertyDefinitionProvider provider, boolean definitionLinkSupport,
+			CancelChecker cancelChecker) {
 		updateProperties(projectInfo, document);
 		CompletableFuture<List<LocationLink>> definitionLocationLinks = definition.findDefinition(document, position,
-				projectInfo, provider);
+				projectInfo, provider, cancelChecker);
 		if (definitionLinkSupport) {
 			return definitionLocationLinks.thenApply((List<LocationLink> resolvedLinks) -> {
 				return Either.forRight(resolvedLinks);
 			});
 		}
+		cancelChecker.checkCanceled();
 		return definitionLocationLinks.thenApply((List<LocationLink> resolvedLinks) -> {
 			return Either.forLeft(resolvedLinks.stream().map((link) -> {
 				return new Location(link.getTargetUri(), link.getTargetRange());
@@ -213,18 +217,31 @@ public class PropertiesFileLanguageService {
 	 * @param projectInfo         the MicroProfile project info
 	 * @param formattingSettings  the formatting settings.
 	 * @param commandCapabilities the command capabilities
+	 * @param cancelChecker       the cancel checker
 	 * @return the result of the code actions.
 	 */
 	public List<CodeAction> doCodeActions(CodeActionContext context, Range range, PropertiesModel document,
 			MicroProfileProjectInfo projectInfo, MicroProfileFormattingSettings formattingSettings,
-			MicroProfileCommandCapabilities commandCapabilities) {
+			MicroProfileCommandCapabilities commandCapabilities, CancelChecker cancelChecker) {
 		updateProperties(projectInfo, document);
 		return codeActions.doCodeActions(context, range, document, projectInfo, formattingSettings,
-				commandCapabilities);
+				commandCapabilities, cancelChecker);
 	}
 
-	public List<? extends DocumentHighlight> findDocumentHighlight(PropertiesModel document, Position position) {
-		return documentHighlight.findDocumentHighlight(document, position);
+	/**
+	 * Returns highlights to apply to the document based off the current cursor
+	 * position in the document.
+	 *
+	 * @param document      the parsed model of the document where highlights were
+	 *                      requested
+	 * @param position      the position of the cursor in the document
+	 * @param cancelChecker the cancel checker
+	 * @return highlights to apply to the document based off the current cursor
+	 *         position in the document
+	 */
+	public List<? extends DocumentHighlight> findDocumentHighlight(PropertiesModel document, Position position,
+			CancelChecker cancelChecker) {
+		return documentHighlight.findDocumentHighlight(document, position, cancelChecker);
 	}
 
 	private void updateProperties(MicroProfileProjectInfo projectInfo, PropertiesModel document) {

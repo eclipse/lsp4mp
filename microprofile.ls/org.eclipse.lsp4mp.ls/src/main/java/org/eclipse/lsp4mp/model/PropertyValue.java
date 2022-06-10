@@ -13,6 +13,7 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.model;
 
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 
 /**
@@ -43,13 +44,15 @@ public class PropertyValue extends BasePropertyValue {
 	/**
 	 * Returns the property value with the property expressions resolved,
 	 * or null if a circular dependency between properties exists.
-	 * 
+	 *
 	 * @param graph The dependencies between properties
 	 * @param projectInfo the project information
+	 * @param cancelChecker the cancel checker, checks cancellation each recursion
 	 * @return The property value with the property expressions resolved,
 	 * or null if a circular dependency between properties exists.
 	 */
-	public String getResolvedValue(PropertyGraph graph, MicroProfileProjectInfo projectInfo) {
+	public String getResolvedValue(PropertyGraph graph, MicroProfileProjectInfo projectInfo, CancelChecker cancelChecker) {
+		cancelChecker.checkCanceled();
 		if (!graph.isAcyclic()) {
 			return null;
 		}
@@ -61,11 +64,11 @@ public class PropertyValue extends BasePropertyValue {
 					break;
 				case PROPERTY_VALUE_EXPRESSION:
 					PropertyValueExpression propValExpr = (PropertyValueExpression) child;
-					String resolvedVal = propValExpr.getResolvedValue(graph, projectInfo);
+					String resolvedVal = propValExpr.getResolvedValue(graph, projectInfo, cancelChecker);
 					if (resolvedVal == null) {
 						return null;
 					}
-					resolvedValue.append(propValExpr.getResolvedValue(graph, projectInfo));
+					resolvedValue.append(propValExpr.getResolvedValue(graph, projectInfo, cancelChecker));
 					break;
 				default:
 					assert false;
@@ -81,7 +84,7 @@ public class PropertyValue extends BasePropertyValue {
 
 	/**
 	 * Returns the owner property.
-	 * 
+	 *
 	 * @return the owner property.
 	 */
 	public Property getProperty() {

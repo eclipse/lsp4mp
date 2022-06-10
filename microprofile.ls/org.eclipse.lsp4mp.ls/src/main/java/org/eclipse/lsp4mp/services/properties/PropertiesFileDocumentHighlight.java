@@ -21,6 +21,7 @@ import java.util.List;
 import org.eclipse.lsp4j.DocumentHighlight;
 import org.eclipse.lsp4j.DocumentHighlightKind;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4mp.commons.utils.StringUtils;
 import org.eclipse.lsp4mp.ls.commons.BadLocationException;
 import org.eclipse.lsp4mp.model.Node;
@@ -43,9 +44,10 @@ public class PropertiesFileDocumentHighlight {
 	 * @param position The position of the cursor
 	 * @return a list of highlights for a MicroProfile properties document
 	 */
-	public List<? extends DocumentHighlight> findDocumentHighlight(PropertiesModel document, Position position) {
+	public List<? extends DocumentHighlight> findDocumentHighlight(PropertiesModel document, Position position, CancelChecker cancelChecker) {
 		try {
 			Node node = document.findNodeAt(position);
+			cancelChecker.checkCanceled();
 			switch (node.getNodeType()) {
 			case PROPERTY_KEY:
 				return getPropertyKeyHighlight(document, (PropertyKey) node);
