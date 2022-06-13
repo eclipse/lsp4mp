@@ -61,7 +61,7 @@
                   The Java class for AST Validator.
                </documentation>
                <appinfo>
-                  <meta.attribute kind="java" basedOn="org.eclipse.lsp4mp.jdt.internal.core.java.validators.JavaASTValidator:"/>
+                  <meta.attribute kind="java" basedOn="org.eclipse.lsp4mp.jdt.core.java.validators.JavaASTValidator:"/>
                </appinfo>
             </annotation>
          </attribute>
