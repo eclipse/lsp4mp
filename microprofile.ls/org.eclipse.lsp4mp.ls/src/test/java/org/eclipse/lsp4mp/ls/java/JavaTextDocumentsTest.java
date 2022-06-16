@@ -5,7 +5,7 @@
 * http://www.eclipse.org/legal/epl-v20.html
 *
 * SPDX-License-Identifier: EPL-2.0
-* 
+*
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
@@ -26,7 +26,7 @@ import org.junit.Test;
 
 /**
  * Test for Java test documents.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -57,7 +57,7 @@ public class JavaTextDocumentsTest {
 		JavaTextDocuments documents = new JavaTextDocuments(PROVIDER, null);
 		JavaTextDocument document1 = documents
 				.createDocument(new TextDocumentItem(MP_PROJECT + "/file1.java", "", 0, ""));
-		CompletableFuture<Boolean> result = document1.executeIfInMicroProfileProject((projectInfo) -> {
+		CompletableFuture<Boolean> result = document1.executeIfInMicroProfileProject((projectInfo, cancelChecker) -> {
 			// return the result of the execute
 			return CompletableFuture.completedFuture(true);
 		}, DEFAULT_VALUE);
@@ -71,7 +71,7 @@ public class JavaTextDocumentsTest {
 		JavaTextDocuments documents = new JavaTextDocuments(PROVIDER, null);
 		JavaTextDocument document1 = documents
 				.createDocument(new TextDocumentItem(NOMP_PROJECT + "/file1.java", "", 0, ""));
-		CompletableFuture<Boolean> result = document1.executeIfInMicroProfileProject((projectInfo) -> {
+		CompletableFuture<Boolean> result = document1.executeIfInMicroProfileProject((projectInfo, cancelChecker) -> {
 			// return the result of the execute
 			return CompletableFuture.completedFuture(true);
 		}, DEFAULT_VALUE);

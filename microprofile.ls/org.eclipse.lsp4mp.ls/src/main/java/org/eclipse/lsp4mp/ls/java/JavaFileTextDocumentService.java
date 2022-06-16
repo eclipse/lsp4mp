@@ -45,7 +45,6 @@ import org.eclipse.lsp4j.MarkupKind;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4j.jsonrpc.CompletableFutures;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4mp.commons.DocumentFormat;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeActionParams;
@@ -61,6 +60,7 @@ import org.eclipse.lsp4mp.ls.AbstractTextDocumentService;
 import org.eclipse.lsp4mp.ls.MicroProfileLanguageServer;
 import org.eclipse.lsp4mp.ls.commons.BadLocationException;
 import org.eclipse.lsp4mp.ls.commons.TextDocument;
+import org.eclipse.lsp4mp.ls.commons.ValidatorDelayer;
 import org.eclipse.lsp4mp.ls.commons.client.CommandKind;
 import org.eclipse.lsp4mp.ls.commons.client.ExtendedCompletionCapabilities;
 import org.eclipse.lsp4mp.ls.java.JavaTextDocuments.JavaTextDocument;
@@ -87,24 +87,28 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 
 	private final IPropertiesModelProvider propertiesModelProvider;
 	private final JavaTextDocuments documents;
+	private ValidatorDelayer<JavaTextDocument> validatorDelayer;
 
 	public JavaFileTextDocumentService(MicroProfileLanguageServer microprofileLanguageServer,
 			IPropertiesModelProvider propertiesModelProvider, SharedSettings sharedSettings) {
 		super(microprofileLanguageServer, sharedSettings);
 		this.propertiesModelProvider = propertiesModelProvider;
 		this.documents = new JavaTextDocuments(microprofileLanguageServer, microprofileLanguageServer);
+		this.validatorDelayer = new ValidatorDelayer<>((javaTextDocument) -> {
+			triggerValidationFor(javaTextDocument);
+		});
 	}
 
 	// ------------------------------ did* for Java file -------------------------
 
 	@Override
 	public void didOpen(DidOpenTextDocumentParams params) {
-		triggerValidationFor(documents.onDidOpenTextDocument(params));
+		validate(documents.onDidOpenTextDocument(params), false);
 	}
 
 	@Override
 	public void didChange(DidChangeTextDocumentParams params) {
-		triggerValidationFor(documents.onDidChangeTextDocument(params));
+		validate(documents.onDidChangeTextDocument(params), true);
 	}
 
 	@Override
@@ -126,12 +130,12 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 	@Override
 	public CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion(CompletionParams params) {
 		JavaTextDocument document = documents.get(params.getTextDocument().getUri());
-		return document.executeIfInMicroProfileProject((projectInfo) -> {
+		return document.executeIfInMicroProfileProject((projectInfo, cancelChecker) -> {
 			MicroProfileJavaCompletionParams javaParams = new MicroProfileJavaCompletionParams(
 					params.getTextDocument().getUri(), params.getPosition());
 
 			CompletableFuture<CompletionList> javaParticipantCompletionsFuture = CompletableFuture
-					.completedFuture(null);
+					.completedFuture(new CompletionList(new ArrayList<>()));
 			ExtendedCompletionCapabilities extendedCompletionCapabilities = this.microprofileLanguageServer
 					.getCapabilityManager().getClientCapabilities().getExtendedCapabilities().getCompletion();
 			if (!extendedCompletionCapabilities.isSkipSendingJavaCompletionThroughLanguageServer()) {
@@ -139,41 +143,35 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 						.getJavaCompletion(javaParams);
 			}
 
-			return CompletableFutures.computeAsync(cancel -> {
-				try {
-					// Returns java snippets
-					int completionOffset = document.offsetAt(params.getPosition());
-					boolean canSupportMarkdown = true;
-					boolean snippetsSupported = sharedSettings.getCompletionCapabilities()
-							.isCompletionSnippetsSupported();
-					CompletionList list = new CompletionList();
-					list.setItems(new ArrayList<>());
-					documents.getSnippetRegistry().getCompletionItems(document, completionOffset, canSupportMarkdown,
-							snippetsSupported, (context, model) -> {
-								if (context != null && context instanceof SnippetContextForJava) {
-									return ((SnippetContextForJava) context).isMatch(projectInfo);
-								}
-								return true;
-							}).forEach(item -> {
-								list.getItems().add(item);
-							});
-					return list;
-				} catch (BadLocationException e) {
-					LOGGER.log(Level.SEVERE, "Error while getting java snippet completions", e);
-					return null;
-				}
-			}).thenCombine(javaParticipantCompletionsFuture, (list1, list2) -> {
-				if (list1 == null && list2 == null) {
-					return null;
-				}
-				if (list1 == null) {
-					list1 = new CompletionList();
-					list1.setItems(new ArrayList<>());
-				}
-				if (list2 != null) {
-					for (CompletionItem item : list2.getItems()) {
+			// Returns java snippets
+			Integer completionOffset = null;
+			try {
+				completionOffset = document.offsetAt(params.getPosition());
+			} catch (BadLocationException e) {
+				LOGGER.log(Level.SEVERE, "Error while getting java snippet completions", e);
+				return null;
+			}
+			boolean canSupportMarkdown = true;
+			boolean snippetsSupported = sharedSettings.getCompletionCapabilities()
+					.isCompletionSnippetsSupported();
+			CompletionList list1 = new CompletionList();
+			list1.setItems(new ArrayList<>());
+			documents.getSnippetRegistry().getCompletionItems(document, completionOffset, canSupportMarkdown,
+					snippetsSupported, (context, model) -> {
+						if (context != null && context instanceof SnippetContextForJava) {
+							return ((SnippetContextForJava) context).isMatch(projectInfo);
+						}
+						return true;
+					}).forEach(item -> {
 						list1.getItems().add(item);
-					}
+					});
+
+			cancelChecker.checkCanceled();
+
+			return javaParticipantCompletionsFuture.thenApply((list2) -> {
+				cancelChecker.checkCanceled();
+				for (CompletionItem item : list2.getItems()) {
+					list1.getItems().add(item);
 				}
 				// This reduces the number of completion requests to the server
 				// see
@@ -181,6 +179,7 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 				list1.setIsIncomplete(false);
 				return Either.forRight(list1);
 			});
+
 		}, Either.forLeft(Collections.emptyList()));
 	}
 
@@ -198,7 +197,7 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 			return CompletableFuture.completedFuture(Collections.emptyList());
 		}
 		JavaTextDocument document = documents.get(params.getTextDocument().getUri());
-		return document.executeIfInMicroProfileProject((projectInfo) -> {
+		return document.executeIfInMicroProfileProject((projectInfo, cancelChecker) -> {
 			MicroProfileJavaCodeLensParams javaParams = new MicroProfileJavaCodeLensParams(
 					params.getTextDocument().getUri());
 			if (sharedSettings.getCommandCapabilities().isCommandSupported(CommandKind.COMMAND_OPEN_URI)) {
@@ -217,7 +216,7 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 	@Override
 	public CompletableFuture<List<Either<Command, CodeAction>>> codeAction(CodeActionParams params) {
 		JavaTextDocument document = documents.get(params.getTextDocument().getUri());
-		return document.executeIfInMicroProfileProject((projectInfo) -> {
+		return document.executeIfInMicroProfileProject((projectInfo, cancelChecker) -> {
 			boolean commandConfigurationUpdateSupported = sharedSettings.getCommandCapabilities()
 					.isCommandSupported(CommandKind.COMMAND_CONFIGURATION_UPDATE);
 			MicroProfileJavaCodeActionParams javaParams = new MicroProfileJavaCodeActionParams();
@@ -229,6 +228,7 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 			javaParams.setCommandConfigurationUpdateSupported(commandConfigurationUpdateSupported);
 			return microprofileLanguageServer.getLanguageClient().getJavaCodeAction(javaParams) //
 					.thenApply(codeActions -> {
+						cancelChecker.checkCanceled();
 						return codeActions.stream() //
 								.map(ca -> {
 									Either<Command, CodeAction> e = Either.forRight(ca);
@@ -245,11 +245,12 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 	public CompletableFuture<Either<List<? extends Location>, List<? extends LocationLink>>> definition(
 			DefinitionParams params) {
 		JavaTextDocument document = documents.get(params.getTextDocument().getUri());
-		return document.executeIfInMicroProfileProject((projectinfo) -> {
+		return document.executeIfInMicroProfileProject((projectinfo, cancelChecker) -> {
 			MicroProfileJavaDefinitionParams javaParams = new MicroProfileJavaDefinitionParams(
 					params.getTextDocument().getUri(), params.getPosition());
 			return microprofileLanguageServer.getLanguageClient().getJavaDefinition(javaParams)
 					.thenApply(definitions -> {
+						cancelChecker.checkCanceled();
 						List<LocationLink> locations = definitions.stream() //
 								.filter(definition -> definition.getLocation() != null) //
 								.map(definition -> {
@@ -302,7 +303,7 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 	@Override
 	public CompletableFuture<Hover> hover(HoverParams params) {
 		JavaTextDocument document = documents.get(params.getTextDocument().getUri());
-		return document.executeIfInMicroProfileProject((projectinfo) -> {
+		return document.executeIfInMicroProfileProject((projectinfo, cancelChecker) -> {
 			boolean markdownSupported = sharedSettings.getHoverSettings().isContentFormatSupported(MarkupKind.MARKDOWN);
 			boolean surroundEqualsWithSpaces = sharedSettings.getFormattingSettings().isSurroundEqualsWithSpaces();
 			DocumentFormat documentFormat = markdownSupported ? DocumentFormat.Markdown : DocumentFormat.PlainText;
@@ -314,13 +315,21 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 
 	// ------------------------------ Diagnostics ------------------------------
 
+	private void validate(JavaTextDocument javaTextDocument, boolean delay) {
+		if (delay) {
+			validatorDelayer.validateWithDelay(javaTextDocument);
+		} else {
+			triggerValidationFor(javaTextDocument);
+		}
+	}
+
 	/**
 	 * Validate the given opened Java file.
 	 *
 	 * @param document the opened Java file.
 	 */
 	private void triggerValidationFor(JavaTextDocument document) {
-		document.executeIfInMicroProfileProject((projectinfo) -> {
+		document.executeIfInMicroProfileProject((projectinfo, cancelChecker) -> {
 			String uri = document.getUri();
 			triggerValidationFor(Arrays.asList(uri));
 			return null;
