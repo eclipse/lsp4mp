@@ -22,29 +22,27 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 /**
- * Validate a given model document with delay.
- * 
- * @author Angelo ZERR
+ * Validate a given document with delay.
  *
  * @param <T>
  */
-public class ModelValidatorDelayer<T> {
+public class ValidatorDelayer<T extends TextDocument> {
 
-	private static final long DEFAULT_VALIDATION_DELAY_MS = 500;
+	public static final long DEFAULT_VALIDATION_DELAY_MS = 500;
 
 	private final ScheduledExecutorService executorService;
 
-	private final Consumer<ModelTextDocument<T>> validator;
+	private final Consumer<T> validator;
 
 	private final Map<String, Future<?>> pendingValidationRequests;
 
 	private final long validationDelayMs;
 
-	public ModelValidatorDelayer(Consumer<ModelTextDocument<T>> validator) {
+	public ValidatorDelayer(Consumer<T> validator) {
 		this(Executors.newScheduledThreadPool(2), validator, DEFAULT_VALIDATION_DELAY_MS);
 	}
 
-	public ModelValidatorDelayer(ScheduledExecutorService executorService, Consumer<ModelTextDocument<T>> validator,
+	public ValidatorDelayer(ScheduledExecutorService executorService, Consumer<T> validator,
 			long validationDelayMs) {
 		this.executorService = executorService;
 		this.validator = validator;
@@ -55,11 +53,11 @@ public class ModelValidatorDelayer<T> {
 	/**
 	 * Validate the given model <code>document</code> identified by the given
 	 * <code>uri</code> with a delay.
-	 * 
+	 *
 	 * @param uri      the document URI.
 	 * @param document the document model to validate.
 	 */
-	public void validateWithDelay(ModelTextDocument<T> document) {
+	public void validateWithDelay(T document) {
 		String uri = document.getUri();
 		cleanPendingValidation(uri);
 		int version = document.getVersion();

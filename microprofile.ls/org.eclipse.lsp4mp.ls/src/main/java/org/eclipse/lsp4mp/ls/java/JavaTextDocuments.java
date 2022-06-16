@@ -18,11 +18,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.eclipse.lsp4j.TextDocumentItem;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
+import org.eclipse.lsp4j.jsonrpc.CompletableFutures;
+import org.eclipse.lsp4j.jsonrpc.messages.Tuple;
 import org.eclipse.lsp4mp.commons.JavaFileInfo;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaFileInfoParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaProjectLabelsParams;
@@ -79,7 +82,8 @@ class JavaTextDocuments extends TextDocuments<JavaTextDocument> {
 		 */
 		private void collectFileInfo() {
 			if (fileInfoProvider != null) {
-				if (fileInfoFuture == null || fileInfoFuture.isCancelled() || fileInfoFuture.isCompletedExceptionally()) {
+				if (fileInfoFuture == null || fileInfoFuture.isCancelled()
+						|| fileInfoFuture.isCompletedExceptionally()) {
 					MicroProfileJavaFileInfoParams params = new MicroProfileJavaFileInfoParams();
 					params.setUri(super.getUri());
 					fileInfoFuture = fileInfoProvider.getJavaFileInfo(params);
@@ -122,12 +126,18 @@ class JavaTextDocuments extends TextDocuments<JavaTextDocument> {
 		 *         project.
 		 */
 		public <T> CompletableFuture<T> executeIfInMicroProfileProject(
-				Function<ProjectLabelInfoEntry, CompletableFuture<T>> code, T defaultValue) {
-			return getProjectInfo(this).thenComposeAsync(projectInfo -> {
-				if (!isMicroProfileProject(projectInfo)) {
+				BiFunction<ProjectLabelInfoEntry, CancelChecker, CompletableFuture<T>> code, T defaultValue) {
+			return CompletableFutures.computeAsync((cancelChecker) -> {
+				ProjectLabelInfoEntry projectInfo = getProjectInfo(this).getNow(null);
+				return Tuple.two(projectInfo, cancelChecker);
+			}).thenCompose((tuple) -> {
+				ProjectLabelInfoEntry projectInfo = tuple.getFirst();
+				CancelChecker cancelChecker = tuple.getSecond();
+				cancelChecker.checkCanceled();
+				if (projectInfo == null || !isMicroProfileProject(projectInfo)) {
 					return CompletableFuture.completedFuture(defaultValue);
 				}
-				return code.apply(projectInfo);
+				return code.apply(projectInfo, cancelChecker);
 			});
 		}
 

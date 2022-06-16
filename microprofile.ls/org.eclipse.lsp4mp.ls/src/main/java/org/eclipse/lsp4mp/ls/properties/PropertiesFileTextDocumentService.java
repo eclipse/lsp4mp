@@ -15,9 +15,7 @@ package org.eclipse.lsp4mp.ls.properties;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
@@ -59,7 +57,7 @@ import org.eclipse.lsp4mp.ls.MicroProfileLanguageServer;
 import org.eclipse.lsp4mp.ls.api.MicroProfileLanguageServerAPI.JsonSchemaForProjectInfo;
 import org.eclipse.lsp4mp.ls.commons.ModelTextDocument;
 import org.eclipse.lsp4mp.ls.commons.ModelTextDocuments;
-import org.eclipse.lsp4mp.ls.commons.ModelValidatorDelayer;
+import org.eclipse.lsp4mp.ls.commons.ValidatorDelayer;
 import org.eclipse.lsp4mp.model.PropertiesModel;
 import org.eclipse.lsp4mp.services.properties.PropertiesFileLanguageService;
 import org.eclipse.lsp4mp.settings.MicroProfileFormattingSettings;
@@ -80,7 +78,7 @@ public class PropertiesFileTextDocumentService extends AbstractTextDocumentServi
 
 	private MicroProfileProjectInfoCache projectInfoCache;
 
-	private final ModelValidatorDelayer<PropertiesModel> validatorDelayer;
+	private final ValidatorDelayer<ModelTextDocument<PropertiesModel>> validatorDelayer;
 
 	public PropertiesFileTextDocumentService(MicroProfileLanguageServer microprofileLanguageServer,
 			SharedSettings sharedSettings) {
@@ -88,7 +86,7 @@ public class PropertiesFileTextDocumentService extends AbstractTextDocumentServi
 		this.documents = new ModelTextDocuments<PropertiesModel>((document, cancelChecker) -> {
 			return PropertiesModel.parse(document, cancelChecker);
 		});
-		this.validatorDelayer = new ModelValidatorDelayer<PropertiesModel>((document) -> {
+		this.validatorDelayer = new ValidatorDelayer<ModelTextDocument<PropertiesModel>>((document) -> {
 			triggerValidationFor(document);
 		});
 	}
