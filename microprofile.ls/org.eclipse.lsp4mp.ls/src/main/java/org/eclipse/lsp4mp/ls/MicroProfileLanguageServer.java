@@ -27,6 +27,7 @@ import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializeResult;
 import org.eclipse.lsp4j.InitializedParams;
 import org.eclipse.lsp4j.ServerCapabilities;
+import org.eclipse.lsp4j.SetTraceParams;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.LanguageServer;
 import org.eclipse.lsp4j.services.TextDocumentService;
@@ -168,6 +169,12 @@ public class MicroProfileLanguageServer implements LanguageServer, ProcessLangua
 	@Override
 	public void exit(int exitCode) {
 		System.exit(exitCode);
+	}
+
+	@Override
+	public void setTrace(SetTraceParams params) {
+		// to avoid having error in vscode, the method is implemented
+		// FIXME: implement the behavior of this method.
 	}
 
 	public TextDocumentService getTextDocumentService() {
