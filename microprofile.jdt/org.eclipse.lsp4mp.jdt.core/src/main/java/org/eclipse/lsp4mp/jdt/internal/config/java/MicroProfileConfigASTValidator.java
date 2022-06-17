@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.internal.config.java;
 
+import static org.eclipse.lsp4mp.jdt.core.MicroProfileConfigConstants.CONFIG_PROPERTIES_ANNOTATION;
 import static org.eclipse.lsp4mp.jdt.core.MicroProfileConfigConstants.CONFIG_PROPERTIES_ANNOTATION_PREFIX;
 import static org.eclipse.lsp4mp.jdt.core.MicroProfileConfigConstants.CONFIG_PROPERTY_ANNOTATION;
 import static org.eclipse.lsp4mp.jdt.core.MicroProfileConfigConstants.CONFIG_PROPERTY_ANNOTATION_DEFAULT_VALUE;
@@ -104,7 +105,8 @@ public class MicroProfileConfigASTValidator extends JavaASTValidator {
 		@SuppressWarnings("rawtypes")
 		List modifiers = typeDeclaration.modifiers();
 		for (Object modifier : modifiers) {
-			if (modifier instanceof NormalAnnotation) {
+			if (modifier instanceof NormalAnnotation
+					&& AnnotationUtils.isMatchAnnotation((NormalAnnotation) modifier, CONFIG_PROPERTIES_ANNOTATION)) {
 				try {
 					Expression prefixExpr = AnnotationUtils.getAnnotationMemberValueExpression(
 							(NormalAnnotation) modifier, CONFIG_PROPERTIES_ANNOTATION_PREFIX);
