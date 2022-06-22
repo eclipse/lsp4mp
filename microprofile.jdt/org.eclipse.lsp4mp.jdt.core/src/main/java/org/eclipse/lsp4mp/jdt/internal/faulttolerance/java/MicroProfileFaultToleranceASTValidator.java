@@ -57,6 +57,7 @@ import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.MarkerAnnotation;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
+import org.eclipse.jdt.core.dom.NumberLiteral;
 import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.Type;
@@ -274,21 +275,19 @@ public class MicroProfileFaultToleranceASTValidator extends JavaASTValidator {
 			Expression jitterUnitExpr = getAnnotationMemberValueExpression(
 					annotation, JITTER_DELAY_UNIT_RETRY_ANNOTATION_MEMBER);
 
-			Object delayConstant = delayExpr != null
-					? delayExpr.resolveConstantExpressionValue()
+			Object delayConstant = delayExpr != null ? delayExpr.resolveConstantExpressionValue() : null;
+			Object maxDurationConstant = maxDurationExpr != null ? maxDurationExpr.resolveConstantExpressionValue()
 					: null;
-			Object maxDurationConstant = maxDurationExpr != null
-					? maxDurationExpr.resolveConstantExpressionValue()
-					: null;
-			Object jitterConstant = jitterExpr != null
-					? jitterExpr.resolveConstantExpressionValue()
-					: null;
+			Object jitterConstant = jitterExpr != null ? jitterExpr.resolveConstantExpressionValue() : null;
 
-			int delayNum = delayConstant != null ? (int) delayConstant : -1;
-			int maxDurationNum = maxDurationConstant != null
-					? (int) maxDurationConstant
-					: -1;
-			int jitterNum = jitterConstant != null ? (int) jitterConstant : 0;
+			long delayNum = delayConstant instanceof Integer ? (long) (int) delayConstant
+					: (delayConstant instanceof Long ? (long) delayConstant : -1);
+
+			long maxDurationNum = maxDurationConstant instanceof Integer ? (long) (int) maxDurationConstant
+					: (maxDurationConstant instanceof Long ? (long) maxDurationConstant : -1);
+
+			long jitterNum = jitterConstant instanceof Integer ? (long) (int) jitterConstant
+					: (jitterConstant instanceof Long ? (long) jitterConstant : 0);
 
 			if (delayNum != -1 && maxDurationNum != -1) {
 				double delayValue = findDurationUnit(delayUnitExpr, delayNum);
@@ -310,7 +309,7 @@ public class MicroProfileFaultToleranceASTValidator extends JavaASTValidator {
 	}
 
 	private double findDurationUnit(Expression memberUnitExpr,
-			int memberUnitNum) {
+			long memberUnitNum) {
 		String memberUnit = null;
 		if (memberUnitExpr != null) {
 			SimpleName memberUnitName = memberUnitExpr instanceof SimpleName
