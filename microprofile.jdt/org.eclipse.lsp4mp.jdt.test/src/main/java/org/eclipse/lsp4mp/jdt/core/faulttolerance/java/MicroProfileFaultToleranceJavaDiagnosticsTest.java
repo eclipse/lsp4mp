@@ -293,8 +293,20 @@ public class MicroProfileFaultToleranceJavaDiagnosticsTest
 				DiagnosticSeverity.Warning,
 				MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE,
 				MicroProfileFaultToleranceErrorCode.DELAY_EXCEEDS_MAX_DURATION);
+		
+		Diagnostic d7 = d(88, 19, 23,
+				"The effective delay may exceed the `maxDuration` member value.",
+				DiagnosticSeverity.Warning,
+				MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE,
+				MicroProfileFaultToleranceErrorCode.DELAY_EXCEEDS_MAX_DURATION);
+		
+		Diagnostic d8 = d(98, 19, 31,
+				"The effective delay may exceed the `maxDuration` member value.",
+				DiagnosticSeverity.Warning,
+				MicroProfileFaultToleranceConstants.DIAGNOSTIC_SOURCE,
+				MicroProfileFaultToleranceErrorCode.DELAY_EXCEEDS_MAX_DURATION);
 
-		assertJavaDiagnostics(diagnosticsParams, utils, d1, d2, d3, d4, d5, d6);
+		assertJavaDiagnostics(diagnosticsParams, utils, d1, d2, d3, d4, d5, d6, d7, d8);
 	}
 
 	@Test
