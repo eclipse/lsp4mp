@@ -22,7 +22,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
+import org.eclipse.jdt.core.dom.NumberLiteral;
+import org.eclipse.jdt.core.dom.PrefixExpression;
 import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4mp.jdt.core.java.validators.JavaASTValidator;
@@ -96,12 +99,17 @@ public class AnnotationRulesJavaASTValidator extends JavaASTValidator {
 		if (attributeValueExpr == null) {
 			return;
 		}
+		// Ensure value of AST attribute is a valid integer or an expression that can be evaluated
+		if (!isInteger(attributeValueExpr) && !isInfixIntegerExpression(attributeValueExpr)) {
+			return;
+		}
 
-		// Get the value of the AST attribute
-		String valueAsString = attributeValueExpr.toString();
+		// Resolve the value of the AST attribute
+		String valueAsString = attributeValueExpr.resolveConstantExpressionValue().toString();
 		if (StringUtils.isEmpty(valueAsString)) {
 			return;
 		}
+
 		// Validate the value with the rule
 		String validationResult = JavaASTValidatorRegistry.getInstance().validate(valueAsString, attributeRule);
 		if (validationResult != null) {
@@ -111,4 +119,24 @@ public class AnnotationRulesJavaASTValidator extends JavaASTValidator {
 		}
 	}
 
+	private static boolean isInteger(Expression attributeValueExpr) {
+		if (attributeValueExpr instanceof NumberLiteral || (attributeValueExpr instanceof PrefixExpression
+				&& (((PrefixExpression) attributeValueExpr).getOperator() == PrefixExpression.Operator.MINUS
+				|| ((PrefixExpression) attributeValueExpr).getOperator() == PrefixExpression.Operator.PLUS))) {
+			return true;
+		}
+		return false;
+	}
+
+	private static boolean isInfixIntegerExpression(Expression attributeValueExpr) {
+		if (attributeValueExpr instanceof InfixExpression
+				&& (((InfixExpression) attributeValueExpr).getOperator() == InfixExpression.Operator.TIMES
+				|| ((InfixExpression) attributeValueExpr).getOperator() == InfixExpression.Operator.DIVIDE
+				|| ((InfixExpression) attributeValueExpr).getOperator() == InfixExpression.Operator.REMAINDER
+				|| ((InfixExpression) attributeValueExpr).getOperator() == InfixExpression.Operator.PLUS
+				|| ((InfixExpression) attributeValueExpr).getOperator() == InfixExpression.Operator.MINUS)) {
+			return true;
+		}
+		return false;
+	}
 }
