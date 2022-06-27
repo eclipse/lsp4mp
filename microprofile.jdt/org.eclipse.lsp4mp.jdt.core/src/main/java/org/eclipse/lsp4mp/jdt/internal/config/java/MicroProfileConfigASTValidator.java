@@ -161,10 +161,11 @@ public class MicroProfileConfigASTValidator extends JavaASTValidator {
 	 */
 	private void validatePropertyDefaultValue(Annotation annotation, Expression defaultValueExpr) {
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) annotation.getParent();
+		IJavaProject javaProject = getContext().getJavaProject();
 		if (defaultValueExpr != null) {
 			String defValue = ((StringLiteral) defaultValueExpr).getLiteralValue();
 			ITypeBinding fieldBinding = fieldDeclaration.getType().resolveBinding();
-			if (fieldBinding != null && !isAssignable(fieldBinding, defValue)) {
+			if (fieldBinding != null && !isAssignable(fieldBinding, javaProject, defValue)) {
 				String message = MessageFormat.format(EXPECTED_TYPE_ERROR_MESSAGE, defValue, fieldBinding.getName());
 				super.addDiagnostic(message, MICRO_PROFILE_CONFIG_DIAGNOSTIC_SOURCE, defaultValueExpr,
 						MicroProfileConfigErrorCode.DEFAULT_VALUE_IS_WRONG_TYPE, DiagnosticSeverity.Error);
@@ -218,7 +219,7 @@ public class MicroProfileConfigASTValidator extends JavaASTValidator {
 		return false;
 	}
 
-	private static boolean isAssignable(ITypeBinding fieldBinding, String defValue) {
+	private static boolean isAssignable(ITypeBinding fieldBinding, IJavaProject javaProject, String defValue) {
 		String fqn = Signature.getTypeErasure(fieldBinding.getQualifiedName());
 		try {
 			switch (fqn) {
@@ -247,13 +248,13 @@ public class MicroProfileConfigASTValidator extends JavaASTValidator {
 			case "java.lang.Character":
 				return Character.valueOf(defValue.charAt(0)) != null;
 			case "java.lang.Class":
-				return Class.forName(defValue) != null;
+				return JDTTypeUtils.findType(javaProject, defValue) != null;
 			case "java.lang.String":
 				return true;
 			default:
 				return false;
 			}
-		} catch (NumberFormatException | ClassNotFoundException e) {
+		} catch (NumberFormatException e) {
 			return false;
 		}
 	}
