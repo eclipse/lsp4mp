@@ -355,8 +355,15 @@ public class PropertiesFileCompletionTest {
 	@Test
 	public void completionBetweenPropertyNameAndEquals() throws BadLocationException {
 		String value = "quarkus.http.cors|=";
-		testCompletionFor(value, true, 0);
+		testCompletionFor(value, false,
+				c("quarkus.http.cors.headers", "quarkus.http.cors.headers=", r(0, 0, 18)));
 	}
+
+	@Test
+	public void completionBetweenIncompletePropertyNameAndEquals() throws BadLocationException {
+		String value = "quarkus.|=";
+		testCompletionFor(value, false,
+				c("quarkus.application.name", "quarkus.application.name=", r(0, 0, 9)));	}
 
 	@Test
 	public void completionAfterJustEquals() throws BadLocationException {
