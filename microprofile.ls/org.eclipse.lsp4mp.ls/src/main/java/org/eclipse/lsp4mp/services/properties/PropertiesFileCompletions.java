@@ -124,6 +124,10 @@ class PropertiesFileCompletions {
 			if (offset >= node.getEnd()) {
 				// quarkus.datasource.transaction-isolation-level=|
 				collectPropertyValueSuggestions(node, document, false, projectInfo, completionCapabilities, list);
+			} else {
+				// completion on property key if on the left side of =
+				collectPropertyKeySuggestions(offset, node, document, projectInfo, completionCapabilities,
+						formattingSettings, list);
 			}
 			break;
 		case PROPERTY_VALUE:
