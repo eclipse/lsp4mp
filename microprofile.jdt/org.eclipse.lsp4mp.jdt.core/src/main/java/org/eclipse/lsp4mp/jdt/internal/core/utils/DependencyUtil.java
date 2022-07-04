@@ -62,7 +62,7 @@ public class DependencyUtil {
 		// Download pom
 		File pomFile = getLocalArtifactFile(key, POM_FILE_TYPE);
 		if (pomFile == null) {
-			Artifact pom = MavenPlugin.getMaven().resolve(key.getGroupId(), key.getArtifactId(), key.getVersion(),
+			Artifact pom = MavenPlugin.getMaven().resolve(key.groupId(), key.artifactId(), key.version(),
 					POM_FILE_TYPE, null, null, monitor);
 			if (pom == null) {
 				throw new FileNotFoundException("Unable to find pom file for " + key);// Should it be just a warning?
@@ -71,8 +71,8 @@ public class DependencyUtil {
 		// Download jar
 		File archive = getLocalArtifactFile(key, JAR_FILE_TYPE);
 		if (archive == null) {
-			Artifact artifact = MavenPlugin.getMaven().resolve(key.getGroupId(), key.getArtifactId(), key.getVersion(),
-					JAR_FILE_TYPE, key.getClassifier(), null, monitor);
+			Artifact artifact = MavenPlugin.getMaven().resolve(key.groupId(), key.artifactId(), key.version(),
+					JAR_FILE_TYPE, key.classifier(), null, monitor);
 			if (artifact == null) {
 				throw new FileNotFoundException("Unable to find " + key);
 			}
@@ -88,8 +88,8 @@ public class DependencyUtil {
 		IMaven maven = MavenPlugin.getMaven();
 		try {
 			ArtifactRepository localRepository = maven.getLocalRepository();
-			String relPath = maven.getArtifactPath(localRepository, a.getGroupId(), a.getArtifactId(), a.getVersion(),
-					type, a.getClassifier());
+			String relPath = maven.getArtifactPath(localRepository, a.groupId(), a.artifactId(), a.version(),
+					type, a.classifier());
 			File file = new File(localRepository.getBasedir(), relPath).getCanonicalFile();
 			if (file.canRead() && file.isFile()) {
 				return file;
