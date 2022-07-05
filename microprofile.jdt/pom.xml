@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.eclipse.lsp4mp</groupId>
@@ -19,19 +19,19 @@
     <tycho.test.jvmArgs>-Xmx512m ${tycho.test.platformArgs}</tycho.test.jvmArgs>
 
     <!-- Code coverage -->
-    <jacoco.version>0.7.9</jacoco.version>
+    <jacoco.version>0.8.8</jacoco.version>
     <coverage.filter>org.eclipse.lsp4mp.jdt.*</coverage.filter>
     <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
     <jacoco.destFile>${project.build.directory}/jacoco.exec</jacoco.destFile>
     <sonar.jacoco.reportPath>${jacoco.destFile}</sonar.jacoco.reportPath>
     <surefire.timeout>600</surefire.timeout>
   </properties>
-	<scm>
-		<connection>scm:git:git@github.com:eclipse/lsp4mp.git</connection>
-		<developerConnection>scm:git:git@github.com:eclipse/lsp4mp.git</developerConnection>
-		<url>https://github.com/eclipse/lsp4mp</url>
-		<tag>${project.version}</tag>
-	</scm>
+  <scm>
+    <connection>scm:git:git@github.com:eclipse/lsp4mp.git</connection>
+    <developerConnection>scm:git:git@github.com:eclipse/lsp4mp.git</developerConnection>
+    <url>https://github.com/eclipse/lsp4mp</url>
+    <tag>${project.version}</tag>
+  </scm>
   <repositories>
     <repository>
       <id>jdt.ls.p2</id>
@@ -98,7 +98,7 @@
             <useUIHarness>false</useUIHarness>
             <argLine>${tycho.test.jvmArgs}</argLine>
             <!-- kill test JVM if tests take more than 1 minute (60 seconds) to finish -->
-	          <forkedProcessTimeoutInSeconds>${surefire.timeout}</forkedProcessTimeoutInSeconds>
+            <forkedProcessTimeoutInSeconds>${surefire.timeout}</forkedProcessTimeoutInSeconds>
           </configuration>
         </plugin>
       </plugins>
@@ -164,38 +164,38 @@
         </plugins>
       </build>
     </profile>
-		<profile>
-			<id>eclipse-sign</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.eclipse.tycho</groupId>
-						<artifactId>target-platform-configuration</artifactId>
-						<version>${tycho.version}</version>
-					</plugin>
-					<plugin>
-						<groupId>org.eclipse.cbi.maven.plugins</groupId>
-						<artifactId>eclipse-jarsigner-plugin</artifactId>
-						<version>1.3.2</version>
-						<executions>
-							<execution>
-								<id>sign</id>
-								<goals>
-									<goal>sign</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	  </profiles>
+    <profile>
+      <id>eclipse-sign</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.eclipse.tycho</groupId>
+            <artifactId>target-platform-configuration</artifactId>
+            <version>${tycho.version}</version>
+          </plugin>
+          <plugin>
+            <groupId>org.eclipse.cbi.maven.plugins</groupId>
+            <artifactId>eclipse-jarsigner-plugin</artifactId>
+            <version>1.3.2</version>
+            <executions>
+              <execution>
+                <id>sign</id>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
   <pluginRepositories>
-		<pluginRepository>
-			<id>cbi-release</id>
-			<url>https://repo.eclipse.org/content/repositories/cbi-releases/</url>
-		</pluginRepository>
-	</pluginRepositories>
+    <pluginRepository>
+      <id>cbi-release</id>
+      <url>https://repo.eclipse.org/content/repositories/cbi-releases/</url>
+    </pluginRepository>
+  </pluginRepositories>
   <modules>
     <module>org.eclipse.lsp4mp.jdt.core</module>
     <module>org.eclipse.lsp4mp.jdt.test</module>
