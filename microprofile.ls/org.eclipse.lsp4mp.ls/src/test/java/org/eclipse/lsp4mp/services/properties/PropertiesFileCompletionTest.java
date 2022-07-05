@@ -366,8 +366,31 @@ public class PropertiesFileCompletionTest {
 				c("quarkus.application.name", "quarkus.application.name=", r(0, 0, 9)));	}
 
 	@Test
+	public void completionBetweenPropertyNameAndEqualsWithValue() throws BadLocationException {
+		String value = "quarkus.http.cors|=existing";
+		testCompletionFor(value, false,
+				c("quarkus.http.cors.headers", "quarkus.http.cors.headers=existing", r(0, 0, 26)));
+	}
+
+	@Test
+	public void completionBetweenPropertyNameAndSpaceWithValue() throws BadLocationException {
+		String value = "quarkus.http.cors| =existing";
+		testCompletionFor(value, false,
+				c("quarkus.http.cors.headers", "quarkus.http.cors.headers=existing", r(0, 0, 27)));
+	}
+
+	@Test
 	public void completionAfterJustEquals() throws BadLocationException {
 		String value = "quarkus.http.cors = |";
 		testCompletionFor(value, true, 2);
+	}
+
+	@Test
+	public void completionBetweenPropertyNameAndSpaceWithBooleanValue() throws BadLocationException {
+		String value = "quarkus.banner.en|=existing";
+		testCompletionFor(value, false,
+				c("quarkus.banner.enabled", "quarkus.banner.enabled=existing", r(0, 0, 26)));
+		testCompletionFor(value, true,
+				c("quarkus.banner.enabled", "quarkus.banner.enabled=${1|false,true|}", r(0, 0, 26)));
 	}
 }

@@ -186,6 +186,13 @@ class PropertiesFileCompletions {
 
 		Set<String> existingProperties = getExistingProperties(model);
 
+		String propertyValue = null;
+		if (node != null && node.getNodeType() == NodeType.PROPERTY_KEY) {
+			propertyValue = ((PropertyKey) node).getProperty().getPropertyValue();
+		} else if (node != null && node.getNodeType() == NodeType.ASSIGN) {
+			propertyValue = ((Assign) node).getProperty().getPropertyValue();
+		}
+
 		// Completion on MicroProfile properties
 		for (ItemMetadata property : projectInfo.getProperties()) {
 			if (property == null) {
@@ -206,7 +213,13 @@ class PropertiesFileCompletions {
 			CompletionItem item = new CompletionItem(name);
 			item.setKind(CompletionItemKind.Property);
 
-			String defaultValue = property.getDefaultValue();
+			String defaultValue = null;
+			if (propertyValue == null || propertyValue.isEmpty()) {
+				defaultValue = property.getDefaultValue();
+			} else {
+				defaultValue = propertyValue;
+			}
+
 			Collection<ValueHint> enums = PropertiesFileUtils.getEnums(property, projectInfo);
 
 			StringBuilder insertText = new StringBuilder();
