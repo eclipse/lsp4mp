@@ -15,6 +15,7 @@ package org.eclipse.lsp4mp.ls.properties;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
@@ -218,6 +219,9 @@ public class PropertiesFileTextDocumentService extends AbstractTextDocumentServi
 
 	@Override
 	public CompletableFuture<List<Either<Command, CodeAction>>> codeAction(CodeActionParams params) {
+		if (validatorDelayer.isRevalidating(params.getTextDocument().getUri())) {
+			return CompletableFuture.completedFuture((List<Either<Command, CodeAction>>) Collections.EMPTY_LIST);
+		}
 		return getPropertiesModel(params.getTextDocument(), (document, cancelChecker) -> {
 			MicroProfileProjectInfoParams projectInfoParams = createProjectInfoParams(params.getTextDocument());
 			MicroProfileProjectInfo projectInfo = getProjectInfoCache().getProjectInfo(projectInfoParams).getNow(null);
