@@ -215,6 +215,9 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 
 	@Override
 	public CompletableFuture<List<Either<Command, CodeAction>>> codeAction(CodeActionParams params) {
+		if (validatorDelayer.isRevalidating(params.getTextDocument().getUri())) {
+			return CompletableFuture.completedFuture((List<Either<Command, CodeAction>>) Collections.EMPTY_LIST);
+		}
 		JavaTextDocument document = documents.get(params.getTextDocument().getUri());
 		return document.executeIfInMicroProfileProject((projectInfo, cancelChecker) -> {
 			boolean commandConfigurationUpdateSupported = sharedSettings.getCommandCapabilities()
