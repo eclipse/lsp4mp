@@ -1,5 +1,32 @@
 # MicroProfile Language Server Changelog
 
+## [0.5.0](https://github.com/eclipse/lsp4mp/milestone/5?closed=1) (July 25, 2022)
+
+### Enhancements
+ * Delay revalidation and handle validation cancellation correctly. See [#252](https://github.com/eclipse/lsp4mp/pull/252).
+ * Property file with property expressions (without default value) are flagged as wrong. See [#225](https://github.com/eclipse/lsp4mp/issues/225), [#227](https://github.com/eclipse/lsp4mp/issues/227).
+
+### Bug Fixes
+ * Language Server attempts to calculate code actions for stale diagnostics. See [#272](https://github.com/eclipse/lsp4mp/issues/272).
+ * Hovering property value fails with NPE. See [#265](https://github.com/eclipse/lsp4mp/issues/265).
+ * Completing property name with existing value will replace current value with default value. See [#264](https://github.com/eclipse/lsp4mp/issues/264).
+ * Empty completion when completion is triggered before the assign `=`. See [#255](https://github.com/eclipse/lsp4mp/issues/255).
+ * Improve validation by handling some known corner cases. [#249](https://github.com/eclipse/lsp4mp/issues/249), [#235](https://github.com/eclipse/lsp4mp/issues/235), [#233](https://github.com/eclipse/lsp4mp/issues/233), [#232](https://github.com/eclipse/lsp4mp/issues/232), [#228](https://github.com/eclipse/lsp4mp/issues/228).
+ * Improved MicroProfile property value expression diagnostic message. See [#242](https://github.com/eclipse/lsp4mp/pull/242).
+ * Update quarkus-spring-web so that it is not vulnerable to CVE-2022-22965. See [#238](https://github.com/eclipse/lsp4mp/issues/238).
+ * `javaASTValidator` schema refers to the wrong interface name. See [#234](https://github.com/eclipse/lsp4mp/issues/234).
+ * `PropertyReplacerStrategy` is in wrong package. See [#239](https://github.com/eclipse/lsp4mp/issues/239).
+ * Added `JDTTypeUtils.isVoidReturnType` for `QuarkusConfigMappingProvider` void check. See [#246](https://github.com/eclipse/lsp4mp/pull/246).
+ * Rename profile parameter to ordinal for better readability. See [#236](https://github.com/eclipse/lsp4mp/issues/236).
+ * `plugin.xml` not part of the test bundle. See [#230](https://github.com/eclipse/lsp4mp/issues/230).
+
+### Build
+ * Use JDT-LS 1.13.0 and build with Java 17. See [#266](https://github.com/eclipse/lsp4mp/issues/266).
+ * Move to LSP4j 0.14.0. See [#254](https://github.com/eclipse/lsp4mp/issues/254).
+ * Remove the m2e lifecycle mapping plugin from MANIFEST.MF. See [#269](https://github.com/eclipse/lsp4mp/pull/269).
+ * Remove unnecessary 2019-06 release repository from target platform. See [#251](https://github.com/eclipse/lsp4mp/pull/251).
+ * Remove unnecessary Gson dependency in pom file. See [#274](https://github.com/eclipse/lsp4mp/pull/274).
+
 ## [0.4.0](https://github.com/eclipse/lsp4mp/milestone/4?closed=1) (March 24, 2022)
 
 ### Enhancements
