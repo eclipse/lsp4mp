@@ -152,8 +152,7 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 				return null;
 			}
 			boolean canSupportMarkdown = true;
-			boolean snippetsSupported = sharedSettings.getCompletionCapabilities()
-					.isCompletionSnippetsSupported();
+			boolean snippetsSupported = sharedSettings.getCompletionCapabilities().isCompletionSnippetsSupported();
 			CompletionList list1 = new CompletionList();
 			list1.setItems(new ArrayList<>());
 			documents.getSnippetRegistry().getCompletionItems(document, completionOffset, canSupportMarkdown,
@@ -290,8 +289,9 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 									return location;
 								}).collect(Collectors.toList());
 						if (isDefinitionLinkSupport()) {
-							// I don't understand
-							// return Either.forRight(locations);
+							// Uncommented in
+							// https://github.com/eclipse/lsp4mp/issues/215#issuecomment-984714139
+							return Either.forRight(locations);
 						}
 						return Either.forLeft(locations.stream() //
 								.map((link) -> {
