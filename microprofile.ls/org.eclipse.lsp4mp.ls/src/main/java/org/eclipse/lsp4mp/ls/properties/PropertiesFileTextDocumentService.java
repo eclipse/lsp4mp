@@ -186,19 +186,14 @@ public class PropertiesFileTextDocumentService extends AbstractTextDocumentServi
 	@Override
 	public CompletableFuture<Either<List<? extends Location>, List<? extends LocationLink>>> definition(
 			DefinitionParams params) {
-		return getPropertiesModel(params.getTextDocument(), (document, cancelChecker) -> {
+		return getPropertiesModelCompose(params.getTextDocument(), (document, cancelChecker) -> {
 			MicroProfileProjectInfoParams projectInfoParams = createProjectInfoParams(params.getTextDocument());
 			MicroProfileProjectInfo projectInfo = getProjectInfoCache().getProjectInfo(projectInfoParams).getNow(null);
 			if (projectInfo == null || projectInfo.getProperties().isEmpty()) {
 				return null;
 			}
-			return Tuple.two(Tuple.two(document, projectInfo), cancelChecker);
-		}).thenCompose((modelAndProjectInfoAndCancelChecker) -> {
-			return getPropertiesFileLanguageService().findDefinition(
-					modelAndProjectInfoAndCancelChecker.getFirst().getFirst(),
-					params.getPosition(), modelAndProjectInfoAndCancelChecker.getFirst().getSecond(),
-					microprofileLanguageServer.getLanguageClient(), isDefinitionLinkSupport(),
-					modelAndProjectInfoAndCancelChecker.getSecond());
+			return getPropertiesFileLanguageService().findDefinition(document, params.getPosition(), projectInfo,
+					microprofileLanguageServer.getLanguageClient(), isDefinitionLinkSupport(), cancelChecker);
 		});
 	}
 
@@ -230,7 +225,8 @@ public class PropertiesFileTextDocumentService extends AbstractTextDocumentServi
 			}
 			return getPropertiesFileLanguageService()
 					.doCodeActions(params.getContext(), params.getRange(), document, projectInfo,
-							sharedSettings.getFormattingSettings(), sharedSettings.getCommandCapabilities(), cancelChecker) //
+							sharedSettings.getFormattingSettings(), sharedSettings.getCommandCapabilities(),
+							cancelChecker) //
 					.stream() //
 					.map(ca -> {
 						Either<Command, CodeAction> e = Either.forRight(ca);
@@ -243,7 +239,8 @@ public class PropertiesFileTextDocumentService extends AbstractTextDocumentServi
 	@Override
 	public CompletableFuture<List<? extends DocumentHighlight>> documentHighlight(DocumentHighlightParams params) {
 		return getPropertiesModel(params.getTextDocument(), (document, cancelChecker) -> {
-			return getPropertiesFileLanguageService().findDocumentHighlight(document, params.getPosition(), cancelChecker);
+			return getPropertiesFileLanguageService().findDocumentHighlight(document, params.getPosition(),
+					cancelChecker);
 		});
 	}
 
@@ -403,6 +400,11 @@ public class PropertiesFileTextDocumentService extends AbstractTextDocumentServi
 			}
 		}
 		return null;
+	}
+
+	public <R> CompletableFuture<R> getPropertiesModelCompose(TextDocumentIdentifier documentIdentifier,
+			BiFunction<PropertiesModel, CancelChecker, CompletableFuture<R>> code) {
+		return documents.computeModelAsyncCompose(documentIdentifier, code);
 	}
 
 }
