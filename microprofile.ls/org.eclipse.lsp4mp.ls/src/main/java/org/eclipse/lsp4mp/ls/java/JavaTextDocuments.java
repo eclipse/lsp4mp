@@ -19,12 +19,14 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4j.jsonrpc.CompletableFutures;
+import org.eclipse.lsp4j.jsonrpc.CompletableFutures.FutureCancelChecker;
 import org.eclipse.lsp4j.jsonrpc.messages.Tuple;
 import org.eclipse.lsp4mp.commons.JavaFileInfo;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaFileInfoParams;
@@ -126,13 +128,9 @@ class JavaTextDocuments extends TextDocuments<JavaTextDocument> {
 		 *         project.
 		 */
 		public <T> CompletableFuture<T> executeIfInMicroProfileProject(
-				BiFunction<ProjectLabelInfoEntry, CancelChecker, CompletableFuture<T>> code, T defaultValue) {
-			return CompletableFutures.computeAsync((cancelChecker) -> {
+				BiFunction<ProjectLabelInfoEntry, CancelChecker, CompletableFuture<T>> code, T defaultValue) {			
+			return computeAsyncCompose(cancelChecker -> {
 				ProjectLabelInfoEntry projectInfo = getProjectInfo(this).getNow(null);
-				return Tuple.two(projectInfo, cancelChecker);
-			}).thenCompose((tuple) -> {
-				ProjectLabelInfoEntry projectInfo = tuple.getFirst();
-				CancelChecker cancelChecker = tuple.getSecond();
 				cancelChecker.checkCanceled();
 				if (projectInfo == null || !isMicroProfileProject(projectInfo)) {
 					return CompletableFuture.completedFuture(defaultValue);
@@ -260,5 +258,12 @@ class JavaTextDocuments extends TextDocuments<JavaTextDocument> {
 			snippetRegistry = new JavaTextDocumentSnippetRegistry();
 		}
 		return snippetRegistry;
+	}
+	
+	private static <R> CompletableFuture<R> computeAsyncCompose(Function<CancelChecker, CompletableFuture<R>> code) {
+		CompletableFuture<CancelChecker> start = new CompletableFuture<>();
+		CompletableFuture<R> result = start.thenComposeAsync(code);
+		start.complete(new FutureCancelChecker(result));
+		return result;
 	}
 }
