@@ -23,12 +23,14 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
+import org.eclipse.lsp4mp.commons.utils.ConfigSourcePropertiesProviderUtils;
+import org.eclipse.lsp4mp.commons.utils.IConfigSourcePropertiesProvider;
+import org.eclipse.lsp4mp.commons.utils.PropertyValueExpander;
 import org.eclipse.lsp4mp.ls.commons.BadLocationException;
 import org.eclipse.lsp4mp.model.Node;
 import org.eclipse.lsp4mp.model.Node.NodeType;
 import org.eclipse.lsp4mp.model.PropertiesModel;
 import org.eclipse.lsp4mp.model.Property;
-import org.eclipse.lsp4mp.model.PropertyGraph;
 import org.eclipse.lsp4mp.model.PropertyValue;
 
 /**
@@ -71,8 +73,9 @@ class PropertiesFileInlayHint {
 				if (valueNode != null && valueNode.hasExpression()) {
 					// The current property has a value with expression:
 					// ex : server.url=https://${host}:${port:8080}/${endpoint}
-					PropertyGraph graph = new PropertyGraph(document);
-					String resolved = valueNode.getResolvedValue(graph, projectInfo, cancelChecker);
+					IConfigSourcePropertiesProvider propertiesProvider = ConfigSourcePropertiesProviderUtils.layer(document, new PropertiesInfoPropertiesProvider(projectInfo.getProperties()));
+					PropertyValueExpander expander = new PropertyValueExpander(propertiesProvider);
+					String resolved = expander.getValue(property.getKey().getPropertyNameWithProfile());
 					if (resolved != null) {
 						try {
 							// The expression 'https://${host}:${port:8080}/${endpoint}' can be resolved

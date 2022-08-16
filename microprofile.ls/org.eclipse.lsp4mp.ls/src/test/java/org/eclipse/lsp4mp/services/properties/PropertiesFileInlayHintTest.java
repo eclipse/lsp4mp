@@ -41,6 +41,7 @@ public class PropertiesFileInlayHintTest {
 				"service=eclipse/microprofile-config\n" + //
 				"endpoint=${app}/${service}";
 		testInlayHintFor(value, //
+				ih(p(0, 46), " https://microprofile.io:${port}/project/eclipse/microprofile-config"), // ${port} is not expanded
 				ih(p(4, 26), " project/eclipse/microprofile-config")); // [project/eclipse/microprofile-config]
 	};
 }

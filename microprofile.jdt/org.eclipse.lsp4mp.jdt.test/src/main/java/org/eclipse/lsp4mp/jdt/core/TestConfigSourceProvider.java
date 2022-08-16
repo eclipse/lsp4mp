@@ -44,7 +44,7 @@ public class TestConfigSourceProvider implements IConfigSourceProvider {
 
 	@Override
 	public boolean isConfigSource(String fileName) {
-		return MICROPROFILE_CONFIG_TEST_FILE.equals(fileName) || CONFIG_FILE.equals(fileName);
+		return MICROPROFILE_CONFIG_TEST_FILE.equals(fileName) || CONFIG_FILE.endsWith(fileName);
 	}
 
 }

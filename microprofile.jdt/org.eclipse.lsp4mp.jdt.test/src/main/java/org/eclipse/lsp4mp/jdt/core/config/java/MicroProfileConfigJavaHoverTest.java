@@ -271,8 +271,8 @@ public class MicroProfileConfigJavaHoverTest extends BasePropertiesManagerTest {
 		assertJavaHover(new Position(14, 40), javaFileUri, JDT_UTILS,
 				h("`%test.greeting.message = hi` *in* [META-INF/microprofile-config-test.properties]("
 						+ testPropertiesFileUri + ")  \n" + //
-						"`greeting.message = hi` *in* [META-INF/microprofile-config-test.properties](" + testPropertiesFileUri
-						+ ")", 14, 28, 44));
+						"`greeting.message = hi` *in* [META-INF/microprofile-config-test.properties]("
+						+ testPropertiesFileUri + ")", 14, 28, 44));
 
 		saveFile(TestConfigSourceProvider.MICROPROFILE_CONFIG_TEST_FILE, //
 				"\r\n", javaProject);
@@ -281,5 +281,43 @@ public class MicroProfileConfigJavaHoverTest extends BasePropertiesManagerTest {
 				"`greeting.message = hello` *in* [META-INF/microprofile-config.properties](" + propertiesFileUri + ")",
 				14, 28, 44));
 
+	}
+
+	@Test
+	public void configPropertyNameResolveExpression() throws Exception {
+		javaProject = loadMavenProject(MicroProfileMavenProjectName.config_hover);
+		IProject project = javaProject.getProject();
+		IFile javaFile = project.getFile(new Path("src/main/java/org/acme/config/GreetingResource.java"));
+		String javaFileUri = fixURI(javaFile.getLocation().toFile().toURI());
+		IFile propertiesFile = project.getFile(new Path("src/main/resources/META-INF/microprofile-config.properties"));
+		String propertiesFileUri = fixURI(propertiesFile.getLocation().toFile().toURI());
+
+		saveFile(MicroProfileConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE, //
+				"greeting.message = ${asdf}\r\n" + "asdf = hello", //
+				javaProject);
+		assertJavaHover(new Position(14, 40), javaFileUri, JDT_UTILS, h(
+				"`greeting.message = hello` *in* [META-INF/microprofile-config.properties](" + propertiesFileUri + ")",
+				14, 28, 44));
+
+		saveFile(MicroProfileConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE, //
+				"greeting.message = ${${asdf}}\r\n" + "asdf = hjkl\r\n" + "hjkl = salutations", //
+				javaProject);
+		assertJavaHover(new Position(14, 40), javaFileUri, JDT_UTILS,
+				h("`greeting.message = salutations` *in* [META-INF/microprofile-config.properties](" + propertiesFileUri
+						+ ")", 14, 28, 44));
+
+		saveFile(MicroProfileConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE, //
+				"greeting.message = ${asdf:hi}\r\n", //
+				javaProject);
+		assertJavaHover(new Position(14, 40), javaFileUri, JDT_UTILS,
+				h("`greeting.message = hi` *in* [META-INF/microprofile-config.properties](" + propertiesFileUri + ")",
+						14, 28, 44));
+
+		saveFile(MicroProfileConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE, //
+				"greeting.message = ${asdf}\r\n", //
+				javaProject);
+		assertJavaHover(new Position(14, 40), javaFileUri, JDT_UTILS,
+				h("`greeting.message = ${asdf}` *in* [META-INF/microprofile-config.properties](" + propertiesFileUri
+						+ ")", 14, 28, 44));
 	}
 }

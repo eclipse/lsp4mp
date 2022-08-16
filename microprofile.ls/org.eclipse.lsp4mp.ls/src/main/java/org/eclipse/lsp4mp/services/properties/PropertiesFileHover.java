@@ -27,16 +27,15 @@ import org.eclipse.lsp4mp.commons.metadata.ConfigurationMetadata;
 import org.eclipse.lsp4mp.commons.metadata.ItemHint;
 import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
 import org.eclipse.lsp4mp.commons.metadata.ValueHint;
+import org.eclipse.lsp4mp.commons.utils.ConfigSourcePropertiesProviderUtils;
+import org.eclipse.lsp4mp.commons.utils.IConfigSourcePropertiesProvider;
+import org.eclipse.lsp4mp.commons.utils.PropertyValueExpander;
 import org.eclipse.lsp4mp.commons.utils.StringUtils;
 import org.eclipse.lsp4mp.ls.commons.BadLocationException;
 import org.eclipse.lsp4mp.model.BasePropertyValue;
 import org.eclipse.lsp4mp.model.Node;
-import org.eclipse.lsp4mp.model.Node.NodeType;
 import org.eclipse.lsp4mp.model.PropertiesModel;
-import org.eclipse.lsp4mp.model.Property;
-import org.eclipse.lsp4mp.model.PropertyGraph;
 import org.eclipse.lsp4mp.model.PropertyKey;
-import org.eclipse.lsp4mp.model.PropertyValue;
 import org.eclipse.lsp4mp.model.PropertyValueExpression;
 import org.eclipse.lsp4mp.settings.MicroProfileHoverSettings;
 import org.eclipse.lsp4mp.utils.DocumentationUtils;
@@ -77,33 +76,33 @@ class PropertiesFileHover {
 		}
 
 		switch (node.getNodeType()) {
-			case COMMENTS:
-				// no hover documentation
-				return null;
-			case PROPERTY_VALUE_EXPRESSION:
-				PropertyValueExpression propExpr = (PropertyValueExpression) node;
-				boolean inDefaultValue = propExpr.isInDefaultValue(offset);
-				if (inDefaultValue) {
-					// quarkus.log.file.level=${ENV:OF|F}
-					return getPropertyValueHover(propExpr, inDefaultValue, projectInfo, hoverSettings);
-				}
-				// quarkus.log.file.level=${E|NV:OFF}
-				return getPropertyValueExpressionHover(propExpr, projectInfo, hoverSettings, cancelChecker);
-			case PROPERTY_VALUE_LITERAL:
-			case PROPERTY_VALUE:
-				return getPropertyValueHover((BasePropertyValue) node, false, projectInfo, hoverSettings);
-			case PROPERTY_KEY:
-				PropertyKey key = (PropertyKey) node;
-				if (key.isBeforeProfile(offset)) {
-					// hover documentation on profile
-					return getProfileHover(key, hoverSettings);
-				} else {
-					// hover documentation on property key
-					return getPropertyKeyHover(key, projectInfo, hoverSettings, cancelChecker);
-				}
+		case COMMENTS:
+			// no hover documentation
+			return null;
+		case PROPERTY_VALUE_EXPRESSION:
+			PropertyValueExpression propExpr = (PropertyValueExpression) node;
+			boolean inDefaultValue = propExpr.isInDefaultValue(offset);
+			if (inDefaultValue) {
+				// quarkus.log.file.level=${ENV:OF|F}
+				return getPropertyValueHover(propExpr, inDefaultValue, projectInfo, hoverSettings);
+			}
+			// quarkus.log.file.level=${E|NV:OFF}
+			return getPropertyValueExpressionHover(propExpr, projectInfo, hoverSettings, cancelChecker);
+		case PROPERTY_VALUE_LITERAL:
+		case PROPERTY_VALUE:
+			return getPropertyValueHover((BasePropertyValue) node, false, projectInfo, hoverSettings);
+		case PROPERTY_KEY:
+			PropertyKey key = (PropertyKey) node;
+			if (key.isBeforeProfile(offset)) {
+				// hover documentation on profile
+				return getProfileHover(key, hoverSettings);
+			} else {
+				// hover documentation on property key
+				return getPropertyKeyHover(key, projectInfo, hoverSettings, cancelChecker);
+			}
 
-			default:
-				return null;
+		default:
+			return null;
 		}
 	}
 
@@ -149,22 +148,17 @@ class PropertiesFileHover {
 		// retrieve MicroProfile property from the project information
 		String propertyName = key.getPropertyName();
 
-		ItemMetadata item = PropertiesFileUtils.getProperty(propertyName, projectInfo);
-		PropertyValue valueNode = key.getProperty().getValue();
-		String propertyValue = null;
+		PropertiesModel model = key.getOwnerModel();
+		IConfigSourcePropertiesProvider propertiesProvider = ConfigSourcePropertiesProviderUtils.layer(model, new PropertiesInfoPropertiesProvider(projectInfo.getProperties()));
+		PropertyValueExpander expander = new PropertyValueExpander(propertiesProvider);
+		cancelChecker.checkCanceled();
 
-		if (valueNode != null) {
-			PropertyGraph graph = new PropertyGraph(key.getOwnerModel());
-			String resolved = valueNode.getResolvedValue(graph, projectInfo, cancelChecker);
-			if (resolved != null) {
-				propertyValue = resolved;
-			} else {
-				propertyValue = valueNode.getValue();
-			}
-			if (!StringUtils.hasText(propertyValue)) {
-				propertyValue = null;
-			}
+		String propertyValue = expander.getValue(key.getPropertyNameWithProfile());
+		if (!StringUtils.hasText(propertyValue)) {
+			propertyValue = null;
 		}
+
+		ItemMetadata item = PropertiesFileUtils.getProperty(propertyName, projectInfo);
 
 		if (item != null) {
 			// MicroProfile property found, display the documentation as hover
@@ -221,28 +215,18 @@ class PropertiesFileHover {
 			return null;
 		}
 
-		PropertyGraph graph = new PropertyGraph(node.getOwnerModel());
+		PropertiesModel model = node.getOwnerModel();
+		IConfigSourcePropertiesProvider propertiesProvider = ConfigSourcePropertiesProviderUtils.layer(model, new PropertiesInfoPropertiesProvider(projectInfo.getProperties()));
+		PropertyValueExpander expander = new PropertyValueExpander(propertiesProvider);
 		cancelChecker.checkCanceled();
 
-		if (graph.isAcyclic()) {
-			cancelChecker.checkCanceled();
-			String resolvedValue = node.getResolvedValue(graph, projectInfo, cancelChecker);
-			if (StringUtils.hasText(resolvedValue)) {
-				return createHover(resolvedValue, node);
-			}
+		String resolvedValue = expander.getValue(referencedProp);
+
+		if (StringUtils.hasText(resolvedValue)) {
+			return createHover(resolvedValue, node);
 		}
 		cancelChecker.checkCanceled();
 
-		// Check property file for the value
-		for (Node modelChild : node.getOwnerModel().getChildren()) {
-			if (modelChild.getNodeType() == NodeType.PROPERTY) {
-				Property otherProperty = (Property) modelChild;
-				if (referencedProp.equals(otherProperty.getPropertyNameWithProfile())
-						&& otherProperty.getPropertyValue() != null && !otherProperty.getPropertyValue().isEmpty()) {
-					return createHover(otherProperty.getPropertyValue(), node);
-				}
-			}
-		}
 		// Check project info for the default value
 		ItemMetadata projectProp = PropertiesFileUtils.getProperty(referencedProp, projectInfo);
 		if (projectProp != null && projectProp.getDefaultValue() != null) {

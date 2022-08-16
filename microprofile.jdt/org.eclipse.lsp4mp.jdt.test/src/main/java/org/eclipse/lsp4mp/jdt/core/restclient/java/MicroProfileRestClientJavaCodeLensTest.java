@@ -70,6 +70,86 @@ public class MicroProfileRestClientJavaCodeLensTest extends BasePropertiesManage
 		assertCodeLenses("https://restcountries.uri/rest", params, utils);
 	}
 
+	@Test
+	public void urlCodeLensPropertiesWithPropertyExpression() throws Exception {
+		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.rest_client_quickstart);
+		IJDTUtils utils = JDT_UTILS;
+
+		// Initialize file
+		initConfigFile(javaProject);
+
+		MicroProfileJavaCodeLensParams params = new MicroProfileJavaCodeLensParams();
+		IFile javaFile = javaProject.getProject()
+				.getFile(new Path("src/main/java/org/acme/restclient/CountriesService.java"));
+		params.setUri(javaFile.getLocation().toFile().toURI().toString());
+		params.setUrlCodeLensEnabled(true);
+
+		// No configuration of base url
+		List<? extends CodeLens> lenses = PropertiesManagerForJava.getInstance().codeLens(params, utils,
+				new NullProgressMonitor());
+		Assert.assertEquals(0, lenses.size());
+
+		// /mp-rest/url
+		// get final value by following expressions transitively
+		saveFile(MicroProfileConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE,
+				"org.acme.restclient.CountriesService/mp-rest/url = https://restcountries.url/${asdf}\nasdf=${hjkl}\nhjkl=rest",
+				javaProject);
+		assertCodeLenses("https://restcountries.url/rest", params, utils);
+
+		// /mp-rest/uri
+		// get final value though using default
+		saveFile(MicroProfileConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE,
+				"org.acme.restclient.CountriesService/mp-rest/url = https://restcountries.url/${ASDF:rest}",
+				javaProject);
+		assertCodeLenses("https://restcountries.url/rest", params, utils);
+
+		// /mp-rest/uri
+		// cyclic dependencies between properties
+		// this will likely prevent the micro profile application from starting,
+		// but we also want to prevent the language server from freezing
+		saveFile(MicroProfileConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE,
+				"org.acme.restclient.CountriesService/mp-rest/url = https://restcountries.url/${asdf}\nasdf=${hjkl}\nhjkl=${org.acme.restclient.CountriesService/mp-rest/url}",
+				javaProject);
+		assertCodeLenses("https://restcountries.url/${asdf}", params, utils);
+
+		// /mp-rest/uri
+		// self loop
+		// this will also prevent the micro profile application from starting
+		saveFile(MicroProfileConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE,
+				"org.acme.restclient.CountriesService/mp-rest/url = https://restcountries.url/${org.acme.restclient.CountriesService/mp-rest/url}",
+				javaProject);
+		assertCodeLenses("https://restcountries.url/${org.acme.restclient.CountriesService/mp-rest/url}", params,
+				utils);
+		
+		// /mp-rest/uri
+		// double reference
+		saveFile(MicroProfileConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE,
+				"org.acme.restclient.CountriesService/mp-rest/url = https://restcountries.url/${asdf}${asdf}\nasdf=rest",
+				javaProject);
+		assertCodeLenses("https://restcountries.url/restrest", params,
+				utils);
+
+		// /mp-rest/uri
+		// billion laughs
+		saveFile(MicroProfileConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE,
+				"org.acme.restclient.CountriesService/mp-rest/url = https://restcountries.url/${lulz}\n" //
+				+ "lulz=${lol9}${lol9}${lol9}${lol9}${lol9}${lol9}${lol9}${lol9}${lol9}\n" //
+				+ "lol9=${lol8}${lol8}${lol8}${lol8}${lol8}${lol8}${lol8}${lol8}${lol8}\n" //
+				+ "lol8=${lol7}${lol7}${lol7}${lol7}${lol7}${lol7}${lol7}${lol7}${lol7}\n" //
+				+ "lol7=${lol6}${lol6}${lol6}${lol6}${lol6}${lol6}${lol6}${lol6}${lol6}\n" //
+				+ "lol6=${lol5}${lol5}${lol5}${lol5}${lol5}${lol5}${lol5}${lol5}${lol5}\n" //
+				+ "lol5=${lol4}${lol4}${lol4}${lol4}${lol4}${lol4}${lol4}${lol4}${lol4}\n" //
+				+ "lol4=${lol3}${lol3}${lol3}${lol3}${lol3}${lol3}${lol3}${lol3}${lol3}\n" //
+				+ "lol3=${lol2}${lol2}${lol2}${lol2}${lol2}${lol2}${lol2}${lol2}${lol2}\n" //
+				+ "lol2=${lol1}${lol1}${lol1}${lol1}${lol1}${lol1}${lol1}${lol1}${lol1}\n" //
+				+ "lol1=${lol}${lol}${lol}${lol}${lol}${lol}${lol}${lol}${lol}${lol}\n" //
+				+ "lol=lol",
+				javaProject);
+		assertCodeLenses("https://restcountries.url/${lulz}", params,
+				utils);
+
+	}
+
 	private static void initConfigFile(IJavaProject javaProject) throws Exception {
 		saveFile(MicroProfileConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE, "", javaProject);
 	}

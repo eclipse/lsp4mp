@@ -13,9 +13,6 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.model;
 
-import org.eclipse.lsp4j.jsonrpc.CancelChecker;
-import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
-
 /**
  * The property value node
  *
@@ -39,42 +36,6 @@ public class PropertyValue extends BasePropertyValue {
 	public String getValue() {
 		String text = getText(true);
 		return text != null ? text.trim() : null;
-	}
-
-	/**
-	 * Returns the property value with the property expressions resolved,
-	 * or null if a circular dependency between properties exists.
-	 *
-	 * @param graph The dependencies between properties
-	 * @param projectInfo the project information
-	 * @param cancelChecker the cancel checker, checks cancellation each recursion
-	 * @return The property value with the property expressions resolved,
-	 * or null if a circular dependency between properties exists.
-	 */
-	public String getResolvedValue(PropertyGraph graph, MicroProfileProjectInfo projectInfo, CancelChecker cancelChecker) {
-		cancelChecker.checkCanceled();
-		if (!graph.isAcyclic()) {
-			return null;
-		}
-		StringBuilder resolvedValue = new StringBuilder();
-		for (Node child : getChildren()) {
-			switch (child.getNodeType()) {
-				case PROPERTY_VALUE_LITERAL:
-					resolvedValue.append(child.getText(true));
-					break;
-				case PROPERTY_VALUE_EXPRESSION:
-					PropertyValueExpression propValExpr = (PropertyValueExpression) child;
-					String resolvedVal = propValExpr.getResolvedValue(graph, projectInfo, cancelChecker);
-					if (resolvedVal == null) {
-						return null;
-					}
-					resolvedValue.append(propValExpr.getResolvedValue(graph, projectInfo, cancelChecker));
-					break;
-				default:
-					assert false;
-			}
-		}
-		return resolvedValue.toString();
 	}
 
 	@Override
