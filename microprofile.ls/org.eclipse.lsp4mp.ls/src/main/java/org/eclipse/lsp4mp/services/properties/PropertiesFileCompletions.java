@@ -15,8 +15,10 @@ package org.eclipse.lsp4mp.services.properties;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -38,6 +40,8 @@ import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.metadata.ConverterKind;
 import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
 import org.eclipse.lsp4mp.commons.metadata.ValueHint;
+import org.eclipse.lsp4mp.commons.utils.ConfigSourcePropertiesProviderUtils;
+import org.eclipse.lsp4mp.commons.utils.PropertyValueExpander;
 import org.eclipse.lsp4mp.commons.utils.StringUtils;
 import org.eclipse.lsp4mp.ls.commons.BadLocationException;
 import org.eclipse.lsp4mp.ls.commons.SnippetsBuilder;
@@ -49,7 +53,6 @@ import org.eclipse.lsp4mp.model.Node;
 import org.eclipse.lsp4mp.model.Node.NodeType;
 import org.eclipse.lsp4mp.model.PropertiesModel;
 import org.eclipse.lsp4mp.model.Property;
-import org.eclipse.lsp4mp.model.PropertyGraph;
 import org.eclipse.lsp4mp.model.PropertyKey;
 import org.eclipse.lsp4mp.model.PropertyValueExpression;
 import org.eclipse.lsp4mp.settings.MicroProfileCompletionCapabilities;
@@ -454,13 +457,13 @@ class PropertiesFileCompletions {
 			MicroProfileProjectInfo projectInfo, MicroProfileCompletionCapabilities completionCapabilities,
 			CompletionList list, CancelChecker cancelChecker) {
 
-		PropertyGraph graph = new PropertyGraph(model);
+		PropertyValueExpander expander = new PropertyValueExpander(model);
 		cancelChecker.checkCanceled();
 
 		// Find properties that won't make a circular dependency and suggest them for
 		// completion
 		String completionPropertyName = node.getProperty().getPropertyKey();
-		List<String> independentProperties = graph.getIndependentProperties(completionPropertyName);
+		List<String> independentProperties = expander.getIndependentProperties(completionPropertyName);
 		cancelChecker.checkCanceled();
 		// Add all independent properties as completion items
 		for (String independentProperty : independentProperties) {
@@ -472,7 +475,7 @@ class PropertiesFileCompletions {
 		for (ItemMetadata candidateCompletion : projectInfo.getProperties()) {
 			if (candidateCompletion.getDefaultValue() == null) {
 				String candidateCompletionName = candidateCompletion.getName();
-				if (!graph.hasNode(candidateCompletionName)) {
+				if (!model.hasKey(candidateCompletionName)) {
 					list.getItems().add(getPropertyCompletionItem(candidateCompletionName, node, model));
 				}
 			}

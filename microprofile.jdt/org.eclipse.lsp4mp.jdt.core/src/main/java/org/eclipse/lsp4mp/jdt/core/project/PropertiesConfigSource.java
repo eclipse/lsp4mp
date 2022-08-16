@@ -16,12 +16,16 @@ package org.eclipse.lsp4mp.jdt.core.project;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.lsp4mp.commons.utils.PropertyValueExpander;
 
 /**
  * {@link Properties} config file implementation.
@@ -30,6 +34,8 @@ import org.eclipse.jdt.core.IJavaProject;
  *
  */
 public class PropertiesConfigSource extends AbstractConfigSource<Properties> {
+
+	private transient PropertyValueExpander propertyValueExpander = null;
 
 	public PropertiesConfigSource(String configFileName, String profile, int ordinal, IJavaProject javaProject) {
 		super(configFileName, profile, ordinal, javaProject);
@@ -46,11 +52,15 @@ public class PropertiesConfigSource extends AbstractConfigSource<Properties> {
 	@Override
 	public String getProperty(String key) {
 		Properties properties = getConfig();
-		return properties != null ? properties.getProperty(key) : null;
+		if (properties == null) {
+			return null;
+		}
+		return properties.getProperty(key);
 	}
 
 	@Override
 	protected Properties loadConfig(InputStream input) throws IOException {
+		propertyValueExpander = null;
 		Properties properties = new Properties();
 		properties.load(input);
 		String profile = getProfile();
@@ -90,6 +100,15 @@ public class PropertiesConfigSource extends AbstractConfigSource<Properties> {
 			}
 		});
 		return propertiesMap;
+	}
+
+	@Override
+	public Set<String> getAllKeys() {
+		Properties properties = getConfig();
+		if (properties == null) {
+			return Collections.emptySet();
+		}
+		return properties.keySet().stream().map(key -> (String) key).collect(Collectors.toSet());
 	}
 
 }

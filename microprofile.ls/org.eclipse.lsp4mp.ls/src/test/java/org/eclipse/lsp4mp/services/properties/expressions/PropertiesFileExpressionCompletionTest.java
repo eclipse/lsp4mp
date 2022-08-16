@@ -320,6 +320,34 @@ public class PropertiesFileExpressionCompletionTest {
 				c("SEVERE", "SEVERE", r(0, 32, 32)));
 	}
 
+	@Test
+	public void complexExpressions1() throws BadLocationException {
+		String text = "asdf = ${${hjkl}}\n" + //
+				"hjkl = ${qwerty}\n" + //
+				"foo = bar\n" + //
+				"qwerty = ${|}\n";
+		testCompletionFor(text, generateInfoFor("asdf", "hjkl", "foo", "qwerty"), //
+				c("${foo}", r(3, 9, 12)));
+	}
+
+	@Test
+	public void complexExpressions2() throws BadLocationException {
+		String text = "asdf = ${hjkl:${qwerty}}\n" + //
+				"foo = bar\n" + //
+				"qwerty = ${|}\n";
+		testCompletionFor(text, generateInfoFor("asdf", "hjkl", "foo", "qwerty"), //
+				c("${foo}", r(2, 9, 12)), c("${hjkl}", r(2, 9, 12)));
+	}
+	
+	@Test
+	public void complexExpressions3() throws BadLocationException {
+		String text = "asdf = ${${hjkl}}\n" + //
+				"hjkl = ${asdf}\n" + //
+				"qwerty = ${|}\n";
+		testCompletionFor(text, generateInfoFor("asdf", "hjkl", "qwerty"), //
+				c("${asdf}", r(2, 9, 12)), c("${hjkl}", r(2, 9, 12)));
+	}
+
 	// Utility functions
 
 	private static MicroProfileProjectInfo generateInfoFor(String... properties) {

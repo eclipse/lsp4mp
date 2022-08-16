@@ -13,10 +13,14 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.model;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
+import org.eclipse.lsp4mp.commons.utils.IConfigSourcePropertiesProvider;
+import org.eclipse.lsp4mp.commons.utils.StringUtils;
 import org.eclipse.lsp4mp.ls.commons.BadLocationException;
 import org.eclipse.lsp4mp.ls.commons.TextDocument;
 import org.eclipse.lsp4mp.model.parser.ErrorEvent;
@@ -33,7 +37,7 @@ import org.eclipse.lsp4mp.model.parser.PropertiesParser;
  * @author Angelo ZERR
  *
  */
-public class PropertiesModel extends Node {
+public class PropertiesModel extends Node implements IConfigSourcePropertiesProvider {
 
 	/**
 	 * This handler catch each properties events (start/end property, etc) to build
@@ -157,10 +161,12 @@ public class PropertiesModel extends Node {
 
 	private final TextDocument document;
 	private CancelChecker cancelChecker;
+	private transient Set<String> keys;
 
 	PropertiesModel(TextDocument document, CancelChecker cancelChecker) {
 		this.document = document;
 		this.cancelChecker = cancelChecker;
+		this.keys = null;
 	}
 
 	@Override
@@ -286,6 +292,56 @@ public class PropertiesModel extends Node {
 
 	public CancelChecker getCancelChecker() {
 		return cancelChecker;
+	}
+
+	@Override
+	public Set<String> keys() {
+		if (keys != null) {
+			return keys;
+		}
+
+		keys = new HashSet<>();
+
+		for (Node child : getChildren()) {
+			if (child.getNodeType() == NodeType.PROPERTY) {
+				Property property = (Property) child;
+				PropertyValue valueNode = property.getValue();
+				if (valueNode != null && StringUtils.hasText(valueNode.getText(true))) {
+					String key = property.getPropertyNameWithProfile();
+					if (StringUtils.hasText(key)) {
+						keys.add(key);
+					}
+				}
+			}
+		}
+
+		return keys;
+	}
+
+	@Override
+	public boolean hasKey(String key) {
+		return keys().contains(key);
+	}
+
+	@Override
+	public String getValue(String key) {
+		if (key == null) {
+			return null;
+		}
+		for (Node child : getChildren()) {
+			if (child.getNodeType() == NodeType.PROPERTY) {
+				Property property = (Property) child;
+				PropertyKey keyNode = property.getKey();
+				if (key.equals(keyNode.getPropertyNameWithProfile())) {
+					PropertyValue valueNode = property.getValue();
+					if (valueNode != null && StringUtils.hasText(valueNode.getText(true))) {
+						return valueNode.getText(true);
+					}
+				}
+
+			}
+		}
+		return null;
 	}
 
 }

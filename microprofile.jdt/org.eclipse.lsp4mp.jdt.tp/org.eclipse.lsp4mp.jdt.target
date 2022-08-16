@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?>
+<target name="LSP4MP Target Platform">
+	<locations>
+		<location type="Target" uri="https://repo.eclipse.org/content/repositories/jdtls-releases/org/eclipse/jdt/ls/org.eclipse.jdt.ls.tp/1.14.0.20220721170741/org.eclipse.jdt.ls.tp-1.14.0.20220721170741.target"/>
+		<location includeDependencyDepth="infinite" includeDependencyScopes="compile" includeSource="true" missingManifest="generate" type="Maven">
+			<dependencies>
+				<dependency>
+					<groupId>io.smallrye.common</groupId>
+					<artifactId>smallrye-common-expression</artifactId>
+					<version>1.12.0</version>
+					<type>jar</type>
+				</dependency>
+			</dependencies>
+		</location>
+	</locations>
+</target>

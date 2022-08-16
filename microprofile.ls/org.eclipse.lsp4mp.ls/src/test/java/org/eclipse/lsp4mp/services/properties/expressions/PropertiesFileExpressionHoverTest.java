@@ -231,6 +231,8 @@ public class PropertiesFileExpressionHoverTest {
 						System.lineSeparator() + //
 						" * Type: `java.lang.String`" + //
 						System.lineSeparator() + //
+						" * Value: `${value}`" + //
+						System.lineSeparator() + //
 						" * Extension: `microprofile-metrics-api`",
 				0);
 	}
@@ -247,6 +249,8 @@ public class PropertiesFileExpressionHoverTest {
 						System.lineSeparator() + //
 						System.lineSeparator() + //
 						" * Type: `java.lang.String`" + //
+						System.lineSeparator() + //
+						" * Value: `${value}`" + //
 						System.lineSeparator() + //
 						" * Extension: `microprofile-metrics-api`",
 				0);
@@ -270,6 +274,76 @@ public class PropertiesFileExpressionHoverTest {
 		String value = "my.property = ${quarkus.|application.name}\n" + //
 				"quarkus.application.name=";
 		assertNoHover(value);
+	}
+	
+	@Test
+	public void hoverWithNestedPropertyExpression1() throws BadLocationException {
+		String value = "asdf=${hj|kl}\n" + //
+				"hjkl = ${${foo}}\n" + //
+				"foo = bar\n" + //
+				"bar = qwerty";
+		assertHoverMarkdown(value, "qwerty", 5);
+	}
+	
+	@Test
+	public void hoverWithNestedPropertyExpression2() throws BadLocationException {
+		String value = "asdf=${hj|kl}\n" + //
+				"hjkl = ${${foo}}\n" + //
+				"foo = bar\n" + //
+				"bar = ";
+		assertHoverMarkdown(value, "${bar}", 5);
+	}
+	
+	@Test
+	public void hoverWithNestedPropertyExpression3() throws BadLocationException {
+		String value = "asdf=${hj|kl}\n" + //
+				"hjkl = ${${asdf}}\n";
+		assertHoverMarkdown(value, "${${asdf}}", 5);
+	}
+	
+	@Test
+	public void hoverWithNestedPropertyExpression4() throws BadLocationException {
+		String value = "asdf=${hj|kl}\n" + //
+				"hjkl = ${}\n";
+		assertHoverMarkdown(value, "${}", 5);
+	}
+	
+	@Test
+	public void hoverWithNestedPropertyExpression5() throws BadLocationException {
+		String value = "asdf=${hj|kl}\n" + //
+				"hjkl = ${${foo}:ASDF}\n";
+		assertHoverMarkdown(value, "ASDF", 5);
+	}
+	
+	@Test
+	public void hoverWithNestedPropertyExpression6() throws BadLocationException {
+		String value = "asdf=${hj|kl}\n" + //
+				"hjkl = ${${foo}:${foo:}\n";
+		assertNoHover(value);
+	}
+	
+	@Test
+	public void hoverWithNestedPropertyExpression7() throws BadLocationException {
+		String value = "asdf=${hj|kl}\n" + //
+				"hjkl = ${${foo}:${foo:ASDF}\n";
+		assertHoverMarkdown(value, "ASDF", 5);
+	}
+	
+	@Test
+	public void hoverWithBillionLaughs() throws BadLocationException {
+		String value = "asdf=${lu|lz}\n" + //
+				"lulz=${lol9}${lol9}${lol9}${lol9}${lol9}${lol9}${lol9}${lol9}${lol9}\n" //
+				+ "lol9=${lol8}${lol8}${lol8}${lol8}${lol8}${lol8}${lol8}${lol8}${lol8}\n" //
+				+ "lol8=${lol7}${lol7}${lol7}${lol7}${lol7}${lol7}${lol7}${lol7}${lol7}\n" //
+				+ "lol7=${lol6}${lol6}${lol6}${lol6}${lol6}${lol6}${lol6}${lol6}${lol6}\n" //
+				+ "lol6=${lol5}${lol5}${lol5}${lol5}${lol5}${lol5}${lol5}${lol5}${lol5}\n" //
+				+ "lol5=${lol4}${lol4}${lol4}${lol4}${lol4}${lol4}${lol4}${lol4}${lol4}\n" //
+				+ "lol4=${lol3}${lol3}${lol3}${lol3}${lol3}${lol3}${lol3}${lol3}${lol3}\n" //
+				+ "lol3=${lol2}${lol2}${lol2}${lol2}${lol2}${lol2}${lol2}${lol2}${lol2}\n" //
+				+ "lol2=${lol1}${lol1}${lol1}${lol1}${lol1}${lol1}${lol1}${lol1}${lol1}\n" //
+				+ "lol1=${lol}${lol}${lol}${lol}${lol}${lol}${lol}${lol}${lol}${lol}\n" //
+				+ "lol=lol";
+		assertHoverMarkdown(value, "${lol9}${lol9}${lol9}${lol9}${lol9}${lol9}${lol9}${lol9}${lol9}", 5);
 	}
 
 }

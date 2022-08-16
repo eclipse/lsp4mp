@@ -53,4 +53,9 @@ Export-Package: io.quarkus.runtime.util,
  org.eclipse.lsp4mp.jdt.internal.restclient;x-friends:="org.eclipse.lsp4mp.jdt.test"
 Bundle-ClassPath: .
 Import-Package: com.google.gson,
- com.google.gson.stream
+ com.google.gson.stream,
+ io.smallrye.common.expression,
+ io.smallrye.common.function,
+ io.smallrye.common.constraint,
+ org.jboss.logging,
+ com.google.common.graph
