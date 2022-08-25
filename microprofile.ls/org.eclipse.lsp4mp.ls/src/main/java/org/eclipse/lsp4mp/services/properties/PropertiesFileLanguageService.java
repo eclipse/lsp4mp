@@ -24,6 +24,7 @@ import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DocumentHighlight;
 import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.Hover;
+import org.eclipse.lsp4j.InlayHint;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.Position;
@@ -58,6 +59,7 @@ public class PropertiesFileLanguageService {
 	private final PropertiesFileFormatter formatter;
 	private final PropertiesFileCodeActions codeActions;
 	private final PropertiesFileDocumentHighlight documentHighlight;
+	private final PropertiesFileInlayHint inlayHint;
 
 	public PropertiesFileLanguageService() {
 		this.completions = new PropertiesFileCompletions();
@@ -68,6 +70,7 @@ public class PropertiesFileLanguageService {
 		this.formatter = new PropertiesFileFormatter();
 		this.codeActions = new PropertiesFileCodeActions();
 		this.documentHighlight = new PropertiesFileDocumentHighlight();
+		this.inlayHint = new PropertiesFileInlayHint();
 	}
 
 	/**
@@ -82,8 +85,7 @@ public class PropertiesFileLanguageService {
 	 */
 	public CompletionList doComplete(PropertiesModel document, Position position, MicroProfileProjectInfo projectInfo,
 			MicroProfileCompletionCapabilities completionCapabilities,
-			MicroProfileFormattingSettings formattingSettings,
-			CancelChecker cancelChecker) {
+			MicroProfileFormattingSettings formattingSettings, CancelChecker cancelChecker) {
 		updateProperties(projectInfo, document);
 		return completions.doComplete(document, position, projectInfo, completionCapabilities, formattingSettings,
 				cancelChecker);
@@ -224,8 +226,8 @@ public class PropertiesFileLanguageService {
 			MicroProfileProjectInfo projectInfo, MicroProfileFormattingSettings formattingSettings,
 			MicroProfileCommandCapabilities commandCapabilities, CancelChecker cancelChecker) {
 		updateProperties(projectInfo, document);
-		return codeActions.doCodeActions(context, range, document, projectInfo, formattingSettings,
-				commandCapabilities, cancelChecker);
+		return codeActions.doCodeActions(context, range, document, projectInfo, formattingSettings, commandCapabilities,
+				cancelChecker);
 	}
 
 	/**
@@ -248,6 +250,11 @@ public class PropertiesFileLanguageService {
 		if (projectInfo instanceof ExtendedMicroProfileProjectInfo) {
 			((ExtendedMicroProfileProjectInfo) projectInfo).updateCustomProperties(document);
 		}
+	}
+
+	public List<InlayHint> getInlayHint(PropertiesModel document, MicroProfileProjectInfo projectInfo, Range range,
+			CancelChecker cancelChecker) {
+		return inlayHint.getInlayHint(document, projectInfo, range, cancelChecker);
 	}
 
 }

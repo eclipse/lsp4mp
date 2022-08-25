@@ -40,6 +40,8 @@ import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.DocumentSymbolParams;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.HoverParams;
+import org.eclipse.lsp4j.InlayHint;
+import org.eclipse.lsp4j.InlayHintParams;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.SymbolInformation;
@@ -57,6 +59,7 @@ import org.eclipse.lsp4mp.ls.java.JavaFileTextDocumentService;
 import org.eclipse.lsp4mp.ls.properties.PropertiesFileTextDocumentService;
 import org.eclipse.lsp4mp.settings.MicroProfileCodeLensSettings;
 import org.eclipse.lsp4mp.settings.MicroProfileFormattingSettings;
+import org.eclipse.lsp4mp.settings.MicroProfileInlayHintSettings;
 import org.eclipse.lsp4mp.settings.MicroProfileSymbolSettings;
 import org.eclipse.lsp4mp.settings.MicroProfileValidationSettings;
 import org.eclipse.lsp4mp.settings.SharedSettings;
@@ -210,6 +213,15 @@ public class MicroProfileTextDocumentService implements TextDocumentService {
 	}
 
 	@Override
+	public CompletableFuture<List<InlayHint>> inlayHint(InlayHintParams params) {
+		TextDocumentService service = getTextDocumentService(params.getTextDocument());
+		if (service != null) {
+			return service.inlayHint(params);
+		}
+		return CompletableFuture.completedFuture(null);
+	}
+
+	@Override
 	public CompletableFuture<List<? extends DocumentHighlight>> documentHighlight(DocumentHighlightParams params) {
 		TextDocumentService service = getTextDocumentService(params.getTextDocument());
 		if (service != null) {
@@ -238,6 +250,10 @@ public class MicroProfileTextDocumentService implements TextDocumentService {
 
 	public void updateCodeLensSettings(MicroProfileCodeLensSettings newCodeLens) {
 		javaTextDocumentService.updateCodeLensSettings(newCodeLens);
+	}
+
+	public void updateInlayHintSettings(MicroProfileInlayHintSettings newInlayHint) {
+		applicationPropertiesTextDocumentService.updateInlayHintSettings(newInlayHint);
 	}
 
 	private TextDocumentService getTextDocumentService(TextDocumentIdentifier document) {

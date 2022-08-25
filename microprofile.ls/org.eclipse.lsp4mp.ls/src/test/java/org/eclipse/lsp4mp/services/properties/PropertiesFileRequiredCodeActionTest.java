@@ -30,7 +30,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
- * Test with the required code actions in 'application.properties' file.
+ * Test with the required code actions in 'microprofile-config.properties' file.
  * 
  *
  */

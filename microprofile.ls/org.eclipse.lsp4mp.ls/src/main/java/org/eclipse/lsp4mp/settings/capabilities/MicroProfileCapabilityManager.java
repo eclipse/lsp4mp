@@ -22,6 +22,7 @@ import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstan
 import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.DOCUMENT_SYMBOL_ID;
 import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.FORMATTING_ID;
 import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.HOVER_ID;
+import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.INLAY_HINT_ID;
 import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.RANGE_FORMATTING_ID;
 import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_CODE_ACTION;
 import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_CODE_LENS;
@@ -31,6 +32,7 @@ import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstan
 import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_DOCUMENT_SYMBOL;
 import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_FORMATTING;
 import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_HOVER;
+import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_INLAY_HINT;
 import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_RANGE_FORMATTING;
 
 import java.util.ArrayList;
@@ -111,7 +113,11 @@ public class MicroProfileCapabilityManager {
 			registerCapability(RANGE_FORMATTING_ID, TEXT_DOCUMENT_RANGE_FORMATTING, getFormattingRegistrationOptions());
 		}
 		if (this.getClientCapabilities().isDocumentHighlightSupported()) {
-			registerCapability(DOCUMENT_HIGHLIGHT_ID, TEXT_DOCUMENT_DOCUMENT_HIGHLIGHT, getFormattingRegistrationOptions());
+			registerCapability(DOCUMENT_HIGHLIGHT_ID, TEXT_DOCUMENT_DOCUMENT_HIGHLIGHT,
+					getFormattingRegistrationOptions());
+		}
+		if (this.getClientCapabilities().isInlayHintDynamicRegistered()) {
+			registerCapability(INLAY_HINT_ID, TEXT_DOCUMENT_INLAY_HINT);
 		}
 	}
 

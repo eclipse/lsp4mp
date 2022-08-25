@@ -16,7 +16,7 @@ import org.eclipse.lsp4mp.ls.commons.BadLocationException;
 import org.junit.Test;
 
 /**
- * Test formatting and range formatting for the 'application.properties' file.
+ * Test formatting and range formatting for the 'microprofile-config.properties' file.
  *
  */
 public class PropertiesFileFormatterTest {

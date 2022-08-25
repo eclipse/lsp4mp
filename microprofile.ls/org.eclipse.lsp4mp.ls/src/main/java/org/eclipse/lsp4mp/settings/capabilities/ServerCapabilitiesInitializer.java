@@ -51,6 +51,7 @@ public class ServerCapabilitiesInitializer {
 		if (!clientCapabilities.isCodeLensDynamicRegistered()) {
 			serverCapabilities.setCodeLensProvider(DEFAULT_CODELENS_OPTIONS);
 		}
+		serverCapabilities.setInlayHintProvider(!clientCapabilities.isInlayHintDynamicRegistered());
 		return serverCapabilities;
 	}
 }

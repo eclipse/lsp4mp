@@ -34,6 +34,8 @@ import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.DocumentSymbolParams;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.HoverParams;
+import org.eclipse.lsp4j.InlayHint;
+import org.eclipse.lsp4j.InlayHintParams;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.MarkupKind;
@@ -146,6 +148,11 @@ public abstract class AbstractTextDocumentService implements TextDocumentService
 
 	@Override
 	public CompletableFuture<List<? extends DocumentHighlight>> documentHighlight(DocumentHighlightParams params) {
+		return CompletableFuture.completedFuture(null);
+	}
+
+	@Override
+	public CompletableFuture<List<InlayHint>> inlayHint(InlayHintParams params) {
 		return CompletableFuture.completedFuture(null);
 	}
 

@@ -108,4 +108,8 @@ public class ClientCapabilitiesWrapper {
 						.contains(ResourceOperationKind.Delete);
 		// @formatter:on
 	}
+
+	public boolean isInlayHintDynamicRegistered() {
+		return v3Supported && isDynamicRegistrationSupported(getTextDocument().getInlayHint());
+	}
 }

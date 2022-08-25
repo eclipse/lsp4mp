@@ -23,7 +23,7 @@ import org.eclipse.lsp4mp.ls.commons.BadLocationException;
 import org.junit.Test;
 
 /**
- * Test with completion in 'application.properties' file.
+ * Test with completion in 'microprofile-config.properties' file.
  *
  * @author Angelo ZERR
  *

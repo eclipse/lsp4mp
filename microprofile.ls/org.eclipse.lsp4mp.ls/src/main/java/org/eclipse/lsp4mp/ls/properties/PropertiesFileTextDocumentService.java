@@ -41,6 +41,8 @@ import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.DocumentSymbolParams;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.HoverParams;
+import org.eclipse.lsp4j.InlayHint;
+import org.eclipse.lsp4j.InlayHintParams;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
@@ -49,7 +51,6 @@ import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
-import org.eclipse.lsp4j.jsonrpc.messages.Tuple;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfoParams;
 import org.eclipse.lsp4mp.commons.MicroProfilePropertiesChangeEvent;
@@ -62,6 +63,7 @@ import org.eclipse.lsp4mp.ls.commons.ValidatorDelayer;
 import org.eclipse.lsp4mp.model.PropertiesModel;
 import org.eclipse.lsp4mp.services.properties.PropertiesFileLanguageService;
 import org.eclipse.lsp4mp.settings.MicroProfileFormattingSettings;
+import org.eclipse.lsp4mp.settings.MicroProfileInlayHintSettings;
 import org.eclipse.lsp4mp.settings.MicroProfileSymbolSettings;
 import org.eclipse.lsp4mp.settings.MicroProfileValidationSettings;
 import org.eclipse.lsp4mp.settings.SharedSettings;
@@ -244,6 +246,22 @@ public class PropertiesFileTextDocumentService extends AbstractTextDocumentServi
 		});
 	}
 
+	@Override
+	public CompletableFuture<List<InlayHint>> inlayHint(InlayHintParams params) {
+		if (!sharedSettings.getInlayHintSettings().isEnabled()) {
+			return CompletableFuture.completedFuture(Collections.emptyList());
+		}
+		return getPropertiesModel(params.getTextDocument(), (document, cancelChecker) -> {
+			MicroProfileProjectInfoParams projectInfoParams = createProjectInfoParams(params.getTextDocument());
+			MicroProfileProjectInfo projectInfo = getProjectInfoCache().getProjectInfo(projectInfoParams).getNow(null);
+			if (projectInfo == null || projectInfo.getProperties().isEmpty()) {
+				return null;
+			}
+			return getPropertiesFileLanguageService().getInlayHint(document, projectInfo, params.getRange(),
+					cancelChecker);
+		});
+	}
+
 	private MicroProfileProjectInfoParams createProjectInfoParams(TextDocumentIdentifier id) {
 		return createProjectInfoParams(id.getUri());
 	}
@@ -341,6 +359,10 @@ public class PropertiesFileTextDocumentService extends AbstractTextDocumentServi
 		documents.all().stream().forEach(document -> {
 			triggerValidationFor(document);
 		});
+	}
+
+	public void updateInlayHintSettings(MicroProfileInlayHintSettings newInlayHint) {
+		sharedSettings.getInlayHintSettings().setEnabled(newInlayHint.isEnabled());
 	}
 
 	/**

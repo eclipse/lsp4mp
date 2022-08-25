@@ -9,6 +9,8 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.services.properties;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -18,7 +20,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.eclipse.lsp4j.CodeAction;
@@ -33,6 +34,8 @@ import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.HoverCapabilities;
+import org.eclipse.lsp4j.InlayHint;
+import org.eclipse.lsp4j.InlayHintLabelPart;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.MarkedString;
@@ -65,6 +68,7 @@ import org.eclipse.lsp4mp.settings.MicroProfileCommandCapabilities;
 import org.eclipse.lsp4mp.settings.MicroProfileCompletionCapabilities;
 import org.eclipse.lsp4mp.settings.MicroProfileFormattingSettings;
 import org.eclipse.lsp4mp.settings.MicroProfileHoverSettings;
+import org.eclipse.lsp4mp.settings.MicroProfileInlayHintSettings;
 import org.eclipse.lsp4mp.settings.MicroProfileValidationSettings;
 import org.eclipse.lsp4mp.snippets.LanguageId;
 import org.eclipse.lsp4mp.snippets.SnippetContextForProperties;
@@ -88,6 +92,9 @@ public class PropertiesFileAssert {
 	private static MicroProfilePropertyDefinitionProvider DEFAULT_DEFINITION_PROVIDER;
 
 	private static final String MICROPROFILE_DIAGNOSTIC_SOURCE = "microprofile";
+
+	private static final CancelChecker NOOP_CHECKER = () -> {
+	};
 
 	public static MicroProfileProjectInfo getDefaultMicroProfileProjectInfo() {
 		if (DEFAULT_PROJECT == null) {
@@ -200,7 +207,7 @@ public class PropertiesFileAssert {
 			previous = label;
 		}
 		if (expectedCount != null) {
-			Assert.assertEquals(expectedCount.intValue(), actual.getItems().size());
+			assertEquals(expectedCount.intValue(), actual.getItems().size());
 		}
 		if (expectedItems != null) {
 			for (CompletionItem item : expectedItems) {
@@ -214,7 +221,7 @@ public class PropertiesFileAssert {
 			return expected.getLabel().equals(completion.getLabel());
 		}).collect(Collectors.toList());
 
-		Assert.assertEquals(
+		assertEquals(
 				expected.getLabel() + " should only exist once: Actual: "
 						+ completions.getItems().stream().map(c -> c.getLabel()).collect(Collectors.joining(",")),
 				1, matches.size());
@@ -222,28 +229,26 @@ public class PropertiesFileAssert {
 		CompletionItem match = matches.get(0);
 		/*
 		 * if (expected.documentation != null) {
-		 * Assert.assertEquals(match.getDocumentation().getRight().getValue(),
-		 * expected.getd); } if (expected.kind) { Assert.assertEquals(match.kind,
-		 * expected.kind); }
+		 * assertEquals(match.getDocumentation().getRight().getValue(), expected.getd);
+		 * } if (expected.kind) { assertEquals(match.kind, expected.kind); }
 		 */
 		// if (expected.getTextEdit() != null && match.getTextEdit() != null) {
 		if (expected.getTextEdit() != null && expected.getTextEdit().getLeft() != null) {
-			Assert.assertEquals(expected.getTextEdit().getLeft().getNewText(),
-					match.getTextEdit().getLeft().getNewText());
+			assertEquals(expected.getTextEdit().getLeft().getNewText(), match.getTextEdit().getLeft().getNewText());
 		}
 		Range r = expected.getTextEdit() != null && expected.getTextEdit().getLeft() != null
 				? expected.getTextEdit().getLeft().getRange()
 				: null;
 		if (r != null && r.getStart() != null && r.getEnd() != null) {
-			Assert.assertEquals(expected.getTextEdit().getLeft().getRange(), match.getTextEdit().getLeft().getRange());
+			assertEquals(expected.getTextEdit().getLeft().getRange(), match.getTextEdit().getLeft().getRange());
 		}
 		// }
 		if (expected.getFilterText() != null && match.getFilterText() != null) {
-			Assert.assertEquals(expected.getFilterText(), match.getFilterText());
+			assertEquals(expected.getFilterText(), match.getFilterText());
 		}
 
 		if (expected.getDocumentation() != null) {
-			Assert.assertEquals(DocumentationUtils.getDocumentationTextFromEither(expected.getDocumentation()),
+			assertEquals(DocumentationUtils.getDocumentationTextFromEither(expected.getDocumentation()),
 					DocumentationUtils.getDocumentationTextFromEither(match.getDocumentation()));
 		}
 
@@ -293,7 +298,7 @@ public class PropertiesFileAssert {
 			CompletionItem... expectedItems) {
 		int offset = value.indexOf('|');
 		value = value.substring(0, offset) + value.substring(offset + 1);
-		TextDocument document = new TextDocument(value, "application.properties");
+		TextDocument document = new TextDocument(value, "microprofile-config.properties");
 		List<CompletionItem> items = registry.getCompletionItems(document, offset, true, true, (context, model) -> {
 			return true;
 		}, new HashMap<>());
@@ -313,7 +318,7 @@ public class PropertiesFileAssert {
 			return metadata;
 		}).collect(Collectors.toList()));
 		TextDocumentSnippetRegistry registry = new TextDocumentSnippetRegistry(LanguageId.properties.name());
-		TextDocument document = new TextDocument(value, "application.properties");
+		TextDocument document = new TextDocument(value, "microprofile-config.properties");
 		List<CompletionItem> items = registry.getCompletionItems(document, offset, true, true, (context, model) -> {
 			if (context instanceof SnippetContextForProperties) {
 				SnippetContextForProperties contextProperties = (SnippetContextForProperties) context;
@@ -367,16 +372,17 @@ public class PropertiesFileAssert {
 
 		PropertiesFileLanguageService languageService = new PropertiesFileLanguageService();
 
-		Hover hover = languageService.doHover(model, position, projectInfo, hoverSettings, () -> {});
+		Hover hover = languageService.doHover(model, position, projectInfo, hoverSettings, () -> {
+		});
 		if (expectedHoverLabel == null) {
 			Assert.assertNull(hover);
 		} else {
 			String actualHoverLabel = getHoverLabel(hover);
-			Assert.assertEquals(expectedHoverLabel, actualHoverLabel);
+			assertEquals(expectedHoverLabel, actualHoverLabel);
 			if (expectedHoverOffset != null) {
 				Assert.assertNotNull(hover.getRange());
 				Assert.assertNotNull(hover.getRange().getStart());
-				Assert.assertEquals(expectedHoverOffset.intValue(), hover.getRange().getStart().getCharacter());
+				assertEquals(expectedHoverOffset.intValue(), hover.getRange().getStart().getCharacter());
 			}
 		}
 	}
@@ -412,7 +418,7 @@ public class PropertiesFileAssert {
 	}
 
 	public static void assertSymbolInformations(List<SymbolInformation> actual, SymbolInformation... expected) {
-		Assert.assertEquals(expected.length, actual.size());
+		assertEquals(expected.length, actual.size());
 		Assert.assertArrayEquals(expected, actual.toArray());
 	}
 
@@ -440,7 +446,7 @@ public class PropertiesFileAssert {
 	}
 
 	public static void assertDocumentSymbols(List<DocumentSymbol> actual, DocumentSymbol... expected) {
-		Assert.assertEquals(expected.length, actual.size());
+		assertEquals(expected.length, actual.size());
 		Assert.assertArrayEquals(expected, actual.toArray());
 	}
 
@@ -479,7 +485,7 @@ public class PropertiesFileAssert {
 	}
 
 	public static void assertLocationLink(List<? extends LocationLink> actual, LocationLink... expected) {
-		Assert.assertEquals(expected.length, actual.size());
+		assertEquals(expected.length, actual.size());
 		for (int i = 0; i < expected.length; i++) {
 			actual.get(i).setTargetUri(actual.get(i).getTargetUri().replaceAll("file:///", "file:/"));
 			expected[i].setTargetUri(expected[i].getTargetUri().replaceAll("file:///", "file:/"));
@@ -516,7 +522,7 @@ public class PropertiesFileAssert {
 		List<Diagnostic> actual = languageService.doDiagnostics(model, projectInfo, validationSettings, () -> {
 		});
 		if (expectedCount != null) {
-			Assert.assertEquals(expectedCount.intValue(), actual.size());
+			assertEquals(expectedCount.intValue(), actual.size());
 		}
 		assertDiagnostics(actual, expected);
 	}
@@ -526,7 +532,7 @@ public class PropertiesFileAssert {
 	}
 
 	public static void assertDiagnostics(List<Diagnostic> actual, List<Diagnostic> expected) {
-		Assert.assertEquals("Unexpected diagnostics:\n", expected, actual);
+		assertEquals("Unexpected diagnostics:\n", expected, actual);
 	}
 
 	public static Diagnostic d(int line, int startCharacter, int endCharacter, String message,
@@ -599,7 +605,7 @@ public class PropertiesFileAssert {
 			}
 		});
 
-		Assert.assertEquals(expected.length, actual.size());
+		assertEquals(expected.length, actual.size());
 		Assert.assertArrayEquals(expected, actual.toArray());
 	}
 
@@ -627,7 +633,7 @@ public class PropertiesFileAssert {
 
 		if (te != null) {
 			VersionedTextDocumentIdentifier versionedTextDocumentIdentifier = new VersionedTextDocumentIdentifier(
-					"application.properties", 0);
+					"microprofile-config.properties", 0);
 			TextDocumentEdit textDocumentEdit = new TextDocumentEdit(versionedTextDocumentIdentifier,
 					Collections.singletonList(te));
 			WorkspaceEdit workspaceEdit = new WorkspaceEdit(
@@ -660,7 +666,7 @@ public class PropertiesFileAssert {
 		List<? extends TextEdit> edits = languageService.doFormat(model, formattingSettings);
 
 		String formatted = edits.stream().map(edit -> edit.getNewText()).collect(Collectors.joining(""));
-		Assert.assertEquals(expected, formatted);
+		assertEquals(expected, formatted);
 	}
 
 	public static void assertRangeFormat(String value, String expected, boolean insertSpaces)
@@ -677,7 +683,7 @@ public class PropertiesFileAssert {
 		value = value.substring(0, startOffset) + value.substring(startOffset + 1);
 		int endOffset = value.indexOf("|");
 		value = value.substring(0, endOffset) + value.substring(endOffset + 1);
-		TextDocument document = new TextDocument(value, "application.properties");
+		TextDocument document = new TextDocument(value, "microprofile-config.properties");
 		Range range = PositionUtils.createRange(startOffset, endOffset, document);
 
 		PropertiesModel model = parse(value, null);
@@ -691,7 +697,7 @@ public class PropertiesFileAssert {
 		String formatted = value.substring(0, formatStart)
 				+ edits.stream().map(edit -> edit.getNewText()).collect(Collectors.joining(""))
 				+ value.substring(formatEnd);
-		Assert.assertEquals(expected, formatted);
+		assertEquals(expected, formatted);
 	}
 
 	// ------------------- Document Highlight Assert
@@ -699,21 +705,69 @@ public class PropertiesFileAssert {
 	public static void assertDocumentHighlight(String value, Range... expected) throws BadLocationException {
 		int offset = value.indexOf("|");
 		value = value.substring(0, offset) + value.substring(offset + 1);
-		TextDocument document = new TextDocument(value, "application.properties");
+		TextDocument document = new TextDocument(value, "microprofile-config.properties");
 		PropertiesModel model = parse(value, null);
 		PropertiesFileLanguageService languageService = new PropertiesFileLanguageService();
-		Object[] actual = languageService.findDocumentHighlight(model, document.positionAt(offset), NOOP_CHECKER).stream().map(dh -> {
-			return dh.getRange();
-		}).collect(Collectors.toList()).toArray();
+		Object[] actual = languageService.findDocumentHighlight(model, document.positionAt(offset), NOOP_CHECKER)
+				.stream().map(dh -> {
+					return dh.getRange();
+				}).collect(Collectors.toList()).toArray();
 
 		Assert.assertArrayEquals(expected, actual);
 	}
 
 	private static PropertiesModel parse(String text, String uri) {
-		TextDocument document = new TextDocument(text, uri != null ? uri : "application.properties");
-		return PropertiesModel.parse(document, () -> {});
+		TextDocument document = new TextDocument(text, uri != null ? uri : "microprofile-config.properties");
+		return PropertiesModel.parse(document, () -> {
+		});
 	}
 
-	private static final CancelChecker NOOP_CHECKER = () -> {};
+	// ------------------- InlayHint assert
 
+	public static void testInlayHintFor(String value, InlayHint... expected) throws Exception {
+		testInlayHintFor(value, null, expected);
+	}
+
+	public static void testInlayHintFor(String value, MicroProfileInlayHintSettings inlayHintSettings,
+			InlayHint... expected) throws Exception {
+		PropertiesModel model = parse(value, null);
+		Range range = null;
+		PropertiesFileLanguageService languageService = new PropertiesFileLanguageService();
+		List<InlayHint> actual = languageService.getInlayHint(model, getDefaultMicroProfileProjectInfo(), range, () -> {
+		});
+		assertInlayHint(actual, expected);
+	}
+
+	public static InlayHint ih(Position position, String label) {
+		return new InlayHint(position, Either.forLeft(label));
+	}
+
+	public static InlayHint ih(Position position, InlayHintLabelPart... parts) {
+		return new InlayHint(position, Either.forRight(Arrays.asList(parts)));
+	}
+
+	public static InlayHintLabelPart ihLabel(String label) {
+		return new InlayHintLabelPart(label);
+	}
+
+	public static InlayHintLabelPart ihLabel(String label, String tooltip, Command command) {
+		InlayHintLabelPart part = ihLabel(label);
+		part.setCommand(command);
+		part.setTooltip(tooltip);
+		return part;
+	}
+
+	public static void assertInlayHint(List<? extends InlayHint> actual, InlayHint... expected) {
+		assertEquals(expected.length, actual.size());
+		for (int i = 0; i < expected.length; i++) {
+			assertEquals("position at " + i, expected[i].getPosition(), actual.get(i).getPosition());
+			assertEquals("label at " + i, expected[i].getLabel(), actual.get(i).getLabel());
+		}
+	}
+
+	// Utilities
+
+	public static Position p(int line, int character) {
+		return new Position(line, character);
+	}
 }

@@ -22,7 +22,7 @@ import org.eclipse.lsp4mp.ls.commons.BadLocationException;
 import org.junit.Test;
 
 /**
- * Test with symbols in 'application.properties' file.
+ * Test with symbols in 'microprofile-config.properties' file.
  *
  * @author Angelo ZERR
  *
@@ -42,11 +42,11 @@ public class PropertiesFileSymbolsTest {
 				"\n" + //
 				"";
 		testSymbolInformationsFor(value, //
-				s("quarkus.datasource.driver", SymbolKind.Property, "application.properties", r(1, 0, 47)), //
-				s("quarkus.datasource.username", SymbolKind.Property, "application.properties", r(2, 0, 40)), //
-				s("quarkus.datasource.password", SymbolKind.Property, "application.properties", r(3, 0, 40)), //
-				s("quarkus.datasource.max-size", SymbolKind.Property, "application.properties", r(6, 0, 27)), //
-				s("quarkus.datasource.min-size", SymbolKind.Property, "application.properties", r(7, 0, 28)) //
+				s("quarkus.datasource.driver", SymbolKind.Property, "microprofile-config.properties", r(1, 0, 47)), //
+				s("quarkus.datasource.username", SymbolKind.Property, "microprofile-config.properties", r(2, 0, 40)), //
+				s("quarkus.datasource.password", SymbolKind.Property, "microprofile-config.properties", r(3, 0, 40)), //
+				s("quarkus.datasource.max-size", SymbolKind.Property, "microprofile-config.properties", r(6, 0, 27)), //
+				s("quarkus.datasource.min-size", SymbolKind.Property, "microprofile-config.properties", r(7, 0, 28)) //
 		);
 	};
 
@@ -100,7 +100,7 @@ public class PropertiesFileSymbolsTest {
 				"application \\\n" + //
 				"name";
 		testSymbolInformationsFor(value, //
-				s("quarkus.application.name", SymbolKind.Property, "application.properties", r(0, 0, 3, 4))
+				s("quarkus.application.name", SymbolKind.Property, "microprofile-config.properties", r(0, 0, 3, 4))
 		);
 	};
 

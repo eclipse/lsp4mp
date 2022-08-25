@@ -28,7 +28,7 @@ import org.eclipse.lsp4mp.ls.commons.client.ConfigurationItemEditType;
 import org.junit.Test;
 
 /**
- * Test with code actions in 'application.properties' file.
+ * Test with code actions in 'microprofile-config.properties' file.
  * 
  * @author Angelo ZERR
  *
