@@ -40,6 +40,8 @@ public class MicroProfileGeneralClientSettings {
 
 	private MicroProfileCodeLensSettings codeLens;
 
+	private MicroProfileInlayHintSettings inlayHint;
+
 	/**
 	 * Returns the symbols settings.
 	 *
@@ -110,6 +112,14 @@ public class MicroProfileGeneralClientSettings {
 	 */
 	public void setCodeLens(MicroProfileCodeLensSettings codeLens) {
 		this.codeLens = codeLens;
+	}
+
+	public MicroProfileInlayHintSettings getInlayHint() {
+		return inlayHint;
+	}
+
+	public void setInlayHint(MicroProfileInlayHintSettings inlayHint) {
+		this.inlayHint = inlayHint;
 	}
 
 	/**

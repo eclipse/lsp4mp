@@ -91,4 +91,13 @@ public class PropertyValue extends BasePropertyValue {
 		return getParent();
 	}
 
+	public boolean hasExpression() {
+		for (Node child : getChildren()) {
+			if (child.getNodeType() == NodeType.PROPERTY_VALUE_EXPRESSION) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 }

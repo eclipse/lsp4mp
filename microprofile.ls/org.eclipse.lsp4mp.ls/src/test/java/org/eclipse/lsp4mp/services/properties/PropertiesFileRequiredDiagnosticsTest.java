@@ -25,7 +25,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
- * Test with the required diagnostic in 'application.properties' file.
+ * Test with the required diagnostic in 'microprofile-config.properties' file.
  * 
  *
  */

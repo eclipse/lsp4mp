@@ -52,6 +52,7 @@ import org.eclipse.lsp4mp.settings.MicroProfileCodeLensSettings;
 import org.eclipse.lsp4mp.settings.MicroProfileExtensionSettings;
 import org.eclipse.lsp4mp.settings.MicroProfileFormattingSettings;
 import org.eclipse.lsp4mp.settings.MicroProfileGeneralClientSettings;
+import org.eclipse.lsp4mp.settings.MicroProfileInlayHintSettings;
 import org.eclipse.lsp4mp.settings.MicroProfileSymbolSettings;
 import org.eclipse.lsp4mp.settings.MicroProfileValidationSettings;
 import org.eclipse.lsp4mp.settings.capabilities.MicroProfileCapabilityManager;
@@ -148,6 +149,10 @@ public class MicroProfileLanguageServer implements LanguageServer, ProcessLangua
 			MicroProfileCodeLensSettings newCodeLens = clientSettings.getCodeLens();
 			if (newCodeLens != null) {
 				textDocumentService.updateCodeLensSettings(newCodeLens);
+			}
+			MicroProfileInlayHintSettings newInlayHint = clientSettings.getInlayHint();
+			if (newInlayHint != null) {
+				textDocumentService.updateInlayHintSettings(newInlayHint);
 			}
 		}
 	}

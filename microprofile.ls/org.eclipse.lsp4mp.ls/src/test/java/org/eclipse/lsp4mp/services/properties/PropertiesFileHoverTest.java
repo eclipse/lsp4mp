@@ -18,7 +18,7 @@ import org.eclipse.lsp4mp.ls.commons.BadLocationException;
 import org.junit.Test;
 
 /**
- * Test with hover in 'application.properties' file.
+ * Test with hover in 'microprofile-config.properties' file.
  *
  */
 public class PropertiesFileHoverTest {
