@@ -24,6 +24,7 @@ import org.eclipse.lsp4j.services.LanguageClient;
 public interface MicroProfileLanguageClientAPI extends LanguageClient, MicroProfileProjectInfoProvider,
 		MicroProfilePropertyDefinitionProvider, MicroProfileJavaCodeActionProvider, MicroProfileJavaCodeLensProvider,
 		MicroProfileJavaCompletionProvider, MicroProfileJavaDiagnosticsProvider, MicroProfileJavaDefinitionProvider,
-		MicroProfileJavaHoverProvider, MicroProfileJavaProjectLabelsProvider, MicroProfileJavaFileInfoProvider {
+		MicroProfileJavaHoverProvider, MicroProfileJavaProjectLabelsProvider, MicroProfileJavaFileInfoProvider,
+		MicroProfileJavaCodeActionResolveProvider {
 
 }

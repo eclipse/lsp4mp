@@ -19,6 +19,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.InvalidRegistryObjectException;
@@ -27,6 +28,7 @@ import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4mp.jdt.core.java.codeaction.IJavaCodeActionParticipant;
 import org.eclipse.lsp4mp.jdt.core.java.codeaction.JavaCodeActionContext;
+import org.eclipse.lsp4mp.jdt.core.java.codeaction.JavaCodeActionResolveContext;
 import org.eclipse.lsp4mp.jdt.internal.core.java.AbstractJavaFeatureDefinition;
 
 /**
@@ -54,6 +56,16 @@ public class JavaCodeActionDefinition extends AbstractJavaFeatureDefinition<IJav
 	}
 
 	@Override
+	public String getParticipantId() {
+		try {
+			return getParticipant().getParticipantId();
+		} catch (CoreException e) {
+			LOGGER.log(Level.WARNING, "Unable to get CodeAction participant", e);
+			return "";
+		}
+	}
+
+	@Override
 	public boolean isAdaptedForCodeAction(JavaCodeActionContext context, IProgressMonitor monitor) {
 		try {
 			return getParticipant().isAdaptedForCodeAction(context, monitor);
@@ -72,6 +84,16 @@ public class JavaCodeActionDefinition extends AbstractJavaFeatureDefinition<IJav
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, "Error while calling getCodeActions", e);
 			return Collections.emptyList();
+		}
+	}
+
+	@Override
+	public CodeAction resolveCodeAction(JavaCodeActionResolveContext context) {
+		try {
+			return getParticipant().resolveCodeAction(context);
+		} catch (CoreException e) {
+			LOGGER.log(Level.WARNING, "Unable to get CodeAction participant", e);
+			return context.getUnresolved();
 		}
 	}
 

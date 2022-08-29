@@ -14,15 +14,20 @@
 package org.eclipse.lsp4mp.jdt.core.java.codeaction;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4mp.commons.CodeActionResolveData;
 import org.eclipse.lsp4mp.jdt.core.java.corrections.proposal.ChangeCorrectionProposal;
 import org.eclipse.lsp4mp.jdt.core.java.corrections.proposal.InsertAnnotationAttributeProposal;
 
@@ -32,7 +37,9 @@ import org.eclipse.lsp4mp.jdt.core.java.corrections.proposal.InsertAnnotationAtt
  * @author Angelo ZERR
  *
  */
-public class InsertAnnotationAttributeQuickFix implements IJavaCodeActionParticipant {
+public abstract class InsertAnnotationAttributeQuickFix implements IJavaCodeActionParticipant {
+
+	private static final Logger LOGGER = Logger.getLogger(InsertAnnotationAttributeQuickFix.class.getName());
 
 	private static final String CODE_ACTION_LABEL = "Insert ''{0}'' attribute";
 
@@ -50,25 +57,31 @@ public class InsertAnnotationAttributeQuickFix implements IJavaCodeActionPartici
 	@Override
 	public List<? extends CodeAction> getCodeActions(JavaCodeActionContext context, Diagnostic diagnostic,
 			IProgressMonitor monitor) throws CoreException {
-		ASTNode selectedNode = context.getCoveringNode();
-		Annotation annotation = (Annotation) selectedNode.getParent().getParent();
-		List<CodeAction> codeActions = new ArrayList<>();
-		insertAnnotationAttribute(annotation, this.attributeName, diagnostic, codeActions, context);
-		return codeActions;
+		ExtendedCodeAction codeAction = new ExtendedCodeAction(getLabel(attributeName));
+		codeAction.setRelevance(0);
+		codeAction.setKind(CodeActionKind.QuickFix);
+		codeAction.setDiagnostics(Arrays.asList(diagnostic));
+		codeAction.setData(
+				new CodeActionResolveData(context.getUri(), getParticipantId(), context.getParams().getRange(), null,
+						context.getParams().isResourceOperationSupported(),
+						context.getParams().isCommandConfigurationUpdateSupported()));
+		return Collections.singletonList(codeAction);
 	}
 
-	protected static void insertAnnotationAttribute(Annotation annotation, String attributeName, Diagnostic diagnostic,
-			List<CodeAction> codeActions, JavaCodeActionContext context) throws CoreException {
-		// Insert the annotation and the proper import by using JDT Core Manipulation
-		// API
+	@Override
+	public CodeAction resolveCodeAction(JavaCodeActionResolveContext context) {
+		CodeAction toResolve = context.getUnresolved();
+		ASTNode selectedNode = context.getCoveringNode();
+		Annotation annotation = (Annotation) selectedNode.getParent().getParent();
 		String name = getLabel(attributeName);
 		ChangeCorrectionProposal proposal = new InsertAnnotationAttributeProposal(name, context.getCompilationUnit(),
 				annotation, 0, attributeName);
-		// Convert the proposal to LSP4J CodeAction
-		CodeAction codeAction = context.convertToCodeAction(proposal, diagnostic);
-		if (codeAction != null) {
-			codeActions.add(codeAction);
+		try {
+			toResolve.setEdit(context.convertToWorkspaceEdit(proposal));
+		} catch (CoreException e) {
+			LOGGER.log(Level.SEVERE, "Unable to resolve code action edit for inserting an attribute value", e);
 		}
+		return toResolve;
 	}
 
 	private static String getLabel(String memberName) {

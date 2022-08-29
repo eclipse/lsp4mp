@@ -120,6 +120,11 @@ public abstract class AbstractTextDocumentService implements TextDocumentService
 	}
 
 	@Override
+	public CompletableFuture<CodeAction> resolveCodeAction(CodeAction unresolved) {
+		return CompletableFuture.completedFuture(null);
+	}
+
+	@Override
 	public CompletableFuture<List<Either<SymbolInformation, DocumentSymbol>>> documentSymbol(
 			DocumentSymbolParams params) {
 		return CompletableFuture.completedFuture(null);

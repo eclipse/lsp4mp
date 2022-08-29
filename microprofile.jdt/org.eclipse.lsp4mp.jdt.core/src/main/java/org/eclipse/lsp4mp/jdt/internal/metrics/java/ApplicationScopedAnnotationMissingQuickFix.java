@@ -13,14 +13,26 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.internal.metrics.java;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.IBinding;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.internal.corext.dom.Bindings;
 import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Diagnostic;
-import org.eclipse.lsp4mp.jdt.core.java.codeaction.InsertAnnotationMissingQuickFix;
+import org.eclipse.lsp4j.WorkspaceEdit;
+import org.eclipse.lsp4mp.commons.CodeActionResolveData;
+import org.eclipse.lsp4mp.jdt.core.java.codeaction.ExtendedCodeAction;
+import org.eclipse.lsp4mp.jdt.core.java.codeaction.IJavaCodeActionParticipant;
 import org.eclipse.lsp4mp.jdt.core.java.codeaction.JavaCodeActionContext;
+import org.eclipse.lsp4mp.jdt.core.java.codeaction.JavaCodeActionResolveContext;
 import org.eclipse.lsp4mp.jdt.core.java.corrections.proposal.ChangeCorrectionProposal;
 import org.eclipse.lsp4mp.jdt.core.java.corrections.proposal.ReplaceAnnotationProposal;
 import org.eclipse.lsp4mp.jdt.internal.metrics.MicroProfileMetricsConstants;
@@ -29,47 +41,70 @@ import org.eclipse.lsp4mp.jdt.internal.metrics.MicroProfileMetricsConstants;
  * QuickFix for fixing
  * {@link MicroProfileMetricsErrorCode#ApplicationScopedAnnotationMissing} error
  * by providing several code actions:
- * 
+ *
  * <ul>
  * <li>Remove @RequestScoped | @SessionScoped | @Dependent annotation</li>
  * <li>Insert @ApplicationScoped annotation and the proper import.</li>
  * </ul>
- * 
+ *
  * @author Kathryn Kodama
  *
  */
-public class ApplicationScopedAnnotationMissingQuickFix extends InsertAnnotationMissingQuickFix {
+public class ApplicationScopedAnnotationMissingQuickFix implements IJavaCodeActionParticipant {
+
+	private static final Logger LOGGER = Logger.getLogger(ApplicationScopedAnnotationMissingQuickFix.class.getName());
 
 	private static final String[] REMOVE_ANNOTATION_NAMES = new String[] {
 			MicroProfileMetricsConstants.REQUEST_SCOPED_ANNOTATION_NAME,
 			MicroProfileMetricsConstants.SESSION_SCOPED_ANNOTATION_NAME,
 			MicroProfileMetricsConstants.DEPENDENT_ANNOTATION_NAME };
 
-	public ApplicationScopedAnnotationMissingQuickFix() {
-		super(MicroProfileMetricsConstants.APPLICATION_SCOPED_ANNOTATION);
+	private static final String ADD_ANNOTATION = MicroProfileMetricsConstants.APPLICATION_SCOPED_ANNOTATION;
+
+	@Override
+	public String getParticipantId() {
+		return ApplicationScopedAnnotationMissingQuickFix.class.getName();
 	}
 
 	@Override
-	protected void insertAnnotations(Diagnostic diagnostic, JavaCodeActionContext context, IBinding parentType,
-			List<CodeAction> codeActions) throws CoreException {
-		String[] annotations = getAnnotations();
-		for (String annotation : annotations) {
-			insertAndReplaceAnnotation(diagnostic, context, parentType, codeActions, annotation);
-		}
+	public List<? extends CodeAction> getCodeActions(JavaCodeActionContext context, Diagnostic diagnostic,
+			IProgressMonitor monitor) throws CoreException {
+		ExtendedCodeAction codeAction = new ExtendedCodeAction(getLabel(ADD_ANNOTATION));
+		codeAction.setRelevance(0);
+		codeAction.setDiagnostics(Collections.singletonList(diagnostic));
+		codeAction.setKind(CodeActionKind.QuickFix);
+		codeAction.setData(
+				new CodeActionResolveData(context.getUri(), getParticipantId(), context.getParams().getRange(), null,
+						context.getParams().isResourceOperationSupported(),
+						context.getParams().isCommandConfigurationUpdateSupported()));
+
+		return Collections.singletonList(codeAction);
 	}
 
-	private static void insertAndReplaceAnnotation(Diagnostic diagnostic, JavaCodeActionContext context,
-			IBinding parentType, List<CodeAction> codeActions, String annotation) throws CoreException {
-		// Insert the annotation and the proper import by using JDT Core Manipulation
-		// API
-		String name = getLabel(annotation);
+	@Override
+	public CodeAction resolveCodeAction(JavaCodeActionResolveContext context) {
+		CodeAction toResolve = context.getUnresolved();
+		String name = getLabel(ADD_ANNOTATION);
+		ASTNode node = context.getCoveringNode();
+		IBinding parentType = getBinding(node);
+
 		ChangeCorrectionProposal proposal = new ReplaceAnnotationProposal(name, context.getCompilationUnit(),
-				context.getASTRoot(), parentType, 0, annotation, REMOVE_ANNOTATION_NAMES);
-		// Convert the proposal to LSP4J CodeAction
-		CodeAction codeAction = context.convertToCodeAction(proposal, diagnostic);
-		if (codeAction != null) {
-			codeActions.add(codeAction);
+				context.getASTRoot(), parentType, 0, ADD_ANNOTATION, REMOVE_ANNOTATION_NAMES);
+		try {
+			WorkspaceEdit we = context.convertToWorkspaceEdit(proposal);
+			toResolve.setEdit(we);
+		} catch (CoreException e) {
+			LOGGER.log(Level.SEVERE, "Failed to create workspace edit to replace bean scope annotation", e);
 		}
+
+		return toResolve;
+	}
+
+	private IBinding getBinding(ASTNode node) {
+		if (node.getParent() instanceof VariableDeclarationFragment) {
+			return ((VariableDeclarationFragment) node.getParent()).resolveBinding();
+		}
+		return Bindings.getBindingOfParentType(node);
 	}
 
 	private static String getLabel(String annotation) {

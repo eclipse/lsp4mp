@@ -24,7 +24,7 @@ import org.eclipse.lsp4mp.jdt.core.java.codeaction.InsertAnnotationAttributeQuic
  * <ul>
  * <li>Insert defaultValue attribute annotation in the @ConfigProperty.</li>
  * </ul>
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -32,6 +32,11 @@ public class InsertDefaultValueAnnotationAttributeQuickFix extends InsertAnnotat
 
 	public InsertDefaultValueAnnotationAttributeQuickFix() {
 		super(MicroProfileConfigConstants.CONFIG_PROPERTY_ANNOTATION_DEFAULT_VALUE);
+	}
+
+	@Override
+	public String getParticipantId() {
+		return InsertDefaultValueAnnotationAttributeQuickFix.class.getName();
 	}
 
 }

@@ -216,7 +216,7 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 	@Override
 	public CompletableFuture<List<Either<Command, CodeAction>>> codeAction(CodeActionParams params) {
 		if (validatorDelayer.isRevalidating(params.getTextDocument().getUri())) {
-			return CompletableFuture.completedFuture((List<Either<Command, CodeAction>>) Collections.EMPTY_LIST);
+			return CompletableFuture.completedFuture(Collections.emptyList());
 		}
 		JavaTextDocument document = documents.get(params.getTextDocument().getUri());
 		return document.executeIfInMicroProfileProject((projectInfo, cancelChecker) -> {
@@ -229,6 +229,8 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 			javaParams.setResourceOperationSupported(microprofileLanguageServer.getCapabilityManager()
 					.getClientCapabilities().isResourceOperationSupported());
 			javaParams.setCommandConfigurationUpdateSupported(commandConfigurationUpdateSupported);
+			javaParams.setResolveSupported(microprofileLanguageServer.getCapabilityManager().getClientCapabilities()
+					.isCodeActionResolveSupported());
 			return microprofileLanguageServer.getLanguageClient().getJavaCodeAction(javaParams) //
 					.thenApply(codeActions -> {
 						cancelChecker.checkCanceled();
@@ -240,6 +242,11 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 								.collect(Collectors.toList());
 					});
 		}, Collections.emptyList());
+	}
+
+	@Override
+	public CompletableFuture<CodeAction> resolveCodeAction(CodeAction unresolved) {
+		return microprofileLanguageServer.getLanguageClient().resolveCodeAction(unresolved);
 	}
 
 	// ------------------------------ Definition ------------------------------

@@ -51,8 +51,10 @@ import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.TextDocumentService;
+import org.eclipse.lsp4mp.commons.CodeActionResolveData;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfoParams;
 import org.eclipse.lsp4mp.commons.MicroProfilePropertiesChangeEvent;
+import org.eclipse.lsp4mp.commons.utils.JSONUtility;
 import org.eclipse.lsp4mp.ls.api.MicroProfileLanguageServerAPI.JsonSchemaForProjectInfo;
 import org.eclipse.lsp4mp.ls.commons.client.ExtendedClientCapabilities;
 import org.eclipse.lsp4mp.ls.java.JavaFileTextDocumentService;
@@ -199,6 +201,19 @@ public class MicroProfileTextDocumentService implements TextDocumentService {
 		TextDocumentService service = getTextDocumentService(params.getTextDocument());
 		if (service != null) {
 			return service.codeAction(params);
+		}
+		return CompletableFuture.completedFuture(null);
+	}
+
+	@Override
+	public CompletableFuture<CodeAction> resolveCodeAction(CodeAction unresolved) {
+		CodeActionResolveData data = JSONUtility.toModel(unresolved.getData(), CodeActionResolveData.class);
+		if (data == null) {
+			return CompletableFuture.completedFuture(unresolved);
+		}
+		TextDocumentService service = getTextDocumentService(new TextDocumentIdentifier(data.getDocumentUri()));
+		if (service != null) {
+			return service.resolveCodeAction(unresolved);
 		}
 		return CompletableFuture.completedFuture(null);
 	}

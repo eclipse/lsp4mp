@@ -112,4 +112,23 @@ public class ClientCapabilitiesWrapper {
 	public boolean isInlayHintDynamicRegistered() {
 		return v3Supported && isDynamicRegistrationSupported(getTextDocument().getInlayHint());
 	}
+
+	/**
+	 * Returns true if the client supports both code action data and resolving
+	 * workspace edits for code actions, and false otherwise.
+	 *
+	 * Both of these feature must be present in order to implement code action
+	 * resolve effectively.
+	 *
+	 * @return true if the client supports both code action data and resolving
+	 *         workspace edits for code actions, and false otherwise
+	 */
+	public boolean isCodeActionResolveSupported() {
+		return capabilities.getTextDocument() != null && capabilities.getTextDocument().getCodeAction() != null
+				&& capabilities.getTextDocument().getCodeAction().getDataSupport() != null
+				&& capabilities.getTextDocument().getCodeAction().getDataSupport().booleanValue()
+				&& capabilities.getTextDocument().getCodeAction().getResolveSupport() != null
+				&& capabilities.getTextDocument().getCodeAction().getResolveSupport().getProperties() != null
+				&& capabilities.getTextDocument().getCodeAction().getResolveSupport().getProperties().contains("edit");
+	}
 }

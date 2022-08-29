@@ -29,7 +29,15 @@ import org.eclipse.lsp4j.Diagnostic;
 public interface IJavaCodeActionParticipant {
 
 	/**
-	 * Returns true if the code actions are adaptable for the given context and false
+	 * Returns the unique identifier of this code action participant.
+	 *
+	 * @return the unique identifier of this code action participant
+	 */
+	String getParticipantId();
+
+	/**
+	 * Returns true if the code actions are adaptable for the given context and
+	 * false
 	 * otherwise.
 	 *
 	 * <p>
@@ -59,4 +67,12 @@ public interface IJavaCodeActionParticipant {
 	 */
 	List<? extends CodeAction> getCodeActions(JavaCodeActionContext context, Diagnostic diagnostic,
 			IProgressMonitor monitor) throws CoreException;
+
+	/**
+	 * Returns the code action with the TextEdits filled in.
+	 *
+	 * @param unresolved the code action to resolve
+	 * @return the code action with the TextEdits filled in
+	 */
+	CodeAction resolveCodeAction(JavaCodeActionResolveContext context);
 }

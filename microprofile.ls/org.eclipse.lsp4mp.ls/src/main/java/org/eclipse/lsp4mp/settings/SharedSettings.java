@@ -112,4 +112,5 @@ public class SharedSettings {
 	public MicroProfileInlayHintSettings getInlayHintSettings() {
 		return inlayHintSettings;
 	}
+
 }
