@@ -117,6 +117,20 @@ public class PropertiesManagerForJava {
 	}
 
 	/**
+	 * Returns the codeAction list according the given codeAction parameters.
+	 *
+	 * @param unresolved the CodeAction to resolve
+	 * @param utils      the utilities class
+	 * @param monitor    the monitor
+	 * @return the codeAction list according the given codeAction parameters.
+	 * @throws JavaModelException
+	 */
+	public CodeAction resolveCodeAction(CodeAction unresolved, IJDTUtils utils,
+			IProgressMonitor monitor) throws JavaModelException {
+		return codeActionHandler.resolveCodeAction(unresolved, utils, monitor);
+	}
+
+	/**
 	 * Returns the codelens list according the given codelens parameters.
 	 *
 	 * @param params  the codelens parameters
@@ -195,7 +209,8 @@ public class PropertiesManagerForJava {
 		}
 
 		completions.forEach(completion -> {
-			List<? extends CompletionItem> collectedCompletionItems = completion.collectCompletionItems(completionContext,
+			List<? extends CompletionItem> collectedCompletionItems = completion.collectCompletionItems(
+					completionContext,
 					monitor);
 			if (collectedCompletionItems != null) {
 				completionItems.addAll(collectedCompletionItems);
@@ -291,7 +306,8 @@ public class PropertiesManagerForJava {
 		return publishDiagnostics;
 	}
 
-	private void collectDiagnostics(String uri, IJDTUtils utils, DocumentFormat documentFormat, MicroProfileJavaDiagnosticsSettings settings,
+	private void collectDiagnostics(String uri, IJDTUtils utils, DocumentFormat documentFormat,
+			MicroProfileJavaDiagnosticsSettings settings,
 			List<Diagnostic> diagnostics, IProgressMonitor monitor) {
 		ITypeRoot typeRoot = resolveTypeRoot(uri, utils, monitor);
 		if (typeRoot == null) {
@@ -342,7 +358,8 @@ public class PropertiesManagerForJava {
 		DocumentFormat documentFormat = params.getDocumentFormat();
 		boolean surroundEqualsWithSpaces = params.isSurroundEqualsWithSpaces();
 		List<Hover> hovers = new ArrayList<>();
-		collectHover(uri, typeRoot, hoverElement, utils, hoverPosition, documentFormat, surroundEqualsWithSpaces, hovers, monitor);
+		collectHover(uri, typeRoot, hoverElement, utils, hoverPosition, documentFormat, surroundEqualsWithSpaces,
+				hovers, monitor);
 		if (hovers.isEmpty()) {
 			return null;
 		}
@@ -401,7 +418,8 @@ public class PropertiesManagerForJava {
 	}
 
 	private void collectHover(String uri, ITypeRoot typeRoot, IJavaElement hoverElement, IJDTUtils utils,
-			Position hoverPosition, DocumentFormat documentFormat, boolean surroundEqualsWithSpaces, List<Hover> hovers, IProgressMonitor monitor) {
+			Position hoverPosition, DocumentFormat documentFormat, boolean surroundEqualsWithSpaces, List<Hover> hovers,
+			IProgressMonitor monitor) {
 		// Collect all adapted hover participant
 		JavaHoverContext context = new JavaHoverContext(uri, typeRoot, utils, hoverElement, hoverPosition,
 				documentFormat, surroundEqualsWithSpaces);

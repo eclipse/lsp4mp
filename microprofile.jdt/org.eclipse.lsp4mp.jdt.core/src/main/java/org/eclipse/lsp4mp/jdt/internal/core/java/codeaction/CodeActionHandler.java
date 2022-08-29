@@ -27,12 +27,18 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.manipulation.CoreASTProvider;
 import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.TextDocumentIdentifier;
+import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.eclipse.lsp4mp.commons.CodeActionResolveData;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeActionParams;
 import org.eclipse.lsp4mp.jdt.core.java.codeaction.ExtendedCodeAction;
+import org.eclipse.lsp4mp.jdt.core.java.codeaction.IJavaCodeActionParticipant;
 import org.eclipse.lsp4mp.jdt.core.java.codeaction.JavaCodeActionContext;
+import org.eclipse.lsp4mp.jdt.core.java.codeaction.JavaCodeActionResolveContext;
 import org.eclipse.lsp4mp.jdt.core.utils.IJDTUtils;
 import org.eclipse.lsp4mp.jdt.internal.core.java.JavaFeaturesRegistry;
 import org.eclipse.lsp4mp.jdt.internal.core.java.corrections.DiagnosticsHelper;
@@ -46,11 +52,17 @@ import org.eclipse.lsp4mp.jdt.internal.core.java.corrections.DiagnosticsHelper;
 public class CodeActionHandler {
 
 	/**
+	 * Returns all the code actions applicable for the context given by the
+	 * parameters.
 	 *
-	 * @param params
-	 * @param utils
-	 * @param monitor
-	 * @return
+	 * The workspace edit will be resolved if code action resolve isn't supported.
+	 * Otherwise it will be null.
+	 *
+	 * @param params  the parameters for code actions
+	 * @param utils   the JDT utils
+	 * @param monitor the progress monitor
+	 * @return all the code actions applicable for the context given by the
+	 *         parameters
 	 */
 	public List<? extends CodeAction> codeAction(MicroProfileJavaCodeActionParams params, IJDTUtils utils,
 			IProgressMonitor monitor) {
@@ -132,9 +144,63 @@ public class CodeActionHandler {
 				}
 			});
 		}
+		if (!params.isResolveSupported()) {
+			List<CodeAction> resolvedCodeActions = codeActions.stream()
+					.map(codeAction -> {
+						if (codeAction.getEdit() != null || codeAction.getCommand() != null) {
+							// CodeAction is already resolved
+							// (eg. command to update settings to ignore a property from validation)
+							return codeAction;
+						}
+						return this.resolveCodeAction(codeAction, utils, monitor);
+					}).collect(Collectors.toList());
+
+			ExtendedCodeAction.sort(resolvedCodeActions);
+			return resolvedCodeActions;
+		}
 		// sort code actions by relevant
 		ExtendedCodeAction.sort(codeActions);
 		return codeActions;
+	}
+
+	/**
+	 * Returns the given unresolved CodeAction with the workspace edit resolved.
+	 *
+	 * @param unresolved the unresolved CodeAction
+	 * @param utils      the JDT utils
+	 * @param monitor    the progress monitor
+	 * @return the given unresolved CodeAction with the workspace edit resolved
+	 */
+	public CodeAction resolveCodeAction(CodeAction unresolved, IJDTUtils utils, IProgressMonitor monitor) {
+		CodeActionResolveData data = (CodeActionResolveData) unresolved.getData();
+		String participantId = data.getParticipantId();
+		String uri = data.getDocumentUri();
+
+		ICompilationUnit unit = utils.resolveCompilationUnit(uri);
+		if (unit == null) {
+			return null;
+		}
+
+		int start = DiagnosticsHelper.getStartOffset(unit, data.getRange(), utils);
+		int end = DiagnosticsHelper.getEndOffset(unit, data.getRange(), utils);
+
+		var params = new MicroProfileJavaCodeActionParams();
+		params.setContext(new CodeActionContext(
+				unresolved.getDiagnostics() == null ? Collections.emptyList() : unresolved.getDiagnostics()));
+		params.setResourceOperationSupported(data.isResourceOperationSupported());
+		params.setCommandConfigurationUpdateSupported(data.isCommandConfigurationUpdateSupported());
+		params.setRange(data.getRange());
+		params.setTextDocument(new VersionedTextDocumentIdentifier(uri, null));
+
+		JavaCodeActionResolveContext context = new JavaCodeActionResolveContext(unit, start, end - start, utils, params,
+				unresolved);
+		context.setASTRoot(getASTRoot(unit, monitor));
+
+		IJavaCodeActionParticipant participant = JavaFeaturesRegistry.getInstance()
+				.getJavaCodeActionDefinitions(unresolved.getKind()).stream()
+				.filter(definition -> participantId.equals(definition.getParticipantId()))
+				.findFirst().orElse(null);
+		return participant.resolveCodeAction(context);
 	}
 
 	private static CompilationUnit getASTRoot(ICompilationUnit unit, IProgressMonitor monitor) {

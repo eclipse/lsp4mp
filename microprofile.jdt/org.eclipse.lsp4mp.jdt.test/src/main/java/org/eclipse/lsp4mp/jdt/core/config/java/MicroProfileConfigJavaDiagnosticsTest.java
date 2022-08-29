@@ -127,7 +127,7 @@ public class MicroProfileConfigJavaDiagnosticsTest extends BasePropertiesManager
 		IJDTUtils utils = JDT_UTILS;
 
 		saveFile(MicroProfileConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE, "", javaProject);
-		
+
 		IFile propertiesFile = javaProject.getProject()
 				.getFile(new Path("src/main/resources/META-INF/microprofile-config.properties"));
 
@@ -153,14 +153,14 @@ public class MicroProfileConfigJavaDiagnosticsTest extends BasePropertiesManager
 		String javaUri = fixURI(javaFile.getLocation().toFile().toURI().toString());
 		String propertiesUri = fixURI(propertiesFile.getLocation().toFile().toURI().toString());
 
-		MicroProfileJavaCodeActionParams codeActionParams1 = createCodeActionParams(javaUri, d1);
+		MicroProfileJavaCodeActionParams codeActionParams1 = createCodeActionParams(javaUri, d1, false);
 		assertJavaCodeAction(codeActionParams1, utils, //
 				ca(javaUri, "Insert 'defaultValue' attribute", d1, //
 						te(8, 29, 8, 29, ", defaultValue = \"\"")),
 				ca(propertiesUri, "Insert 'foo' property in 'META-INF/microprofile-config.properties'", d1, //
 						te(0, 0, 0, 0, "foo=\r\n")));
 
-		MicroProfileJavaCodeActionParams codeActionParams2 = createCodeActionParams(javaUri, d2);
+		MicroProfileJavaCodeActionParams codeActionParams2 = createCodeActionParams(javaUri, d2, false);
 		assertJavaCodeAction(codeActionParams2, utils, //
 				ca(javaUri, "Insert 'defaultValue' attribute", d2, //
 						te(14, 30, 14, 30, ", defaultValue = \"\"")),

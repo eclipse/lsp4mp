@@ -11,11 +11,11 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.internal.core.ls;
 
-import static org.eclipse.lsp4mp.jdt.internal.core.ls.ArgumentUtils.getObject;
 import static org.eclipse.lsp4mp.jdt.internal.core.ls.ArgumentUtils.getBoolean;
 import static org.eclipse.lsp4mp.jdt.internal.core.ls.ArgumentUtils.getCodeActionContext;
 import static org.eclipse.lsp4mp.jdt.internal.core.ls.ArgumentUtils.getFirst;
 import static org.eclipse.lsp4mp.jdt.internal.core.ls.ArgumentUtils.getInt;
+import static org.eclipse.lsp4mp.jdt.internal.core.ls.ArgumentUtils.getObject;
 import static org.eclipse.lsp4mp.jdt.internal.core.ls.ArgumentUtils.getPosition;
 import static org.eclipse.lsp4mp.jdt.internal.core.ls.ArgumentUtils.getRange;
 import static org.eclipse.lsp4mp.jdt.internal.core.ls.ArgumentUtils.getString;
@@ -37,6 +37,7 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
+import org.eclipse.lsp4mp.commons.CodeActionResolveData;
 import org.eclipse.lsp4mp.commons.DocumentFormat;
 import org.eclipse.lsp4mp.commons.JavaFileInfo;
 import org.eclipse.lsp4mp.commons.MicroProfileDefinition;
@@ -48,6 +49,7 @@ import org.eclipse.lsp4mp.commons.MicroProfileJavaDiagnosticsParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaDiagnosticsSettings;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaFileInfoParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaHoverParams;
+import org.eclipse.lsp4mp.commons.utils.JSONUtility;
 import org.eclipse.lsp4mp.jdt.core.PropertiesManagerForJava;
 
 /**
@@ -60,6 +62,7 @@ public class MicroProfileDelegateCommandHandlerForJava extends AbstractMicroProf
 
 	private static final String FILE_INFO_COMMAND_ID = "microprofile/java/fileInfo";
 	private static final String JAVA_CODEACTION_COMMAND_ID = "microprofile/java/codeAction";
+	private static final String JAVA_CODEACTION_RESOLVE_COMMAND_ID = "microprofile/java/codeActionResolve";
 	private static final String JAVA_CODELENS_COMMAND_ID = "microprofile/java/codeLens";
 	private static final String JAVA_COMPLETION_COMMAND_ID = "microprofile/java/completion";
 	private static final String JAVA_DEFINITION_COMMAND_ID = "microprofile/java/definition";
@@ -72,22 +75,24 @@ public class MicroProfileDelegateCommandHandlerForJava extends AbstractMicroProf
 	@Override
 	public Object executeCommand(String commandId, List<Object> arguments, IProgressMonitor progress) throws Exception {
 		switch (commandId) {
-		case FILE_INFO_COMMAND_ID:
-			return getFileInfo(arguments, commandId, progress);
-		case JAVA_CODEACTION_COMMAND_ID:
-			return getCodeActionForJava(arguments, commandId, progress);
-		case JAVA_CODELENS_COMMAND_ID:
-			return getCodeLensForJava(arguments, commandId, progress);
-		case JAVA_COMPLETION_COMMAND_ID:
-			return getCompletionForJava(arguments, commandId, progress);
-		case JAVA_DEFINITION_COMMAND_ID:
-			return getDefinitionForJava(arguments, commandId, progress);
-		case JAVA_DIAGNOSTICS_COMMAND_ID:
-			return getDiagnosticsForJava(arguments, commandId, progress);
-		case JAVA_HOVER_COMMAND_ID:
-			return getHoverForJava(arguments, commandId, progress);
-		default:
-			throw new UnsupportedOperationException(String.format("Unsupported command '%s'!", commandId));
+			case FILE_INFO_COMMAND_ID:
+				return getFileInfo(arguments, commandId, progress);
+			case JAVA_CODEACTION_COMMAND_ID:
+				return getCodeActionForJava(arguments, commandId, progress);
+			case JAVA_CODEACTION_RESOLVE_COMMAND_ID:
+				return resolveCodeActionForJava(arguments, commandId, progress);
+			case JAVA_CODELENS_COMMAND_ID:
+				return getCodeLensForJava(arguments, commandId, progress);
+			case JAVA_COMPLETION_COMMAND_ID:
+				return getCompletionForJava(arguments, commandId, progress);
+			case JAVA_DEFINITION_COMMAND_ID:
+				return getDefinitionForJava(arguments, commandId, progress);
+			case JAVA_DIAGNOSTICS_COMMAND_ID:
+				return getDiagnosticsForJava(arguments, commandId, progress);
+			case JAVA_HOVER_COMMAND_ID:
+				return getHoverForJava(arguments, commandId, progress);
+			default:
+				throw new UnsupportedOperationException(String.format("Unsupported command '%s'!", commandId));
 		}
 	}
 
@@ -178,13 +183,44 @@ public class MicroProfileDelegateCommandHandlerForJava extends AbstractMicroProf
 		CodeActionContext context = getCodeActionContext(obj, "context");
 		boolean resourceOperationSupported = getBoolean(obj, "resourceOperationSupported");
 		boolean commandConfigurationUpdateSupported = getBoolean(obj, "commandConfigurationUpdateSupported");
+		boolean resolveSupported = getBoolean(obj, "resolveSupported");
 		MicroProfileJavaCodeActionParams params = new MicroProfileJavaCodeActionParams();
 		params.setTextDocument(texdDocumentIdentifier);
 		params.setRange(range);
 		params.setContext(context);
 		params.setResourceOperationSupported(resourceOperationSupported);
 		params.setCommandConfigurationUpdateSupported(commandConfigurationUpdateSupported);
+		params.setResolveSupported(resolveSupported);
 		return params;
+	}
+
+	private static CodeAction resolveCodeActionForJava(List<Object> arguments, String commandId,
+			IProgressMonitor monitor) throws JavaModelException, CoreException {
+		// Create java code action parameter
+		CodeAction unresolved = createMicroProfileJavaCodeActionResolveParams(arguments, commandId);
+		// Return code action from the code action parameter
+		return PropertiesManagerForJava.getInstance().resolveCodeAction(unresolved, JDTUtilsLSImpl.getInstance(),
+				monitor);
+	}
+
+	private static CodeAction createMicroProfileJavaCodeActionResolveParams(List<Object> arguments, String commandId) {
+		Map<String, Object> obj = getFirst(arguments);
+		if (obj == null) {
+			throw new UnsupportedOperationException(String.format(
+					"Command '%s' must be called with one CodeAction argument!", commandId));
+		}
+		CodeAction codeAction = JSONUtility.toModel(obj, CodeAction.class);
+		if (codeAction == null) {
+			throw new UnsupportedOperationException(String.format(
+					"Command '%s' must be called with one CodeAction argument!", commandId));
+		}
+		CodeActionResolveData resolveData = JSONUtility.toModel(codeAction.getData(), CodeActionResolveData.class);
+		if (resolveData == null) {
+			throw new UnsupportedOperationException(String.format(
+					"Command '%s' must be called with a CodeAction that has CodeActionResolveData!", commandId));
+		}
+		codeAction.setData(resolveData);
+		return codeAction;
 	}
 
 	/**

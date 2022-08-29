@@ -16,6 +16,7 @@ package org.eclipse.lsp4mp.settings.capabilities;
 import java.util.Arrays;
 import java.util.UUID;
 
+import org.eclipse.lsp4j.CodeActionOptions;
 import org.eclipse.lsp4j.CodeLensOptions;
 import org.eclipse.lsp4j.CompletionOptions;
 
@@ -56,4 +57,12 @@ public class ServerCapabilitiesConstants {
 					"\"" /* trigger characters for annotation property value completion */));
 
 	public static final CodeLensOptions DEFAULT_CODELENS_OPTIONS = new CodeLensOptions();
+
+	public static final CodeActionOptions DEFAULT_CODEACTION_OPTIONS = createDefaultCodeActionOptions();
+
+	private static CodeActionOptions createDefaultCodeActionOptions() {
+		CodeActionOptions options = new CodeActionOptions();
+		options.setResolveProvider(Boolean.TRUE);
+		return options;
+	}
 }

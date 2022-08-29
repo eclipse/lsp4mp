@@ -64,8 +64,10 @@ public class MicroProfileHealthJavaDiagnosticsTest extends BasePropertiesManager
 
 		String uri = javaFile.getLocation().toFile().toURI().toString();
 		MicroProfileJavaCodeActionParams codeActionParams = createCodeActionParams(uri, d);
+		codeActionParams.setResourceOperationSupported(true);
+		codeActionParams.setCommandConfigurationUpdateSupported(true);
 		assertJavaCodeAction(codeActionParams, utils, //
-				ca(uri, "Let 'DontImplementHealthCheck' implement 'org.eclipse.microprofile.health.HealthCheck'", d, //
+				ca(uri, "Let 'DontImplementHealthCheck' implement '@HealthCheck'", d, //
 						te(2, 50, 9, 37, "\r\n\r\n" + //
 								"import org.eclipse.microprofile.health.HealthCheck;\r\n" + //
 								"import org.eclipse.microprofile.health.HealthCheckResponse;\r\n" + //

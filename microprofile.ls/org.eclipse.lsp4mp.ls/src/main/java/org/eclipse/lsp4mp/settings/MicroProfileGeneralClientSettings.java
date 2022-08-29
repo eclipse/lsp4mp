@@ -13,7 +13,7 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.settings;
 
-import org.eclipse.lsp4mp.utils.JSONUtility;
+import org.eclipse.lsp4mp.commons.utils.JSONUtility;
 
 /**
  * Class to hold all settings from the client side.

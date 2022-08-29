@@ -50,7 +50,6 @@ import org.eclipse.lsp4mp.commons.MicroProfileJavaCompletionParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaDefinitionParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaDiagnosticsParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaHoverParams;
-import org.eclipse.lsp4mp.jdt.core.PropertiesManagerForJava;
 import org.eclipse.lsp4mp.jdt.core.java.diagnostics.IJavaErrorCode;
 import org.eclipse.lsp4mp.jdt.core.utils.IJDTUtils;
 import org.junit.Assert;
@@ -66,6 +65,11 @@ public class MicroProfileForJavaAssert {
 	// ------------------- Assert for CodeAction
 
 	public static MicroProfileJavaCodeActionParams createCodeActionParams(String uri, Diagnostic d) {
+		return createCodeActionParams(uri, d, true);
+	}
+
+	public static MicroProfileJavaCodeActionParams createCodeActionParams(String uri, Diagnostic d,
+			boolean commandSupported) {
 		TextDocumentIdentifier textDocument = new TextDocumentIdentifier(uri);
 		Range range = d.getRange();
 		CodeActionContext context = new CodeActionContext();
@@ -73,6 +77,8 @@ public class MicroProfileForJavaAssert {
 		MicroProfileJavaCodeActionParams codeActionParams = new MicroProfileJavaCodeActionParams(textDocument, range,
 				context);
 		codeActionParams.setResourceOperationSupported(true);
+		codeActionParams.setCommandConfigurationUpdateSupported(commandSupported);
+		codeActionParams.setResolveSupported(false);
 		return codeActionParams;
 	}
 
@@ -131,7 +137,8 @@ public class MicroProfileForJavaAssert {
 			CompletionItem... expected) throws JavaModelException {
 		CompletionList actual = PropertiesManagerForJava.getInstance().completion(params, utils,
 				new NullProgressMonitor());
-		assertCompletion(actual != null && actual.getItems() != null && actual.getItems().size() > 0 ? actual.getItems() : Collections.emptyList(), expected);
+		assertCompletion(actual != null && actual.getItems() != null && actual.getItems().size() > 0 ? actual.getItems()
+				: Collections.emptyList(), expected);
 	}
 
 	public static void assertCompletion(List<? extends CompletionItem> actual, CompletionItem... expected) {

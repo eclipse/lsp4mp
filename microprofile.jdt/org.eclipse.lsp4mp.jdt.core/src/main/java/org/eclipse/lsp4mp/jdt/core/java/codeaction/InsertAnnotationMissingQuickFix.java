@@ -14,7 +14,12 @@
 package org.eclipse.lsp4mp.jdt.core.java.codeaction;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -23,7 +28,10 @@ import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.internal.corext.dom.Bindings;
 import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.WorkspaceEdit;
+import org.eclipse.lsp4mp.commons.CodeActionResolveData;
 import org.eclipse.lsp4mp.jdt.core.java.corrections.proposal.ChangeCorrectionProposal;
 import org.eclipse.lsp4mp.jdt.core.java.corrections.proposal.InsertAnnotationProposal;
 
@@ -33,7 +41,11 @@ import org.eclipse.lsp4mp.jdt.core.java.corrections.proposal.InsertAnnotationPro
  * @author Angelo ZERR
  *
  */
-public class InsertAnnotationMissingQuickFix implements IJavaCodeActionParticipant {
+public abstract class InsertAnnotationMissingQuickFix implements IJavaCodeActionParticipant {
+
+	private static final Logger LOGGER = Logger.getLogger(InsertAnnotationMissingQuickFix.class.getName());
+
+	private static final String ANNOTATION_KEY = "annotation";
 
 	private final String[] annotations;
 
@@ -68,14 +80,31 @@ public class InsertAnnotationMissingQuickFix implements IJavaCodeActionParticipa
 	@Override
 	public List<? extends CodeAction> getCodeActions(JavaCodeActionContext context, Diagnostic diagnostic,
 			IProgressMonitor monitor) throws CoreException {
+		List<CodeAction> codeActions = new ArrayList<>();
+		insertAnnotations(diagnostic, context, codeActions);
+		return codeActions;
+	}
+
+	@Override
+	public CodeAction resolveCodeAction(JavaCodeActionResolveContext context) {
+
+		CodeAction toResolve = context.getUnresolved();
+		CodeActionResolveData data = (CodeActionResolveData) toResolve.getData();
+		String[] resolveAnnotations = (String[]) data.getExtendedDataEntry(ANNOTATION_KEY);
+		String name = getLabel(resolveAnnotations);
 		ASTNode node = context.getCoveringNode();
 		IBinding parentType = getBinding(node);
-		if (parentType != null) {
-			List<CodeAction> codeActions = new ArrayList<>();
-			insertAnnotations(diagnostic, context, parentType, codeActions);
-			return codeActions;
+
+		ChangeCorrectionProposal proposal = new InsertAnnotationProposal(name, context.getCompilationUnit(),
+				context.getASTRoot(), parentType, 0, resolveAnnotations);
+		try {
+			WorkspaceEdit we = context.convertToWorkspaceEdit(proposal);
+			toResolve.setEdit(we);
+		} catch (CoreException e) {
+			LOGGER.log(Level.SEVERE, "Unable to create workspace edit for code action to insert missing annotation", e);
 		}
-		return null;
+
+		return toResolve;
 	}
 
 	protected IBinding getBinding(ASTNode node) {
@@ -89,29 +118,33 @@ public class InsertAnnotationMissingQuickFix implements IJavaCodeActionParticipa
 		return this.annotations;
 	}
 
-	protected void insertAnnotations(Diagnostic diagnostic, JavaCodeActionContext context, IBinding parentType,
+	protected void insertAnnotations(Diagnostic diagnostic, JavaCodeActionContext context,
 			List<CodeAction> codeActions) throws CoreException {
 		if (generateOnlyOneCodeAction) {
-			insertAnnotation(diagnostic, context, parentType, codeActions, annotations);
+			insertAnnotation(diagnostic, context, codeActions, annotations);
 		} else {
 			for (String annotation : annotations) {
-				insertAnnotation(diagnostic, context, parentType, codeActions, annotation);
+				insertAnnotation(diagnostic, context, codeActions, annotation);
 			}
 		}
 	}
 
-	protected static void insertAnnotation(Diagnostic diagnostic, JavaCodeActionContext context, IBinding parentType,
+	protected void insertAnnotation(Diagnostic diagnostic, JavaCodeActionContext context,
 			List<CodeAction> codeActions, String... annotations) throws CoreException {
-		// Insert the annotation and the proper import by using JDT Core Manipulation
-		// API
 		String name = getLabel(annotations);
-		ChangeCorrectionProposal proposal = new InsertAnnotationProposal(name, context.getCompilationUnit(),
-				context.getASTRoot(), parentType, 0, annotations);
-		// Convert the proposal to LSP4J CodeAction
-		CodeAction codeAction = context.convertToCodeAction(proposal, diagnostic);
-		if (codeAction != null) {
-			codeActions.add(codeAction);
-		}
+		ExtendedCodeAction codeAction = new ExtendedCodeAction(name);
+		codeAction.setRelevance(0);
+		codeAction.setDiagnostics(Collections.singletonList(diagnostic));
+		codeAction.setKind(CodeActionKind.QuickFix);
+
+		Map<String, Object> extendedData = new HashMap<>();
+		extendedData.put(ANNOTATION_KEY, annotations);
+		codeAction.setData(new CodeActionResolveData(context.getUri(), getParticipantId(),
+				context.getParams().getRange(), extendedData,
+				context.getParams().isResourceOperationSupported(),
+				context.getParams().isCommandConfigurationUpdateSupported()));
+
+		codeActions.add(codeAction);
 	}
 
 	private static String getLabel(String[] annotations) {

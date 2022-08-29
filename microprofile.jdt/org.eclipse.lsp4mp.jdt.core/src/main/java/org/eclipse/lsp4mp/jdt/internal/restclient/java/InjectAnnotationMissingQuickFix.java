@@ -35,4 +35,9 @@ public class InjectAnnotationMissingQuickFix extends InsertAnnotationMissingQuic
 		super(MicroProfileConfigConstants.INJECT_ANNOTATION);
 	}
 
+	@Override
+	public String getParticipantId() {
+		return InjectAnnotationMissingQuickFix.class.getName();
+	}
+
 }

@@ -16,6 +16,7 @@ package org.eclipse.lsp4mp.settings.capabilities;
 import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.CODE_ACTION_ID;
 import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.CODE_LENS_ID;
 import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.COMPLETION_ID;
+import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_CODEACTION_OPTIONS;
 import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_COMPLETION_OPTIONS;
 import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.DEFINITION_ID;
 import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.DOCUMENT_HIGHLIGHT_ID;
@@ -74,7 +75,7 @@ public class MicroProfileCapabilityManager {
 	 */
 	public void initializeCapabilities() {
 		if (this.getClientCapabilities().isCodeActionDynamicRegistered()) {
-			registerCapability(CODE_ACTION_ID, TEXT_DOCUMENT_CODE_ACTION);
+			registerCapability(CODE_ACTION_ID, TEXT_DOCUMENT_CODE_ACTION, DEFAULT_CODEACTION_OPTIONS);
 		}
 		if (this.getClientCapabilities().isCodeLensDynamicRegistered()) {
 			registerCapability(CODE_LENS_ID, TEXT_DOCUMENT_CODE_LENS);

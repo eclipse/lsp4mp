@@ -30,6 +30,8 @@ public class MicroProfileJavaCodeActionParams extends CodeActionParams {
 
 	private boolean commandConfigurationUpdateSupported;
 
+	private boolean resolveSupported;
+
 	public MicroProfileJavaCodeActionParams() {
 		super();
 	}
@@ -57,6 +59,14 @@ public class MicroProfileJavaCodeActionParams extends CodeActionParams {
 
 	public void setCommandConfigurationUpdateSupported(boolean commandConfigurationUpdateSupported) {
 		this.commandConfigurationUpdateSupported = commandConfigurationUpdateSupported;
+	}
+
+	public boolean isResolveSupported() {
+		return this.resolveSupported;
+	}
+
+	public void setResolveSupported(boolean resolveSupported) {
+		this.resolveSupported = resolveSupported;
 	}
 
 }

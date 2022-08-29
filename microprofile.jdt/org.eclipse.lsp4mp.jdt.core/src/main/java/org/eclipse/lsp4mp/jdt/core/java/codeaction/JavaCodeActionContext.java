@@ -112,4 +112,14 @@ public class JavaCodeActionContext extends AbtractJavaContext implements IInvoca
 		return codeAction;
 	}
 
+	public WorkspaceEdit convertToWorkspaceEdit(ChangeCorrectionProposal proposal)
+			throws CoreException {
+		WorkspaceEdit edit = ChangeUtil.convertToWorkspaceEdit(proposal.getChange(), getUri(), getUtils(),
+				params.isResourceOperationSupported());
+		if (!ChangeUtil.hasChanges(edit)) {
+			return null;
+		}
+		return edit;
+	}
+
 }
