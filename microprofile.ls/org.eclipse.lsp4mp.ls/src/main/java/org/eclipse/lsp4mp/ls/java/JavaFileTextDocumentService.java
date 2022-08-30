@@ -47,7 +47,7 @@ import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4mp.commons.DocumentFormat;
-import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeActionParams;
+import org.eclipse.lsp4mp.commons.JavaCodeActionStub;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeLensParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCompletionParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaDefinitionParams;
@@ -88,6 +88,7 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 	private final IPropertiesModelProvider propertiesModelProvider;
 	private final JavaTextDocuments documents;
 	private ValidatorDelayer<JavaTextDocument> validatorDelayer;
+	private List<JavaCodeActionStub> codeActionStubs;
 
 	public JavaFileTextDocumentService(MicroProfileLanguageServer microprofileLanguageServer,
 			IPropertiesModelProvider propertiesModelProvider, SharedSettings sharedSettings) {
@@ -152,8 +153,7 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 				return null;
 			}
 			boolean canSupportMarkdown = true;
-			boolean snippetsSupported = sharedSettings.getCompletionCapabilities()
-					.isCompletionSnippetsSupported();
+			boolean snippetsSupported = sharedSettings.getCompletionCapabilities().isCompletionSnippetsSupported();
 			CompletionList list1 = new CompletionList();
 			list1.setItems(new ArrayList<>());
 			documents.getSnippetRegistry().getCompletionItems(document, completionOffset, canSupportMarkdown,
@@ -222,23 +222,36 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 		return document.executeIfInMicroProfileProject((projectInfo, cancelChecker) -> {
 			boolean commandConfigurationUpdateSupported = sharedSettings.getCommandCapabilities()
 					.isCommandSupported(CommandKind.COMMAND_CONFIGURATION_UPDATE);
-			MicroProfileJavaCodeActionParams javaParams = new MicroProfileJavaCodeActionParams();
-			javaParams.setTextDocument(params.getTextDocument());
-			javaParams.setRange(params.getRange());
-			javaParams.setContext(params.getContext());
-			javaParams.setResourceOperationSupported(microprofileLanguageServer.getCapabilityManager()
-					.getClientCapabilities().isResourceOperationSupported());
-			javaParams.setCommandConfigurationUpdateSupported(commandConfigurationUpdateSupported);
-			return microprofileLanguageServer.getLanguageClient().getJavaCodeAction(javaParams) //
-					.thenApply(codeActions -> {
-						cancelChecker.checkCanceled();
-						return codeActions.stream() //
-								.map(ca -> {
-									Either<Command, CodeAction> e = Either.forRight(ca);
-									return e;
-								}) //
-								.collect(Collectors.toList());
-					});
+
+			List<CodeAction> codeActions = new ArrayList<>();
+
+			for (Diagnostic d : params.getContext().getDiagnostics()) {
+				for (JavaCodeActionStub stub : codeActionStubs) {
+					CodeAction ca = stub.getUnresolvedCodeAction(d);
+					if (ca != null) {
+						codeActions.add(ca);
+					}
+				}
+			}
+			return (CompletableFuture<List<Object>>)CompletableFuture.completedFuture(codeActions);
+
+//			MicroProfileJavaCodeActionParams javaParams = new MicroProfileJavaCodeActionParams();
+//			javaParams.setTextDocument(params.getTextDocument());
+//			javaParams.setRange(params.getRange());
+//			javaParams.setContext(params.getContext());
+//			javaParams.setResourceOperationSupported(microprofileLanguageServer.getCapabilityManager()
+//					.getClientCapabilities().isResourceOperationSupported());
+//			javaParams.setCommandConfigurationUpdateSupported(commandConfigurationUpdateSupported);
+//			return microprofileLanguageServer.getLanguageClient().getJavaCodeAction(javaParams) //
+//					.thenApply(codeActions -> {
+//						cancelChecker.checkCanceled();
+//						return codeActions.stream() //
+//								.map(ca -> {
+//									Either<Command, CodeAction> e = Either.forRight(ca);
+//									return e;
+//								}) //
+//								.collect(Collectors.toList());
+//					});
 		}, Collections.emptyList());
 	}
 
