@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4mp.commons.JavaCodeActionStub;
 
 /**
  * Java codeAction participants API.
@@ -29,8 +30,8 @@ import org.eclipse.lsp4j.Diagnostic;
 public interface IJavaCodeActionParticipant {
 
 	/**
-	 * Returns true if the code actions are adaptable for the given context and false
-	 * otherwise.
+	 * Returns true if the code actions are adaptable for the given context and
+	 * false otherwise.
 	 *
 	 * <p>
 	 * Participants can override this to check if some classes are on the classpath
@@ -39,8 +40,7 @@ public interface IJavaCodeActionParticipant {
 	 *
 	 * @param context java code action context
 	 * @param monitor the progress monitor
-	 * @return true if adaptable and false
-	 *         otherwise.
+	 * @return true if adaptable and false otherwise.
 	 *
 	 */
 	default boolean isAdaptedForCodeAction(JavaCodeActionContext context, IProgressMonitor monitor)
@@ -59,4 +59,13 @@ public interface IJavaCodeActionParticipant {
 	 */
 	List<? extends CodeAction> getCodeActions(JavaCodeActionContext context, Diagnostic diagnostic,
 			IProgressMonitor monitor) throws CoreException;
+
+	/**
+	 * Returns a code action stub representing the code actions that this code
+	 * action participant generates.
+	 * 
+	 * @return a code action stub representing the code actions that this code
+	 *         action participant generates
+	 */
+	JavaCodeActionStub getCodeActionStub();
 }

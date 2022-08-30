@@ -14,6 +14,7 @@
 package org.eclipse.lsp4mp.jdt.core;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,6 +29,7 @@ import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionList;
@@ -36,7 +38,9 @@ import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4mp.commons.DocumentFormat;
+import org.eclipse.lsp4mp.commons.JavaCodeActionStub;
 import org.eclipse.lsp4mp.commons.JavaFileInfo;
+import org.eclipse.lsp4mp.commons.MicroProfileDefinition;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeActionParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeLensParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCompletionParams;
@@ -45,7 +49,6 @@ import org.eclipse.lsp4mp.commons.MicroProfileJavaDiagnosticsParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaDiagnosticsSettings;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaFileInfoParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaHoverParams;
-import org.eclipse.lsp4mp.commons.MicroProfileDefinition;
 import org.eclipse.lsp4mp.jdt.core.java.codelens.JavaCodeLensContext;
 import org.eclipse.lsp4mp.jdt.core.java.completion.JavaCompletionContext;
 import org.eclipse.lsp4mp.jdt.core.java.definition.JavaDefinitionContext;
@@ -116,6 +119,23 @@ public class PropertiesManagerForJava {
 		return codeActionHandler.codeAction(params, utils, monitor);
 	}
 
+	public List<JavaCodeActionStub> codeActionStubs(IJDTUtils utils, IProgressMonitor monitor)
+			throws JavaModelException {
+
+		List<JavaCodeActionStub> codeActionStubs = new ArrayList<>();
+		for (String kind : Arrays.asList(CodeActionKind.QuickFix, CodeActionKind.Refactor, CodeActionKind.Source)) {
+
+			List<JavaCodeActionStub> stubs = JavaFeaturesRegistry.getInstance().getJavaCodeActionDefinitions(kind).stream() //
+					.map(codeActionDefinition -> {
+						return codeActionDefinition.getCodeActionStubs();
+					}).collect(Collectors.toList());
+
+			codeActionStubs.addAll(stubs);
+		}
+
+		return codeActionStubs;
+	}
+
 	/**
 	 * Returns the codelens list according the given codelens parameters.
 	 *
@@ -171,8 +191,8 @@ public class PropertiesManagerForJava {
 	 * @return the CompletionItems for the given the completion item params
 	 * @throws JavaModelException
 	 */
-	public CompletionList completion(MicroProfileJavaCompletionParams params, IJDTUtils utils,
-			IProgressMonitor monitor) throws JavaModelException {
+	public CompletionList completion(MicroProfileJavaCompletionParams params, IJDTUtils utils, IProgressMonitor monitor)
+			throws JavaModelException {
 		String uri = params.getUri();
 		ITypeRoot typeRoot = resolveTypeRoot(uri, utils, monitor);
 		if (typeRoot == null) {
@@ -195,8 +215,8 @@ public class PropertiesManagerForJava {
 		}
 
 		completions.forEach(completion -> {
-			List<? extends CompletionItem> collectedCompletionItems = completion.collectCompletionItems(completionContext,
-					monitor);
+			List<? extends CompletionItem> collectedCompletionItems = completion
+					.collectCompletionItems(completionContext, monitor);
 			if (collectedCompletionItems != null) {
 				completionItems.addAll(collectedCompletionItems);
 			}
@@ -291,8 +311,8 @@ public class PropertiesManagerForJava {
 		return publishDiagnostics;
 	}
 
-	private void collectDiagnostics(String uri, IJDTUtils utils, DocumentFormat documentFormat, MicroProfileJavaDiagnosticsSettings settings,
-			List<Diagnostic> diagnostics, IProgressMonitor monitor) {
+	private void collectDiagnostics(String uri, IJDTUtils utils, DocumentFormat documentFormat,
+			MicroProfileJavaDiagnosticsSettings settings, List<Diagnostic> diagnostics, IProgressMonitor monitor) {
 		ITypeRoot typeRoot = resolveTypeRoot(uri, utils, monitor);
 		if (typeRoot == null) {
 			return;
@@ -342,7 +362,8 @@ public class PropertiesManagerForJava {
 		DocumentFormat documentFormat = params.getDocumentFormat();
 		boolean surroundEqualsWithSpaces = params.isSurroundEqualsWithSpaces();
 		List<Hover> hovers = new ArrayList<>();
-		collectHover(uri, typeRoot, hoverElement, utils, hoverPosition, documentFormat, surroundEqualsWithSpaces, hovers, monitor);
+		collectHover(uri, typeRoot, hoverElement, utils, hoverPosition, documentFormat, surroundEqualsWithSpaces,
+				hovers, monitor);
 		if (hovers.isEmpty()) {
 			return null;
 		}
@@ -401,7 +422,8 @@ public class PropertiesManagerForJava {
 	}
 
 	private void collectHover(String uri, ITypeRoot typeRoot, IJavaElement hoverElement, IJDTUtils utils,
-			Position hoverPosition, DocumentFormat documentFormat, boolean surroundEqualsWithSpaces, List<Hover> hovers, IProgressMonitor monitor) {
+			Position hoverPosition, DocumentFormat documentFormat, boolean surroundEqualsWithSpaces, List<Hover> hovers,
+			IProgressMonitor monitor) {
 		// Collect all adapted hover participant
 		JavaHoverContext context = new JavaHoverContext(uri, typeRoot, utils, hoverElement, hoverPosition,
 				documentFormat, surroundEqualsWithSpaces);

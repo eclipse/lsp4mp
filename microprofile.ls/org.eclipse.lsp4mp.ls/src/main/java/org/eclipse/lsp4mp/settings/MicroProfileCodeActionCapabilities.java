@@ -2,7 +2,7 @@ package org.eclipse.lsp4mp.settings;
 
 import org.eclipse.lsp4j.CodeActionCapabilities;
 
-public class MicroProfileCodeActionSettings {
+public class MicroProfileCodeActionCapabilities {
 
 	private CodeActionCapabilities codeActionCapabilities;
 	

@@ -232,7 +232,7 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 					.isCommandSupported(CommandKind.COMMAND_CONFIGURATION_UPDATE);
 
 			// if resolve is supported, build the unresolved code actions from the stubs
-			if (sharedSettings.getCodeActionSettings().isCodeActionResolveSupported()) {
+			if (sharedSettings.getCodeActionCapabilities().isCodeActionResolveSupported()) {
 				List<CodeAction> codeActions = new ArrayList<>();
 				if (codeActionStubs == null) {
 					this.codeActionStubs = getLanguageClient.get().getJavaCodeActionStubs().join(); // TODO: reconsider

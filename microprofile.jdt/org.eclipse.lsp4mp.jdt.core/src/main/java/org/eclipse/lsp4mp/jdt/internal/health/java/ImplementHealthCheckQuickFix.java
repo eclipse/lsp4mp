@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.internal.corext.dom.Bindings;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4mp.commons.JavaCodeActionStub;
 import org.eclipse.lsp4mp.jdt.core.java.codeaction.IJavaCodeActionParticipant;
 import org.eclipse.lsp4mp.jdt.core.java.codeaction.JavaCodeActionContext;
 import org.eclipse.lsp4mp.jdt.core.java.corrections.proposal.ChangeCorrectionProposal;
@@ -56,5 +57,12 @@ public class ImplementHealthCheckQuickFix implements IJavaCodeActionParticipant 
 		}
 		return null;
 	}
+
+	@Override
+	public JavaCodeActionStub getCodeActionStub() {
+		return new JavaCodeActionStub();
+	}
+	
+	
 
 }
