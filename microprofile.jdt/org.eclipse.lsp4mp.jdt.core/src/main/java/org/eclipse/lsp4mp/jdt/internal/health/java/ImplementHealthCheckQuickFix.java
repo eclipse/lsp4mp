@@ -40,6 +40,12 @@ import org.eclipse.lsp4mp.jdt.internal.health.MicroProfileHealthConstants;
  */
 public class ImplementHealthCheckQuickFix implements IJavaCodeActionParticipant {
 
+	private static final JavaCodeActionStub CODE_ACTION_STUB = new JavaCodeActionStub(
+			MicroProfileHealthErrorCode.ImplementHealthCheck.toString(), //
+			MicroProfileHealthErrorCode.ImplementHealthCheck.toString(), //
+			"Let '{0}' implement 'org.eclipse.microprofile.health.HealthCheck'", //
+			"The class `([^`]+)`.+");
+
 	@Override
 	public List<? extends CodeAction> getCodeActions(JavaCodeActionContext context, Diagnostic diagnostic,
 			IProgressMonitor monitor) throws CoreException {
@@ -60,9 +66,7 @@ public class ImplementHealthCheckQuickFix implements IJavaCodeActionParticipant 
 
 	@Override
 	public JavaCodeActionStub getCodeActionStub() {
-		return new JavaCodeActionStub();
+		return CODE_ACTION_STUB;
 	}
-	
-	
 
 }

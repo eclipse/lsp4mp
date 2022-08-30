@@ -11,11 +11,11 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.internal.core.ls;
 
-import static org.eclipse.lsp4mp.jdt.internal.core.ls.ArgumentUtils.getObject;
 import static org.eclipse.lsp4mp.jdt.internal.core.ls.ArgumentUtils.getBoolean;
 import static org.eclipse.lsp4mp.jdt.internal.core.ls.ArgumentUtils.getCodeActionContext;
 import static org.eclipse.lsp4mp.jdt.internal.core.ls.ArgumentUtils.getFirst;
 import static org.eclipse.lsp4mp.jdt.internal.core.ls.ArgumentUtils.getInt;
+import static org.eclipse.lsp4mp.jdt.internal.core.ls.ArgumentUtils.getObject;
 import static org.eclipse.lsp4mp.jdt.internal.core.ls.ArgumentUtils.getPosition;
 import static org.eclipse.lsp4mp.jdt.internal.core.ls.ArgumentUtils.getRange;
 import static org.eclipse.lsp4mp.jdt.internal.core.ls.ArgumentUtils.getString;
@@ -38,6 +38,7 @@ import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4mp.commons.DocumentFormat;
+import org.eclipse.lsp4mp.commons.JavaCodeActionStub;
 import org.eclipse.lsp4mp.commons.JavaFileInfo;
 import org.eclipse.lsp4mp.commons.MicroProfileDefinition;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeActionParams;
@@ -94,7 +95,7 @@ public class MicroProfileDelegateCommandHandlerForJava extends AbstractMicroProf
 		}
 	}
 
-	private void getCodeActionStubsForJava(List<Object> arguments, String commandId, IProgressMonitor monitor) {
+	private List<JavaCodeActionStub> getCodeActionStubsForJava(List<Object> arguments, String commandId, IProgressMonitor monitor) {
 		return PropertiesManagerForJava.getInstance().codeActionStubs(JDTUtilsLSImpl.getInstance(), monitor);
 	}
 

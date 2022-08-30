@@ -119,16 +119,17 @@ public class PropertiesManagerForJava {
 		return codeActionHandler.codeAction(params, utils, monitor);
 	}
 
-	public List<JavaCodeActionStub> codeActionStubs(IJDTUtils utils, IProgressMonitor monitor)
-			throws JavaModelException {
+	public List<JavaCodeActionStub> codeActionStubs(IJDTUtils utils, IProgressMonitor monitor) {
 
 		List<JavaCodeActionStub> codeActionStubs = new ArrayList<>();
 		for (String kind : Arrays.asList(CodeActionKind.QuickFix, CodeActionKind.Refactor, CodeActionKind.Source)) {
 
-			List<JavaCodeActionStub> stubs = JavaFeaturesRegistry.getInstance().getJavaCodeActionDefinitions(kind).stream() //
+			List<JavaCodeActionStub> stubs = JavaFeaturesRegistry.getInstance().getJavaCodeActionDefinitions(kind)
+					.stream() //
 					.map(codeActionDefinition -> {
-						return codeActionDefinition.getCodeActionStubs();
-					}).collect(Collectors.toList());
+						return codeActionDefinition.getCodeActionStub();
+					}) //
+					.collect(Collectors.toList());
 
 			codeActionStubs.addAll(stubs);
 		}

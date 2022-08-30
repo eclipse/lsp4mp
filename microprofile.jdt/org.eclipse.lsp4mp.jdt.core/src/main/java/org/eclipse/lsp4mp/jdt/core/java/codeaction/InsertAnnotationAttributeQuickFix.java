@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4mp.commons.JavaCodeActionStub;
 import org.eclipse.lsp4mp.jdt.core.java.corrections.proposal.ChangeCorrectionProposal;
 import org.eclipse.lsp4mp.jdt.core.java.corrections.proposal.InsertAnnotationAttributeProposal;
 
@@ -37,6 +38,13 @@ public class InsertAnnotationAttributeQuickFix implements IJavaCodeActionPartici
 	private static final String CODE_ACTION_LABEL = "Insert ''{0}'' attribute";
 
 	private final String attributeName;
+
+	private final JavaCodeActionStub CODE_ACTION_STUB = new JavaCodeActionStub( //
+			"", //
+			"", //
+			CODE_ACTION_LABEL, //
+			"[^`]*`([^`]+)`.+" // TODO: this is a guess XD
+	);
 
 	/**
 	 * Constructor for inserting attribute annotation quick fix.
@@ -73,6 +81,11 @@ public class InsertAnnotationAttributeQuickFix implements IJavaCodeActionPartici
 
 	private static String getLabel(String memberName) {
 		return MessageFormat.format(CODE_ACTION_LABEL, memberName);
+	}
+
+	@Override
+	public JavaCodeActionStub getCodeActionStub() {
+		return CODE_ACTION_STUB;
 	}
 
 }
