@@ -29,6 +29,7 @@ public class SharedSettings {
 	private final MicroProfileCommandCapabilities commandCapabilities;
 	private final MicroProfileCodeLensSettings codeLensSettings;
 	private final MicroProfileInlayHintSettings inlayHintSettings;
+	private final MicroProfileCodeActionSettings codeActionSettings;
 
 	public SharedSettings() {
 		this.completionCapabilities = new MicroProfileCompletionCapabilities();
@@ -39,6 +40,7 @@ public class SharedSettings {
 		this.commandCapabilities = new MicroProfileCommandCapabilities();
 		this.codeLensSettings = new MicroProfileCodeLensSettings();
 		this.inlayHintSettings = new MicroProfileInlayHintSettings();
+		this.codeActionSettings = new MicroProfileCodeActionSettings();
 	}
 
 	/**
@@ -111,5 +113,14 @@ public class SharedSettings {
 	 */
 	public MicroProfileInlayHintSettings getInlayHintSettings() {
 		return inlayHintSettings;
+	}
+	
+	/**
+	 * Returns the code action settings.
+	 * 
+	 * @return the code action settings
+	 */
+	public MicroProfileCodeActionSettings getCodeActionSettings() {
+		return codeActionSettings;
 	}
 }

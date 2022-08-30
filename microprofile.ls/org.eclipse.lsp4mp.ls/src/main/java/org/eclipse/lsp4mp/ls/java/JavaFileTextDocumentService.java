@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -48,6 +49,7 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4mp.commons.DocumentFormat;
 import org.eclipse.lsp4mp.commons.JavaCodeActionStub;
+import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeActionParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeLensParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCompletionParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaDefinitionParams;
@@ -58,6 +60,7 @@ import org.eclipse.lsp4mp.commons.MicroProfilePropertiesChangeEvent;
 import org.eclipse.lsp4mp.commons.MicroProfilePropertiesScope;
 import org.eclipse.lsp4mp.ls.AbstractTextDocumentService;
 import org.eclipse.lsp4mp.ls.MicroProfileLanguageServer;
+import org.eclipse.lsp4mp.ls.api.MicroProfileLanguageClientAPI;
 import org.eclipse.lsp4mp.ls.commons.BadLocationException;
 import org.eclipse.lsp4mp.ls.commons.TextDocument;
 import org.eclipse.lsp4mp.ls.commons.ValidatorDelayer;
@@ -89,6 +92,7 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 	private final JavaTextDocuments documents;
 	private ValidatorDelayer<JavaTextDocument> validatorDelayer;
 	private List<JavaCodeActionStub> codeActionStubs;
+	private final Supplier<MicroProfileLanguageClientAPI> getLanguageClient;
 
 	public JavaFileTextDocumentService(MicroProfileLanguageServer microprofileLanguageServer,
 			IPropertiesModelProvider propertiesModelProvider, SharedSettings sharedSettings) {
@@ -98,6 +102,9 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 		this.validatorDelayer = new ValidatorDelayer<>((javaTextDocument) -> {
 			triggerValidationFor(javaTextDocument);
 		});
+		getLanguageClient = () -> {
+			return microprofileLanguageServer.getLanguageClient();
+		};
 	}
 
 	// ------------------------------ did* for Java file -------------------------
@@ -220,38 +227,53 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 		}
 		JavaTextDocument document = documents.get(params.getTextDocument().getUri());
 		return document.executeIfInMicroProfileProject((projectInfo, cancelChecker) -> {
+			
 			boolean commandConfigurationUpdateSupported = sharedSettings.getCommandCapabilities()
 					.isCommandSupported(CommandKind.COMMAND_CONFIGURATION_UPDATE);
 
-			List<CodeAction> codeActions = new ArrayList<>();
-
-			for (Diagnostic d : params.getContext().getDiagnostics()) {
-				for (JavaCodeActionStub stub : codeActionStubs) {
-					CodeAction ca = stub.getUnresolvedCodeAction(d);
-					if (ca != null) {
-						codeActions.add(ca);
+			// if resolve is supported, build the unresolved code actions from the stubs
+			if (sharedSettings.getCodeActionSettings().isCodeActionResolveSupported()) {
+				List<CodeAction> codeActions = new ArrayList<>();
+				if (codeActionStubs == null) {
+					this.codeActionStubs = getLanguageClient.get().getJavaCodeActionStubs().join(); // TODO: reconsider
+				}
+				for (Diagnostic d : params.getContext().getDiagnostics()) {
+					for (JavaCodeActionStub stub : codeActionStubs) {
+						CodeAction ca = stub.getUnresolvedCodeAction(d);
+						if (ca != null) {
+							codeActions.add(ca);
+						}
 					}
 				}
+				return CompletableFuture.completedFuture(codeActions.stream() //
+						.map(ca -> {
+							Either<Command, CodeAction> e = Either.forRight(ca);
+							return e;
+						}) //
+						.collect(Collectors.toList()));
 			}
-			return (CompletableFuture<List<Object>>)CompletableFuture.completedFuture(codeActions);
+				
+			// otherwise, resolve the full code action immediately
+			MicroProfileJavaCodeActionParams javaParams = new MicroProfileJavaCodeActionParams();
+			javaParams.setTextDocument(params.getTextDocument());
+			javaParams.setRange(params.getRange());
+			javaParams.setContext(params.getContext());
+			javaParams.setResourceOperationSupported(microprofileLanguageServer.getCapabilityManager()
+					.getClientCapabilities().isResourceOperationSupported());
+			javaParams.setCommandConfigurationUpdateSupported(commandConfigurationUpdateSupported);
+			return microprofileLanguageServer.getLanguageClient().getJavaCodeAction(javaParams) //
+					.thenApply(codeActions -> {
+						cancelChecker.checkCanceled();
+						return codeActions.stream() //
+								.map(ca -> {
+									Either<Command, CodeAction> e = Either.forRight(ca);
+									return e;
+								}) //
+								.collect(Collectors.toList());
+					});
+			
+			
 
-//			MicroProfileJavaCodeActionParams javaParams = new MicroProfileJavaCodeActionParams();
-//			javaParams.setTextDocument(params.getTextDocument());
-//			javaParams.setRange(params.getRange());
-//			javaParams.setContext(params.getContext());
-//			javaParams.setResourceOperationSupported(microprofileLanguageServer.getCapabilityManager()
-//					.getClientCapabilities().isResourceOperationSupported());
-//			javaParams.setCommandConfigurationUpdateSupported(commandConfigurationUpdateSupported);
-//			return microprofileLanguageServer.getLanguageClient().getJavaCodeAction(javaParams) //
-//					.thenApply(codeActions -> {
-//						cancelChecker.checkCanceled();
-//						return codeActions.stream() //
-//								.map(ca -> {
-//									Either<Command, CodeAction> e = Either.forRight(ca);
-//									return e;
-//								}) //
-//								.collect(Collectors.toList());
-//					});
 		}, Collections.emptyList());
 	}
 
