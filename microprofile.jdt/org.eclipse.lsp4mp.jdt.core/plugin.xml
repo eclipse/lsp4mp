@@ -224,6 +224,11 @@
       <provider class="org.eclipse.lsp4mp.jdt.internal.reactivemessaging.properties.MicroProfileReactiveMessagingProvider" />
    </extension>
 
+   <extension point="org.eclipse.lsp4mp.jdt.core.javaASTValidators">
+      <!-- Java diagnostics for MicroProfileReactive Messaging -->
+      <validator class="org.eclipse.lsp4mp.jdt.internal.reactivemessaging.java.MicroProfileReactiveMessagingASTValidator" />
+   </extension>
+
    <!-- Microprofile RestClient support -->
 
    <extension point="org.eclipse.lsp4mp.jdt.core.propertiesProviders">
