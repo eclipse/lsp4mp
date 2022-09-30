@@ -189,14 +189,27 @@ public class PropertiesFileExpressionHoverTest {
 	@Test
 	public void hoverKeyUndefinedProperty() throws BadLocationException {
 		String value = "pr|operty = value";
-		assertNoHover(value);
+		assertHoverMarkdown(value, "**property**" + System.lineSeparator() + System.lineSeparator() + //
+				" * Value: `value`", 0);
 	}
 
 	@Test
 	public void hoverKeyUndefinedPropertyWithReference() throws BadLocationException {
 		String value = "value = amount\n" + //
 				"pr|operty = ${value}";
-		assertNoHover(value);
+		assertHoverMarkdown(value, "**property**" + System.lineSeparator() + System.lineSeparator() + //
+				" * Value: `amount`",
+				0);
+	}
+
+	@Test
+	public void hoverKeyUndefinedPropertyWithReferenceAndProfile() throws BadLocationException {
+		String value = "value = amount\n" + //
+				"%dev.pr|operty = ${value}";
+		assertHoverMarkdown(value, "**property**" + System.lineSeparator() + System.lineSeparator() + //
+				" * Profile: `dev`" + System.lineSeparator() + //
+				" * Value: `amount`",
+				0);
 	}
 
 	@Test
@@ -275,7 +288,7 @@ public class PropertiesFileExpressionHoverTest {
 				"quarkus.application.name=";
 		assertNoHover(value);
 	}
-	
+
 	@Test
 	public void hoverWithNestedPropertyExpression1() throws BadLocationException {
 		String value = "asdf=${hj|kl}\n" + //
@@ -284,7 +297,7 @@ public class PropertiesFileExpressionHoverTest {
 				"bar = qwerty";
 		assertHoverMarkdown(value, "qwerty", 5);
 	}
-	
+
 	@Test
 	public void hoverWithNestedPropertyExpression2() throws BadLocationException {
 		String value = "asdf=${hj|kl}\n" + //
@@ -293,42 +306,42 @@ public class PropertiesFileExpressionHoverTest {
 				"bar = ";
 		assertHoverMarkdown(value, "${bar}", 5);
 	}
-	
+
 	@Test
 	public void hoverWithNestedPropertyExpression3() throws BadLocationException {
 		String value = "asdf=${hj|kl}\n" + //
 				"hjkl = ${${asdf}}\n";
 		assertHoverMarkdown(value, "${${asdf}}", 5);
 	}
-	
+
 	@Test
 	public void hoverWithNestedPropertyExpression4() throws BadLocationException {
 		String value = "asdf=${hj|kl}\n" + //
 				"hjkl = ${}\n";
 		assertHoverMarkdown(value, "${}", 5);
 	}
-	
+
 	@Test
 	public void hoverWithNestedPropertyExpression5() throws BadLocationException {
 		String value = "asdf=${hj|kl}\n" + //
 				"hjkl = ${${foo}:ASDF}\n";
 		assertHoverMarkdown(value, "ASDF", 5);
 	}
-	
+
 	@Test
 	public void hoverWithNestedPropertyExpression6() throws BadLocationException {
 		String value = "asdf=${hj|kl}\n" + //
 				"hjkl = ${${foo}:${foo:}\n";
 		assertNoHover(value);
 	}
-	
+
 	@Test
 	public void hoverWithNestedPropertyExpression7() throws BadLocationException {
 		String value = "asdf=${hj|kl}\n" + //
 				"hjkl = ${${foo}:${foo:ASDF}\n";
 		assertHoverMarkdown(value, "ASDF", 5);
 	}
-	
+
 	@Test
 	public void hoverWithBillionLaughs() throws BadLocationException {
 		String value = "asdf=${lu|lz}\n" + //

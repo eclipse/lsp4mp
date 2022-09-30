@@ -84,6 +84,38 @@ public class DocumentationUtils {
 		return new MarkupContent(markdown ? MarkupKind.MARKDOWN : MarkupKind.PLAINTEXT, documentation.toString());
 	}
 
+	/**
+	 * Returns the documentation for the given unrecognized MicroProfile property.
+	 *
+	 * @param profile  the profile
+	 * @param key      the property key
+	 * @param value    the resolved property value
+	 * @param markdown true if the client supports rendering markdown, false
+	 *                 otherwise
+	 * @return the documentation for the given unrecognized MicroProfile property
+	 */
+	public static MarkupContent getDocumentation(String profile, String key, String value, boolean markdown) {
+		StringBuilder documentation = new StringBuilder();
+
+		// Title
+		if (markdown) {
+			documentation.append("**");
+		}
+		documentation.append(markdown ? formatPropertyForMarkdown(key) : key);
+		if (markdown) {
+			documentation.append("**");
+		}
+		documentation.append(System.lineSeparator());
+
+		// Profile
+		addParameter("Profile", profile, documentation, markdown);
+
+		// Value
+		addParameter("Value", value, documentation, markdown);
+
+		return new MarkupContent(markdown ? MarkupKind.MARKDOWN : MarkupKind.PLAINTEXT, documentation.toString());
+	}
+
 	private static String getPhaseLabel(int phase) {
 		switch (phase) {
 		case ItemMetadata.CONFIG_PHASE_BUILD_TIME:
