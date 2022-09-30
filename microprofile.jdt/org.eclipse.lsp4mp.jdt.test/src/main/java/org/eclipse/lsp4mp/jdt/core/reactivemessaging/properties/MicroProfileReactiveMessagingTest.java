@@ -20,10 +20,24 @@ import static org.eclipse.lsp4mp.jdt.core.MicroProfileAssert.assertPropertiesDup
 import static org.eclipse.lsp4mp.jdt.core.MicroProfileAssert.h;
 import static org.eclipse.lsp4mp.jdt.core.MicroProfileAssert.p;
 import static org.eclipse.lsp4mp.jdt.core.MicroProfileAssert.vh;
+import static org.eclipse.lsp4mp.jdt.core.MicroProfileForJavaAssert.assertJavaDiagnostics;
+import static org.eclipse.lsp4mp.jdt.core.MicroProfileForJavaAssert.d;
 
+import java.util.Arrays;
+
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.DiagnosticSeverity;
+import org.eclipse.lsp4mp.commons.DocumentFormat;
+import org.eclipse.lsp4mp.commons.MicroProfileJavaDiagnosticsParams;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.MicroProfilePropertiesScope;
 import org.eclipse.lsp4mp.jdt.core.BasePropertiesManagerTest;
+import org.eclipse.lsp4mp.jdt.core.utils.IJDTUtils;
+import org.eclipse.lsp4mp.jdt.internal.reactivemessaging.MicroProfileReactiveMessagingConstants;
+import org.eclipse.lsp4mp.jdt.internal.reactivemessaging.java.MicroProfileReactiveMessagingErrorCode;
 import org.junit.Test;
 
 /**
@@ -82,5 +96,31 @@ public class MicroProfileReactiveMessagingTest extends BasePropertiesManagerTest
 
 		assertHintsDuplicate(infoFromClasspath);
 	}
+
+    @Test
+    public void blankAnnotation() throws Exception {
+        IJavaProject javaProject = loadMavenProject(
+                MicroProfileMavenProjectName.microprofile_reactive_messaging);
+        IJDTUtils utils = JDT_UTILS;
+
+        MicroProfileJavaDiagnosticsParams diagnosticsParams = new MicroProfileJavaDiagnosticsParams();
+        IFile javaFile = javaProject.getProject().getFile(
+                new Path("src/main/java/org/acme/kafka/PriceConverter.java"));
+        diagnosticsParams.setUris(Arrays
+                .asList(javaFile.getLocation().toFile().toURI().toString()));
+        diagnosticsParams.setDocumentFormat(DocumentFormat.Markdown);
+
+        Diagnostic d1 = d(24, 14, 16,
+                "The name of the consumed channel must not be blank.",
+                DiagnosticSeverity.Error,
+                MicroProfileReactiveMessagingConstants.MICRO_PROFILE_REACTIVE_MESSAGING_DIAGNOSTIC_SOURCE,
+                MicroProfileReactiveMessagingErrorCode.BLANK_CHANNEL_NAME);
+        Diagnostic d2 = d(25, 20, 22,
+                "The name of the consumed channel must not be blank.",
+                DiagnosticSeverity.Error,
+                MicroProfileReactiveMessagingConstants.MICRO_PROFILE_REACTIVE_MESSAGING_DIAGNOSTIC_SOURCE,
+                MicroProfileReactiveMessagingErrorCode.BLANK_CHANNEL_NAME);
+        assertJavaDiagnostics(diagnosticsParams, utils, d1, d2);
+    }
 
 }
