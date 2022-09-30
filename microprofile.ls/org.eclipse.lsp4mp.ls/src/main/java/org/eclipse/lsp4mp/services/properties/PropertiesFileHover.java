@@ -149,7 +149,8 @@ class PropertiesFileHover {
 		String propertyName = key.getPropertyName();
 
 		PropertiesModel model = key.getOwnerModel();
-		IConfigSourcePropertiesProvider propertiesProvider = ConfigSourcePropertiesProviderUtils.layer(model, new PropertiesInfoPropertiesProvider(projectInfo.getProperties()));
+		IConfigSourcePropertiesProvider propertiesProvider = ConfigSourcePropertiesProviderUtils.layer(model,
+				new PropertiesInfoPropertiesProvider(projectInfo.getProperties()));
 		PropertyValueExpander expander = new PropertyValueExpander(propertiesProvider);
 		cancelChecker.checkCanceled();
 
@@ -160,11 +161,18 @@ class PropertiesFileHover {
 
 		ItemMetadata item = PropertiesFileUtils.getProperty(propertyName, projectInfo);
 
-		if (item != null) {
-			// MicroProfile property found, display the documentation as hover
-			MarkupContent markupContent = DocumentationUtils.getDocumentation(item, key.getProfile(), propertyValue,
-					markdownSupported);
+		if (item != null || propertyValue != null) {
 			Hover hover = new Hover();
+			MarkupContent markupContent = null;
+			if (item != null) {
+				// MicroProfile property found, display the documentation as hover
+				markupContent = DocumentationUtils.getDocumentation(item, key.getProfile(), propertyValue,
+						markdownSupported);
+			} else {
+				// The property was not found, display just the resolved value
+				markupContent = DocumentationUtils.getDocumentation(key.getProfile(), propertyName, propertyValue,
+						markdownSupported);
+			}
 			hover.setContents(markupContent);
 			hover.setRange(PositionUtils.createRange(key));
 			return hover;
