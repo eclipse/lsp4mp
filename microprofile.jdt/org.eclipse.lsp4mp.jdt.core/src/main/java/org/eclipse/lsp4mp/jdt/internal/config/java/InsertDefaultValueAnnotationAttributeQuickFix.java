@@ -13,6 +13,10 @@
  *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.internal.config.java;
 
+import java.util.Arrays;
+import java.util.List;
+
+import org.eclipse.lsp4mp.commons.JavaCodeActionStub;
 import org.eclipse.lsp4mp.jdt.core.MicroProfileConfigConstants;
 import org.eclipse.lsp4mp.jdt.core.java.codeaction.InsertAnnotationAttributeQuickFix;
 
@@ -30,8 +34,19 @@ import org.eclipse.lsp4mp.jdt.core.java.codeaction.InsertAnnotationAttributeQuic
  */
 public class InsertDefaultValueAnnotationAttributeQuickFix extends InsertAnnotationAttributeQuickFix {
 
-	public InsertDefaultValueAnnotationAttributeQuickFix() {
-		super(MicroProfileConfigConstants.CONFIG_PROPERTY_ANNOTATION_DEFAULT_VALUE);
-	}
+    private static final List<JavaCodeActionStub> CODE_ACTION_STUBS = Arrays.asList(new JavaCodeActionStub( //
+            MicroProfileConfigErrorCode.NO_VALUE_ASSIGNED_TO_PROPERTY.getCode(), //
+            InsertDefaultValueAnnotationAttributeQuickFix.class.getName(), //
+            "Insert the default value for the annotation",
+            null));
+
+    public InsertDefaultValueAnnotationAttributeQuickFix() {
+        super(MicroProfileConfigConstants.CONFIG_PROPERTY_ANNOTATION_DEFAULT_VALUE);
+    }
+
+    @Override
+    public List<JavaCodeActionStub> getCodeActionStubs() {
+        return CODE_ACTION_STUBS;
+    }
 
 }

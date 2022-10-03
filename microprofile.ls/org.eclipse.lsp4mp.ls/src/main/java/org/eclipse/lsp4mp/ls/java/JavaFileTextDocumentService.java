@@ -239,10 +239,12 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 				}
 				for (Diagnostic d : params.getContext().getDiagnostics()) {
 					for (JavaCodeActionStub stub : codeActionStubs) {
-						CodeAction ca = stub.getUnresolvedCodeAction(d);
-						if (ca != null) {
-							codeActions.add(ca);
-						}
+					    if (stub != null) {
+					        CodeAction ca = stub.getUnresolvedCodeAction(d);
+					        if (ca != null) {
+					            codeActions.add(ca);
+					        }
+					    }
 					}
 				}
 				return CompletableFuture.completedFuture(codeActions.stream() //

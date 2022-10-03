@@ -31,6 +31,7 @@
       <delegateCommandHandler class="org.eclipse.lsp4mp.jdt.internal.core.ls.MicroProfileDelegateCommandHandlerForJava">
             <command id="microprofile/java/fileInfo"/>
             <command id="microprofile/java/codeAction"/>
+            <command id="microprofile/java/codeActionStub"/>
             <command id="microprofile/java/codeLens"/>
             <command id="microprofile/java/completion"/>
             <command id="microprofile/java/definition"/>

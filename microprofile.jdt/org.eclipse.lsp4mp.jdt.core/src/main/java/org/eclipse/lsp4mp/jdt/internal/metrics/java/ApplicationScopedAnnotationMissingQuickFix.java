@@ -13,12 +13,14 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.internal.metrics.java;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4mp.commons.JavaCodeActionStub;
 import org.eclipse.lsp4mp.jdt.core.java.codeaction.InsertAnnotationMissingQuickFix;
 import org.eclipse.lsp4mp.jdt.core.java.codeaction.JavaCodeActionContext;
 import org.eclipse.lsp4mp.jdt.core.java.corrections.proposal.ChangeCorrectionProposal;
@@ -44,6 +46,14 @@ public class ApplicationScopedAnnotationMissingQuickFix extends InsertAnnotation
 			MicroProfileMetricsConstants.REQUEST_SCOPED_ANNOTATION_NAME,
 			MicroProfileMetricsConstants.SESSION_SCOPED_ANNOTATION_NAME,
 			MicroProfileMetricsConstants.DEPENDENT_ANNOTATION_NAME };
+	
+    private static final List<JavaCodeActionStub> CODE_ACTION_STUB = Arrays.asList(new JavaCodeActionStub( //
+            MicroProfileMetricsErrorCode.ApplicationScopedAnnotationMissing.getCode(), //
+            ApplicationScopedAnnotationMissingQuickFix.class.getName(), //
+            "Replace current scope with @" + MicroProfileMetricsConstants.APPLICATION_SCOPED_ANNOTATION.substring(
+                    MicroProfileMetricsConstants.APPLICATION_SCOPED_ANNOTATION.lastIndexOf('.') + 1,
+                    MicroProfileMetricsConstants.APPLICATION_SCOPED_ANNOTATION.length()), //
+            null));
 
 	public ApplicationScopedAnnotationMissingQuickFix() {
 		super(MicroProfileMetricsConstants.APPLICATION_SCOPED_ANNOTATION);
@@ -79,5 +89,10 @@ public class ApplicationScopedAnnotationMissingQuickFix extends InsertAnnotation
 		name.append(annotationName);
 		return name.toString();
 	}
+
+    @Override
+    public List<JavaCodeActionStub> getCodeActionStubs() {
+        return CODE_ACTION_STUB;
+    }
 
 }

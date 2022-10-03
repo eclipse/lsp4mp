@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4mp.commons.utils.StringUtils;
 
 /**
  * Represents a template of a code action that can be turned into an unresolved
@@ -106,7 +107,7 @@ public class JavaCodeActionStub {
 	 *         false otherwise
 	 */
 	private boolean isApplicableToDiagnostic(Diagnostic d) {
-		return d.getCode().getLeft().equals(errorCode);
+		return StringUtils.isEmpty(errorCode) || d.getCode().getLeft().equals(errorCode);
 	}
 
 	/**

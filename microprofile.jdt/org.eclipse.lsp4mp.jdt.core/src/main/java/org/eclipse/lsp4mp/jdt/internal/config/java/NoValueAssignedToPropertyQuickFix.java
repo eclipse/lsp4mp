@@ -22,6 +22,7 @@ import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.getAnnotationMem
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
@@ -36,6 +37,7 @@ import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.TextDocumentItem;
+import org.eclipse.lsp4mp.commons.JavaCodeActionStub;
 import org.eclipse.lsp4mp.jdt.core.java.codeaction.IJavaCodeActionParticipant;
 import org.eclipse.lsp4mp.jdt.core.java.codeaction.JavaCodeActionContext;
 import org.eclipse.lsp4mp.jdt.core.project.IConfigSource;
@@ -61,66 +63,78 @@ import com.google.gson.JsonObject;
  */
 public class NoValueAssignedToPropertyQuickFix implements IJavaCodeActionParticipant {
 
-	private static final String CODE_ACTION_LABEL = "Insert ''{0}'' property in ''{1}''";
+    private static final String CODE_ACTION_LABEL = "Insert ''{0}'' property in ''{1}''";
 
-	@Override
-	public List<? extends CodeAction> getCodeActions(JavaCodeActionContext context, Diagnostic diagnostic,
-			IProgressMonitor monitor) throws CoreException {
-		List<CodeAction> codeActions = new ArrayList<>();
-		IJavaProject javaProject = context.getJavaProject();
+    private static final List<JavaCodeActionStub> CODE_ACTION_STUBS = Arrays.asList(new JavaCodeActionStub( //
+            MicroProfileConfigErrorCode.NO_VALUE_ASSIGNED_TO_PROPERTY.getCode(), //
+            NoValueAssignedToPropertyQuickFix.class.getName(), //
+            CODE_ACTION_LABEL, //
+            null // TODO: extract property name and properties file from the diagnostic?
+    ));
 
-		String lineSeparator = context.getCompilationUnit().findRecommendedLineSeparator();
-		if (lineSeparator == null) {
-			lineSeparator = System.lineSeparator();
-		}
-		String propertyName = getPropertyName(diagnostic, context);
-		String insertText = propertyName + "=" + lineSeparator;
+    @Override
+    public List<? extends CodeAction> getCodeActions(JavaCodeActionContext context, Diagnostic diagnostic,
+            IProgressMonitor monitor) throws CoreException {
+        List<CodeAction> codeActions = new ArrayList<>();
+        IJavaProject javaProject = context.getJavaProject();
 
-		JDTMicroProfileProject mpProject = JDTMicroProfileProjectManager.getInstance()
-				.getJDTMicroProfileProject(javaProject);
-		List<IConfigSource> configSources = mpProject.getConfigSources();
-		for (IConfigSource configSource : configSources) {
-			String uri = configSource.getSourceConfigFileURI();
-			if (uri != null) {
-				// the properties file exists
-				TextDocumentItem document = new TextDocumentItem(uri, "properties", 0, insertText);
-				CodeAction codeAction = CodeActionFactory.insert(
-						getTitle(propertyName, configSource.getConfigFileName()), new Position(0, 0), insertText,
-						document, diagnostic);
-				codeActions.add(codeAction);
-			}
-		}
-		if (context.getParams().isCommandConfigurationUpdateSupported()) {
-			// Exclude validation for the given property
-			codeActions.add(createAddToUnassignedExcludedCodeAction(propertyName, diagnostic));
-		}
-		return codeActions;
-	}
+        String lineSeparator = context.getCompilationUnit().findRecommendedLineSeparator();
+        if (lineSeparator == null) {
+            lineSeparator = System.lineSeparator();
+        }
+        String propertyName = getPropertyName(diagnostic, context);
+        String insertText = propertyName + "=" + lineSeparator;
 
-	private static String getPropertyName(Diagnostic diagnostic, JavaCodeActionContext context)
-			throws JavaModelException {
-		if (diagnostic.getData() != null) {
-			// retrieve the property name from the diagnostic data
-			JsonObject data = (JsonObject) diagnostic.getData();
-			JsonElement name = data.get(DIAGNOSTIC_DATA_NAME);
-			if (name != null) {
-				return name.getAsString();
-			}
-		}
+        JDTMicroProfileProject mpProject = JDTMicroProfileProjectManager.getInstance()
+                .getJDTMicroProfileProject(javaProject);
+        List<IConfigSource> configSources = mpProject.getConfigSources();
+        for (IConfigSource configSource : configSources) {
+            String uri = configSource.getSourceConfigFileURI();
+            if (uri != null) {
+                // the properties file exists
+                TextDocumentItem document = new TextDocumentItem(uri, "properties", 0, insertText);
+                CodeAction codeAction = CodeActionFactory.insert(
+                        getTitle(propertyName, configSource.getConfigFileName()), new Position(0, 0), insertText,
+                        document, diagnostic);
+                codeActions.add(codeAction);
+            }
+        }
+        if (context.getParams().isCommandConfigurationUpdateSupported()) {
+            // Exclude validation for the given property
+            codeActions.add(createAddToUnassignedExcludedCodeAction(propertyName, diagnostic));
+        }
+        return codeActions;
+    }
 
-		// retrieve the property name from the data
-		Position hoverPosition = diagnostic.getRange().getStart();
-		IJDTUtils utils = context.getUtils();
-		ITypeRoot typeRoot = context.getTypeRoot();
-		int offset = utils.toOffset(typeRoot.getBuffer(), hoverPosition.getLine(), hoverPosition.getCharacter());
-		IJavaElement hoverElement = typeRoot.getElementAt(offset);
+    private static String getPropertyName(Diagnostic diagnostic, JavaCodeActionContext context)
+            throws JavaModelException {
+        if (diagnostic.getData() != null) {
+            // retrieve the property name from the diagnostic data
+            JsonObject data = (JsonObject) diagnostic.getData();
+            JsonElement name = data.get(DIAGNOSTIC_DATA_NAME);
+            if (name != null) {
+                return name.getAsString();
+            }
+        }
 
-		IAnnotation configPropertyAnnotation = getAnnotation((IAnnotatable) hoverElement, CONFIG_PROPERTY_ANNOTATION);
-		return getAnnotationMemberValue(configPropertyAnnotation, CONFIG_PROPERTY_ANNOTATION_NAME);
-	}
+        // retrieve the property name from the data
+        Position hoverPosition = diagnostic.getRange().getStart();
+        IJDTUtils utils = context.getUtils();
+        ITypeRoot typeRoot = context.getTypeRoot();
+        int offset = utils.toOffset(typeRoot.getBuffer(), hoverPosition.getLine(), hoverPosition.getCharacter());
+        IJavaElement hoverElement = typeRoot.getElementAt(offset);
 
-	private static String getTitle(String propertyName, String configFileName) {
-		return MessageFormat.format(CODE_ACTION_LABEL, propertyName, configFileName);
-	}
+        IAnnotation configPropertyAnnotation = getAnnotation((IAnnotatable) hoverElement, CONFIG_PROPERTY_ANNOTATION);
+        return getAnnotationMemberValue(configPropertyAnnotation, CONFIG_PROPERTY_ANNOTATION_NAME);
+    }
+
+    private static String getTitle(String propertyName, String configFileName) {
+        return MessageFormat.format(CODE_ACTION_LABEL, propertyName, configFileName);
+    }
+
+    @Override
+    public List<JavaCodeActionStub> getCodeActionStubs() {
+        return CODE_ACTION_STUBS;
+    }
 
 }

@@ -14,6 +14,7 @@
 package org.eclipse.lsp4mp.jdt.internal.health.java;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
@@ -40,33 +41,33 @@ import org.eclipse.lsp4mp.jdt.internal.health.MicroProfileHealthConstants;
  */
 public class ImplementHealthCheckQuickFix implements IJavaCodeActionParticipant {
 
-	private static final JavaCodeActionStub CODE_ACTION_STUB = new JavaCodeActionStub(
-			MicroProfileHealthErrorCode.ImplementHealthCheck.toString(), //
-			MicroProfileHealthErrorCode.ImplementHealthCheck.toString(), //
-			"Let '{0}' implement 'org.eclipse.microprofile.health.HealthCheck'", //
-			"The class `([^`]+)`.+");
+    private static final List<JavaCodeActionStub> CODE_ACTION_STUBS = Arrays.asList(new JavaCodeActionStub(
+            MicroProfileHealthErrorCode.ImplementHealthCheck.toString(), //
+            MicroProfileHealthErrorCode.ImplementHealthCheck.toString(), //
+            "Let '{0}' implement 'org.eclipse.microprofile.health.HealthCheck'", //
+            "The class `([^`]+)`.+"));
 
-	@Override
-	public List<? extends CodeAction> getCodeActions(JavaCodeActionContext context, Diagnostic diagnostic,
-			IProgressMonitor monitor) throws CoreException {
-		ASTNode node = context.getCoveringNode();
-		ITypeBinding parentType = Bindings.getBindingOfParentType(node);
-		if (parentType != null) {
-			List<CodeAction> codeActions = new ArrayList<>();
-			// Create code action to implement 'org.eclipse.microprofile.health.HealthCheck'
-			// interface
-			ChangeCorrectionProposal proposal = new ImplementInterfaceProposal(context.getCompilationUnit(), parentType,
-					context.getASTRoot(), MicroProfileHealthConstants.HEALTH_CHECK_INTERFACE, 0);
-			CodeAction codeAction = context.convertToCodeAction(proposal, diagnostic);
-			codeActions.add(codeAction);
-			return codeActions;
-		}
-		return null;
-	}
+    @Override
+    public List<? extends CodeAction> getCodeActions(JavaCodeActionContext context, Diagnostic diagnostic,
+            IProgressMonitor monitor) throws CoreException {
+        ASTNode node = context.getCoveringNode();
+        ITypeBinding parentType = Bindings.getBindingOfParentType(node);
+        if (parentType != null) {
+            List<CodeAction> codeActions = new ArrayList<>();
+            // Create code action to implement 'org.eclipse.microprofile.health.HealthCheck'
+            // interface
+            ChangeCorrectionProposal proposal = new ImplementInterfaceProposal(context.getCompilationUnit(), parentType,
+                    context.getASTRoot(), MicroProfileHealthConstants.HEALTH_CHECK_INTERFACE, 0);
+            CodeAction codeAction = context.convertToCodeAction(proposal, diagnostic);
+            codeActions.add(codeAction);
+            return codeActions;
+        }
+        return null;
+    }
 
-	@Override
-	public JavaCodeActionStub getCodeActionStub() {
-		return CODE_ACTION_STUB;
-	}
+    @Override
+    public List<JavaCodeActionStub> getCodeActionStubs() {
+        return CODE_ACTION_STUBS;
+    }
 
 }

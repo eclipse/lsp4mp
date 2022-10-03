@@ -13,6 +13,10 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.internal.health.java;
 
+import java.util.Arrays;
+import java.util.List;
+
+import org.eclipse.lsp4mp.commons.JavaCodeActionStub;
 import org.eclipse.lsp4mp.jdt.core.java.codeaction.InsertAnnotationMissingQuickFix;
 import org.eclipse.lsp4mp.jdt.internal.health.MicroProfileHealthConstants;
 
@@ -32,8 +36,30 @@ import org.eclipse.lsp4mp.jdt.internal.health.MicroProfileHealthConstants;
  */
 public class HealthAnnotationMissingQuickFix extends InsertAnnotationMissingQuickFix {
 
-	public HealthAnnotationMissingQuickFix() {
-		super(MicroProfileHealthConstants.LIVENESS_ANNOTATION, MicroProfileHealthConstants.READINESS_ANNOTATION,
-				MicroProfileHealthConstants.HEALTH_ANNOTATION);
-	}
+    private static final List<JavaCodeActionStub> CODE_ACTION_STUBS = Arrays.asList( //
+            new JavaCodeActionStub( //
+                    MicroProfileHealthErrorCode.HealthAnnotationMissing.getCode(), //
+                    HealthAnnotationMissingQuickFix.class.getName(), //
+                    "Insert missing @" + MicroProfileHealthConstants.LIVENESS_ANNOTATION,
+                    null),
+            new JavaCodeActionStub( //
+                    MicroProfileHealthErrorCode.HealthAnnotationMissing.getCode(), //
+                    HealthAnnotationMissingQuickFix.class.getName(), //
+                    "Insert missing @" + MicroProfileHealthConstants.READINESS_ANNOTATION,
+                    null),
+            new JavaCodeActionStub( //
+                    MicroProfileHealthErrorCode.HealthAnnotationMissing.getCode(), //
+                    HealthAnnotationMissingQuickFix.class.getName(), //
+                    "Insert missing @" + MicroProfileHealthConstants.HEALTH_ANNOTATION,
+                    null));
+
+    public HealthAnnotationMissingQuickFix() {
+        super(MicroProfileHealthConstants.LIVENESS_ANNOTATION, MicroProfileHealthConstants.READINESS_ANNOTATION,
+                MicroProfileHealthConstants.HEALTH_ANNOTATION);
+    }
+
+    @Override
+    public List<JavaCodeActionStub> getCodeActionStubs() {
+        return CODE_ACTION_STUBS;
+    }
 }

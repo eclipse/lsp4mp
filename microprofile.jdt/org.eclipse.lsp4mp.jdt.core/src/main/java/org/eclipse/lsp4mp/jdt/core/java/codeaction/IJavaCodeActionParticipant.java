@@ -61,11 +61,11 @@ public interface IJavaCodeActionParticipant {
 			IProgressMonitor monitor) throws CoreException;
 
 	/**
-	 * Returns a code action stub representing the code actions that this code
+	 * Returns a list of code action stubs representing the code actions that this code
 	 * action participant generates.
 	 * 
-	 * @return a code action stub representing the code actions that this code
+	 * @return a list of code action stubs representing the code actions that this code
 	 *         action participant generates
 	 */
-	JavaCodeActionStub getCodeActionStub();
+	List<JavaCodeActionStub> getCodeActionStubs();
 }

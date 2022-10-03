@@ -61,7 +61,7 @@ public class MicroProfileDelegateCommandHandlerForJava extends AbstractMicroProf
 
 	private static final String FILE_INFO_COMMAND_ID = "microprofile/java/fileInfo";
 	private static final String JAVA_CODEACTION_COMMAND_ID = "microprofile/java/codeAction";
-	private static final String JAVA_CODEACTION_STUBS_COMMAND_ID = "microprofile/java/codeActionStubs";
+	private static final String JAVA_CODEACTION_STUBS_COMMAND_ID = "microprofile/java/codeActionStub";
 	private static final String JAVA_CODELENS_COMMAND_ID = "microprofile/java/codeLens";
 	private static final String JAVA_COMPLETION_COMMAND_ID = "microprofile/java/completion";
 	private static final String JAVA_DEFINITION_COMMAND_ID = "microprofile/java/definition";
@@ -79,7 +79,7 @@ public class MicroProfileDelegateCommandHandlerForJava extends AbstractMicroProf
 		case JAVA_CODEACTION_COMMAND_ID:
 			return getCodeActionForJava(arguments, commandId, progress);
 		case JAVA_CODEACTION_STUBS_COMMAND_ID:
-			getCodeActionStubsForJava(arguments, commandId, progress);
+			return getCodeActionStubsForJava(arguments, commandId, progress);
 		case JAVA_CODELENS_COMMAND_ID:
 			return getCodeLensForJava(arguments, commandId, progress);
 		case JAVA_COMPLETION_COMMAND_ID:

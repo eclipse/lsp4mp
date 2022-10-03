@@ -33,7 +33,7 @@ import org.eclipse.lsp4mp.jdt.core.java.corrections.proposal.InsertAnnotationPro
  * @author Angelo ZERR
  *
  */
-public class InsertAnnotationMissingQuickFix implements IJavaCodeActionParticipant {
+public abstract class InsertAnnotationMissingQuickFix implements IJavaCodeActionParticipant {
 
 	private final String[] annotations;
 

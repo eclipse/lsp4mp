@@ -13,6 +13,10 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.internal.restclient.java;
 
+import java.util.Arrays;
+import java.util.List;
+
+import org.eclipse.lsp4mp.commons.JavaCodeActionStub;
 import org.eclipse.lsp4mp.jdt.core.MicroProfileConfigConstants;
 import org.eclipse.lsp4mp.jdt.core.java.codeaction.InsertAnnotationMissingQuickFix;
 import org.eclipse.lsp4mp.jdt.internal.restclient.MicroProfileRestClientErrorCode;
@@ -31,8 +35,19 @@ import org.eclipse.lsp4mp.jdt.internal.restclient.MicroProfileRestClientErrorCod
  */
 public class InjectAnnotationMissingQuickFix extends InsertAnnotationMissingQuickFix {
 
-	public InjectAnnotationMissingQuickFix() {
-		super(MicroProfileConfigConstants.INJECT_ANNOTATION);
-	}
+    private static final List<JavaCodeActionStub> CODE_ACTION_STUBS = Arrays.asList(new JavaCodeActionStub( //
+            MicroProfileRestClientErrorCode.InjectAnnotationMissing.getCode(), //
+            InjectAnnotationMissingQuickFix.class.getName(), //
+            "Insert missing @Inject", //
+            null));
+
+    public InjectAnnotationMissingQuickFix() {
+        super(MicroProfileConfigConstants.INJECT_ANNOTATION);
+    }
+
+    @Override
+    public List<JavaCodeActionStub> getCodeActionStubs() {
+        return CODE_ACTION_STUBS;
+    }
 
 }
