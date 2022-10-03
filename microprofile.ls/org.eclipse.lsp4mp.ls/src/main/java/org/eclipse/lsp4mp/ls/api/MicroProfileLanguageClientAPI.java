@@ -13,6 +13,9 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.ls.api;
 
+import java.util.concurrent.CompletableFuture;
+
+import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.services.LanguageClient;
 
 /**
@@ -22,9 +25,12 @@ import org.eclipse.lsp4j.services.LanguageClient;
  *
  */
 public interface MicroProfileLanguageClientAPI
-		extends LanguageClient, MicroProfileProjectInfoProvider, MicroProfilePropertyDefinitionProvider,
-		MicroProfileJavaCodeActionProvider, MicroProfileJavaCodeActionStubProvider, MicroProfileJavaCodeLensProvider,
-		MicroProfileJavaCompletionProvider, MicroProfileJavaDiagnosticsProvider, MicroProfileJavaDefinitionProvider,
-		MicroProfileJavaHoverProvider, MicroProfileJavaProjectLabelsProvider, MicroProfileJavaFileInfoProvider {
+        extends LanguageClient, MicroProfileProjectInfoProvider, MicroProfilePropertyDefinitionProvider,
+        MicroProfileJavaCodeActionProvider, MicroProfileJavaCodeActionStubProvider, MicroProfileJavaCodeLensProvider,
+        MicroProfileJavaCompletionProvider, MicroProfileJavaDiagnosticsProvider, MicroProfileJavaDefinitionProvider,
+        MicroProfileJavaHoverProvider, MicroProfileJavaProjectLabelsProvider, MicroProfileJavaFileInfoProvider,
+        MicroProfileJavaCodeActionResolver {
+
+    CompletableFuture<CodeAction> resolveCodeAction(CodeAction codeAction);
 
 }

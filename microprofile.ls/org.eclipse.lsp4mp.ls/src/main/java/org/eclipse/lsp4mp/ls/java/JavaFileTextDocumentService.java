@@ -278,6 +278,11 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 
 		}, Collections.emptyList());
 	}
+	
+	@Override
+	public CompletableFuture<CodeAction> resolveCodeAction(CodeAction codeAction) {
+	    return microprofileLanguageServer.getLanguageClient().resolveCodeAction(codeAction);
+	}
 
 	// ------------------------------ Definition ------------------------------
 

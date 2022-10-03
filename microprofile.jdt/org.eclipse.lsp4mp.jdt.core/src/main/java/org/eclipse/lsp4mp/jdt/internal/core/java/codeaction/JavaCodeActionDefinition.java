@@ -104,5 +104,15 @@ public class JavaCodeActionDefinition extends AbstractJavaFeatureDefinition<IJav
             return null;
         }
     }
+    
+    @Override
+    public String getParticipantId() {
+        try {
+            return getParticipant().getParticipantId();
+        } catch (CoreException e) {
+            LOGGER.log(Level.SEVERE, "CoreException while trying to get code action participant id", e);
+            return null;
+        }
+    }
 
 }

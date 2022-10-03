@@ -143,6 +143,10 @@ public class PropertiesManagerForJava {
 
         return codeActionStubs;
     }
+    
+    public CodeAction resolveCodeAction(CodeAction codeAction, IJDTUtils utils, IProgressMonitor monitor) {
+        return codeActionHandler.resolveCodeAction(codeAction, utils, monitor);
+    }
 
     /**
      * Returns the codelens list according the given codelens parameters.

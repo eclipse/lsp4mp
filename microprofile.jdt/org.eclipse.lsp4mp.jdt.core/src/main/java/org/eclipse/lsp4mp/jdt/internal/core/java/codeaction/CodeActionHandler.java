@@ -136,6 +136,11 @@ public class CodeActionHandler {
 		ExtendedCodeAction.sort(codeActions);
 		return codeActions;
 	}
+	
+	public CodeAction resolveCodeAction(CodeAction codeAction, IJDTUtils utils, IProgressMonitor monitor) {
+	    // TODO: implement
+	    return codeAction;
+	}
 
 	private static CompilationUnit getASTRoot(ICompilationUnit unit, IProgressMonitor monitor) {
 		return CoreASTProvider.getInstance().getAST(unit, CoreASTProvider.WAIT_YES, monitor);

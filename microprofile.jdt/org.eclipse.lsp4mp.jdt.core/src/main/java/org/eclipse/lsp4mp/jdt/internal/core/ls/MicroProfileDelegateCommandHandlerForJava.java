@@ -62,6 +62,7 @@ public class MicroProfileDelegateCommandHandlerForJava extends AbstractMicroProf
 	private static final String FILE_INFO_COMMAND_ID = "microprofile/java/fileInfo";
 	private static final String JAVA_CODEACTION_COMMAND_ID = "microprofile/java/codeAction";
 	private static final String JAVA_CODEACTION_STUBS_COMMAND_ID = "microprofile/java/codeActionStub";
+	private static final String JAVA_CODEACTION_RESOLVE_COMMAND_ID = "microprofile/java/codeActionResolve";
 	private static final String JAVA_CODELENS_COMMAND_ID = "microprofile/java/codeLens";
 	private static final String JAVA_COMPLETION_COMMAND_ID = "microprofile/java/completion";
 	private static final String JAVA_DEFINITION_COMMAND_ID = "microprofile/java/definition";
@@ -80,6 +81,8 @@ public class MicroProfileDelegateCommandHandlerForJava extends AbstractMicroProf
 			return getCodeActionForJava(arguments, commandId, progress);
 		case JAVA_CODEACTION_STUBS_COMMAND_ID:
 			return getCodeActionStubsForJava(arguments, commandId, progress);
+		case JAVA_CODEACTION_RESOLVE_COMMAND_ID:
+		    return resolveCodeActionForJava(arguments, commandId, progress);
 		case JAVA_CODELENS_COMMAND_ID:
 			return getCodeLensForJava(arguments, commandId, progress);
 		case JAVA_COMPLETION_COMMAND_ID:
@@ -95,7 +98,7 @@ public class MicroProfileDelegateCommandHandlerForJava extends AbstractMicroProf
 		}
 	}
 
-	private List<JavaCodeActionStub> getCodeActionStubsForJava(List<Object> arguments, String commandId, IProgressMonitor monitor) {
+    private List<JavaCodeActionStub> getCodeActionStubsForJava(List<Object> arguments, String commandId, IProgressMonitor monitor) {
 		return PropertiesManagerForJava.getInstance().codeActionStubs(JDTUtilsLSImpl.getInstance(), monitor);
 	}
 
@@ -431,4 +434,9 @@ public class MicroProfileDelegateCommandHandlerForJava extends AbstractMicroProf
 		boolean surroundEqualsWithSpaces = ((Boolean) obj.get("surroundEqualsWithSpaces")).booleanValue();
 		return new MicroProfileJavaHoverParams(javaFileUri, hoverPosition, documentFormat, surroundEqualsWithSpaces);
 	}
+	
+	private CodeAction resolveCodeActionForJava(List<Object> arguments, String commandId, IProgressMonitor progress) {
+	    // TODO: parse the arguments into a CodeAction with the expected data
+        return PropertiesManagerForJava.getInstance().resolveCodeAction(null /*TODO: */, JDTUtilsLSImpl.getInstance(), progress);
+    }
 }

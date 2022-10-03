@@ -68,4 +68,11 @@ public interface IJavaCodeActionParticipant {
 	 *         action participant generates
 	 */
 	List<JavaCodeActionStub> getCodeActionStubs();
+	
+	/**
+	 * Returns the ID of this code action participant.
+	 * 
+	 * @return the ID of this code action participant
+	 */
+	String getParticipantId();
 }
