@@ -163,9 +163,11 @@ public class MicroProfileConfigASTValidator extends JavaASTValidator {
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) annotation.getParent();
 		IJavaProject javaProject = getContext().getJavaProject();
 		if (defaultValueExpr != null) {
-			String defValue = ((StringLiteral) defaultValueExpr).getLiteralValue();
+			String defValue = defaultValueExpr instanceof StringLiteral
+					? ((StringLiteral) defaultValueExpr).getLiteralValue()
+					: null;
 			ITypeBinding fieldBinding = fieldDeclaration.getType().resolveBinding();
-			if (fieldBinding != null && !isAssignable(fieldBinding, javaProject, defValue)) {
+			if (fieldBinding != null && defValue != null && !isAssignable(fieldBinding, javaProject, defValue)) {
 				String message = MessageFormat.format(EXPECTED_TYPE_ERROR_MESSAGE, defValue, fieldBinding.getName());
 				super.addDiagnostic(message, MICRO_PROFILE_CONFIG_DIAGNOSTIC_SOURCE, defaultValueExpr,
 						MicroProfileConfigErrorCode.DEFAULT_VALUE_IS_WRONG_TYPE, DiagnosticSeverity.Error);
