@@ -16,6 +16,8 @@ package org.eclipse.lsp4mp.jdt.internal.config.java;
 import java.util.Arrays;
 import java.util.List;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4mp.commons.JavaCodeActionStub;
 import org.eclipse.lsp4mp.jdt.core.MicroProfileConfigConstants;
 import org.eclipse.lsp4mp.jdt.core.java.codeaction.InsertAnnotationAttributeQuickFix;
@@ -47,6 +49,11 @@ public class InsertDefaultValueAnnotationAttributeQuickFix extends InsertAnnotat
     @Override
     public List<JavaCodeActionStub> getCodeActionStubs() {
         return CODE_ACTION_STUBS;
+    }
+
+    @Override
+    public String getParticipantId() {
+        return InsertDefaultValueAnnotationAttributeQuickFix.class.getName();
     }
 
 }

@@ -57,6 +57,11 @@ public abstract class InsertAnnotationAttributeQuickFix implements IJavaCodeActi
 		insertAnnotationAttribute(annotation, this.attributeName, diagnostic, codeActions, context);
 		return codeActions;
 	}
+	
+	@Override
+	public CodeAction resolveCodeAction(JavaCodeActionResolveContext context, IProgressMonitor monitor) throws CoreException {
+	    return getCodeActions(context, context.getUnresolved().getDiagnostics().get(0), monitor).stream().findFirst().orElse(null);
+	}
 
 	protected static void insertAnnotationAttribute(Annotation annotation, String attributeName, Diagnostic diagnostic,
 			List<CodeAction> codeActions, JavaCodeActionContext context) throws CoreException {

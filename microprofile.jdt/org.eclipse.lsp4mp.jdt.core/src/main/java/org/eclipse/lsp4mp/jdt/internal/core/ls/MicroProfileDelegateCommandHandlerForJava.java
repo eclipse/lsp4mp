@@ -37,6 +37,7 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
+import org.eclipse.lsp4mp.commons.BaseCodeActionResolveData;
 import org.eclipse.lsp4mp.commons.DocumentFormat;
 import org.eclipse.lsp4mp.commons.JavaCodeActionStub;
 import org.eclipse.lsp4mp.commons.JavaFileInfo;
@@ -49,6 +50,7 @@ import org.eclipse.lsp4mp.commons.MicroProfileJavaDiagnosticsParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaDiagnosticsSettings;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaFileInfoParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaHoverParams;
+import org.eclipse.lsp4mp.commons.utils.JSONUtility;
 import org.eclipse.lsp4mp.jdt.core.PropertiesManagerForJava;
 
 /**
@@ -436,7 +438,18 @@ public class MicroProfileDelegateCommandHandlerForJava extends AbstractMicroProf
 	}
 	
 	private CodeAction resolveCodeActionForJava(List<Object> arguments, String commandId, IProgressMonitor progress) {
-	    // TODO: parse the arguments into a CodeAction with the expected data
-        return PropertiesManagerForJava.getInstance().resolveCodeAction(null /*TODO: */, JDTUtilsLSImpl.getInstance(), progress);
+	    CodeAction codeAction = createResolveCodeActionParams(arguments, commandId);
+        return PropertiesManagerForJava.getInstance().resolveCodeAction(codeAction, JDTUtilsLSImpl.getInstance(), progress);
     }
+	
+	private static CodeAction createResolveCodeActionParams(List<Object> arguums, String commandId) {
+	    Map<String, Object> obj = getFirst(arguums);
+	    if (obj == null) {
+            throw new UnsupportedOperationException(String
+                    .format("Command '%s' must be called with one CodeAction argument!", commandId));
+	    }
+	    CodeAction codeAction = JSONUtility.toLsp4jModel(obj, CodeAction.class);
+	    codeAction.setData(JSONUtility.toLsp4jModel(codeAction.getData(), BaseCodeActionResolveData.class));
+	    return codeAction;
+	}
 }

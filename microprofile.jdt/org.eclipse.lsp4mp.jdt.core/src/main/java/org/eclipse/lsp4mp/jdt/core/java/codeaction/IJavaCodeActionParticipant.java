@@ -75,4 +75,13 @@ public interface IJavaCodeActionParticipant {
 	 * @return the ID of this code action participant
 	 */
 	String getParticipantId();
+	
+	/**
+	 * Returns the code action with the edits resolved.
+	 * 
+	 * @param resolveContext the context for resolving the code action
+	 * @param monitor the progress monitor
+	 * @return the code action with the edits resolved
+	 */
+	CodeAction resolveCodeAction(JavaCodeActionResolveContext resolveContext, IProgressMonitor monitor) throws CoreException;
 }

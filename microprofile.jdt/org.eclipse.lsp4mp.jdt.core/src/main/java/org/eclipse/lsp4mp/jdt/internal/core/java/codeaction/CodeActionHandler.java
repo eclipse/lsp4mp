@@ -27,12 +27,16 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.manipulation.CoreASTProvider;
 import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.eclipse.lsp4mp.commons.BaseCodeActionResolveData;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeActionParams;
 import org.eclipse.lsp4mp.jdt.core.java.codeaction.ExtendedCodeAction;
 import org.eclipse.lsp4mp.jdt.core.java.codeaction.JavaCodeActionContext;
+import org.eclipse.lsp4mp.jdt.core.java.codeaction.JavaCodeActionResolveContext;
 import org.eclipse.lsp4mp.jdt.core.utils.IJDTUtils;
 import org.eclipse.lsp4mp.jdt.internal.core.java.JavaFeaturesRegistry;
 import org.eclipse.lsp4mp.jdt.internal.core.java.corrections.DiagnosticsHelper;
@@ -46,6 +50,7 @@ import org.eclipse.lsp4mp.jdt.internal.core.java.corrections.DiagnosticsHelper;
 public class CodeActionHandler {
 
 	/**
+	 * TODO:
 	 *
 	 * @param params
 	 * @param utils
@@ -133,13 +138,44 @@ public class CodeActionHandler {
 			});
 		}
 		// sort code actions by relevant
+		// TODO: this should be done on the microprofile.ls side as well for the code action stubs
 		ExtendedCodeAction.sort(codeActions);
 		return codeActions;
 	}
 	
 	public CodeAction resolveCodeAction(CodeAction codeAction, IJDTUtils utils, IProgressMonitor monitor) {
-	    // TODO: implement
-	    return codeAction;
+	    
+	    BaseCodeActionResolveData caResolveData = ((BaseCodeActionResolveData)codeAction.getData());
+	    
+	    // Get the compilation unit
+        String uri = caResolveData.getDocumentUri();
+        ICompilationUnit unit = utils.resolveCompilationUnit(uri);
+        if (unit == null) {
+            return null;
+        }
+
+        Diagnostic diagnostic = codeAction.getDiagnostics().get(0);
+        int start = DiagnosticsHelper.getStartOffset(unit, diagnostic.getRange(), utils);
+        int end = DiagnosticsHelper.getEndOffset(unit, diagnostic.getRange(), utils);
+
+        var params = new MicroProfileJavaCodeActionParams();
+        params.setContext(new CodeActionContext(codeAction.getDiagnostics()));
+        params.setRange(diagnostic.getRange());
+        params.setTextDocument(new TextDocumentIdentifier(uri));
+        
+        JavaCodeActionResolveContext context = new JavaCodeActionResolveContext(unit, start, end - start, utils, params, codeAction);
+        context.setASTRoot(getASTRoot(unit, monitor));
+	    
+	    JavaCodeActionDefinition resolver = JavaFeaturesRegistry.getInstance()
+	            .getJavaCodeActionDefinitions(codeAction.getKind()).stream() //
+            .filter(codeActionDefinition -> codeActionDefinition.getParticipantId().equals(codeAction.getData()))
+            .findFirst()
+            .orElse(null);
+	    
+	    if (resolver == null) {
+	        return null;
+	    }
+	    return resolver.resolveCodeAction(context, monitor);
 	}
 
 	private static CompilationUnit getASTRoot(ICompilationUnit unit, IProgressMonitor monitor) {

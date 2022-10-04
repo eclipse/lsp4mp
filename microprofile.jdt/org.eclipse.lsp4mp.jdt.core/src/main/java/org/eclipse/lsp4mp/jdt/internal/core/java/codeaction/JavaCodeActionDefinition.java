@@ -29,6 +29,7 @@ import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4mp.commons.JavaCodeActionStub;
 import org.eclipse.lsp4mp.jdt.core.java.codeaction.IJavaCodeActionParticipant;
 import org.eclipse.lsp4mp.jdt.core.java.codeaction.JavaCodeActionContext;
+import org.eclipse.lsp4mp.jdt.core.java.codeaction.JavaCodeActionResolveContext;
 import org.eclipse.lsp4mp.jdt.internal.core.java.AbstractJavaFeatureDefinition;
 
 /**
@@ -111,6 +112,16 @@ public class JavaCodeActionDefinition extends AbstractJavaFeatureDefinition<IJav
             return getParticipant().getParticipantId();
         } catch (CoreException e) {
             LOGGER.log(Level.SEVERE, "CoreException while trying to get code action participant id", e);
+            return null;
+        }
+    }
+
+    @Override
+    public CodeAction resolveCodeAction(JavaCodeActionResolveContext context, IProgressMonitor monitor) {
+        try {
+            return getParticipant().resolveCodeAction(context, monitor);
+        } catch (CoreException e) {
+            LOGGER.log(Level.SEVERE, "CoreException while trying to resolve code action", e);
             return null;
         }
     }
