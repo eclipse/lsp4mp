@@ -15,8 +15,6 @@ package org.eclipse.lsp4mp.commons;
 
 import java.util.Objects;
 
-import org.eclipse.lsp4mp.jdt.core.java.codeaction.IJavaCodeActionParticipant;
-
 /**
  * Represents the minimum amount of supplementary data needed to resolve the
  * edits for a code action.
@@ -38,15 +36,26 @@ public class BaseCodeActionResolveData {
     private String documentUri;
 
     /**
+     * (optional) The uri of the configSource (eg. microprofile-config.properties, etc.) that
+     * this code action applies to.
+     */
+    private String configSource;
+
+    /**
      * Needed for GSON
      */
     public BaseCodeActionResolveData() {
-        this(null, null);
+        this(null, null, null);
     }
 
-    public BaseCodeActionResolveData(String participantId, String documentUri) {
+    public BaseCodeActionResolveData(String participantId, String documentUri, String configSource) {
         this.participantId = participantId;
         this.documentUri = documentUri;
+        this.configSource = configSource;
+    }
+    
+    public BaseCodeActionResolveData(String participantId, String documentUri) {
+        this(participantId, documentUri, null);
     }
 
     public String getParticipantId() {
@@ -55,6 +64,10 @@ public class BaseCodeActionResolveData {
 
     public String getDocumentUri() {
         return this.documentUri;
+    }
+
+    public String getConfigSource() {
+        return this.configSource;
     }
 
     @Override
@@ -69,7 +82,8 @@ public class BaseCodeActionResolveData {
         BaseCodeActionResolveData that = (BaseCodeActionResolveData) other;
 
         return Objects.equals(this.documentUri, that.documentUri)
-                && Objects.equals(this.participantId, that.participantId);
+                && Objects.equals(this.participantId, that.participantId)
+                && Objects.equals(this.configSource, that.configSource);
     }
 
 }

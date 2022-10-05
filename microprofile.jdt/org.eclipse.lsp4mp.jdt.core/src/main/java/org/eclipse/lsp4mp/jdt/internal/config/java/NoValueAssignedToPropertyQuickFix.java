@@ -64,7 +64,7 @@ import com.google.gson.JsonObject;
  */
 public class NoValueAssignedToPropertyQuickFix implements IJavaCodeActionParticipant {
 
-    private static final String CODE_ACTION_LABEL = "Insert ''{0}'' property in ''{1}''";
+    private static final String CODE_ACTION_LABEL = "Insert ''{0}'' property in $configSource";
     // HACK: this should reference the string from the CodeActionFactory instead of copy/pasting the string 
     private static final String IGNORE_CODE_ACTION_LABEL = "Exclude ''{0}'' from unknown property validation?";
 
@@ -72,8 +72,7 @@ public class NoValueAssignedToPropertyQuickFix implements IJavaCodeActionPartici
             MicroProfileConfigErrorCode.NO_VALUE_ASSIGNED_TO_PROPERTY.getCode(), //
             NoValueAssignedToPropertyQuickFix.class.getName(), //
             CODE_ACTION_LABEL, //
-            null // TODO: extract property name and properties file from the diagnostic? No;
-                 // impossible, the list of all properties files is not there
+            "'([^']+)'"
     ),
             new JavaCodeActionStub( //
                     MicroProfileConfigErrorCode.NO_VALUE_ASSIGNED_TO_PROPERTY.getCode(), //

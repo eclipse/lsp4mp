@@ -240,9 +240,10 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 				for (Diagnostic d : params.getContext().getDiagnostics()) {
 					for (JavaCodeActionStub stub : codeActionStubs) {
 					    if (stub != null) {
-					        CodeAction ca = stub.getUnresolvedCodeAction(d, params.getTextDocument().getUri());
-					        if (ca != null) {
-					            codeActions.add(ca);
+					        
+					        List<CodeAction> cas = stub.getUnresolvedCodeAction(d, params.getTextDocument().getUri(), projectInfo.getUri());
+					        if (cas != null) {
+					            codeActions.addAll(cas);
 					        }
 					    }
 					}

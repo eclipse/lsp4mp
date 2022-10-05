@@ -14,7 +14,10 @@
 package org.eclipse.lsp4mp.commons;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -31,6 +34,8 @@ import org.eclipse.lsp4mp.commons.utils.StringUtils;
  * @author datho7561
  */
 public class JavaCodeActionStub {
+    
+    public static final String CONFIG_SOURCE_REFERENCE = "$configSource";
 
     private String errorCode;
     private String id;
@@ -56,16 +61,29 @@ public class JavaCodeActionStub {
      * @return the code action for the given diagnostic, or null if this code action
      *         is not applicable for the diagnostic
      */
-    public CodeAction getUnresolvedCodeAction(Diagnostic d, String uri) {
+    public List<CodeAction> getUnresolvedCodeAction(Diagnostic d, String uri, String... configSources) {
         if (!isApplicableToDiagnostic(d)) {
             return null;
         }
-        CodeAction ca = new CodeAction();
-        ca.setDiagnostics(Arrays.asList(d));
-        ca.setTitle(getFormattedMessage(d));
-        ca.setKind(CodeActionKind.QuickFix);
-        ca.setData(new BaseCodeActionResolveData(id, uri));
-        return ca;
+        if (messageTemplate.contains(CONFIG_SOURCE_REFERENCE)) { 
+            List<CodeAction> codeActions = new ArrayList<>();
+            for (String configSource : configSources) {
+                CodeAction ca = new CodeAction();
+                ca.setDiagnostics(Arrays.asList(d));
+                ca.setTitle(getFormattedMessage(d, configSource));
+                ca.setKind(CodeActionKind.QuickFix);
+                ca.setData(new BaseCodeActionResolveData(id, uri, configSource));
+                codeActions.add(ca);
+            }
+            return codeActions;
+        } else {
+            CodeAction ca = new CodeAction();
+            ca.setDiagnostics(Arrays.asList(d));
+            ca.setTitle(getFormattedMessage(d, null));
+            ca.setKind(CodeActionKind.QuickFix);
+            ca.setData(new BaseCodeActionResolveData(id, uri));
+            return Collections.singletonList(ca);
+        }
     }
 
     /**
@@ -117,7 +135,7 @@ public class JavaCodeActionStub {
      * @param d the diagnostic that the code action will resolve
      * @return the formatted message for this code action.
      */
-    private String getFormattedMessage(Diagnostic d) {
+    private String getFormattedMessage(Diagnostic d, String configSource) {
         if (messageRegex == null) {
             return messageTemplate;
         }
@@ -129,7 +147,7 @@ public class JavaCodeActionStub {
         for (int i = 0; i < groups.length; i++) {
             groups[i] = m.group(i);
         }
-        return MessageFormat.format(messageTemplate, groups);
+        return MessageFormat.format(messageTemplate.replace(CONFIG_SOURCE_REFERENCE, configSource), groups);
     }
 
 }
