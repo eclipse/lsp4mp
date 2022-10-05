@@ -14,6 +14,7 @@
 package org.eclipse.lsp4mp.jdt.core.java.codeaction;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
@@ -76,6 +77,22 @@ public abstract class InsertAnnotationMissingQuickFix implements IJavaCodeAction
 			return codeActions;
 		}
 		return null;
+	}
+	
+	@Override
+	public CodeAction resolveCodeAction(JavaCodeActionResolveContext context, IProgressMonitor monitor) throws CoreException {
+	    String annotation = Arrays.asList(annotations).stream() //
+	            .filter(a -> context.getUnresolved().getTitle().contains(a.substring(a.lastIndexOf('.') + 1, a.length())))
+	            .findFirst().orElse(null);
+	    if (annotation == null) {
+	        return null;
+	    }
+	    
+	    List<CodeAction> codeAction = new ArrayList<>();
+	    ASTNode node = context.getCoveringNode();
+        IBinding parentType = getBinding(node);
+	    insertAnnotation(context.getUnresolved().getDiagnostics().get(0), context, parentType, codeAction, annotation);
+	    return codeAction.size() >= 1 ? codeAction.get(0) : null;
 	}
 
 	protected IBinding getBinding(ASTNode node) {

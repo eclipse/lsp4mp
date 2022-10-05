@@ -50,4 +50,9 @@ public class InjectAnnotationMissingQuickFix extends InsertAnnotationMissingQuic
         return CODE_ACTION_STUBS;
     }
 
+    @Override
+    public String getParticipantId() {
+        return InjectAnnotationMissingQuickFix.class.getName();
+    }
+
 }

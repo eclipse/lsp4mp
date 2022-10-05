@@ -168,7 +168,7 @@ public class CodeActionHandler {
 	    
 	    JavaCodeActionDefinition resolver = JavaFeaturesRegistry.getInstance()
 	            .getJavaCodeActionDefinitions(codeAction.getKind()).stream() //
-            .filter(codeActionDefinition -> codeActionDefinition.getParticipantId().equals(codeAction.getData()))
+            .filter(codeActionDefinition -> codeActionDefinition.getParticipantId().equals(((BaseCodeActionResolveData)codeAction.getData()).getParticipantId()))
             .findFirst()
             .orElse(null);
 	    

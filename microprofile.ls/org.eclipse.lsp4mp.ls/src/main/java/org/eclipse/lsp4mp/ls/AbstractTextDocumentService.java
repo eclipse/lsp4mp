@@ -118,6 +118,11 @@ public abstract class AbstractTextDocumentService implements TextDocumentService
 	public CompletableFuture<List<Either<Command, CodeAction>>> codeAction(CodeActionParams params) {
 		return CompletableFuture.completedFuture(null);
 	}
+	
+	@Override
+	public CompletableFuture<CodeAction> resolveCodeAction(CodeAction unresolved) {
+	    return CompletableFuture.completedFuture(null);
+	}
 
 	@Override
 	public CompletableFuture<List<Either<SymbolInformation, DocumentSymbol>>> documentSymbol(

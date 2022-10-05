@@ -27,6 +27,7 @@ import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4mp.commons.JavaCodeActionStub;
 import org.eclipse.lsp4mp.jdt.core.java.codeaction.IJavaCodeActionParticipant;
 import org.eclipse.lsp4mp.jdt.core.java.codeaction.JavaCodeActionContext;
+import org.eclipse.lsp4mp.jdt.core.java.codeaction.JavaCodeActionResolveContext;
 import org.eclipse.lsp4mp.jdt.core.java.corrections.proposal.ChangeCorrectionProposal;
 import org.eclipse.lsp4mp.jdt.core.utils.JDTTypeUtils;
 import org.eclipse.lsp4mp.jdt.internal.openapi.MicroProfileOpenAPIConstants;
@@ -78,6 +79,33 @@ public class MicroProfileGenerateOpenAPIOperation implements IJavaCodeActionPart
     @Override
     public List<JavaCodeActionStub> getCodeActionStubs() {
         return CODE_ACTION_STUBS;
+    }
+
+    @Override
+    public String getParticipantId() {
+        return MicroProfileGenerateOpenAPIOperation.class.getName();
+    }
+
+    @Override
+    public CodeAction resolveCodeAction(JavaCodeActionResolveContext context, IProgressMonitor monitor)
+            throws CoreException {
+        List<CodeAction> codeActions = new ArrayList<>();
+        CompilationUnit cu = context.getASTRoot();
+        List<?> types = cu.types();
+        for (Object type : types) {
+            if (type instanceof TypeDeclaration) {
+                ChangeCorrectionProposal proposal = new OpenAPIAnnotationProposal(
+                        "Generate OpenAPI Annotations", context.getCompilationUnit(), context.getASTRoot(),
+                        (TypeDeclaration) type, MicroProfileOpenAPIConstants.OPERATION_ANNOTATION, 0);
+                // Convert the proposal to LSP4J CodeAction
+                CodeAction codeAction = context.convertToCodeAction(proposal);
+                if (codeAction != null) {
+                    codeActions.add(codeAction);
+                    break;
+                }
+            }
+        }
+        return codeActions.size() > 0 ? codeActions.get(0) : null;
     }
 
 }

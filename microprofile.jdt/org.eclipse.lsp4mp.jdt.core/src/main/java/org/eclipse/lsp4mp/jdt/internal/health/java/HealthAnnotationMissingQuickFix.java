@@ -62,4 +62,9 @@ public class HealthAnnotationMissingQuickFix extends InsertAnnotationMissingQuic
     public List<JavaCodeActionStub> getCodeActionStubs() {
         return CODE_ACTION_STUBS;
     }
+
+    @Override
+    public String getParticipantId() {
+        return HealthAnnotationMissingQuickFix.class.getName();
+    }
 }

@@ -50,4 +50,9 @@ public class RestClientAnnotationMissingQuickFix extends InsertAnnotationMissing
         return CODE_ACTION_STUBS;
     }
 
+    @Override
+    public String getParticipantId() {
+        return RestClientAnnotationMissingQuickFix.class.getName();
+    }
+
 }

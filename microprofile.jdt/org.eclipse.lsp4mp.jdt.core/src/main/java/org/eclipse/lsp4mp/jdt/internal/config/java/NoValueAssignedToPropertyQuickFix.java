@@ -40,6 +40,7 @@ import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4mp.commons.JavaCodeActionStub;
 import org.eclipse.lsp4mp.jdt.core.java.codeaction.IJavaCodeActionParticipant;
 import org.eclipse.lsp4mp.jdt.core.java.codeaction.JavaCodeActionContext;
+import org.eclipse.lsp4mp.jdt.core.java.codeaction.JavaCodeActionResolveContext;
 import org.eclipse.lsp4mp.jdt.core.project.IConfigSource;
 import org.eclipse.lsp4mp.jdt.core.project.JDTMicroProfileProject;
 import org.eclipse.lsp4mp.jdt.core.project.JDTMicroProfileProjectManager;
@@ -64,13 +65,22 @@ import com.google.gson.JsonObject;
 public class NoValueAssignedToPropertyQuickFix implements IJavaCodeActionParticipant {
 
     private static final String CODE_ACTION_LABEL = "Insert ''{0}'' property in ''{1}''";
+    // HACK: this should reference the string from the CodeActionFactory instead of copy/pasting the string 
+    private static final String IGNORE_CODE_ACTION_LABEL = "Exclude ''{0}'' from unknown property validation?";
 
     private static final List<JavaCodeActionStub> CODE_ACTION_STUBS = Arrays.asList(new JavaCodeActionStub( //
             MicroProfileConfigErrorCode.NO_VALUE_ASSIGNED_TO_PROPERTY.getCode(), //
             NoValueAssignedToPropertyQuickFix.class.getName(), //
             CODE_ACTION_LABEL, //
-            null // TODO: extract property name and properties file from the diagnostic?
-    ));
+            null // TODO: extract property name and properties file from the diagnostic? No;
+                 // impossible, the list of all properties files is not there
+    ),
+            new JavaCodeActionStub( //
+                    MicroProfileConfigErrorCode.NO_VALUE_ASSIGNED_TO_PROPERTY.getCode(), //
+                    NoValueAssignedToPropertyQuickFix.class.getName(), //
+                    IGNORE_CODE_ACTION_LABEL, //
+                    null // TODO: extract property name from the diagnostic
+            ));
 
     @Override
     public List<? extends CodeAction> getCodeActions(JavaCodeActionContext context, Diagnostic diagnostic,
@@ -135,6 +145,18 @@ public class NoValueAssignedToPropertyQuickFix implements IJavaCodeActionPartici
     @Override
     public List<JavaCodeActionStub> getCodeActionStubs() {
         return CODE_ACTION_STUBS;
+    }
+
+    @Override
+    public String getParticipantId() {
+        return NoValueAssignedToPropertyQuickFix.class.getName();
+    }
+
+    @Override
+    public CodeAction resolveCodeAction(JavaCodeActionResolveContext resolveContext, IProgressMonitor monitor)
+            throws CoreException {
+        // TODO: how to implement?
+        return null;
     }
 
 }

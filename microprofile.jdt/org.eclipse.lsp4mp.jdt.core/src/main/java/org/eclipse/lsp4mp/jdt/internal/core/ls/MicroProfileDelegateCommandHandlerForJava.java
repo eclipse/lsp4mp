@@ -449,6 +449,10 @@ public class MicroProfileDelegateCommandHandlerForJava extends AbstractMicroProf
                     .format("Command '%s' must be called with one CodeAction argument!", commandId));
 	    }
 	    CodeAction codeAction = JSONUtility.toLsp4jModel(obj, CodeAction.class);
+	    if (codeAction == null) {
+	        throw new UnsupportedOperationException(String
+                    .format("Command '%s' must be called with one CodeAction argument!", commandId));
+	    }
 	    codeAction.setData(JSONUtility.toLsp4jModel(codeAction.getData(), BaseCodeActionResolveData.class));
 	    return codeAction;
 	}

@@ -27,6 +27,7 @@ import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4mp.commons.JavaCodeActionStub;
 import org.eclipse.lsp4mp.jdt.core.java.codeaction.IJavaCodeActionParticipant;
 import org.eclipse.lsp4mp.jdt.core.java.codeaction.JavaCodeActionContext;
+import org.eclipse.lsp4mp.jdt.core.java.codeaction.JavaCodeActionResolveContext;
 import org.eclipse.lsp4mp.jdt.core.java.corrections.proposal.ChangeCorrectionProposal;
 import org.eclipse.lsp4mp.jdt.core.java.corrections.proposal.ImplementInterfaceProposal;
 import org.eclipse.lsp4mp.jdt.internal.health.MicroProfileHealthConstants;
@@ -64,10 +65,31 @@ public class ImplementHealthCheckQuickFix implements IJavaCodeActionParticipant 
         }
         return null;
     }
+    
+    @Override
+    public CodeAction resolveCodeAction(JavaCodeActionResolveContext context, IProgressMonitor monitor)
+            throws CoreException {
+        ASTNode node = context.getCoveringNode();
+        ITypeBinding parentType = Bindings.getBindingOfParentType(node);
+        if (parentType == null) {
+            return null;
+        }
+        List<CodeAction> codeActions = new ArrayList<>();
+        // Create code action to implement 'org.eclipse.microprofile.health.HealthCheck'
+        // interface
+        ChangeCorrectionProposal proposal = new ImplementInterfaceProposal(context.getCompilationUnit(), parentType,
+                context.getASTRoot(), MicroProfileHealthConstants.HEALTH_CHECK_INTERFACE, 0);
+        return context.convertToCodeAction(proposal, context.getUnresolved().getDiagnostics().get(0));
+    }
 
     @Override
     public List<JavaCodeActionStub> getCodeActionStubs() {
         return CODE_ACTION_STUBS;
+    }
+
+    @Override
+    public String getParticipantId() {
+        return ImplementHealthCheckQuickFix.class.getName();
     }
 
 }

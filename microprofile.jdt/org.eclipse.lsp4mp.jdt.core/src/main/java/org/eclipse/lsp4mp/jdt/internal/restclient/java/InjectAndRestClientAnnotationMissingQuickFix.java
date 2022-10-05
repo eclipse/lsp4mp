@@ -54,4 +54,9 @@ public class InjectAndRestClientAnnotationMissingQuickFix extends InsertAnnotati
         return CODE_ACTION_STUBS;
     }
 
+    @Override
+    public String getParticipantId() {
+        return InjectAndRestClientAnnotationMissingQuickFix.class.getName();
+    }
+
 }

@@ -108,7 +108,7 @@ public class JavaCodeActionStub {
      *         false otherwise
      */
     private boolean isApplicableToDiagnostic(Diagnostic d) {
-        return StringUtils.isEmpty(errorCode) || d.getCode().getLeft().equals(errorCode);
+        return StringUtils.isEmpty(errorCode) || (d.getCode() != null && d.getCode().getLeft().equals(errorCode));
     }
 
     /**

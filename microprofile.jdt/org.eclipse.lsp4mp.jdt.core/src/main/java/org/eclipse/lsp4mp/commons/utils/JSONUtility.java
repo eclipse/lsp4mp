@@ -60,7 +60,7 @@ public class JSONUtility {
         if (clazz.isInstance(object)) {
             return clazz.cast(object);
         }
-        return null;
+        return gson.fromJson(gson.toJson(object), clazz);
     }
 
     /**

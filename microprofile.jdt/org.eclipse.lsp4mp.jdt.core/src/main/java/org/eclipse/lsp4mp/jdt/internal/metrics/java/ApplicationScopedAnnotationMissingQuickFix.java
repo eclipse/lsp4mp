@@ -13,16 +13,20 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.internal.metrics.java;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4mp.commons.JavaCodeActionStub;
 import org.eclipse.lsp4mp.jdt.core.java.codeaction.InsertAnnotationMissingQuickFix;
 import org.eclipse.lsp4mp.jdt.core.java.codeaction.JavaCodeActionContext;
+import org.eclipse.lsp4mp.jdt.core.java.codeaction.JavaCodeActionResolveContext;
 import org.eclipse.lsp4mp.jdt.core.java.corrections.proposal.ChangeCorrectionProposal;
 import org.eclipse.lsp4mp.jdt.core.java.corrections.proposal.ReplaceAnnotationProposal;
 import org.eclipse.lsp4mp.jdt.internal.metrics.MicroProfileMetricsConstants;
@@ -67,6 +71,22 @@ public class ApplicationScopedAnnotationMissingQuickFix extends InsertAnnotation
 			insertAndReplaceAnnotation(diagnostic, context, parentType, codeActions, annotation);
 		}
 	}
+	
+	@Override
+	public CodeAction resolveCodeAction(JavaCodeActionResolveContext context, IProgressMonitor monitor) throws CoreException {
+        String annotation = Arrays.asList(getAnnotations()).stream() //
+                .filter(a -> context.getUnresolved().getTitle().contains(a.substring(a.lastIndexOf('.') + 1, a.length())))
+                .findFirst().orElse(null);
+        if (annotation == null) {
+            return null;
+        }
+        
+        List<CodeAction> codeAction = new ArrayList<>();
+        ASTNode node = context.getCoveringNode();
+        IBinding parentType = getBinding(node);
+        insertAndReplaceAnnotation(context.getUnresolved().getDiagnostics().get(0), context, parentType, codeAction, annotation);
+        return codeAction.size() >= 1 ? codeAction.get(0) : null;
+    }
 
 	private static void insertAndReplaceAnnotation(Diagnostic diagnostic, JavaCodeActionContext context,
 			IBinding parentType, List<CodeAction> codeActions, String annotation) throws CoreException {
@@ -93,6 +113,11 @@ public class ApplicationScopedAnnotationMissingQuickFix extends InsertAnnotation
     @Override
     public List<JavaCodeActionStub> getCodeActionStubs() {
         return CODE_ACTION_STUB;
+    }
+
+    @Override
+    public String getParticipantId() {
+        return ApplicationScopedAnnotationMissingQuickFix.class.getName();
     }
 
 }

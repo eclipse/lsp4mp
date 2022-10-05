@@ -50,4 +50,9 @@ public class RegisterRestClientAnnotationMissingQuickFix extends InsertAnnotatio
         return CODE_ACTION_STUBS;
     }
 
+    @Override
+    public String getParticipantId() {
+        return RegisterRestClientAnnotationMissingQuickFix.class.getName();
+    }
+
 }
