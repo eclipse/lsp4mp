@@ -18,6 +18,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
@@ -77,6 +78,8 @@ import org.eclipse.lsp4mp.utils.URIUtils;
  */
 public class PropertiesFileTextDocumentService extends AbstractTextDocumentService implements IPropertiesModelProvider {
 
+	private static final MicroProfileProjectInfo PROJECT_INFO_LOADING = new MicroProfileProjectInfo();
+
 	private final ModelTextDocuments<PropertiesModel> documents;
 
 	private MicroProfileProjectInfoCache projectInfoCache;
@@ -109,8 +112,7 @@ public class PropertiesFileTextDocumentService extends AbstractTextDocumentServi
 	@Override
 	public void didClose(DidCloseTextDocumentParams params) {
 		documents.onDidCloseTextDocument(params);
-		TextDocumentIdentifier document = params.getTextDocument();
-		String uri = document.getUri();
+		String uri = params.getTextDocument().getUri();
 		validatorDelayer.cleanPendingValidation(uri);
 		microprofileLanguageServer.getLanguageClient()
 				.publishDiagnostics(new PublishDiagnosticsParams(uri, new ArrayList<Diagnostic>()));
@@ -251,15 +253,28 @@ public class PropertiesFileTextDocumentService extends AbstractTextDocumentServi
 		if (!sharedSettings.getInlayHintSettings().isEnabled()) {
 			return CompletableFuture.completedFuture(Collections.emptyList());
 		}
-		return getPropertiesModel(params.getTextDocument(), (document, cancelChecker) -> {
+		return getPropertiesModelCompose(params.getTextDocument(), (document, cancelChecker) -> {
 			MicroProfileProjectInfoParams projectInfoParams = createProjectInfoParams(params.getTextDocument());
-			MicroProfileProjectInfo projectInfo = getProjectInfoCache().getProjectInfo(projectInfoParams).getNow(null);
-			if (projectInfo == null || projectInfo.getProperties().isEmpty()) {
-				return null;
+			CompletableFuture<MicroProfileProjectInfo> projectInfoFuture = getProjectInfoCache()
+					.getProjectInfo(projectInfoParams);
+			MicroProfileProjectInfo projectInfo = projectInfoFuture.getNow(PROJECT_INFO_LOADING);
+			if (isProjectInfoLoading(projectInfo)) {
+				// The project is loading, wait for project loading and process the inlay hint.
+				return projectInfoFuture.thenApply(loadedProjectInfo -> {
+					return inlayHint(params, document, loadedProjectInfo, cancelChecker);
+				});
 			}
-			return getPropertiesFileLanguageService().getInlayHint(document, projectInfo, params.getRange(),
-					cancelChecker);
+			// The project is loaded, process the inlay hint.
+			return CompletableFuture.completedFuture(inlayHint(params, document, projectInfo, cancelChecker));
 		});
+	}
+
+	private List<InlayHint> inlayHint(InlayHintParams params, PropertiesModel document,
+			MicroProfileProjectInfo projectInfo, CancelChecker cancelChecker) {
+		if (projectInfo == null || projectInfo.getProperties().isEmpty()) {
+			return null;
+		}
+		return getPropertiesFileLanguageService().getInlayHint(document, projectInfo, params.getRange(), cancelChecker);
 	}
 
 	private MicroProfileProjectInfoParams createProjectInfoParams(TextDocumentIdentifier id) {
@@ -294,19 +309,37 @@ public class PropertiesFileTextDocumentService extends AbstractTextDocumentServi
 		// Get MicroProfile project information which stores all available
 		// MicroProfile properties
 		MicroProfileProjectInfoParams projectInfoParams = createProjectInfoParams(propertiesModel.getDocumentURI());
-		getProjectInfoCache().getProjectInfo(projectInfoParams).thenComposeAsync(projectInfo -> {
-			cancelChecker.checkCanceled();
-			if (projectInfo.getProperties().isEmpty()) {
-				return CompletableFuture.completedFuture(null);
-			}
+		CompletableFuture<MicroProfileProjectInfo> projectInfoFuture = getProjectInfoCache()
+				.getProjectInfo(projectInfoParams);
+		MicroProfileProjectInfo projectInfo = projectInfoFuture.getNow(PROJECT_INFO_LOADING);
+		if (isProjectInfoLoading(projectInfo)) {
+			// The project is loading, wait for project loading and trigger the validation.
+			projectInfoFuture.thenComposeAsync(loadedProjectInfo -> {
+				return triggerValidationFor(propertiesModel, loadedProjectInfo, cancelChecker);
+			});
+		} else {
+			// The project is loaded, trigger the validation.
+			triggerValidationFor(propertiesModel, projectInfo, cancelChecker);
+		}
+	}
 
-			List<Diagnostic> diagnostics = getPropertiesFileLanguageService().doDiagnostics(propertiesModel,
-					projectInfo, getSharedSettings().getValidationSettings(), cancelChecker);
-			cancelChecker.checkCanceled();
-			microprofileLanguageServer.getLanguageClient()
-					.publishDiagnostics(new PublishDiagnosticsParams(propertiesModel.getDocumentURI(), diagnostics));
-			return null;
-		});
+	private CompletionStage<Object> triggerValidationFor(PropertiesModel propertiesModel,
+			MicroProfileProjectInfo projectInfo, CancelChecker cancelChecker) {
+		cancelChecker.checkCanceled();
+		if (projectInfo.getProperties().isEmpty()) {
+			return CompletableFuture.completedFuture(null);
+		}
+
+		List<Diagnostic> diagnostics = getPropertiesFileLanguageService().doDiagnostics(propertiesModel, projectInfo,
+				getSharedSettings().getValidationSettings(), cancelChecker);
+		cancelChecker.checkCanceled();
+		microprofileLanguageServer.getLanguageClient()
+				.publishDiagnostics(new PublishDiagnosticsParams(propertiesModel.getDocumentURI(), diagnostics));
+		return null;
+	}
+
+	private static boolean isProjectInfoLoading(MicroProfileProjectInfo projectInfo) {
+		return PROJECT_INFO_LOADING == projectInfo;
 	}
 
 	/**

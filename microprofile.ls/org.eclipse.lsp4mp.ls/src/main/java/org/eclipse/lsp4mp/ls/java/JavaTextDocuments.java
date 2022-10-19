@@ -25,9 +25,7 @@ import java.util.logging.Logger;
 
 import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
-import org.eclipse.lsp4j.jsonrpc.CompletableFutures;
 import org.eclipse.lsp4j.jsonrpc.CompletableFutures.FutureCancelChecker;
-import org.eclipse.lsp4j.jsonrpc.messages.Tuple;
 import org.eclipse.lsp4mp.commons.JavaFileInfo;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaFileInfoParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaProjectLabelsParams;
@@ -51,6 +49,8 @@ class JavaTextDocuments extends TextDocuments<JavaTextDocument> {
 	private static final String MICROPROFILE_PROJECT_LABEL = "microprofile";
 
 	private static final Logger LOGGER = Logger.getLogger(JavaTextDocuments.class.getName());
+
+	private static final ProjectLabelInfoEntry PROJECT_INFO_LOADING = new ProjectLabelInfoEntry(null, null, null);
 
 	private final Map<String /* Java file URI */, CompletableFuture<ProjectLabelInfoEntry>> documentCache;
 
@@ -118,25 +118,64 @@ class JavaTextDocuments extends TextDocuments<JavaTextDocument> {
 
 		/**
 		 * Execute the given code only if the Java file belongs to a MicroProfile
-		 * project.
+		 * without waiting for the load of project information.
 		 *
 		 * @param <T>          the type to return.
 		 * @param code         the code to execute.
 		 * @param defaultValue the default value to return if the Java file doesn't
 		 *                     belong to a MicroProfile project.
 		 * @return the given code only if the Java file belongs to a MicroProfile
+		 *         project without waiting for the load of project information.
+		 */
+		public <T> CompletableFuture<T> executeIfInMicroProfileProject(
+				BiFunction<ProjectLabelInfoEntry, CancelChecker, CompletableFuture<T>> code, T defaultValue) {
+			return executeIfInMicroProfileProject(code, defaultValue, false);
+		}
+
+		/**
+		 * Execute the given code only if the Java file belongs to a MicroProfile
+		 * project.
+		 *
+		 * @param <T>                       the type to return.
+		 * @param code                      the code to execute.
+		 * @param defaultValue              the default value to return if the Java file
+		 *                                  doesn't belong to a MicroProfile project.
+		 * @param waitForLoadingProjectInfo true if code to apply must be done when
+		 *                                  project information is loaded and false
+		 *                                  otherwise.
+		 * @return the given code only if the Java file belongs to a MicroProfile
 		 *         project.
 		 */
 		public <T> CompletableFuture<T> executeIfInMicroProfileProject(
-				BiFunction<ProjectLabelInfoEntry, CancelChecker, CompletableFuture<T>> code, T defaultValue) {			
+				BiFunction<ProjectLabelInfoEntry, CancelChecker, CompletableFuture<T>> code, T defaultValue,
+				boolean waitForLoadingProjectInfo) {
 			return computeAsyncCompose(cancelChecker -> {
-				ProjectLabelInfoEntry projectInfo = getProjectInfo(this).getNow(null);
-				cancelChecker.checkCanceled();
-				if (projectInfo == null || !isMicroProfileProject(projectInfo)) {
-					return CompletableFuture.completedFuture(defaultValue);
+				CompletableFuture<ProjectLabelInfoEntry> projectInfoFuture = getProjectInfo(this);
+				ProjectLabelInfoEntry projectInfo = projectInfoFuture.getNow(PROJECT_INFO_LOADING);
+				if (isProjectInfoLoading(projectInfo)) {
+					// The project information is loading.
+					if (!waitForLoadingProjectInfo) {
+						// don't wait the load of the project, apply the given code.
+						return executeIfInMicroProfileProject(null, code, defaultValue, cancelChecker);
+					}
+					// Wait the load of the project and apply the given code.
+					return projectInfoFuture.thenCompose(loadedProjectInfo -> {
+						return executeIfInMicroProfileProject(loadedProjectInfo, code, defaultValue, cancelChecker);
+					});
 				}
-				return code.apply(projectInfo, cancelChecker);
+				// The project information is loaded, apply the given code
+				return executeIfInMicroProfileProject(projectInfo, code, defaultValue, cancelChecker);
 			});
+		}
+
+		private <T> CompletableFuture<T> executeIfInMicroProfileProject(ProjectLabelInfoEntry projectInfo,
+				BiFunction<ProjectLabelInfoEntry, CancelChecker, CompletableFuture<T>> code, T defaultValue,
+				CancelChecker cancelChecker) {
+			cancelChecker.checkCanceled();
+			if (projectInfo == null || !isMicroProfileProject(projectInfo)) {
+				return CompletableFuture.completedFuture(defaultValue);
+			}
+			return code.apply(projectInfo, cancelChecker);
 		}
 
 		/**
@@ -259,11 +298,15 @@ class JavaTextDocuments extends TextDocuments<JavaTextDocument> {
 		}
 		return snippetRegistry;
 	}
-	
+
 	private static <R> CompletableFuture<R> computeAsyncCompose(Function<CancelChecker, CompletableFuture<R>> code) {
 		CompletableFuture<CancelChecker> start = new CompletableFuture<>();
 		CompletableFuture<R> result = start.thenComposeAsync(code);
 		start.complete(new FutureCancelChecker(result));
 		return result;
+	}
+
+	private static boolean isProjectInfoLoading(ProjectLabelInfoEntry projectInfo) {
+		return PROJECT_INFO_LOADING == projectInfo;
 	}
 }

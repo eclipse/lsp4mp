@@ -45,12 +45,15 @@ public class MockMicroProfileLanguageClient implements MicroProfileLanguageClien
 
 	private MicroProfilePropertyDefinitionProvider provider;
 
+	private final List<PublishDiagnosticsParams> publishDiagnostics;
+
 	public MockMicroProfileLanguageClient(MicroProfileLanguageServer languageServer) {
 		this.languageServer = languageServer;
 		this.jarProperties = new HashMap<>();
 		this.jarHints = new HashMap<>();
 		this.sourcesProperties = new HashMap<>();
 		this.sourcesHints = new HashMap<>();
+		this.publishDiagnostics = new ArrayList<>();
 	}
 
 	@Override
@@ -60,7 +63,7 @@ public class MockMicroProfileLanguageClient implements MicroProfileLanguageClien
 
 	@Override
 	public void publishDiagnostics(PublishDiagnosticsParams diagnostics) {
-
+		this.publishDiagnostics.add(diagnostics);
 	}
 
 	@Override
@@ -211,6 +214,10 @@ public class MockMicroProfileLanguageClient implements MicroProfileLanguageClien
 			provider = new MockMicroProfilePropertyDefinitionProvider();
 		}
 		return provider.getPropertyDefinition(params);
+	}
+
+	public List<PublishDiagnosticsParams> getPublishDiagnostics() {
+		return publishDiagnostics;
 	}
 
 }

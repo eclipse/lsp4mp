@@ -115,6 +115,7 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 	public void didClose(DidCloseTextDocumentParams params) {
 		documents.onDidCloseTextDocument(params);
 		String uri = params.getTextDocument().getUri();
+		validatorDelayer.cleanPendingValidation(uri);
 		microprofileLanguageServer.getLanguageClient()
 				.publishDiagnostics(new PublishDiagnosticsParams(uri, new ArrayList<Diagnostic>()));
 	}
@@ -152,8 +153,7 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 				return null;
 			}
 			boolean canSupportMarkdown = true;
-			boolean snippetsSupported = sharedSettings.getCompletionCapabilities()
-					.isCompletionSnippetsSupported();
+			boolean snippetsSupported = sharedSettings.getCompletionCapabilities().isCompletionSnippetsSupported();
 			CompletionList list1 = new CompletionList();
 			list1.setItems(new ArrayList<>());
 			documents.getSnippetRegistry().getCompletionItems(document, completionOffset, canSupportMarkdown,
@@ -336,14 +336,14 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 	/**
 	 * Validate the given opened Java file.
 	 *
-	 * @param document the opened Java file.
+	 * @param document                  the opened Java file.
 	 */
 	private void triggerValidationFor(JavaTextDocument document) {
 		document.executeIfInMicroProfileProject((projectinfo, cancelChecker) -> {
 			String uri = document.getUri();
 			triggerValidationFor(Arrays.asList(uri));
 			return null;
-		}, null);
+		}, null, true);
 	}
 
 	/**
