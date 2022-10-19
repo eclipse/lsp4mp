@@ -69,7 +69,8 @@ public class PropertiesManagerClassPathKindTest extends BasePropertiesManagerTes
 				DocumentFormat.Markdown, new NullProgressMonitor());
 		Assert.assertEquals(ClasspathKind.SRC, infoFromSrc.getClasspathKind());
 		assertProperties(infoFromSrc, 3 /* properties from Java sources */ + //
-				7 /* static properties from microprofile-context-propagation-api */,
+				7 /* static properties from microprofile-context-propagation-api */ + //
+				1 /* static property from microprofile config_ordinal */,
 
 				// GreetingResource
 				// @ConfigProperty(name = "greeting.message")
@@ -101,7 +102,8 @@ public class PropertiesManagerClassPathKindTest extends BasePropertiesManagerTes
 		Assert.assertEquals(ClasspathKind.TEST, infoFromTest.getClasspathKind());
 		assertProperties(infoFromTest, 3 /* properties from (src) Java sources */ + //
 		 3 /* properties from (test) Java sources */ + //
-		 7 /* static properties from microprofile-context-propagation-api */,
+		 7 /* static properties from microprofile-context-propagation-api */ + //
+		 1 /* static property from microprofile config_ordinal */,
 
 				// GreetingResource
 				// @ConfigProperty(name = "greeting.message")

@@ -37,7 +37,8 @@ public class MicroProfileConfigPropertyTest extends BasePropertiesManagerTest {
 				MicroProfileMavenProjectName.config_quickstart, MicroProfilePropertiesScope.SOURCES_AND_DEPENDENCIES);
 
 		assertProperties(infoFromClasspath, 20 /* properties from Java sources with ConfigProperty */ + //
-				7 /* static properties from microprofile-context-propagation-api */,
+				7 /* static properties from microprofile-context-propagation-api */ + //
+				1 /* static property from microprofile config_ordinal */,
 
 				// GreetingResource
 				// @ConfigProperty(name = "greeting.message")
