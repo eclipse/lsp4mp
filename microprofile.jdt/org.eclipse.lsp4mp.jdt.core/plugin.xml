@@ -100,6 +100,12 @@
       <validator class="org.eclipse.lsp4mp.jdt.internal.config.java.MicroProfileConfigASTValidator" />
    </extension>
 
+   <!-- Microprofile Config Static Property support -->
+
+   <extension point="org.eclipse.lsp4mp.jdt.core.propertiesProviders">
+      <provider class="org.eclipse.lsp4mp.jdt.internal.config.properties.MicroProfileConfigStaticPropertyProvider" />
+   </extension>
+
    <!-- Microprofile Context Propagation support -->
 
    <extension point="org.eclipse.lsp4mp.jdt.core.propertiesProviders">
