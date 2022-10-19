@@ -18,15 +18,9 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import org.eclipse.lsp4j.CompletionList;
-import org.eclipse.lsp4j.CompletionParams;
-import org.eclipse.lsp4j.DidOpenTextDocumentParams;
-import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.TextDocumentIdentifier;
-import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4mp.commons.metadata.ItemHint;
 import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
 import org.eclipse.lsp4mp.commons.metadata.ValueHint;
-import org.eclipse.lsp4mp.ls.api.MicroProfileLanguageClientAPI;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -86,33 +80,33 @@ public class MicroProfileLanguageServerScopeChangedTest {
 
 	@Test
 	public void classpathChanged() throws InterruptedException, ExecutionException {
-		MicroProfileLanguageServer server = createServer();
+		MockMicroProfileLanguageServer server = createServer();
 		MockMicroProfileLanguageClient client = (MockMicroProfileLanguageClient) server.getLanguageClient();
 		// Initialize properties
 		client.changedClasspath(PROJECT1, property1FromJar, property2FromJar, property1FromSources);
 
-		didOpen(PROJECT1_APPLICATION_PROPERTIES, server);
-		CompletionList list = completion(PROJECT1_APPLICATION_PROPERTIES, server);
+		server.didOpen(PROJECT1_APPLICATION_PROPERTIES);
+		CompletionList list = server.completion(PROJECT1_APPLICATION_PROPERTIES);
 		assertCompletions(list, 3, c("quarkus.application.name", "quarkus.application.name=", r(0, 0, 0)), //
 				c("quarkus.application.version", "quarkus.application.version=", r(0, 0, 0)), //
 				c("greeting.message", "greeting.message=", r(0, 0, 0)));
 
 		// Emulate change of classpath (Jar and Java sources)
 		client.changedClasspath(PROJECT1, property1FromJar, property1FromSources);
-		list = completion(PROJECT1_APPLICATION_PROPERTIES, server);
+		list = server.completion(PROJECT1_APPLICATION_PROPERTIES);
 		assertCompletions(list, 2, c("quarkus.application.name", "quarkus.application.name=", r(0, 0, 0)), //
 				c("greeting.message", "greeting.message=", r(0, 0, 0)));
 
 		// Emulate change of Java sources (add)
 		client.changedJavaSources(PROJECT1, property2FromSources);
-		list = completion(PROJECT1_APPLICATION_PROPERTIES, server);
+		list = server.completion(PROJECT1_APPLICATION_PROPERTIES);
 		assertCompletions(list, 2, c("quarkus.application.name", "quarkus.application.name=", r(0, 0, 0)), //
 				c("greeting.suffix", "greeting.suffix=", r(0, 0, 0)));
 
 		// Emulate change of Java sources with dynamic properties
 		client.changedJavaSources(PROJECT1, dynamicProperty1FromSources, dynamicProperty2FromSources,
 				itemHintFromSources);
-		list = completion(PROJECT1_APPLICATION_PROPERTIES, server);
+		list = server.completion(PROJECT1_APPLICATION_PROPERTIES);
 		assertCompletions(list, 1 /* (from JAR ) */ + 4 /* from sources */,
 				c("quarkus.application.name", "quarkus.application.name=", r(0, 0, 0)), //
 				c("org.acme.restclient.CountriesService/mp-rest/url",
@@ -125,20 +119,20 @@ public class MicroProfileLanguageServerScopeChangedTest {
 
 	@Test
 	public void javaSourcesChangedInThreadContext() throws InterruptedException, ExecutionException {
-		MicroProfileLanguageServer server = createServer();
+		MockMicroProfileLanguageServer server = createServer();
 		MockMicroProfileLanguageClient client = (MockMicroProfileLanguageClient) server.getLanguageClient();
 		// Initialize properties
 		client.changedClasspath(PROJECT1, property1FromJar, property2FromJar, property1FromSources);
 
-		didOpen(PROJECT1_APPLICATION_PROPERTIES, server);
-		CompletionList list = completion(PROJECT1_APPLICATION_PROPERTIES, server);
+		server.didOpen(PROJECT1_APPLICATION_PROPERTIES);
+		CompletionList list = server.completion(PROJECT1_APPLICATION_PROPERTIES);
 		assertCompletions(list, 3, c("quarkus.application.name", "quarkus.application.name=", r(0, 0, 0)), //
 				c("quarkus.application.version", "quarkus.application.version=", r(0, 0, 0)), //
 				c("greeting.message", "greeting.message=", r(0, 0, 0)));
 
 		// Emulate change of classpath (Jar and Java sources)
 		client.changedClasspath(PROJECT1, property1FromJar, property1FromSources);
-		list = completion(PROJECT1_APPLICATION_PROPERTIES, server);
+		list = server.completion(PROJECT1_APPLICATION_PROPERTIES);
 		assertCompletions(list, 2, c("quarkus.application.name", "quarkus.application.name=", r(0, 0, 0)), //
 				c("greeting.message", "greeting.message=", r(0, 0, 0)));
 
@@ -162,11 +156,11 @@ public class MicroProfileLanguageServerScopeChangedTest {
 		Assert.assertTrue(max <= 2);
 	}
 
-	private Thread createCompletionThread(MicroProfileLanguageServer server, MockMicroProfileLanguageClient client,
+	private Thread createCompletionThread(MockMicroProfileLanguageServer server, MockMicroProfileLanguageClient client,
 			List<Integer> count) {
 		return new Thread(() -> {
 			try {
-				CompletionList list = completion(PROJECT1_APPLICATION_PROPERTIES, server);
+				CompletionList list = server.completion(PROJECT1_APPLICATION_PROPERTIES);
 				synchronized (count) {
 					count.add(list.getItems().size());
 				}
@@ -188,25 +182,8 @@ public class MicroProfileLanguageServerScopeChangedTest {
 		});
 	}
 
-	private static MicroProfileLanguageServer createServer() {
-		MicroProfileLanguageServer languageServer = new MicroProfileLanguageServer();
-		MicroProfileLanguageClientAPI languageClient = new MockMicroProfileLanguageClient(languageServer);
-		languageServer.setClient(languageClient);
-		return languageServer;
-	}
-
-	private void didOpen(String uri, MicroProfileLanguageServer server) {
-		DidOpenTextDocumentParams params = new DidOpenTextDocumentParams();
-		params.setTextDocument(new TextDocumentItem(uri, "", 1, ""));
-		server.getTextDocumentService().didOpen(params);
-	}
-
-	private static CompletionList completion(String uri, MicroProfileLanguageServer server)
-			throws InterruptedException, ExecutionException {
-		CompletionParams params = new CompletionParams();
-		params.setTextDocument(new TextDocumentIdentifier(uri));
-		params.setPosition(new Position(0, 0));
-		return server.getTextDocumentService().completion(params).get().getRight();
+	private static MockMicroProfileLanguageServer createServer() {
+		return new MockMicroProfileLanguageServer();
 	}
 
 }
