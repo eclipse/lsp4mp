@@ -13,6 +13,7 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.core;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -60,6 +61,7 @@ import org.eclipse.lsp4mp.jdt.core.utils.JDTMicroProfileUtils;
 import org.eclipse.lsp4mp.jdt.internal.core.FakeJavaProject;
 import org.eclipse.lsp4mp.jdt.internal.core.PropertiesCollector;
 import org.eclipse.lsp4mp.jdt.internal.core.PropertiesProviderRegistry;
+import org.eclipse.lsp4mp.jdt.internal.core.StaticPropertyProviderRegistry;
 
 /**
  * MicroProfile properties manager used to:
@@ -429,7 +431,10 @@ public class PropertiesManager {
 	}
 
 	List<IPropertiesProvider> getPropertiesProviders() {
-		return PropertiesProviderRegistry.getInstance().getProviders();
+		List<IPropertiesProvider> allProviders = new ArrayList<IPropertiesProvider>();
+		allProviders.addAll(PropertiesProviderRegistry.getInstance().getProviders());
+		allProviders.addAll(StaticPropertyProviderRegistry.getInstance().getProviders());
+		return allProviders;
 	}
 
 	// ---------------------------------- Properties definition

@@ -1,0 +1,121 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Schema file written by PDE -->
+<schema targetNamespace="org.eclipse.lsp4mp.jdt.core" xmlns="http://www.w3.org/2001/XMLSchema">
+<annotation>
+      <appinfo>
+         <meta.schema plugin="org.eclipse.lsp4mp.jdt.core" id="staticPropertyProviders" name="Static Property Providers"/>
+      </appinfo>
+      <documentation>
+         This extension point allows adding a static properties provider.
+      </documentation>
+   </annotation>
+
+   <element name="extension">
+      <annotation>
+         <appinfo>
+            <meta.element />
+         </appinfo>
+      </annotation>
+      <complexType>
+         <sequence minOccurs="1" maxOccurs="unbounded">
+            <element ref="staticPropertyProvider"/>
+         </sequence>
+         <attribute name="point" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="id" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appinfo>
+                  <meta.attribute translatable="true"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="staticPropertyProvider">
+      <annotation>
+         <documentation>
+            The staticPropertyProvider adds support for static Microprofile properties by using the JSON file containing relavant metadata linked through the resource attribute. Optionally, If the static property is only applicable if certain types are on the classpath, use the enabledWhen element and declare a type to check with the typeOnClasspath element.
+         </documentation>
+      </annotation>
+      <complexType>
+         <sequence minOccurs="0" maxOccurs="1">
+            <element ref="enabledWhen"/>
+         </sequence>
+         <attribute name="resource" type="string" use="required">
+            <annotation>
+               <documentation>
+                  Location of JSON file that stores property metadata
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="enabledWhen">
+      <complexType>
+         <sequence>
+            <element ref="typeOnClasspath"/>
+         </sequence>
+      </complexType>
+   </element>
+
+   <element name="typeOnClasspath">
+      <complexType>
+         <attribute name="type" type="string">
+            <annotation>
+               <documentation>
+                  The type to ensure that is on the classpath
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="since"/>
+      </appinfo>
+      <documentation>
+         2.0
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="examples"/>
+      </appinfo>
+      <documentation>
+         The following is an example of a static properties provider extension:
+
+&lt;pre&gt;
+ &lt;extension point=&quot;org.eclipse.lsp4mp.jdt.core.staticPropertyProviders&quot;&gt;
+  &lt;staticPropertyProvider resource=&quot;/static-properties/...&quot;&gt;
+   &lt;enabledWhen&gt;            
+    &lt;typeOnClasspath type = &quot;...&quot; /&gt;
+   &lt;/enabledWhen&gt;            
+  &lt;/staticPropertyProvider&gt;
+ &lt;/extension&gt;
+&lt;/pre&gt;
+      </documentation>
+   </annotation>
+
+
+
+
+</schema>
