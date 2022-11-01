@@ -17,6 +17,9 @@
    <extension-point id="javaASTValidators"
                     name="%javaASTValidators.name"
                     schema="schema/javaASTValidators.exsd"/>
+   <extension-point id="staticPropertyProviders"
+                    name="%staticPropertyProviders.name"
+                    schema="schema/staticPropertyProviders.exsd"/>
 
    <!-- Delegate command handler for application.properties file -->
    <extension point="org.eclipse.jdt.ls.core.delegateCommandHandler">
@@ -68,8 +71,11 @@
 
    <extension point="org.eclipse.lsp4mp.jdt.core.propertiesProviders">
       <!-- Hints provider for java.util.logging.Level -->
-      <provider class="org.eclipse.lsp4mp.jdt.internal.jul.properties.JULPropertyProvider" />
       <provider class="org.eclipse.lsp4mp.jdt.internal.jul.properties.JBossLogManagerPropertyProvider" />
+   </extension>
+   
+   <extension point="org.eclipse.lsp4mp.jdt.core.staticPropertyProviders">
+      <staticPropertyProvider resource="/static-properties/jul-metadata.json" />
    </extension>
 
    <!-- Microprofile Config support -->
@@ -102,15 +108,19 @@
 
    <!-- Microprofile Config Static Property support -->
 
-   <extension point="org.eclipse.lsp4mp.jdt.core.propertiesProviders">
-      <provider class="org.eclipse.lsp4mp.jdt.internal.config.properties.MicroProfileConfigStaticPropertyProvider" />
+   <extension point="org.eclipse.lsp4mp.jdt.core.staticPropertyProviders">
+      <staticPropertyProvider resource="/static-properties/mp-config-metadata.json" />
    </extension>
 
    <!-- Microprofile Context Propagation support -->
 
-   <extension point="org.eclipse.lsp4mp.jdt.core.propertiesProviders">
+   <extension point="org.eclipse.lsp4mp.jdt.core.staticPropertyProviders">
       <!-- Properties provider for MicroProfile Context Propagation -->
-      <provider class="org.eclipse.lsp4mp.jdt.internal.contextpropagation.properties.MicroProfileContextPropagationProvider" />
+      <staticPropertyProvider resource="/static-properties/mp-context-propagation-metadata.json" >
+         <enabledWhen>
+            <typeOnClasspath type = "org.eclipse.microprofile.context.ThreadContext" />
+         </enabledWhen>
+      </staticPropertyProvider>
    </extension>
 
    <!-- Microprofile Fault Tolerance support -->
@@ -163,17 +173,25 @@
    </extension>
 
    <!-- Microprofile LRA support -->
-
-   <extension point="org.eclipse.lsp4mp.jdt.core.propertiesProviders">
-      <!-- Properties provider for MicroProfile LRA -->
-      <provider class="org.eclipse.lsp4mp.jdt.internal.lra.properties.MicroProfileLRAProvider" />
+   
+   <extension point="org.eclipse.lsp4mp.jdt.core.staticPropertyProviders">
+      <!-- Properties provider for MicroProfile Health -->
+      <staticPropertyProvider resource="/static-properties/mp-lra-metadata.json" >
+         <enabledWhen>
+            <typeOnClasspath type = "org.eclipse.microprofile.lra.annotation.ws.rs.LRA" />
+         </enabledWhen>
+      </staticPropertyProvider>
    </extension>
 
    <!-- Microprofile Metrics support -->
-
-   <extension point="org.eclipse.lsp4mp.jdt.core.propertiesProviders">
+   
+   <extension point="org.eclipse.lsp4mp.jdt.core.staticPropertyProviders">
       <!-- Properties provider for MicroProfile Metrics -->
-      <provider class="org.eclipse.lsp4mp.jdt.internal.metrics.properties.MicroProfileMetricsProvider" />
+      <staticPropertyProvider resource="/static-properties/mp-metrics-metadata.json" >
+         <enabledWhen>
+            <typeOnClasspath type = "org.eclipse.microprofile.metrics.MetricID" />
+         </enabledWhen>
+      </staticPropertyProvider>
    </extension>
 
    <extension point="org.eclipse.lsp4mp.jdt.core.javaFeatureParticipants" >
@@ -187,16 +205,24 @@
 
    <!-- Microprofile OpenTracing support -->
 
-   <extension point="org.eclipse.lsp4mp.jdt.core.propertiesProviders">
+   <extension point="org.eclipse.lsp4mp.jdt.core.staticPropertyProviders">
       <!-- Properties provider for MicroProfile OpenTracing -->
-      <provider class="org.eclipse.lsp4mp.jdt.internal.opentracing.properties.MicroProfileOpenTracingProvider" />
+      <staticPropertyProvider resource="/static-properties/mp-opentracing-metadata.json" >
+         <enabledWhen>
+            <typeOnClasspath type = "org.eclipse.microprofile.opentracing.Traced" />
+         </enabledWhen>
+      </staticPropertyProvider>
    </extension>
 
    <!-- Microprofile OpenAPI support -->
 
-   <extension point="org.eclipse.lsp4mp.jdt.core.propertiesProviders">
+   <extension point="org.eclipse.lsp4mp.jdt.core.staticPropertyProviders">
       <!-- Properties provider for the MicroProfile OpenAPI -->
-      <provider class="org.eclipse.lsp4mp.jdt.internal.openapi.properties.MicroProfileOpenAPIProvider" />
+      <staticPropertyProvider resource="/static-properties/mp-openapi-metadata.json" >
+         <enabledWhen>
+            <typeOnClasspath type = "org.eclipse.microprofile.openapi.OASConfig" />
+         </enabledWhen>
+      </staticPropertyProvider>
    </extension>
 
    <extension point="org.eclipse.lsp4mp.jdt.core.javaFeatureParticipants">
@@ -207,9 +233,13 @@
 
    <!-- Microprofile Health support -->
 
-   <extension point="org.eclipse.lsp4mp.jdt.core.propertiesProviders">
+   <extension point="org.eclipse.lsp4mp.jdt.core.staticPropertyProviders">
       <!-- Properties provider for MicroProfile Health -->
-      <provider class="org.eclipse.lsp4mp.jdt.internal.health.properties.MicroProfileHealthProvider" />
+      <staticPropertyProvider resource="/static-properties/mp-health-metadata.json" >
+         <enabledWhen>
+            <typeOnClasspath type = "org.eclipse.microprofile.health.Liveness" />
+         </enabledWhen>
+      </staticPropertyProvider>
    </extension>
 
    <extension point="org.eclipse.lsp4mp.jdt.core.javaFeatureParticipants">
@@ -265,16 +295,24 @@
 
    <!-- MicroProfile JWT Support -->
 
-   <extension point="org.eclipse.lsp4mp.jdt.core.propertiesProviders">
+   <extension point="org.eclipse.lsp4mp.jdt.core.staticPropertyProviders">
       <!-- Properties provider for MicroProfile JWT -->
-      <provider class="org.eclipse.lsp4mp.jdt.internal.jwt.properties.MicroProfileJWTProvider" />
+      <staticPropertyProvider resource="/static-properties/mp-jwt-metadata.json" >
+         <enabledWhen>
+            <typeOnClasspath type = "org.eclipse.microprofile.jwt.Claim" />
+         </enabledWhen>
+      </staticPropertyProvider>
    </extension>
 
     <!-- MicroProfile GraphQL Support -->
 
-   <extension point="org.eclipse.lsp4mp.jdt.core.propertiesProviders">
+   <extension point="org.eclipse.lsp4mp.jdt.core.staticPropertyProviders">
       <!-- Properties provider for MicroProfile GraphQL -->
-      <provider class="org.eclipse.lsp4mp.jdt.internal.graphql.properties.MicroProfileGraphQLProvider" />
+      <staticPropertyProvider resource="/static-properties/mp-graphql-metadata.json" >
+         <enabledWhen>
+            <typeOnClasspath type = "org.eclipse.microprofile.graphql.Name" />
+         </enabledWhen>
+      </staticPropertyProvider>
    </extension>
 
    <!-- JAX-RS support -->

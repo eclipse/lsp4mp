@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2020 IBM Corporation and others.
+* Copyright (c) 2022 Red Hat Inc. and others.
 *
 * This program and the accompanying materials are made available under the
 * terms of the Eclipse Public License v. 2.0 which is available at
@@ -9,12 +9,9 @@
 * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 *
 * Contributors:
-*     IBM Corporation - initial API and implementation
+*     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-
-package org.eclipse.lsp4mp.jdt.internal.health.properties;
-
-import static org.eclipse.lsp4mp.jdt.internal.health.MicroProfileHealthConstants.LIVENESS_ANNOTATION;
+package org.eclipse.lsp4mp.jdt.internal.core;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IJavaProject;
@@ -24,22 +21,36 @@ import org.eclipse.lsp4mp.jdt.core.SearchContext;
 import org.eclipse.lsp4mp.jdt.core.utils.JDTTypeUtils;
 
 /**
- * Properties provider that provides static MicroProfile Health properties
- * 
- * @author Ryan Zegray
- * 
- * @see https://github.com/eclipse/microprofile-health/blob/master/spec/src/main/asciidoc/protocol-wireformat.adoc
+ * MicroProfile static properties provider.
  *
  */
-public class MicroProfileHealthProvider extends AbstractStaticPropertiesProvider {
-	public MicroProfileHealthProvider() {
-		super(MicroProfileCorePlugin.PLUGIN_ID, "/static-properties/mp-health-metadata.json");
+public class StaticPropertyProvider extends AbstractStaticPropertiesProvider {
+
+	private String type;
+
+	public StaticPropertyProvider(String source) {
+		super(MicroProfileCorePlugin.PLUGIN_ID, source);
+	}
+
+	/**
+	 * Sets the type to be checked that it is on the classpath before collecting its
+	 * static properties.
+	 * 
+	 * @param type type to check that it is on the classpath
+	 * @return all the providers.
+	 */
+	public void setType(String type) {
+		this.type = type;
 	}
 
 	@Override
 	protected boolean isAdaptedFor(SearchContext context, IProgressMonitor monitor) {
-		// Check if MicroProfile health exists in classpath
-		IJavaProject javaProject = context.getJavaProject();
-		return (JDTTypeUtils.findType(javaProject, LIVENESS_ANNOTATION) != null);
+		if (type == null) {
+			return true;
+		} else {
+			IJavaProject javaProject = context.getJavaProject();
+			return (JDTTypeUtils.findType(javaProject, type) != null);
+		}
 	}
+
 }
