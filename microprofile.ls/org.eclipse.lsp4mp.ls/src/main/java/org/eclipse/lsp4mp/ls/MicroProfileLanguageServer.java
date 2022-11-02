@@ -17,6 +17,7 @@ package org.eclipse.lsp4mp.ls;
 import static org.eclipse.lsp4j.jsonrpc.CompletableFutures.computeAsync;
 import static org.eclipse.lsp4mp.utils.VersionHelper.getVersion;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -45,6 +46,7 @@ import org.eclipse.lsp4mp.ls.api.MicroProfileLanguageServerAPI;
 import org.eclipse.lsp4mp.ls.commons.ParentProcessWatcher.ProcessLanguageServer;
 import org.eclipse.lsp4mp.ls.commons.client.ExtendedClientCapabilities;
 import org.eclipse.lsp4mp.ls.commons.client.InitializationOptionsExtendedClientCapabilities;
+import org.eclipse.lsp4mp.ls.java.JavaTextDocuments;
 import org.eclipse.lsp4mp.services.properties.PropertiesFileLanguageService;
 import org.eclipse.lsp4mp.settings.AllMicroProfileSettings;
 import org.eclipse.lsp4mp.settings.InitializationOptionsSettings;
@@ -55,6 +57,7 @@ import org.eclipse.lsp4mp.settings.MicroProfileGeneralClientSettings;
 import org.eclipse.lsp4mp.settings.MicroProfileInlayHintSettings;
 import org.eclipse.lsp4mp.settings.MicroProfileSymbolSettings;
 import org.eclipse.lsp4mp.settings.MicroProfileValidationSettings;
+import org.eclipse.lsp4mp.settings.SharedSettings;
 import org.eclipse.lsp4mp.settings.capabilities.MicroProfileCapabilityManager;
 import org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesInitializer;
 
@@ -70,6 +73,8 @@ public class MicroProfileLanguageServer implements LanguageServer, ProcessLangua
 	private final PropertiesFileLanguageService propertiesFileLanguageService;
 	private final MicroProfileTextDocumentService textDocumentService;
 	private final WorkspaceService workspaceService;
+	private final SharedSettings sharedSettings;
+	private final JavaTextDocuments javaDocuments;
 
 	private final MicroProfileExtensionSettings extensionSettings;
 
@@ -78,9 +83,11 @@ public class MicroProfileLanguageServer implements LanguageServer, ProcessLangua
 	private MicroProfileCapabilityManager capabilityManager;
 
 	public MicroProfileLanguageServer() {
+		sharedSettings = new SharedSettings();
+		javaDocuments = new JavaTextDocuments(this, this);
 		propertiesFileLanguageService = new PropertiesFileLanguageService();
-		textDocumentService = new MicroProfileTextDocumentService(this);
-		workspaceService = new MicroProfileWorkspaceService(this);
+		textDocumentService = new MicroProfileTextDocumentService(this, sharedSettings, javaDocuments);
+		workspaceService = new MicroProfileWorkspaceService(this, javaDocuments);
 		this.extensionSettings = new MicroProfileExtensionSettings();
 	}
 
@@ -224,9 +231,14 @@ public class MicroProfileLanguageServer implements LanguageServer, ProcessLangua
 	}
 
 	@Override
-	public CompletableFuture<ProjectLabelInfoEntry> getJavaProjectlabels(
+	public CompletableFuture<ProjectLabelInfoEntry> getJavaProjectLabels(
 			MicroProfileJavaProjectLabelsParams javaParams) {
-		return getLanguageClient().getJavaProjectlabels(javaParams);
+		return getLanguageClient().getJavaProjectLabels(javaParams);
+	}
+
+	@Override
+	public CompletableFuture<List<ProjectLabelInfoEntry>> getAllJavaProjectLabels() {
+		return getLanguageClient().getAllJavaProjectLabels();
 	}
 
 	@Override

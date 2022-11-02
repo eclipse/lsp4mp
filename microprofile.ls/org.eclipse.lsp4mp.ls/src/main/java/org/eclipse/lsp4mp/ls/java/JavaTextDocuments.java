@@ -13,6 +13,7 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.ls.java;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -22,6 +23,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
@@ -44,7 +46,7 @@ import org.eclipse.lsp4mp.ls.java.JavaTextDocuments.JavaTextDocument;
  * @author Angelo ZERR
  *
  */
-class JavaTextDocuments extends TextDocuments<JavaTextDocument> {
+public class JavaTextDocuments extends TextDocuments<JavaTextDocument> {
 
 	private static final String MICROPROFILE_PROJECT_LABEL = "microprofile";
 
@@ -61,6 +63,8 @@ class JavaTextDocuments extends TextDocuments<JavaTextDocument> {
 	private final MicroProfileJavaFileInfoProvider fileInfoProvider;
 
 	private JavaTextDocumentSnippetRegistry snippetRegistry;
+
+	private boolean hasLoadedAllProjects = false;
 
 	/**
 	 * Opened Java file.
@@ -191,7 +195,7 @@ class JavaTextDocuments extends TextDocuments<JavaTextDocument> {
 		}
 	}
 
-	JavaTextDocuments(MicroProfileJavaProjectLabelsProvider projectInfoProvider,
+	public JavaTextDocuments(MicroProfileJavaProjectLabelsProvider projectInfoProvider,
 			MicroProfileJavaFileInfoProvider fileInfoProvider) {
 		this.projectInfoProvider = projectInfoProvider;
 		this.fileInfoProvider = fileInfoProvider;
@@ -241,7 +245,7 @@ class JavaTextDocuments extends TextDocuments<JavaTextDocument> {
 			MicroProfileJavaProjectLabelsParams params = new MicroProfileJavaProjectLabelsParams();
 			params.setUri(documentURI);
 			params.setTypes(getSnippetRegistry().getTypes());
-			final CompletableFuture<ProjectLabelInfoEntry> future = projectInfoProvider.getJavaProjectlabels(params);
+			final CompletableFuture<ProjectLabelInfoEntry> future = projectInfoProvider.getJavaProjectLabels(params);
 			future.thenApply(entry -> {
 				if (entry != null) {
 					// project info with labels are get from the JDT LS
@@ -262,6 +266,49 @@ class JavaTextDocuments extends TextDocuments<JavaTextDocument> {
 
 		// Returns the cached project info
 		return projectInfo;
+	}
+
+	/**
+	 * Returns a list of all projects in the current workspace as a completable
+	 * future
+	 * 
+	 * Loads and caches any projects that have not yet been loaded into the cache.
+	 * 
+	 * @returns a list of all projects in the current workspace as a completable
+	 *          future
+	 */
+	public CompletableFuture<List<ProjectLabelInfoEntry>> getWorkspaceProjects() {
+		if (!hasLoadedAllProjects) {
+			return projectInfoProvider.getAllJavaProjectLabels() //
+					.thenApply(entries -> {
+						if (entries != null && entries.size() > 0) {
+							for (ProjectLabelInfoEntry entry : entries) {
+								if (entry != null) {
+									String newProjectURI = entry.getUri();
+									if (!projectCache.containsKey(newProjectURI)) {
+										projectCache.put(newProjectURI, CompletableFuture.completedFuture(entry));
+									}
+								}
+							}
+						}
+						hasLoadedAllProjects = true;
+						return entries;
+					});
+		}
+
+		// otherwise the list of all projects is cached
+		Collection<CompletableFuture<ProjectLabelInfoEntry>> projectLabelFutures = projectCache.values();
+		return CompletableFuture
+				.allOf((CompletableFuture[]) projectLabelFutures.stream().toArray(CompletableFuture[]::new)) //
+				.thenApply(voidFuture -> {
+					return projectLabelFutures.stream() //
+							.map(futureProject -> {
+								return futureProject.getNow(null);
+							}) //
+							.filter(project -> project != null) //
+							.distinct() //
+							.collect(Collectors.toList());
+				});
 	}
 
 	public boolean propertiesChanged(MicroProfilePropertiesChangeEvent event) {

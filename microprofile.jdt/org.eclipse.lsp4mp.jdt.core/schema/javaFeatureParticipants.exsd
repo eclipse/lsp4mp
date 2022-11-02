@@ -25,6 +25,7 @@
                <element ref="diagnostics" minOccurs="0" maxOccurs="unbounded"/>
                <element ref="definition" minOccurs="0" maxOccurs="unbounded"/>
                <element ref="hover" minOccurs="0" maxOccurs="unbounded"/>
+               <element ref="workspaceSymbols" minOccurs="0" maxOccurs="unbounded"/>
             </choice>
          </sequence>
          <attribute name="point" type="string" use="required">
@@ -198,6 +199,26 @@
       </complexType>
    </element>
 
+   <element name="workspaceSymbols">
+      <annotation>
+         <documentation>
+            Java workspaceSymbols participant.
+         </documentation>
+      </annotation>
+      <complexType>
+         <attribute name="class" type="string" use="required">
+            <annotation>
+               <documentation>
+                  Name of a class that implements IJavaWorkspaceSymbolParticipant
+               </documentation>
+               <appinfo>
+                  <meta.attribute kind="java" basedOn=":org.eclipse.lsp4mp.jdt.core.java.symbol.IJavaWorkspaceSymbolsParticipant"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
    <annotation>
       <appinfo>
          <meta.section type="since"/>
@@ -237,8 +258,5 @@
 &lt;/pre&gt;
       </documentation>
    </annotation>
-
-
-
 
 </schema>

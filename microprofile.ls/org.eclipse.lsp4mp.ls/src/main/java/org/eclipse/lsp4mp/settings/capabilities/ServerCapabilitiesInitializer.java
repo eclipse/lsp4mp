@@ -56,6 +56,7 @@ public class ServerCapabilitiesInitializer {
 			serverCapabilities.setCodeActionProvider(DEFAULT_CODEACTION_OPTIONS);
 		}
 		serverCapabilities.setInlayHintProvider(!clientCapabilities.isInlayHintDynamicRegistered());
+		serverCapabilities.setWorkspaceSymbolProvider(!clientCapabilities.isWorkspaceSymbolDynamicRegistered());
 		return serverCapabilities;
 	}
 }

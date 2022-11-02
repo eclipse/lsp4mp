@@ -18,6 +18,7 @@ import static org.eclipse.lsp4mp.jdt.core.jaxrs.JaxRsUtils.getJaxRsPathValue;
 import static org.eclipse.lsp4mp.jdt.core.jaxrs.JaxRsUtils.isClickableJaxRsRequestMethod;
 import static org.eclipse.lsp4mp.jdt.core.jaxrs.JaxRsUtils.isJaxRsRequestMethod;
 import static org.eclipse.lsp4mp.jdt.core.utils.JDTTypeUtils.overlaps;
+import static org.eclipse.lsp4mp.jdt.internal.jaxrs.JaxRsConstants.JAKARTA_WS_RS_PATH_ANNOTATION;
 import static org.eclipse.lsp4mp.jdt.internal.jaxrs.JaxRsConstants.JAVAX_WS_RS_PATH_ANNOTATION;
 
 import java.io.IOException;
@@ -66,7 +67,8 @@ public class JaxRsCodeLensParticipant implements IJavaCodeLensParticipant {
 		}
 		// Collection of URL codeLens is done only if JAX-RS is on the classpath
 		IJavaProject javaProject = context.getJavaProject();
-		return JDTTypeUtils.findType(javaProject, JAVAX_WS_RS_PATH_ANNOTATION) != null;
+		return JDTTypeUtils.findType(javaProject, JAVAX_WS_RS_PATH_ANNOTATION) != null
+				|| JDTTypeUtils.findType(javaProject, JAKARTA_WS_RS_PATH_ANNOTATION) != null;
 	}
 
 	@Override

@@ -36,6 +36,7 @@ import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4mp.commons.CodeActionResolveData;
 import org.eclipse.lsp4mp.commons.DocumentFormat;
@@ -71,6 +72,7 @@ public class MicroProfileDelegateCommandHandlerForJava extends AbstractMicroProf
 	private static final String JAVA_DEFINITION_COMMAND_ID = "microprofile/java/definition";
 	private static final String JAVA_DIAGNOSTICS_COMMAND_ID = "microprofile/java/diagnostics";
 	private static final String JAVA_HOVER_COMMAND_ID = "microprofile/java/hover";
+	private static final String JAVA_WORKSPACE_SYMBOLS_ID = "microprofile/java/workspaceSymbols";
 
 	public MicroProfileDelegateCommandHandlerForJava() {
 	}
@@ -94,6 +96,8 @@ public class MicroProfileDelegateCommandHandlerForJava extends AbstractMicroProf
 				return getDiagnosticsForJava(arguments, commandId, progress);
 			case JAVA_HOVER_COMMAND_ID:
 				return getHoverForJava(arguments, commandId, progress);
+			case JAVA_WORKSPACE_SYMBOLS_ID:
+				return getWorkspaceSymbolsForJava(arguments, commandId, progress);
 			default:
 				throw new UnsupportedOperationException(String.format("Unsupported command '%s'!", commandId));
 		}
@@ -462,6 +466,22 @@ public class MicroProfileDelegateCommandHandlerForJava extends AbstractMicroProf
 		}
 		boolean surroundEqualsWithSpaces = ((Boolean) obj.get("surroundEqualsWithSpaces")).booleanValue();
 		return new MicroProfileJavaHoverParams(javaFileUri, hoverPosition, documentFormat, surroundEqualsWithSpaces);
+	}
+
+	private List<SymbolInformation> getWorkspaceSymbolsForJava(List<Object> arguments, String commandId,
+			IProgressMonitor monitor) {
+		String projectUri = createMicroProfileJavaWorkspaceSymbolParams(arguments, commandId);
+		return PropertiesManagerForJava.getInstance().workspaceSymbols(projectUri, JDTUtilsLSImpl.getInstance(),
+				monitor);
+	}
+
+	private static String createMicroProfileJavaWorkspaceSymbolParams(List<Object> arguments, String commandId) {
+		Object projectUriObj = (String) arguments.get(0);
+		if (projectUriObj == null || !(projectUriObj instanceof String)) {
+			throw new UnsupportedOperationException(String
+					.format("Command '%s' must be called with one projectUri: String argument!", commandId));
+		}
+		return (String)projectUriObj;
 	}
 
 }

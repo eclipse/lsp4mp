@@ -15,6 +15,12 @@ You can build all projects at once by running the `buildAll.sh` script (`buildAl
 
 ## Features
 
+#### General
+
+When you open a MicroProfile project, lsp4mp provides:
+
+- Symbols to help you navigate to JAX-RS REST endpoint methods, searchable using the naming convention: `@/api/endpointName: GET`
+
 #### Properties files
 
 In `microprofile-config.properties` files, you will benefit with:

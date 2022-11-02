@@ -108,6 +108,20 @@ public class JaxRsApplicationPathCodeLensTest extends BasePropertiesManagerTest 
 		assertCodeLense(8080, params, utils, "/ipa/path");
 	}
 
+	@Test
+	public void openLibertyJakarta() throws Exception {
+		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.open_liberty);
+		IJDTUtils utils = JDT_UTILS;
+
+		MicroProfileJavaCodeLensParams params = new MicroProfileJavaCodeLensParams();
+		params.setCheckServerAvailable(false);
+		IFile javaFile = javaProject.getProject().getFile(new Path("src/main/java/com/demo/rest/MyResource.java"));
+		params.setUri(javaFile.getLocation().toFile().toURI().toString());
+		params.setUrlCodeLensEnabled(true);
+
+		assertCodeLense(8080, params, utils, "/api/api/resource");
+	}
+
 	private static void assertCodeLense(int port, MicroProfileJavaCodeLensParams params, IJDTUtils utils,
 			String actualEndpoint) throws JavaModelException {
 		List<? extends CodeLens> lenses = PropertiesManagerForJava.getInstance().codeLens(params, utils,

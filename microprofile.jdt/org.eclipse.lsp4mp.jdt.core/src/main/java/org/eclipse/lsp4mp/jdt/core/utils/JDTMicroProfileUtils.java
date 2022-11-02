@@ -15,6 +15,7 @@ package org.eclipse.lsp4mp.jdt.core.utils;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -23,6 +24,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.lsp4mp.commons.ClasspathKind;
@@ -147,6 +149,43 @@ public class JDTMicroProfileUtils {
 			return javaProject.findType(MicroProfileConfigConstants.CONFIG_PROPERTY_ANNOTATION) != null;
 		} catch (JavaModelException e) {
 			LOGGER.log(Level.INFO, "Current Java project is not a MicroProfile project", e);
+			return false;
+		}
+	}
+
+	/**
+	 * Returns an array of all the java projects that are currently loaded into the JDT
+	 * workspace.
+	 *
+	 * @return an array of all the projects that are currently loaded into the JDT
+	 *         workspace
+	 */
+	public static IJavaProject[] getJavaProjects() {
+		return Stream.of(getAllProjects()) //
+				.filter(JDTMicroProfileUtils::isJavaProject) //
+				.map(p -> JavaCore.create(p)) //
+				.filter(p -> p != null) //
+				.toArray(IJavaProject[]::new);
+	}
+
+	/**
+	 * Returns an array of all the projects that are currently loaded into the JDT
+	 * workspace.
+	 *
+	 * @return an array of all the projects that are currently loaded into the JDT
+	 *         workspace
+	 */
+	private static IProject[] getAllProjects() {
+		return ResourcesPlugin.getWorkspace().getRoot().getProjects();
+	}
+
+	private static boolean isJavaProject(IProject project) {
+		if (project == null) {
+			return false;
+		}
+		try {
+			return project.hasNature(JavaCore.NATURE_ID);
+		} catch (CoreException e) {
 			return false;
 		}
 	}
