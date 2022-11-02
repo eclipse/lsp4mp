@@ -58,6 +58,7 @@ import org.eclipse.lsp4mp.commons.utils.JSONUtility;
 import org.eclipse.lsp4mp.ls.api.MicroProfileLanguageServerAPI.JsonSchemaForProjectInfo;
 import org.eclipse.lsp4mp.ls.commons.client.ExtendedClientCapabilities;
 import org.eclipse.lsp4mp.ls.java.JavaFileTextDocumentService;
+import org.eclipse.lsp4mp.ls.java.JavaTextDocuments;
 import org.eclipse.lsp4mp.ls.properties.PropertiesFileTextDocumentService;
 import org.eclipse.lsp4mp.settings.MicroProfileCodeLensSettings;
 import org.eclipse.lsp4mp.settings.MicroProfileFormattingSettings;
@@ -75,15 +76,15 @@ public class MicroProfileTextDocumentService implements TextDocumentService {
 	private final Map<String, TextDocumentService> textDocumentServicesMap;
 	private final PropertiesFileTextDocumentService applicationPropertiesTextDocumentService;
 	private final JavaFileTextDocumentService javaTextDocumentService;
-	private SharedSettings sharedSettings;
+	private final SharedSettings sharedSettings;
 
-	public MicroProfileTextDocumentService(MicroProfileLanguageServer microprofileLanguageServer) {
+	public MicroProfileTextDocumentService(MicroProfileLanguageServer microprofileLanguageServer, SharedSettings sharedSettings, JavaTextDocuments javaTextDocuments) {
 		textDocumentServicesMap = new HashMap<>();
-		this.sharedSettings = new SharedSettings();
+		this.sharedSettings = sharedSettings;
 		applicationPropertiesTextDocumentService = new PropertiesFileTextDocumentService(microprofileLanguageServer,
 				sharedSettings);
 		javaTextDocumentService = new JavaFileTextDocumentService(microprofileLanguageServer,
-				applicationPropertiesTextDocumentService, sharedSettings);
+				applicationPropertiesTextDocumentService, sharedSettings, javaTextDocuments);
 		textDocumentServicesMap.put("properties", applicationPropertiesTextDocumentService);
 		textDocumentServicesMap.put("java", javaTextDocumentService);
 	}

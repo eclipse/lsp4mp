@@ -81,7 +81,7 @@ public class MicroProfileLanguageServerDeadlockTest {
         }
 
         @Override
-        public CompletableFuture<ProjectLabelInfoEntry> getJavaProjectlabels(MicroProfileJavaProjectLabelsParams javaParams) {
+        public CompletableFuture<ProjectLabelInfoEntry> getJavaProjectLabels(MicroProfileJavaProjectLabelsParams javaParams) {
             latch.countDown();
             return CompletableFuture.completedFuture(null);
         }

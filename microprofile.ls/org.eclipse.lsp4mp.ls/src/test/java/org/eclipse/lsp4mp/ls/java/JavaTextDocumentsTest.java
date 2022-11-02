@@ -40,7 +40,7 @@ public class JavaTextDocumentsTest {
 	private static MicroProfileJavaProjectLabelsProvider PROVIDER = new MicroProfileJavaProjectLabelsProvider() {
 
 		@Override
-		public CompletableFuture<ProjectLabelInfoEntry> getJavaProjectlabels(
+		public CompletableFuture<ProjectLabelInfoEntry> getJavaProjectLabels(
 				MicroProfileJavaProjectLabelsParams javaParams) {
 			String uri = javaParams.getUri();
 			List<String> labels = null;

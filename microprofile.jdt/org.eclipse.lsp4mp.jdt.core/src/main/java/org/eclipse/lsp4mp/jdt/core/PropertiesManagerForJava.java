@@ -16,13 +16,16 @@ package org.eclipse.lsp4mp.jdt.core;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.ILocalVariable;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.ISourceRange;
@@ -52,6 +55,7 @@ import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.jsonrpc.validation.NonNull;
+import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4mp.commons.DocumentFormat;
 import org.eclipse.lsp4mp.commons.JavaCursorContextKind;
 import org.eclipse.lsp4mp.commons.JavaCursorContextResult;
@@ -72,6 +76,7 @@ import org.eclipse.lsp4mp.jdt.core.java.diagnostics.JavaDiagnosticsContext;
 import org.eclipse.lsp4mp.jdt.core.java.hover.JavaHoverContext;
 import org.eclipse.lsp4mp.jdt.core.utils.ASTNodeUtils;
 import org.eclipse.lsp4mp.jdt.core.utils.IJDTUtils;
+import org.eclipse.lsp4mp.jdt.core.utils.JDTMicroProfileUtils;
 import org.eclipse.lsp4mp.jdt.internal.core.java.JavaFeaturesRegistry;
 import org.eclipse.lsp4mp.jdt.internal.core.java.codeaction.CodeActionHandler;
 import org.eclipse.lsp4mp.jdt.internal.core.java.codelens.JavaCodeLensDefinition;
@@ -79,6 +84,7 @@ import org.eclipse.lsp4mp.jdt.internal.core.java.completion.JavaCompletionDefini
 import org.eclipse.lsp4mp.jdt.internal.core.java.definition.JavaDefinitionDefinition;
 import org.eclipse.lsp4mp.jdt.internal.core.java.diagnostics.JavaDiagnosticsDefinition;
 import org.eclipse.lsp4mp.jdt.internal.core.java.hover.JavaHoverDefinition;
+import org.eclipse.lsp4mp.jdt.internal.core.java.symbols.JavaWorkspaceSymbolsDefinition;
 
 /**
  * JDT MicroProfile manager for Java files.
@@ -583,6 +589,36 @@ public class PropertiesManagerForJava {
 			}
 		});
 		definitions.forEach(definition -> definition.endHover(context, monitor));
+	}
+
+	/**
+	 * Returns the workspace symbols for the given java project.
+	 *
+	 * @param projectUri the uri of the java project
+	 * @param utils      the JDT utils
+	 * @param monitor    the progress monitor
+	 * @return the workspace symbols for the given java project
+	 */
+	public List<SymbolInformation> workspaceSymbols(String projectUri, IJDTUtils utils, IProgressMonitor monitor) {
+		List<SymbolInformation> symbols = new ArrayList<>();
+		Optional<IJavaProject> projectOpt = Stream.of(JDTMicroProfileUtils.getJavaProjects()) //
+				.filter(project -> projectUri.equals(JDTMicroProfileUtils.getProjectURI(project))) //
+				.findFirst();
+		if (projectOpt.isEmpty()) {
+			return symbols;
+		}
+		collectWorkspaceSymbols(projectOpt.get(), utils, symbols, monitor);
+		return symbols;
+	}
+
+	private void collectWorkspaceSymbols(IJavaProject project, IJDTUtils utils, List<SymbolInformation> symbols,
+			IProgressMonitor monitor) {
+		List<JavaWorkspaceSymbolsDefinition> definitions = JavaFeaturesRegistry.getInstance()
+				.getJavaWorkspaceSymbolsDefinitions();
+		if (definitions.isEmpty()) {
+			return;
+		}
+		definitions.forEach(definition -> definition.collectSymbols(project, utils, symbols, monitor));
 	}
 
 	/**

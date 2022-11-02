@@ -14,6 +14,7 @@
 package org.eclipse.lsp4mp.jdt.core.jaxrs;
 
 import static org.eclipse.lsp4mp.jdt.core.jaxrs.JaxRsUtils.getJaxRsApplicationPathValue;
+import static org.eclipse.lsp4mp.jdt.internal.jaxrs.JaxRsConstants.JAKARTA_WS_RS_APPLICATIONPATH_ANNOTATION;
 import static org.eclipse.lsp4mp.jdt.internal.jaxrs.JaxRsConstants.JAVAX_WS_RS_APPLICATIONPATH_ANNOTATION;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -45,6 +46,12 @@ public class JaxRsContext {
 
 	private static final String CONTEXT_KEY = JaxRsContext.class.getName();
 
+	private static final SearchPattern SEARCH_PATTERN = SearchPattern.createOrPattern(
+			SearchPattern.createPattern(JAVAX_WS_RS_APPLICATIONPATH_ANNOTATION, IJavaSearchConstants.ANNOTATION_TYPE,
+					IJavaSearchConstants.ANNOTATION_TYPE_REFERENCE, SearchPattern.R_EXACT_MATCH),
+			SearchPattern.createPattern(JAKARTA_WS_RS_APPLICATIONPATH_ANNOTATION, IJavaSearchConstants.ANNOTATION_TYPE,
+					IJavaSearchConstants.ANNOTATION_TYPE_REFERENCE, SearchPattern.R_EXACT_MATCH));
+
 	private int serverPort;
 
 	// The quarkus.http.root-path property in application.properties
@@ -53,11 +60,11 @@ public class JaxRsContext {
 	// The value of the @ApplicationPath annotation
 	private String applicationPath;
 
-	private final JavaCodeLensContext javaCodeLensContext;
+	private final IJavaProject javaProject;
 
-	public JaxRsContext(JavaCodeLensContext javaCodeLensContext) {
+	public JaxRsContext(IJavaProject javaProject) {
 		setServerPort(DEFAULT_PORT);
-		this.javaCodeLensContext = javaCodeLensContext;
+		this.javaProject = javaProject;
 	}
 
 	public int getServerPort() {
@@ -95,9 +102,13 @@ public class JaxRsContext {
 	 */
 	public String getApplicationPath(IProgressMonitor monitor) throws CoreException {
 		if (applicationPath == null) {
-			IType applicationPathType = JDTTypeUtils.findType(javaCodeLensContext.getJavaProject(),
+			IType applicationPathType = JDTTypeUtils.findType(javaProject,
 					JAVAX_WS_RS_APPLICATIONPATH_ANNOTATION);
-			applicationPath = findApplicationPath(applicationPathType, javaCodeLensContext, monitor);
+			if (applicationPathType == null) {
+				applicationPathType = JDTTypeUtils.findType(javaProject,
+						JAKARTA_WS_RS_APPLICATIONPATH_ANNOTATION);
+			}
+			applicationPath = findApplicationPath(javaProject, monitor);
 		}
 		return applicationPath;
 	}
@@ -114,7 +125,7 @@ public class JaxRsContext {
 	public static JaxRsContext getJaxRsContext(JavaCodeLensContext context) {
 		JaxRsContext jaxRsContext = (JaxRsContext) context.get(CONTEXT_KEY);
 		if (jaxRsContext == null) {
-			jaxRsContext = new JaxRsContext(context);
+			jaxRsContext = new JaxRsContext(context.getJavaProject());
 			context.put(CONTEXT_KEY, jaxRsContext);
 		}
 		return jaxRsContext;
@@ -150,16 +161,13 @@ public class JaxRsContext {
 	 * @return the value of the @ApplicationPath annotation, or null if not found
 	 * @throws CoreException
 	 */
-	private static String findApplicationPath(IType annotationType, JavaCodeLensContext context,
+	private static String findApplicationPath(IJavaProject javaProject,
 			IProgressMonitor monitor) throws CoreException {
 		AtomicReference<String> applicationPathRef = new AtomicReference<String>();
-		SearchPattern pattern = SearchPattern.createPattern(JAVAX_WS_RS_APPLICATIONPATH_ANNOTATION,
-				IJavaSearchConstants.ANNOTATION_TYPE, IJavaSearchConstants.ANNOTATION_TYPE_REFERENCE,
-				SearchPattern.R_EXACT_MATCH);
 		SearchEngine engine = new SearchEngine();
-		engine.search(pattern, new SearchParticipant[] {
+		engine.search(SEARCH_PATTERN, new SearchParticipant[] {
 				SearchEngine.getDefaultSearchParticipant()
-		}, createSearchScope(annotationType.getJavaProject()), new SearchRequestor() {
+		}, createSearchScope(javaProject), new SearchRequestor() {
 
 			@Override
 			public void acceptSearchMatch(SearchMatch match) throws CoreException {
@@ -170,8 +178,9 @@ public class JaxRsContext {
 			}
 
 			private void collectApplicationPath(IType type) throws CoreException {
-				if (AnnotationUtils.hasAnnotation(type, JAVAX_WS_RS_APPLICATIONPATH_ANNOTATION)) {
-					applicationPathRef.set(getJaxRsApplicationPathValue(type));
+				String applicationPathValue = getJaxRsApplicationPathValue(type);
+				if (applicationPathValue != null) {
+					applicationPathRef.set(applicationPathValue);
 				}
 			}
 		}, monitor);

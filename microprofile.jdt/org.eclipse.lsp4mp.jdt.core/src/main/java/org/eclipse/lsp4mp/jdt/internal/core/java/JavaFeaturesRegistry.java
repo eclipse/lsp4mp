@@ -30,6 +30,7 @@ import org.eclipse.lsp4mp.jdt.internal.core.java.completion.JavaCompletionDefini
 import org.eclipse.lsp4mp.jdt.internal.core.java.definition.JavaDefinitionDefinition;
 import org.eclipse.lsp4mp.jdt.internal.core.java.diagnostics.JavaDiagnosticsDefinition;
 import org.eclipse.lsp4mp.jdt.internal.core.java.hover.JavaHoverDefinition;
+import org.eclipse.lsp4mp.jdt.internal.core.java.symbols.JavaWorkspaceSymbolsDefinition;
 
 /**
  * Registry to hold the extension point
@@ -45,6 +46,7 @@ public class JavaFeaturesRegistry {
 	private static final String DEFINITION_ELT = "definition";
 	private static final String DIAGNOSTICS_ELT = "diagnostics";
 	private static final String HOVER_ELT = "hover";
+	private static final String WORKSPACE_SYMBOLS_ELT = "workspaceSymbols";
 
 	private static final Logger LOGGER = Logger.getLogger(JavaFeaturesRegistry.class.getName());
 
@@ -62,6 +64,8 @@ public class JavaFeaturesRegistry {
 
 	private final List<JavaHoverDefinition> javaHoverDefinitions;
 
+	private final List<JavaWorkspaceSymbolsDefinition> javaWorkspaceSymbolsDefinitions;
+
 	private boolean javaFeatureDefinitionsLoaded;
 
 	public static JavaFeaturesRegistry getInstance() {
@@ -76,6 +80,7 @@ public class JavaFeaturesRegistry {
 		javaDefinitionDefinitions = new ArrayList<>();
 		javaDiagnosticsDefinitions = new ArrayList<>();
 		javaHoverDefinitions = new ArrayList<>();
+		javaWorkspaceSymbolsDefinitions = new ArrayList<>();
 	}
 
 	/**
@@ -137,6 +142,16 @@ public class JavaFeaturesRegistry {
 	public List<JavaHoverDefinition> getJavaHoverDefinitions() {
 		loadJavaFeatureDefinitions();
 		return javaHoverDefinitions;
+	}
+
+	/**
+	 * Returns a list of workspace symbols definition.
+	 *
+	 * @return a list of workspace symbols definition
+	 */
+	public List<JavaWorkspaceSymbolsDefinition> getJavaWorkspaceSymbolsDefinitions() {
+		loadJavaFeatureDefinitions();
+		return javaWorkspaceSymbolsDefinitions;
 	}
 
 	private synchronized void loadJavaFeatureDefinitions() {
@@ -206,6 +221,12 @@ public class JavaFeaturesRegistry {
 				javaHoverDefinitions.add(definition);
 			}
 			break;
+		}
+		case WORKSPACE_SYMBOLS_ELT: {
+			JavaWorkspaceSymbolsDefinition definition = new JavaWorkspaceSymbolsDefinition(ce);
+			synchronized (javaWorkspaceSymbolsDefinitions) {
+				javaWorkspaceSymbolsDefinitions.add(definition);
+			}
 		}
 		default:
 

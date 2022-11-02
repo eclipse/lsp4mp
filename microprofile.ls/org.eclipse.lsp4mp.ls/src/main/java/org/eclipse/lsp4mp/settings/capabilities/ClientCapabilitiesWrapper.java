@@ -17,6 +17,7 @@ import org.eclipse.lsp4j.ClientCapabilities;
 import org.eclipse.lsp4j.DynamicRegistrationCapabilities;
 import org.eclipse.lsp4j.ResourceOperationKind;
 import org.eclipse.lsp4j.TextDocumentClientCapabilities;
+import org.eclipse.lsp4j.WorkspaceClientCapabilities;
 import org.eclipse.lsp4mp.ls.commons.client.ExtendedClientCapabilities;
 
 /**
@@ -78,6 +79,10 @@ public class ClientCapabilitiesWrapper {
 	public boolean isRangeFormattingDynamicRegistered() {
 		return v3Supported && isDynamicRegistrationSupported(getTextDocument().getRangeFormatting());
 	}
+	
+	public boolean isWorkspaceSymbolDynamicRegistered() {
+		return v3Supported && isDynamicRegistrationSupported(getWorkspace().getSymbol());
+	}
 
 	public boolean isDocumentHighlightSupported() {
 		return v3Supported && isDynamicRegistrationSupported(getTextDocument().getDocumentHighlight());
@@ -90,6 +95,10 @@ public class ClientCapabilitiesWrapper {
 
 	public TextDocumentClientCapabilities getTextDocument() {
 		return this.capabilities.getTextDocument();
+	}
+	
+	public WorkspaceClientCapabilities getWorkspace() {
+		return this.capabilities.getWorkspace();
 	}
 
 	public ExtendedClientCapabilities getExtendedCapabilities() {
@@ -131,4 +140,5 @@ public class ClientCapabilitiesWrapper {
 				&& capabilities.getTextDocument().getCodeAction().getResolveSupport().getProperties() != null
 				&& capabilities.getTextDocument().getCodeAction().getResolveSupport().getProperties().contains("edit");
 	}
+
 }

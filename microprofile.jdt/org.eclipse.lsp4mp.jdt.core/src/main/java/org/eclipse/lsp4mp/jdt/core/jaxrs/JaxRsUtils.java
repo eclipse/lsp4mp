@@ -16,14 +16,12 @@ package org.eclipse.lsp4mp.jdt.core.jaxrs;
 import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.getAnnotation;
 import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.getAnnotationMemberValue;
 import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.hasAnnotation;
+import static org.eclipse.lsp4mp.jdt.internal.jaxrs.JaxRsConstants.HTTP_METHOD_ANNOTATIONS;
+import static org.eclipse.lsp4mp.jdt.internal.jaxrs.JaxRsConstants.JAKARTA_WS_RS_APPLICATIONPATH_ANNOTATION;
+import static org.eclipse.lsp4mp.jdt.internal.jaxrs.JaxRsConstants.JAKARTA_WS_RS_GET_ANNOTATION;
+import static org.eclipse.lsp4mp.jdt.internal.jaxrs.JaxRsConstants.JAKARTA_WS_RS_PATH_ANNOTATION;
 import static org.eclipse.lsp4mp.jdt.internal.jaxrs.JaxRsConstants.JAVAX_WS_RS_APPLICATIONPATH_ANNOTATION;
 import static org.eclipse.lsp4mp.jdt.internal.jaxrs.JaxRsConstants.JAVAX_WS_RS_GET_ANNOTATION;
-import static org.eclipse.lsp4mp.jdt.internal.jaxrs.JaxRsConstants.JAVAX_WS_RS_POST_ANNOTATION;
-import static org.eclipse.lsp4mp.jdt.internal.jaxrs.JaxRsConstants.JAVAX_WS_RS_PUT_ANNOTATION;
-import static org.eclipse.lsp4mp.jdt.internal.jaxrs.JaxRsConstants.JAVAX_WS_RS_DELETE_ANNOTATION;
-import static org.eclipse.lsp4mp.jdt.internal.jaxrs.JaxRsConstants.JAVAX_WS_RS_HEAD_ANNOTATION;
-import static org.eclipse.lsp4mp.jdt.internal.jaxrs.JaxRsConstants.JAVAX_WS_RS_OPTIONS_ANNOTATION;
-import static org.eclipse.lsp4mp.jdt.internal.jaxrs.JaxRsConstants.JAVAX_WS_RS_PATCH_ANNOTATION;
 import static org.eclipse.lsp4mp.jdt.internal.jaxrs.JaxRsConstants.JAVAX_WS_RS_PATH_ANNOTATION;
 import static org.eclipse.lsp4mp.jdt.internal.jaxrs.JaxRsConstants.PATH_VALUE;
 
@@ -53,35 +51,46 @@ public class JaxRsUtils {
 	}
 
 	/**
-	 * Returns the value of the JAX-RS Path annotation and null otherwise..
+	 * Returns the value of the JAX-RS/Jakarta Path annotation and null otherwise.
 	 *
-	 * @param annotatable
-	 * @return the value of the JAX-RS Path annotation and null otherwise..
+	 * @param annotatable the annotatable that might be annotated with the
+	 *                    JAX-RS/Jakarta Path annotation
+	 * @return the value of the JAX-RS/Jakarta Path annotation and null otherwise
 	 * @throws JavaModelException
 	 */
 	public static String getJaxRsPathValue(IAnnotatable annotatable) throws JavaModelException {
-		IAnnotation annotationPath = getAnnotation(annotatable, JAVAX_WS_RS_PATH_ANNOTATION);
-		return annotationPath != null ? getAnnotationMemberValue(annotationPath, PATH_VALUE) : null;
+		IAnnotation annotationPath = getAnnotation(annotatable, JAVAX_WS_RS_PATH_ANNOTATION,
+				JAKARTA_WS_RS_PATH_ANNOTATION);
+		if (annotationPath == null) {
+			return null;
+		}
+		return getAnnotationMemberValue(annotationPath, PATH_VALUE);
 	}
 
 	/**
-	 * Returns the value of the JAX-RS ApplicationPath annotation and null
-	 * otherwise..
+	 * Returns the value of the JAX-RS/Jakarta ApplicationPath annotation and null
+	 * otherwise.
 	 *
-	 * @param annotatable
-	 * @return the value of the JAX-RS ApplicationPath annotation and null
-	 *         otherwise..
+	 * @param annotatable the annotatable that might be annotated with the
+	 *                    JAX-RS/Jakarta ApplicationPath annotation
+	 * @return the value of the JAX-RS/Jakarta ApplicationPath annotation and null
+	 *         otherwise
 	 * @throws JavaModelException
 	 */
 	public static String getJaxRsApplicationPathValue(IAnnotatable annotatable) throws JavaModelException {
-		IAnnotation annotationPath = getAnnotation(annotatable, JAVAX_WS_RS_APPLICATIONPATH_ANNOTATION);
-		return annotationPath != null ? getAnnotationMemberValue(annotationPath, PATH_VALUE) : null;
+
+		IAnnotation annotationApplicationPath = getAnnotation(annotatable, JAVAX_WS_RS_APPLICATIONPATH_ANNOTATION,
+				JAKARTA_WS_RS_APPLICATIONPATH_ANNOTATION);
+		if (annotationApplicationPath == null) {
+			return null;
+		}
+		return getAnnotationMemberValue(annotationApplicationPath, PATH_VALUE);
 	}
 
 	/**
 	 * Returns true if the given method
-	 * has @GET, @POST, @PUT, @DELETE, @HEAD, @OPTIONS, or @PATCH annotation
-	 * and false otherwise.
+	 * has @GET, @POST, @PUT, @DELETE, @HEAD, @OPTIONS, or @PATCH annotation and
+	 * false otherwise.
 	 *
 	 * @param method the method.
 	 * @return true if the given method
@@ -90,13 +99,12 @@ public class JaxRsUtils {
 	 * @throws JavaModelException
 	 */
 	public static boolean isJaxRsRequestMethod(IMethod method) throws JavaModelException {
-		return (hasAnnotation(method, JAVAX_WS_RS_GET_ANNOTATION)
-				|| hasAnnotation(method, JAVAX_WS_RS_POST_ANNOTATION)
-				|| hasAnnotation(method, JAVAX_WS_RS_PUT_ANNOTATION)
-				|| hasAnnotation(method, JAVAX_WS_RS_DELETE_ANNOTATION)
-				|| hasAnnotation(method, JAVAX_WS_RS_HEAD_ANNOTATION)
-				|| hasAnnotation(method, JAVAX_WS_RS_OPTIONS_ANNOTATION)
-				|| hasAnnotation(method, JAVAX_WS_RS_PATCH_ANNOTATION));
+		for (String annotation : HTTP_METHOD_ANNOTATIONS) {
+			if (hasAnnotation(method, annotation)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -107,7 +115,8 @@ public class JaxRsUtils {
 	 * @throws JavaModelException
 	 */
 	public static boolean isClickableJaxRsRequestMethod(IMethod method) throws JavaModelException {
-		return hasAnnotation(method, JAVAX_WS_RS_GET_ANNOTATION);
+		return hasAnnotation(method, JAVAX_WS_RS_GET_ANNOTATION)
+				|| hasAnnotation(method, JAKARTA_WS_RS_GET_ANNOTATION);
 	}
 
 	/**

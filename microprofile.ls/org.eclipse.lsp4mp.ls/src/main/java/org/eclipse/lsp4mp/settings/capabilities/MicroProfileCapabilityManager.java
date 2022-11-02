@@ -35,6 +35,9 @@ import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstan
 import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_HOVER;
 import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_INLAY_HINT;
 import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_RANGE_FORMATTING;
+import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.WORKSPACE_SYMBOL_ID;
+import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.WORKSPACE_SYMBOLS;
+import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_WORKSPACE_SYMBOL_OPTIONS;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -119,6 +122,9 @@ public class MicroProfileCapabilityManager {
 		}
 		if (this.getClientCapabilities().isInlayHintDynamicRegistered()) {
 			registerCapability(INLAY_HINT_ID, TEXT_DOCUMENT_INLAY_HINT);
+		}
+		if (this.getClientCapabilities().isWorkspaceSymbolDynamicRegistered()) {
+			registerCapability(WORKSPACE_SYMBOL_ID, WORKSPACE_SYMBOLS, DEFAULT_WORKSPACE_SYMBOL_OPTIONS);
 		}
 	}
 

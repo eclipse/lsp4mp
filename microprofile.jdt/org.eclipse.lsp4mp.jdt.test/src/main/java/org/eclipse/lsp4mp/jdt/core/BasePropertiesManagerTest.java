@@ -88,6 +88,7 @@ public class BasePropertiesManagerTest {
 		public static String microprofile_jwt_quickstart = "microprofile-jwt-quickstart";
 		public static String rest_client_quickstart = "rest-client-quickstart";
 		public static String using_vertx = "using-vertx";
+		public static String open_liberty = "open-liberty";
 
 	}
 

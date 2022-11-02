@@ -93,10 +93,10 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 	private ValidatorDelayer<JavaTextDocument> validatorDelayer;
 
 	public JavaFileTextDocumentService(MicroProfileLanguageServer microprofileLanguageServer,
-			IPropertiesModelProvider propertiesModelProvider, SharedSettings sharedSettings) {
+			IPropertiesModelProvider propertiesModelProvider, SharedSettings sharedSettings, JavaTextDocuments javaTextDocuments) {
 		super(microprofileLanguageServer, sharedSettings);
 		this.propertiesModelProvider = propertiesModelProvider;
-		this.documents = new JavaTextDocuments(microprofileLanguageServer, microprofileLanguageServer);
+		this.documents = javaTextDocuments;
 		this.validatorDelayer = new ValidatorDelayer<>((javaTextDocument) -> {
 			triggerValidationFor(javaTextDocument);
 		});

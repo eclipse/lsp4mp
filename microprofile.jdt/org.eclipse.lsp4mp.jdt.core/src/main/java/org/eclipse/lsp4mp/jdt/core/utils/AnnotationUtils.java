@@ -78,6 +78,38 @@ public class AnnotationUtils {
 	}
 
 	/**
+	 * Returns an IAnnotation of the first annotation in
+	 * <code>annotationNames</code> that appears on the given annotatable.
+	 *
+	 * It returns the first in the <code>annotationNames</code> list, <b>not</b> the
+	 * first in the order that the annotations appear on the annotatable. <br /> <br />
+	 * eg.
+	 *
+	 * <pre>
+	 * &commat;Singleton &commat;Deprecated String myString;
+	 * </pre>
+	 *
+	 * when given the <code>annotationNames</code> list <code>{"Potato", "Deprecated",
+	 * "Singleton"}</code> will return the IAnnotation for <code>&commat;Deprecated</code>.
+	 *
+	 * @param annotatable     the annotatable to check for the annotations
+	 * @param annotationNames the FQNs of the annotations to check for
+	 * @return an IAnnotation of the first annotation in
+	 * <code>annotationNames</code> that appears on the given annotatable
+	 * @throws JavaModelException
+	 */
+	public static IAnnotation getAnnotation(IAnnotatable annotatable, String... annotationNames)
+			throws JavaModelException {
+		for (String annotationName : annotationNames) {
+			IAnnotation annotation = getAnnotation(annotatable, annotationName);
+			if (annotation != null) {
+				return annotation;
+			}
+		}
+		return null;
+	}
+
+	/**
 	 * Returns true if the given annotation match the given annotation name and
 	 * false otherwise.
 	 *

@@ -38,6 +38,8 @@ public class ProjectLabelInfoEntry {
 
 	/**
 	 * Returns the project uri
+	 * 
+	 * FIXME: on Linux, this is actually an absolute path and not a uri.
 	 *
 	 * @return the project uri
 	 */

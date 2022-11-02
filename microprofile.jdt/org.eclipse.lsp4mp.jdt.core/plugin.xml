@@ -41,6 +41,7 @@
             <command id="microprofile/java/definition"/>
             <command id="microprofile/java/diagnostics"/>
             <command id="microprofile/java/hover"/>
+            <command id="microprofile/java/workspaceSymbols"/>
        </delegateCommandHandler>
    </extension>
 
@@ -325,5 +326,7 @@
    <extension point="org.eclipse.lsp4mp.jdt.core.javaFeatureParticipants">
       <!-- Java URL codeLens for JAX-RS -->
       <codeLens class="org.eclipse.lsp4mp.jdt.internal.jaxrs.java.JaxRsCodeLensParticipant" />
+      <workspaceSymbols
+            class="org.eclipse.lsp4mp.jdt.internal.jaxrs.java.JaxRsWorkspaceSymbolParticipant" />
    </extension>
 </plugin>
