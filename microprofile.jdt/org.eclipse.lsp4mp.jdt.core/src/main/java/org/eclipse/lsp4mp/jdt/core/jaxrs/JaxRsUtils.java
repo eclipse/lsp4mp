@@ -18,6 +18,12 @@ import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.getAnnotationMem
 import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.hasAnnotation;
 import static org.eclipse.lsp4mp.jdt.internal.jaxrs.JaxRsConstants.JAVAX_WS_RS_APPLICATIONPATH_ANNOTATION;
 import static org.eclipse.lsp4mp.jdt.internal.jaxrs.JaxRsConstants.JAVAX_WS_RS_GET_ANNOTATION;
+import static org.eclipse.lsp4mp.jdt.internal.jaxrs.JaxRsConstants.JAVAX_WS_RS_POST_ANNOTATION;
+import static org.eclipse.lsp4mp.jdt.internal.jaxrs.JaxRsConstants.JAVAX_WS_RS_PUT_ANNOTATION;
+import static org.eclipse.lsp4mp.jdt.internal.jaxrs.JaxRsConstants.JAVAX_WS_RS_DELETE_ANNOTATION;
+import static org.eclipse.lsp4mp.jdt.internal.jaxrs.JaxRsConstants.JAVAX_WS_RS_HEAD_ANNOTATION;
+import static org.eclipse.lsp4mp.jdt.internal.jaxrs.JaxRsConstants.JAVAX_WS_RS_OPTIONS_ANNOTATION;
+import static org.eclipse.lsp4mp.jdt.internal.jaxrs.JaxRsConstants.JAVAX_WS_RS_PATCH_ANNOTATION;
 import static org.eclipse.lsp4mp.jdt.internal.jaxrs.JaxRsConstants.JAVAX_WS_RS_PATH_ANNOTATION;
 import static org.eclipse.lsp4mp.jdt.internal.jaxrs.JaxRsConstants.PATH_VALUE;
 
@@ -72,13 +78,34 @@ public class JaxRsUtils {
 	}
 
 	/**
+	 * Returns true if the given method
+	 * has @GET, @POST, @PUT, @DELETE, @HEAD, @OPTIONS, or @PATCH annotation
+	 * and false otherwise.
+	 *
+	 * @param method the method.
+	 * @return true if the given method
+	 *         has @GET, @POST, @PUT, @DELETE, @HEAD, @OPTIONS, or @PATCH annotation
+	 *         and false otherwise.
+	 * @throws JavaModelException
+	 */
+	public static boolean isJaxRsRequestMethod(IMethod method) throws JavaModelException {
+		return (hasAnnotation(method, JAVAX_WS_RS_GET_ANNOTATION)
+				|| hasAnnotation(method, JAVAX_WS_RS_POST_ANNOTATION)
+				|| hasAnnotation(method, JAVAX_WS_RS_PUT_ANNOTATION)
+				|| hasAnnotation(method, JAVAX_WS_RS_DELETE_ANNOTATION)
+				|| hasAnnotation(method, JAVAX_WS_RS_HEAD_ANNOTATION)
+				|| hasAnnotation(method, JAVAX_WS_RS_OPTIONS_ANNOTATION)
+				|| hasAnnotation(method, JAVAX_WS_RS_PATCH_ANNOTATION));
+	}
+
+	/**
 	 * Returns true if the given method has @GET annotation and false otherwise.
 	 *
 	 * @param method the method.
 	 * @return true if the given method has @GET annotation and false otherwise.
 	 * @throws JavaModelException
 	 */
-	public static boolean isJaxRsRequestMethod(IMethod method) throws JavaModelException {
+	public static boolean isClickableJaxRsRequestMethod(IMethod method) throws JavaModelException {
 		return hasAnnotation(method, JAVAX_WS_RS_GET_ANNOTATION);
 	}
 

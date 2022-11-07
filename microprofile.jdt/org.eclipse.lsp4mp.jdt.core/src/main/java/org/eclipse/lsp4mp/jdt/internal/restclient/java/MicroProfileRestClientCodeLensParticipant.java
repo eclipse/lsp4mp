@@ -16,6 +16,7 @@ package org.eclipse.lsp4mp.jdt.internal.restclient.java;
 import static org.eclipse.lsp4mp.jdt.core.jaxrs.JaxRsUtils.createURLCodeLens;
 import static org.eclipse.lsp4mp.jdt.core.jaxrs.JaxRsUtils.getJaxRsPathValue;
 import static org.eclipse.lsp4mp.jdt.core.jaxrs.JaxRsUtils.isJaxRsRequestMethod;
+import static org.eclipse.lsp4mp.jdt.core.jaxrs.JaxRsUtils.isClickableJaxRsRequestMethod;
 import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.getAnnotation;
 import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.getAnnotationMemberValue;
 import static org.eclipse.lsp4mp.jdt.core.utils.JDTTypeUtils.overlaps;
@@ -117,7 +118,7 @@ public class MicroProfileRestClientCodeLensParticipant implements IJavaCodeLensP
 				// JAX-RS
 				// annotation
 				if (isJaxRsRequestMethod(method)) {
-					String openURICommandId = params.getOpenURICommand();
+					String openURICommandId = isClickableJaxRsRequestMethod(method) ? params.getOpenURICommand() : null;
 					CodeLens lens = createURLCodeLens(baseURL, rootPath, openURICommandId, (IMethod) element, utils);
 					if (lens != null) {
 						lenses.add(lens);

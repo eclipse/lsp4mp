@@ -15,6 +15,7 @@ package org.eclipse.lsp4mp.jdt.internal.jaxrs.java;
 
 import static org.eclipse.lsp4mp.jdt.core.jaxrs.JaxRsUtils.createURLCodeLens;
 import static org.eclipse.lsp4mp.jdt.core.jaxrs.JaxRsUtils.getJaxRsPathValue;
+import static org.eclipse.lsp4mp.jdt.core.jaxrs.JaxRsUtils.isClickableJaxRsRequestMethod;
 import static org.eclipse.lsp4mp.jdt.core.jaxrs.JaxRsUtils.isJaxRsRequestMethod;
 import static org.eclipse.lsp4mp.jdt.core.utils.JDTTypeUtils.overlaps;
 import static org.eclipse.lsp4mp.jdt.internal.jaxrs.JaxRsConstants.JAVAX_WS_RS_PATH_ANNOTATION;
@@ -135,7 +136,7 @@ public class JaxRsCodeLensParticipant implements IJavaCodeLensParticipant {
 				// annotation
 				if (isJaxRsRequestMethod(method) && Flags.isPublic(method.getFlags())) {
 					String baseURL = jaxrsContext.getLocalBaseURL();
-					String openURICommandId = params.getOpenURICommand();
+					String openURICommandId = isClickableJaxRsRequestMethod(method) ? params.getOpenURICommand() : null;
 					CodeLens lens = createURLCodeLens(baseURL, rootPath, openURICommandId, (IMethod) element, utils);
 					if (lens != null) {
 						lenses.add(lens);
