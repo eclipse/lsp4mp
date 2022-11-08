@@ -1,5 +1,34 @@
 # MicroProfile Language Server Changelog
 
+## [0.6.0](https://github.com/eclipse/lsp4mp/milestone/6?closed=1) (December 1, 2022)
+
+### Enhancements
+ * Display property value as inlay hint. See [#226](https://github.com/eclipse/lsp4mp/issues/226).
+ * Property evaluation should support the environment variable default value notation. See [#241](https://github.com/eclipse/lsp4mp/issues/241).
+ * Manage static properties using a `staticProvider` extension point. See [#44](https://github.com/eclipse/lsp4mp/issues/44).
+ * Improve code action performance with `CodeAction#data` & `resolveCodeAction`. See [#171](https://github.com/eclipse/lsp4mp/issues/171).
+ * Diagnostics for mp-reactive-messaging `@Incoming`/`@Outgoing` annotation. See [#58](https://github.com/eclipse/lsp4mp/issues/58).
+
+### Bug Fixes
+ * Java source code not validated upon start. See [#301](https://github.com/eclipse/lsp4mp/issues/301).
+ * `ClassCastException` thrown (and caught) when using invalid `@ConfigProperty` default value. See [#295](https://github.com/eclipse/lsp4mp/issues/295).
+ * Improve handling of `@ConfigProperties` for validation. See [#304](https://github.com/eclipse/lsp4mp/issues/304).
+ * Support for the `config_ordinal` property in `microprofile-config.properties`. See [#289](https://github.com/eclipse/lsp4mp/issues/289).
+ * Display property value when hovering over a key that isn't defined in the application. See [#285](https://github.com/eclipse/lsp4mp/issues/285).
+ * REST client code lens only shows up for `GET` annotations. See [#94](https://github.com/eclipse/lsp4mp/issues/94).
+ * JAXRS code lens URL should always appear above method declaration. See [#194](https://github.com/eclipse/lsp4mp/issues/194).
+ * Support `microprofile-health` 3.0 and later. See [#314](https://github.com/eclipse/lsp4mp/issues/314).
+ * Fix inlay hints & definitions when project returns empty properties. See [#311](https://github.com/eclipse/lsp4mp/pull/311).
+ * Fix code lens when no configuration sources available. See [#315](https://github.com/eclipse/lsp4mp/issues/315).
+ * `@ConfigProperties` validation should check the annotation's fully qualified name. See [#304](https://github.com/eclipse/lsp4mp/issues/304).
+ * Fix typo in `mpirc` snippet. See [#325](https://github.com/eclipse/lsp4mp/issues/325).
+
+### Build
+ * Update Target Platform to 1.16.0-SNAPSHOT version of JDT-LS target. See [#288](https://github.com/eclipse/lsp4mp/pull/288).
+ * JDT.LS dependency on tests should be optional. See [#286](https://github.com/eclipse/lsp4mp/issues/286).
+ * Copy over `ModelTextDocuments#computeModelAsyncCompose` from quarkus-ls into commons package. See [#257](https://github.com/eclipse/lsp4mp/issues/257).
+ * Move VS Code workspace configuration into correct folder. See [#145](https://github.com/eclipse/lsp4mp/pull/145).
+
 ## [0.5.0](https://github.com/eclipse/lsp4mp/milestone/5?closed=1) (July 25, 2022)
 
 ### Enhancements
