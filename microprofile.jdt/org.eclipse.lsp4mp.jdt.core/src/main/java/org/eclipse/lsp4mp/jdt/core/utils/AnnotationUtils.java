@@ -29,6 +29,8 @@ import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.IAnnotationBinding;
+import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.MemberValuePair;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
 import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
@@ -183,7 +185,12 @@ public class AnnotationUtils {
 	 *         false otherwise.
 	 */
 	public static boolean isMatchAnnotation(Annotation annotation, String annotationName) {
-		return annotationName.endsWith(annotation.getTypeName().getFullyQualifiedName());
+		IAnnotationBinding binding = annotation.resolveAnnotationBinding();
+		ITypeBinding annotationType = binding.getAnnotationType();
+		if (annotationType == null) {
+			return false;
+		}
+		return annotationName.endsWith(annotationType.getQualifiedName());
 	}
 
 	/**

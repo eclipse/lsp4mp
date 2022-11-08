@@ -106,7 +106,10 @@ public class MicroProfileConfigASTValidator extends JavaASTValidator {
 		List modifiers = typeDeclaration.modifiers();
 		for (Object modifier : modifiers) {
 			if (modifier instanceof NormalAnnotation
-					&& AnnotationUtils.isMatchAnnotation((NormalAnnotation) modifier, CONFIG_PROPERTIES_ANNOTATION)) {
+					&& (AnnotationUtils.isMatchAnnotation((NormalAnnotation) modifier, CONFIG_PROPERTIES_ANNOTATION)
+							// FIXME: this should be handled in quarkus-ls
+							|| AnnotationUtils.isMatchAnnotation((NormalAnnotation) modifier,
+									"io.quarkus.arc.config.ConfigProperties"))) {
 				try {
 					Expression prefixExpr = AnnotationUtils.getAnnotationMemberValueExpression(
 							(NormalAnnotation) modifier, CONFIG_PROPERTIES_ANNOTATION_PREFIX);
