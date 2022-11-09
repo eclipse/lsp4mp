@@ -41,7 +41,7 @@ class MicroProfileProjectInfoCache {
 
 	private static final Logger LOGGER = Logger.getLogger(MicroProfileProjectInfoCache.class.getName());
 
-	private final Map<String /* application.properties URI */, CompletableFuture<MicroProfileProjectInfo>> cache;
+	private final Map<String /* microprofile-config.properties, application.properties, etc URI */, CompletableFuture<MicroProfileProjectInfo>> cache;
 
 	private final MicroProfileProjectInfoProvider provider;
 
@@ -52,11 +52,12 @@ class MicroProfileProjectInfoCache {
 
 	/**
 	 * Returns as promise the MicroProfile project information for the given
-	 * application.properties URI.
+	 * microprofile-config.properties, application.properties, etc URI.
 	 * 
-	 * @param params the URI of the application.properties.
+	 * @param params the URI of themicroprofile-config.properties, application.properties, etc.
+	 * 
 	 * @return as promise the MicroProfile project information for the given
-	 *         application.properties URI.
+	 *         microprofile-config.properties, application.properties, etc URI.
 	 */
 	public CompletableFuture<MicroProfileProjectInfo> getProjectInfo(MicroProfileProjectInfoParams params) {
 		return getProjectInfoFromCache(params). //
@@ -94,8 +95,8 @@ class MicroProfileProjectInfoCache {
 						LOGGER.log(Level.WARNING, String.format(
 								"Error while getting MicroProfileProjectInfo (sources) for '%s'", params.getUri()), ex);
 						return MicroProfileProjectInfo.EMPTY_PROJECT_INFO;
-					}). //
-					thenApply(info ->
+					}) //
+					.thenApply(info ->
 					// then update the cache with the new properties
 					{
 						wrapper.updateSourcesProperties(info.getProperties(), info.getHints());
@@ -131,13 +132,13 @@ class MicroProfileProjectInfoCache {
 	}
 
 	private Collection<String> classpathChanged(Set<String> projectURIs) {
-		List<String> applicationPropertiesURIs = getApplicationPropertiesURIs(projectURIs);
+		List<String> applicationPropertiesURIs = getPropertiesFileURIs(projectURIs);
 		applicationPropertiesURIs.forEach(cache::remove);
 		return applicationPropertiesURIs;
 	}
 
 	private Collection<String> javaSourceChanged(Set<String> projectURIs) {
-		List<String> applicationPropertiesURIs = getApplicationPropertiesURIs(projectURIs);
+		List<String> applicationPropertiesURIs = getPropertiesFileURIs(projectURIs);
 		for (String uri : applicationPropertiesURIs) {
 			ExtendedMicroProfileProjectInfo info = getProjectInfoWrapper(cache.get(uri));
 			if (info != null) {
@@ -148,15 +149,15 @@ class MicroProfileProjectInfoCache {
 	}
 
 	/**
-	 * Returns the application.propeties URIs which belongs to the given project
-	 * URIs.
+	 * Returns the propeties file URIs (microprofile-config.properties,
+	 * application.properties, etc) which belongs to the given project URI.
 	 * 
 	 * @param projectURIs project URIs
 	 * 
-	 * @return the application.propeties URIs which belongs to the given project
-	 *         URIs.
+	 * @return the propeties file URIs (microprofile-config.properties,
+	 *         application.properties, etc) which belongs to the given project URI.
 	 */
-	private List<String> getApplicationPropertiesURIs(Set<String> projectURIs) {
+	private List<String> getPropertiesFileURIs(Set<String> projectURIs) {
 		return cache.entrySet().stream().filter(entry -> {
 			MicroProfileProjectInfo projectInfo = getProjectInfoWrapper(entry.getValue());
 			if (projectInfo != null) {

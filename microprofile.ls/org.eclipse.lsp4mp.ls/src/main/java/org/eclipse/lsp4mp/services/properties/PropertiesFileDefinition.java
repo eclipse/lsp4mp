@@ -16,6 +16,7 @@ package org.eclipse.lsp4mp.services.properties;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -24,6 +25,7 @@ import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
+import org.eclipse.lsp4mp.commons.ConfigSourceInfo;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.MicroProfilePropertyDefinitionParams;
 import org.eclipse.lsp4mp.commons.metadata.ItemHint;
@@ -57,18 +59,19 @@ public class PropertiesFileDefinition {
 	 * given <code>position</code> of the given microprofile-config.properties
 	 * <code>document</code>.
 	 *
-	 * @param document      the properties model.
-	 * @param position      the position where definition was triggered
-	 * @param projectInfo   the MicroProfile project info
-	 * @param provider      the MicroProfile property definition provider.
-	 * @param cancelChecker the cancel checker
+	 * @param document                the properties model.
+	 * @param position                the position where definition was triggered
+	 * @param projectInfo             the MicroProfile project info
+	 * @param propertiesModelProvider
+	 * @param provider                the MicroProfile property definition provider.
+	 * @param cancelChecker           the cancel checker
 	 * @return as promise the Java field definition location of the property at the
 	 *         given <code>position</code> of the given
 	 *         microprofile-config.properties <code>document</code>.
 	 */
 	public CompletableFuture<List<LocationLink>> findDefinition(PropertiesModel document, Position position,
-			MicroProfileProjectInfo projectInfo, MicroProfilePropertyDefinitionProvider provider,
-			CancelChecker cancelChecker) {
+			MicroProfileProjectInfo projectInfo, IPropertiesModelProvider propertiesModelProvider,
+			MicroProfilePropertyDefinitionProvider provider, CancelChecker cancelChecker) {
 
 		try {
 			int offset = document.offsetAt(position);
@@ -82,8 +85,8 @@ public class PropertiesFileDefinition {
 				PropertyValueExpression propertyValueExpression = (PropertyValueExpression) node;
 				inDefautlValue = propertyValueExpression.isInDefaultValue(offset);
 				if (!inDefautlValue) {
-					return CompletableFuture
-							.completedFuture(findPropertyValueExpressionDefinition(document, propertyValueExpression));
+					return CompletableFuture.completedFuture(findPropertyValueExpressionDefinition(document,
+							propertyValueExpression, projectInfo.getConfigSources(), propertiesModelProvider));
 				}
 			}
 
@@ -135,16 +138,34 @@ public class PropertiesFileDefinition {
 	 *                                PropertyValueExpression
 	 * @param propertyValueExpression the PropertyValueExpression whose definition
 	 *                                is to be found
+	 * @param configSources
+	 * @param propertiesModelProvider
 	 * @return a list of LocationLinks to the lines where the property referenced by
 	 *         the property expression is assigned a value
 	 */
 	private static List<LocationLink> findPropertyValueExpressionDefinition(PropertiesModel document,
-			PropertyValueExpression propertyValueExpression) {
+			PropertyValueExpression propertyValueExpression, Set<ConfigSourceInfo> configSources,
+			IPropertiesModelProvider propertiesModelProvider) {
 
 		String propToResolveName = propertyValueExpression.getReferencedPropertyName();
+		List<LocationLink> locationLinks = new ArrayList<>();
 
+		fillPropertyDefinition(document, propertyValueExpression, propToResolveName, locationLinks);
+		if (configSources != null) {
+			for (ConfigSourceInfo configSource : configSources) {
+				PropertiesModel document2 = propertiesModelProvider.getPropertiesModel(configSource.getUri());
+				if (document2 != null && document2 != document) {
+					fillPropertyDefinition(document2, propertyValueExpression, propToResolveName, locationLinks);
+				}
+			}
+		}
+
+		return locationLinks;
+	}
+
+	public static void fillPropertyDefinition(PropertiesModel document, PropertyValueExpression propertyValueExpression,
+			String propToResolveName, List<LocationLink> locationLinks) {
 		List<Property> props = new ArrayList<>();
-
 		for (Node modelChild : document.getChildren()) {
 			if (modelChild.getNodeType() == NodeType.PROPERTY) {
 				Property property = (Property) modelChild;
@@ -156,10 +177,8 @@ public class PropertiesFileDefinition {
 		}
 
 		if (!props.isEmpty()) {
-			return getPropertyDefinition(document, propertyValueExpression, props);
+			fillPropertyDefinition(document, propertyValueExpression, props, locationLinks);
 		}
-
-		return Collections.emptyList();
 	}
 
 	private static CompletableFuture<List<LocationLink>> getEmptyDefinition() {
@@ -181,34 +200,34 @@ public class PropertiesFileDefinition {
 		String sourceField = null;
 
 		switch (node.getNodeType()) {
-			case PROPERTY_KEY: {
-				sourceType = item.getSourceType();
-				sourceField = item.getSourceField();
-				break;
-			}
-			case PROPERTY_VALUE_EXPRESSION:
-			case PROPERTY_VALUE_LITERAL:
-			case PROPERTY_VALUE: {
-				sourceType = item.getHintType();
-				sourceField = getSourceField(node, inDefautlValue);
-				// for the case of property which uses kebab_case, we must get the real value of
-				// the Java enumeration
-				// Ex: for quarkus.datasource.transaction-isolation-level = read-uncommitted
-				// the real value of Java enumeration 'read-uncommitted' is 'READ_UNCOMMITTED'
-				ItemHint itemHint = projectInfo.getHint(sourceType);
-				if (itemHint != null) {
-					ValueHint realValue = itemHint.getValue(sourceField, item.getConverterKinds());
-					if (realValue != null) {
-						sourceField = realValue.getValue();
-						if (realValue.getSourceType() != null) {
-							sourceType = realValue.getSourceType();
-						}
+		case PROPERTY_KEY: {
+			sourceType = item.getSourceType();
+			sourceField = item.getSourceField();
+			break;
+		}
+		case PROPERTY_VALUE_EXPRESSION:
+		case PROPERTY_VALUE_LITERAL:
+		case PROPERTY_VALUE: {
+			sourceType = item.getHintType();
+			sourceField = getSourceField(node, inDefautlValue);
+			// for the case of property which uses kebab_case, we must get the real value of
+			// the Java enumeration
+			// Ex: for quarkus.datasource.transaction-isolation-level = read-uncommitted
+			// the real value of Java enumeration 'read-uncommitted' is 'READ_UNCOMMITTED'
+			ItemHint itemHint = projectInfo.getHint(sourceType);
+			if (itemHint != null) {
+				ValueHint realValue = itemHint.getValue(sourceField, item.getConverterKinds());
+				if (realValue != null) {
+					sourceField = realValue.getValue();
+					if (realValue.getSourceType() != null) {
+						sourceType = realValue.getSourceType();
 					}
 				}
-				break;
 			}
-			default:
-				return null;
+			break;
+		}
+		default:
+			return null;
 		}
 
 		// Find definition (class, field of class, method of class, enum) only when
@@ -235,10 +254,9 @@ public class PropertiesFileDefinition {
 		return propertyValue.getValue();
 	}
 
-	private static List<LocationLink> getPropertyDefinition(PropertiesModel document,
-			PropertyValueExpression propertyValueExpression, List<Property> referencedProperties) {
-
-		List<LocationLink> locationLinks = new ArrayList<>();
+	private static void fillPropertyDefinition(PropertiesModel document,
+			PropertyValueExpression propertyValueExpression, List<Property> referencedProperties,
+			List<LocationLink> locationLinks) {
 		for (Property referencedProperty : referencedProperties) {
 			Node key = referencedProperty.getKey();
 			Range referencedPropertyRange = PositionUtils.createRange(key);
@@ -246,7 +264,6 @@ public class PropertiesFileDefinition {
 			locationLinks.add(new LocationLink(document.getDocumentURI(), referencedPropertyRange,
 					referencedPropertyRange, propertyReferenceRange));
 		}
-		return locationLinks;
 	}
 
 	private static PropertyKey getPropertyKey(Node node) {
@@ -254,14 +271,14 @@ public class PropertiesFileDefinition {
 			return null;
 		}
 		switch (node.getNodeType()) {
-			case PROPERTY_KEY:
-				return (PropertyKey) node;
-			case PROPERTY_VALUE:
-			case PROPERTY_VALUE_EXPRESSION:
-			case PROPERTY_VALUE_LITERAL:
-				return ((BasePropertyValue) node).getProperty().getKey();
-			default:
-				return null;
+		case PROPERTY_KEY:
+			return (PropertyKey) node;
+		case PROPERTY_VALUE:
+		case PROPERTY_VALUE_EXPRESSION:
+		case PROPERTY_VALUE_LITERAL:
+			return ((BasePropertyValue) node).getProperty().getKey();
+		default:
+			return null;
 		}
 	}
 }

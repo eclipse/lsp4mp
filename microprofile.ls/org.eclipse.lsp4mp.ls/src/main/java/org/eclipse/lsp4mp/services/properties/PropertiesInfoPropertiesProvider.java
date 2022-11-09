@@ -13,17 +13,25 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.services.properties;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
+import org.eclipse.lsp4mp.commons.ConfigSourceInfo;
+import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
+import org.eclipse.lsp4mp.commons.utils.ConfigSourcePropertiesProviderUtils;
 import org.eclipse.lsp4mp.commons.utils.IConfigSourcePropertiesProvider;
+import org.eclipse.lsp4mp.commons.utils.PropertyValueExpander;
 import org.eclipse.lsp4mp.commons.utils.StringUtils;
+import org.eclipse.lsp4mp.model.PropertiesModel;
 
 /**
- * Adapts a list of <code>ItemMetadata</code> to <code>IConfigSourcePropertiesProvider</code>
+ * Adapts a list of <code>ItemMetadata</code> to
+ * <code>IConfigSourcePropertiesProvider</code>
  * 
  * @author datho7561
  */
@@ -38,8 +46,7 @@ class PropertiesInfoPropertiesProvider implements IConfigSourcePropertiesProvide
 	@Override
 	public Set<String> keys() {
 		return properties.stream() //
-				.filter(item -> StringUtils.hasText(item.getDefaultValue()))
-				.map(item -> item.getName()) //
+				.filter(item -> StringUtils.hasText(item.getDefaultValue())).map(item -> item.getName()) //
 				.filter(Objects::nonNull) //
 				.collect(Collectors.toSet());
 	}
@@ -68,6 +75,39 @@ class PropertiesInfoPropertiesProvider implements IConfigSourcePropertiesProvide
 			}
 		}
 		return null;
+	}
+
+	public static String resolveExpression(String propertyName, PropertiesModel document,
+			MicroProfileProjectInfo projectInfo, IPropertiesModelProvider propertiesModelProvider,
+			CancelChecker cancelChecker) {
+		IConfigSourcePropertiesProvider propertiesProvider = createConfigSourcePropertiesProvider(document, projectInfo,
+				propertiesModelProvider, cancelChecker);
+		List<ItemMetadata> metadatas = projectInfo != null && projectInfo.getProperties() != null
+				? projectInfo.getProperties()
+				: Collections.emptyList();
+		propertiesProvider = ConfigSourcePropertiesProviderUtils.layer(propertiesProvider,
+				new PropertiesInfoPropertiesProvider(metadatas));
+		PropertyValueExpander expander = new PropertyValueExpander(propertiesProvider);
+		return expander.getValue(propertyName);
+	}
+
+	public static IConfigSourcePropertiesProvider createConfigSourcePropertiesProvider(PropertiesModel document,
+			MicroProfileProjectInfo projectInfo, IPropertiesModelProvider propertiesModelProvider,
+			CancelChecker cancelChecker) {
+		IConfigSourcePropertiesProvider propertiesProvider = document;
+		Set<ConfigSourceInfo> configSources = projectInfo != null && projectInfo.getConfigSources() != null
+				? projectInfo.getConfigSources()
+				: Collections.emptySet();
+		if (configSources != null) {
+			for (ConfigSourceInfo configSource : configSources) {
+				PropertiesModel model = propertiesModelProvider.getPropertiesModel(configSource.getUri());
+				if (model != null && !model.equals(document)) {
+					cancelChecker.checkCanceled();
+					propertiesProvider = ConfigSourcePropertiesProviderUtils.layer(propertiesProvider, model);
+				}
+			}
+		}
+		return propertiesProvider;
 	}
 
 }

@@ -84,11 +84,11 @@ public class PropertiesFileLanguageService {
 	 * @return completion list for the given position
 	 */
 	public CompletionList doComplete(PropertiesModel document, Position position, MicroProfileProjectInfo projectInfo,
-			MicroProfileCompletionCapabilities completionCapabilities,
+			IPropertiesModelProvider propertiesModelProvider, MicroProfileCompletionCapabilities completionCapabilities,
 			MicroProfileFormattingSettings formattingSettings, CancelChecker cancelChecker) {
 		updateProperties(projectInfo, document);
-		return completions.doComplete(document, position, projectInfo, completionCapabilities, formattingSettings,
-				cancelChecker);
+		return completions.doComplete(document, position, projectInfo, propertiesModelProvider, completionCapabilities,
+				formattingSettings, cancelChecker);
 	}
 
 	/**
@@ -101,9 +101,10 @@ public class PropertiesFileLanguageService {
 	 * @return Hover object for the currently hovered token
 	 */
 	public Hover doHover(PropertiesModel document, Position position, MicroProfileProjectInfo projectInfo,
-			MicroProfileHoverSettings hoverSettings, CancelChecker cancelChecker) {
+			IPropertiesModelProvider propertiesModelProvider, MicroProfileHoverSettings hoverSettings,
+			CancelChecker cancelChecker) {
 		updateProperties(projectInfo, document);
-		return hover.doHover(document, position, projectInfo, hoverSettings, cancelChecker);
+		return hover.doHover(document, position, projectInfo, propertiesModelProvider, hoverSettings, cancelChecker);
 	}
 
 	/**
@@ -146,11 +147,11 @@ public class PropertiesFileLanguageService {
 	 */
 	public CompletableFuture<Either<List<? extends Location>, List<? extends LocationLink>>> findDefinition(
 			PropertiesModel document, Position position, MicroProfileProjectInfo projectInfo,
-			MicroProfilePropertyDefinitionProvider provider, boolean definitionLinkSupport,
-			CancelChecker cancelChecker) {
+			IPropertiesModelProvider propertiesModelProvider, MicroProfilePropertyDefinitionProvider provider,
+			boolean definitionLinkSupport, CancelChecker cancelChecker) {
 		updateProperties(projectInfo, document);
 		CompletableFuture<List<LocationLink>> definitionLocationLinks = definition.findDefinition(document, position,
-				projectInfo, provider, cancelChecker);
+				projectInfo, propertiesModelProvider, provider, cancelChecker);
 		if (definitionLinkSupport) {
 			return definitionLocationLinks.thenApply((List<LocationLink> resolvedLinks) -> {
 				return Either.forRight(resolvedLinks);
@@ -203,9 +204,11 @@ public class PropertiesFileLanguageService {
 	 * @return the result of the validation.
 	 */
 	public List<Diagnostic> doDiagnostics(PropertiesModel document, MicroProfileProjectInfo projectInfo,
-			MicroProfileValidationSettings validationSettings, CancelChecker cancelChecker) {
+			IPropertiesModelProvider propertiesModelProvider, MicroProfileValidationSettings validationSettings,
+			CancelChecker cancelChecker) {
 		updateProperties(projectInfo, document);
-		return diagnostics.doDiagnostics(document, projectInfo, validationSettings, cancelChecker);
+		return diagnostics.doDiagnostics(document, projectInfo, propertiesModelProvider, validationSettings,
+				cancelChecker);
 	}
 
 	/**
@@ -252,9 +255,9 @@ public class PropertiesFileLanguageService {
 		}
 	}
 
-	public List<InlayHint> getInlayHint(PropertiesModel document, MicroProfileProjectInfo projectInfo, Range range,
-			CancelChecker cancelChecker) {
-		return inlayHint.getInlayHint(document, projectInfo, range, cancelChecker);
+	public List<InlayHint> getInlayHint(PropertiesModel document, MicroProfileProjectInfo projectInfo,
+			IPropertiesModelProvider propertiesModelProvider, Range range, CancelChecker cancelChecker) {
+		return inlayHint.getInlayHint(document, projectInfo, propertiesModelProvider, range, cancelChecker);
 	}
 
 }

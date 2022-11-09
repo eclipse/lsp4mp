@@ -13,12 +13,12 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.services.properties;
 
+import static org.eclipse.lsp4mp.services.properties.PropertiesInfoPropertiesProvider.createConfigSourcePropertiesProvider;
+
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -40,7 +40,7 @@ import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.metadata.ConverterKind;
 import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
 import org.eclipse.lsp4mp.commons.metadata.ValueHint;
-import org.eclipse.lsp4mp.commons.utils.ConfigSourcePropertiesProviderUtils;
+import org.eclipse.lsp4mp.commons.utils.IConfigSourcePropertiesProvider;
 import org.eclipse.lsp4mp.commons.utils.PropertyValueExpander;
 import org.eclipse.lsp4mp.commons.utils.StringUtils;
 import org.eclipse.lsp4mp.ls.commons.BadLocationException;
@@ -77,15 +77,16 @@ class PropertiesFileCompletions {
 	/**
 	 * Returns completion list for the given position
 	 *
-	 * @param document               the properties model document
-	 * @param position               the position where completion was triggered
-	 * @param projectInfo            the MicroProfile project information
-	 * @param completionCapabilities the completion capabilities
-	 * @param cancelChecker          the cancel checker
+	 * @param document                the properties model document
+	 * @param position                the position where completion was triggered
+	 * @param projectInfo             the MicroProfile project information
+	 * @param propertiesModelProvider
+	 * @param completionCapabilities  the completion capabilities
+	 * @param cancelChecker           the cancel checker
 	 * @return completion list for the given position
 	 */
 	public CompletionList doComplete(PropertiesModel document, Position position, MicroProfileProjectInfo projectInfo,
-			MicroProfileCompletionCapabilities completionCapabilities,
+			IPropertiesModelProvider propertiesModelProvider, MicroProfileCompletionCapabilities completionCapabilities,
 			MicroProfileFormattingSettings formattingSettings, CancelChecker cancelChecker) {
 		CompletionList list = new CompletionList();
 		int offset = -1;
@@ -117,8 +118,8 @@ class PropertiesFileCompletions {
 						list);
 			} else {
 				// other.test.property = ${|}
-				collectPropertyValueExpressionSuggestions(propExpr, document, projectInfo, completionCapabilities,
-						list, cancelChecker);
+				collectPropertyValueExpressionSuggestions(propExpr, document, projectInfo, propertiesModelProvider,
+						completionCapabilities, list, cancelChecker);
 			}
 			break;
 
@@ -454,10 +455,13 @@ class PropertiesFileCompletions {
 	}
 
 	private static void collectPropertyValueExpressionSuggestions(PropertyValueExpression node, PropertiesModel model,
-			MicroProfileProjectInfo projectInfo, MicroProfileCompletionCapabilities completionCapabilities,
-			CompletionList list, CancelChecker cancelChecker) {
+			MicroProfileProjectInfo projectInfo, IPropertiesModelProvider propertiesModelProvider,
+			MicroProfileCompletionCapabilities completionCapabilities, CompletionList list,
+			CancelChecker cancelChecker) {
 
-		PropertyValueExpander expander = new PropertyValueExpander(model);
+		IConfigSourcePropertiesProvider properties = createConfigSourcePropertiesProvider(model, projectInfo,
+				propertiesModelProvider, cancelChecker);
+		PropertyValueExpander expander = new PropertyValueExpander(properties);
 		cancelChecker.checkCanceled();
 
 		// Find properties that won't make a circular dependency and suggest them for

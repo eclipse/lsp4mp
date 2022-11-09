@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -51,11 +52,14 @@ import org.eclipse.jdt.internal.core.search.JavaSearchScope;
 import org.eclipse.jdt.internal.corext.util.JavaModelUtil;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4mp.commons.ClasspathKind;
+import org.eclipse.lsp4mp.commons.ConfigSourceInfo;
 import org.eclipse.lsp4mp.commons.DocumentFormat;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfoParams;
 import org.eclipse.lsp4mp.commons.MicroProfilePropertiesScope;
 import org.eclipse.lsp4mp.commons.MicroProfilePropertyDefinitionParams;
+import org.eclipse.lsp4mp.jdt.core.project.JDTMicroProfileProject;
+import org.eclipse.lsp4mp.jdt.core.project.JDTMicroProfileProjectManager;
 import org.eclipse.lsp4mp.jdt.core.utils.IJDTUtils;
 import org.eclipse.lsp4mp.jdt.core.utils.JDTMicroProfileUtils;
 import org.eclipse.lsp4mp.jdt.internal.core.FakeJavaProject;
@@ -116,6 +120,9 @@ public class PropertiesManager {
 			List<MicroProfilePropertiesScope> scopes, ClasspathKind classpathKind, IJDTUtils utils,
 			DocumentFormat documentFormat, IProgressMonitor monitor) throws JavaModelException, CoreException {
 		MicroProfileProjectInfo info = createInfo(javaProject.getProject(), classpathKind);
+		Set<ConfigSourceInfo> configSources = getConfigSourceInfos(javaProject);
+		info.setConfigSources(configSources);
+
 		if (classpathKind == ClasspathKind.NONE) {
 			info.setProperties(Collections.emptyList());
 			return info;
@@ -154,6 +161,16 @@ public class PropertiesManager {
 			mainMonitor.done();
 		}
 		return info;
+	}
+
+	private static Set<ConfigSourceInfo> getConfigSourceInfos(IJavaProject javaProject) throws JavaModelException {
+		JDTMicroProfileProject mpProject = JDTMicroProfileProjectManager.getInstance()
+				.getJDTMicroProfileProject(javaProject);
+		return mpProject.getConfigSources() //
+				.stream() //
+				.map(configSource -> new ConfigSourceInfo(configSource.getSourceConfigFileURI(),
+						configSource.getOrdinal(), configSource.getProfile())) //
+				.collect(Collectors.toSet());
 	}
 
 	/**

@@ -11,7 +11,7 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lsp4mp.ls.properties;
+package org.eclipse.lsp4mp.services.properties;
 
 import org.eclipse.lsp4mp.model.PropertiesModel;
 

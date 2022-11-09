@@ -76,6 +76,7 @@ public class ExtendedMicroProfileProjectInfo extends MicroProfileProjectInfo {
 
 	public ExtendedMicroProfileProjectInfo(MicroProfileProjectInfo delegate) {
 		super.setProjectURI(delegate.getProjectURI());
+		super.setConfigSources(delegate.getConfigSources());
 		// Update hints
 		super.setHints(
 				new CopyOnWriteArrayList<>(delegate.getHints() != null ? delegate.getHints() : new ArrayList<>()));
