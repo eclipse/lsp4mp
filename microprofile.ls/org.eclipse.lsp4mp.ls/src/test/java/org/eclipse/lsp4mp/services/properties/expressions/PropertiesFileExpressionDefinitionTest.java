@@ -13,9 +13,12 @@ import static org.eclipse.lsp4mp.services.properties.PropertiesFileAssert.ll;
 import static org.eclipse.lsp4mp.services.properties.PropertiesFileAssert.r;
 import static org.eclipse.lsp4mp.services.properties.PropertiesFileAssert.testDefinitionFor;
 
+import java.util.Collections;
 import java.util.concurrent.ExecutionException;
 
+import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.ls.commons.BadLocationException;
+import org.eclipse.lsp4mp.services.properties.PropertiesFileAssert;
 import org.junit.Test;
 
 /**
@@ -71,6 +74,19 @@ public class PropertiesFileExpressionDefinitionTest {
 		String value = "test.property = value\n" + //
 				"other.property = ${test.prop|erty}";
 		testDefinitionFor(value, PROPERTY_DOCUMENT_NAME, ll(PROPERTY_DOCUMENT_NAME, r(1, 19, 32), r(0, 0, 13)));
+
+		// test with project which have none properties
+		MicroProfileProjectInfo projectInfo = new MicroProfileProjectInfo();
+		projectInfo.setProperties(Collections.emptyList());
+		testDefinitionFor(value, PROPERTY_DOCUMENT_NAME, projectInfo, //
+				PropertiesFileAssert.getDefaultMicroProfilePropertyDefinitionProvider(), //
+				ll(PROPERTY_DOCUMENT_NAME, r(1, 19, 32), r(0, 0, 13)));
+
+		// test with project null
+		testDefinitionFor(value, PROPERTY_DOCUMENT_NAME, null, //
+				PropertiesFileAssert.getDefaultMicroProfilePropertyDefinitionProvider(), //
+				ll(PROPERTY_DOCUMENT_NAME, r(1, 19, 32), r(0, 0, 13)));
+
 	}
 
 	@Test

@@ -193,9 +193,6 @@ public class PropertiesFileTextDocumentService extends AbstractTextDocumentServi
 		return getPropertiesModelCompose(params.getTextDocument(), (document, cancelChecker) -> {
 			MicroProfileProjectInfoParams projectInfoParams = createProjectInfoParams(params.getTextDocument());
 			MicroProfileProjectInfo projectInfo = getProjectInfoCache().getProjectInfo(projectInfoParams).getNow(null);
-			if (projectInfo == null || projectInfo.getProperties().isEmpty()) {
-				return null;
-			}
 			return getPropertiesFileLanguageService().findDefinition(document, params.getPosition(), projectInfo,
 					microprofileLanguageServer.getLanguageClient(), isDefinitionLinkSupport(), cancelChecker);
 		});
@@ -271,9 +268,6 @@ public class PropertiesFileTextDocumentService extends AbstractTextDocumentServi
 
 	private List<InlayHint> inlayHint(InlayHintParams params, PropertiesModel document,
 			MicroProfileProjectInfo projectInfo, CancelChecker cancelChecker) {
-		if (projectInfo == null || projectInfo.getProperties().isEmpty()) {
-			return null;
-		}
 		return getPropertiesFileLanguageService().getInlayHint(document, projectInfo, params.getRange(), cancelChecker);
 	}
 
