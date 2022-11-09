@@ -730,10 +730,15 @@ public class PropertiesFileAssert {
 
 	public static void testInlayHintFor(String value, MicroProfileInlayHintSettings inlayHintSettings,
 			InlayHint... expected) throws Exception {
+		testInlayHintFor(value, inlayHintSettings, getDefaultMicroProfileProjectInfo(), expected);
+	}
+
+	public static void testInlayHintFor(String value, MicroProfileInlayHintSettings inlayHintSettings,
+			MicroProfileProjectInfo projectInfo, InlayHint... expected) throws Exception {
 		PropertiesModel model = parse(value, null);
 		Range range = null;
 		PropertiesFileLanguageService languageService = new PropertiesFileLanguageService();
-		List<InlayHint> actual = languageService.getInlayHint(model, getDefaultMicroProfileProjectInfo(), range, () -> {
+		List<InlayHint> actual = languageService.getInlayHint(model, projectInfo, range, () -> {
 		});
 		assertInlayHint(actual, expected);
 	}

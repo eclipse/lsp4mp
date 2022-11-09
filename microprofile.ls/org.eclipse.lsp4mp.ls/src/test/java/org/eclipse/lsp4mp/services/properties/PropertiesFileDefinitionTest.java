@@ -26,8 +26,6 @@ import org.junit.Test;
  */
 public class PropertiesFileDefinitionTest {
 
-	private static final String PROPERTY_DOCUMENT_NAME = "/microprofile.properties";
-
 	@Test
 	public void definitionOnComments() throws BadLocationException, InterruptedException, ExecutionException {
 		String value = "#|";
