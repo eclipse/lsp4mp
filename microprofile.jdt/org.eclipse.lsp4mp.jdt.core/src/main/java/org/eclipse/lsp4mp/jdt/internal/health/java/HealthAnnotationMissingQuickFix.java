@@ -13,7 +13,14 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.internal.health.java;
 
+import java.util.List;
+
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4mp.jdt.core.java.codeaction.InsertAnnotationMissingQuickFix;
+import org.eclipse.lsp4mp.jdt.core.java.codeaction.JavaCodeActionContext;
+import org.eclipse.lsp4mp.jdt.core.utils.JDTTypeUtils;
 import org.eclipse.lsp4mp.jdt.internal.health.MicroProfileHealthConstants;
 
 /**
@@ -40,5 +47,26 @@ public class HealthAnnotationMissingQuickFix extends InsertAnnotationMissingQuic
 	@Override
 	public String getParticipantId() {
 		return HealthAnnotationMissingQuickFix.class.getName();
+	}
+
+	@Override
+	protected void insertAnnotations(Diagnostic diagnostic, JavaCodeActionContext context, List<CodeAction> codeActions)
+			throws CoreException {
+		boolean generateOnlyOneCodeAction = isGenerateOnlyOneCodeAction();
+		String[] annotations = getAnnotations();
+		if (generateOnlyOneCodeAction) {
+			for (String annotation : annotations) {
+				if (JDTTypeUtils.findType(context.getJavaProject(), annotation) == null) {
+					return;
+				}
+			}
+			insertAnnotation(diagnostic, context, codeActions, getAnnotations());
+		} else {
+			for (String annotation : annotations) {
+				if (JDTTypeUtils.findType(context.getJavaProject(), annotation) != null) {
+					insertAnnotation(diagnostic, context, codeActions, annotation);
+				}
+			}
+		}
 	}
 }
