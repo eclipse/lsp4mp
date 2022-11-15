@@ -77,6 +77,7 @@ public class BasePropertiesManagerTest {
 		public static String microprofile_configproperties = "microprofile-configproperties";
 		public static String microprofile_fault_tolerance = "microprofile-fault-tolerance";
 		public static String microprofile_health_quickstart = "microprofile-health-quickstart";
+		public static String microprofile_health_3 = "microprofile-health-3";
 		public static String microprofile_lra = "microprofile-lra";
 		public static String microprofile_context_propagation = "microprofile-context-propagation";
 		public static String microprofile_metrics = "microprofile-metrics";

@@ -113,4 +113,36 @@ public class MicroProfileHealthJavaDiagnosticsTest extends BasePropertiesManager
 		);
 	}
 
+	@Test
+	public void healthAnnotationMissingv3() throws Exception {
+		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.microprofile_health_3);
+		IJDTUtils utils = JDT_UTILS;
+
+		MicroProfileJavaDiagnosticsParams diagnosticsParams = new MicroProfileJavaDiagnosticsParams();
+		IFile javaFile = javaProject.getProject()
+				.getFile(new Path("src/main/java/org/acme/MyLivenessCheck.java"));
+		diagnosticsParams.setUris(Arrays.asList(javaFile.getLocation().toFile().toURI().toString()));
+		diagnosticsParams.setDocumentFormat(DocumentFormat.Markdown);
+
+		Diagnostic d = d(5, 13, 28,
+				"The class `org.acme.MyLivenessCheck` implementing the HealthCheck interface should use the @Liveness or @Readiness annotation.",
+				DiagnosticSeverity.Warning, MicroProfileHealthConstants.DIAGNOSTIC_SOURCE,
+				MicroProfileHealthErrorCode.HealthAnnotationMissing);
+		assertJavaDiagnostics(diagnosticsParams, utils, //
+				d);
+
+		String uri = javaFile.getLocation().toFile().toURI().toString();
+		MicroProfileJavaCodeActionParams codeActionParams = createCodeActionParams(uri, d);
+		assertJavaCodeAction(codeActionParams, utils, //
+				ca(uri, "Insert @Liveness", d, //
+						te(3, 59, 5, 0, "\n" + //
+								"import org.eclipse.microprofile.health.Liveness;\n\n" + //
+								"@Liveness\n")), //
+				ca(uri, "Insert @Readiness", d, //
+						te(3, 59, 5, 0, "\n" + //
+								"import org.eclipse.microprofile.health.Readiness;\n\n" + //
+								"@Readiness\n")) //
+		);
+	}
+
 }

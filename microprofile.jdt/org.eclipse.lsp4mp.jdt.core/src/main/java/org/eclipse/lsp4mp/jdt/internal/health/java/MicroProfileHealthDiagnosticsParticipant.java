@@ -14,6 +14,7 @@
 package org.eclipse.lsp4mp.jdt.internal.health.java;
 
 import static org.eclipse.lsp4mp.jdt.internal.health.MicroProfileHealthConstants.HEALTH_ANNOTATION;
+import static org.eclipse.lsp4mp.jdt.internal.health.MicroProfileHealthConstants.HEALTH_CHECK_INTERFACE;
 import static org.eclipse.lsp4mp.jdt.internal.health.MicroProfileHealthConstants.HEALTH_CHECK_INTERFACE_NAME;
 import static org.eclipse.lsp4mp.jdt.internal.health.MicroProfileHealthConstants.LIVENESS_ANNOTATION;
 import static org.eclipse.lsp4mp.jdt.internal.health.MicroProfileHealthConstants.READINESS_ANNOTATION;
@@ -72,7 +73,7 @@ public class MicroProfileHealthDiagnosticsParticipant implements IJavaDiagnostic
 		// Collection of diagnostics for MicroProfile Health is done only if
 		// microprofile-health is on the classpath
 		IJavaProject javaProject = context.getJavaProject();
-		return JDTTypeUtils.findType(javaProject, HEALTH_ANNOTATION) != null;
+		return JDTTypeUtils.findType(javaProject, HEALTH_CHECK_INTERFACE) != null;
 	}
 
 	@Override
@@ -143,8 +144,18 @@ public class MicroProfileHealthDiagnosticsParticipant implements IJavaDiagnostic
 		if (DocumentFormat.Markdown.equals(documentFormat)) {
 			message.append("`");
 		}
-		message.append(
-				" using the @Liveness, @Readiness, or @Health annotation should implement the HealthCheck interface.");
+		message.append(" using the @Liveness");
+		boolean hasHealth = JDTTypeUtils.findType(classType.getJavaProject(), HEALTH_ANNOTATION) != null;
+		if (!hasHealth) {
+			message.append(" or ");
+		} else {
+			message.append(", ");
+		}
+		message.append("@Readiness");
+		if (hasHealth) {
+			message.append(", or @Health");
+		}
+		message.append(" annotation should implement the HealthCheck interface.");
 		return message.toString();
 	}
 
@@ -158,7 +169,18 @@ public class MicroProfileHealthDiagnosticsParticipant implements IJavaDiagnostic
 			message.append("`");
 		}
 		message.append(
-				" implementing the HealthCheck interface should use the @Liveness, @Readiness, or @Health annotation.");
+				" implementing the HealthCheck interface should use the @Liveness");
+		boolean hasHealth = JDTTypeUtils.findType(classType.getJavaProject(), HEALTH_ANNOTATION) != null;
+		if (!hasHealth) {
+			message.append(" or ");
+		} else {
+			message.append(", ");
+		}
+		message.append("@Readiness");
+		if (hasHealth) {
+			message.append(", or @Health");
+		}
+		message.append(" annotation.");
 		return message.toString();
 	}
 
