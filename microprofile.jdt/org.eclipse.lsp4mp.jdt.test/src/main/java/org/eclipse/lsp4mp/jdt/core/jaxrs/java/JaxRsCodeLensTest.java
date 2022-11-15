@@ -21,6 +21,8 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.lsp4j.CodeLens;
+import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeLensParams;
 import org.eclipse.lsp4mp.jdt.core.BasePropertiesManagerTest;
 import org.eclipse.lsp4mp.jdt.core.PropertiesManagerForJava;
@@ -101,11 +103,22 @@ public class JaxRsCodeLensTest extends BasePropertiesManagerTest {
 		Assert.assertEquals("http://localhost:" + port + "/fruits/{id}", lensForPut.getCommand().getTitle());
 
 		//@DELETE
-		//@Path("{id}")
-		//public Response delete(@PathParam Integer id) {
+		//@Transactional
+		//@Path(
+		//"{id}"
+		//)
+		//--> code lens should appear here
+		//public
+		//Response
+		//delete(@PathParam Integer id) {
 		CodeLens lensForDelete = lenses.get(4);
 		Assert.assertNotNull(lensForDelete.getCommand());
 		Assert.assertEquals("http://localhost:" + port + "/fruits/{id}", lensForDelete.getCommand().getTitle());
+		Assert.assertEquals(r(81, 9, 81, 9), lensForDelete.getRange());
+	}
+	
+	public static Range r(int startLine, int startCharacter, int endLine, int endCharacter) {
+		return new Range(new Position(startLine, startCharacter), new Position(endLine, endCharacter));
 	}
 
 }
