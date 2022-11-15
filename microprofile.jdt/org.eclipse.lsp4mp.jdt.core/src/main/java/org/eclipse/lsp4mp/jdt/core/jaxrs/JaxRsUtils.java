@@ -36,6 +36,7 @@ import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.Command;
+import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4mp.jdt.core.utils.IJDTUtils;
 
@@ -133,12 +134,18 @@ public class JaxRsUtils {
 	}
 
 	private static CodeLens createURLCodeLens(IMethod method, IJDTUtils utils) throws JavaModelException {
-		ISourceRange r = method.getNameRange();
-		if (r == null) {
+		IAnnotation[] annotations = method.getAnnotations();
+		if (annotations == null) {
 			return null;
 		}
+		ISourceRange r = annotations[annotations.length - 1].getSourceRange();
+
 		CodeLens lens = new CodeLens();
-		final Range range = utils.toRange(method.getOpenable(), r.getOffset(), r.getLength());
+		Range range = utils.toRange(method.getOpenable(), r.getOffset(), r.getLength());
+		// Increment line number for code lens to appear on the line right after the last annotation
+		Position codeLensPosition = new Position(range.getEnd().getLine() + 1, range.getEnd().getCharacter());
+		range.setStart(codeLensPosition);
+		range.setEnd(codeLensPosition);
 		lens.setRange(range);
 		return lens;
 	}
