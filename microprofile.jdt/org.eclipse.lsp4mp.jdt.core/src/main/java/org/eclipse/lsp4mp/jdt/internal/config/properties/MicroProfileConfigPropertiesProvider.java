@@ -33,8 +33,10 @@ import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.lsp4mp.commons.DocumentFormat;
 import org.eclipse.lsp4mp.jdt.core.IPropertiesCollector;
 import org.eclipse.lsp4mp.jdt.core.SearchContext;
+import org.eclipse.lsp4mp.jdt.core.utils.IJDTUtils;
 
 /**
  * Properties provider to collect MicroProfile properties from the Java fields
@@ -102,7 +104,7 @@ public class MicroProfileConfigPropertiesProvider extends MicroProfileConfigProp
 	private void generatePropertiesFromClassType(IType classType, IAnnotation configPropertiesAnnotation,
 			SearchContext context, IProgressMonitor monitor) throws JavaModelException {
 		String prefix = getPrefixFromAnnotation(configPropertiesAnnotation);
-		populateConfigObject(classType, prefix, new HashSet<>(), context.getCollector(), monitor);
+		populateConfigObject(classType, prefix, new HashSet<>(), context.getCollector(), context.getUtils(), context.getDocumentFormat(), monitor);
 	}
 
 	/**
@@ -143,7 +145,7 @@ public class MicroProfileConfigPropertiesProvider extends MicroProfileConfigProp
 			// in generatePropertiesFromClassType step
 			return;
 		}
-		populateConfigObject(fieldType, prefix, new HashSet<>(), context.getCollector(), monitor);
+		populateConfigObject(fieldType, prefix, new HashSet<>(), context.getCollector(), context.getUtils(), context.getDocumentFormat(), monitor);
 
 	}
 
@@ -153,7 +155,7 @@ public class MicroProfileConfigPropertiesProvider extends MicroProfileConfigProp
 	}
 
 	private void populateConfigObject(IType configPropertiesType, String prefix, Set<IType> typesAlreadyProcessed,
-			IPropertiesCollector collector, IProgressMonitor monitor) throws JavaModelException {
+			IPropertiesCollector collector, IJDTUtils utils, DocumentFormat documentFormat, IProgressMonitor monitor) throws JavaModelException {
 		if (typesAlreadyProcessed.contains(configPropertiesType)) {
 			return;
 		}
@@ -168,13 +170,13 @@ public class MicroProfileConfigPropertiesProvider extends MicroProfileConfigProp
 					// Java simple type (int, String, etc...) generate a property.
 					IAnnotation configPropertyAnnotation = getAnnotation((IAnnotatable) child,
 							CONFIG_PROPERTY_ANNOTATION);
-					super.collectProperty(child, configPropertyAnnotation, prefix, true, collector);
+					super.collectProperty(child, configPropertyAnnotation, prefix, true, collector, utils, documentFormat);
 				} else {
 					// Class type, generate properties from this class type.
 					IAnnotation configPropertyAnnotation = getAnnotation((IAnnotatable) child,
 							CONFIG_PROPERTY_ANNOTATION);
 					String propertyName = super.getPropertyName(child, configPropertyAnnotation, prefix, true);
-					populateConfigObject(fieldClass, propertyName, typesAlreadyProcessed, collector, monitor);
+					populateConfigObject(fieldClass, propertyName, typesAlreadyProcessed, collector, utils, documentFormat, monitor);
 				}
 			}
 		}
