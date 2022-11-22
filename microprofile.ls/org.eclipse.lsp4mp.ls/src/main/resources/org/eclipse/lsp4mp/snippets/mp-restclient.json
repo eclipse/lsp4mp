@@ -29,7 +29,7 @@
   },
   "MicroProfile - inject rest client": {
     "prefix": "mpirc",
-    "body": ["@Inject", "@RestClient", "${1:Client} {2:client};"],
+    "body": ["@Inject", "@RestClient", "${1:Client} ${2:client};"],
     "description": "MicroProfile - inject rest client",
     "context": {
       "type": "org.eclipse.microprofile.rest.client.inject.RegisterRestClient"
