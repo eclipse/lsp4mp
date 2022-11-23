@@ -34,16 +34,12 @@ import org.eclipse.jdt.core.IAnnotation;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.ILocalVariable;
-import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.lsp4mp.commons.DocumentFormat;
 import org.eclipse.lsp4mp.jdt.core.AbstractAnnotationTypeReferencePropertiesProvider;
 import org.eclipse.lsp4mp.jdt.core.IPropertiesCollector;
 import org.eclipse.lsp4mp.jdt.core.SearchContext;
-import org.eclipse.lsp4mp.jdt.core.utils.IJDTUtils;
-import org.eclipse.lsp4mp.jdt.internal.core.ls.JDTUtilsLSImpl;
 
 /**
  * Properties provider to collect MicroProfile properties from the Java fields
@@ -71,20 +67,20 @@ public class MicroProfileConfigPropertyProvider extends AbstractAnnotationTypeRe
 			IType classType = (IType) javaElement.getAncestor(IJavaElement.TYPE);
 			boolean hasConfigPropertiesAnnotation = hasAnnotation(classType, CONFIG_PROPERTIES_ANNOTATION);
 			if (!hasConfigPropertiesAnnotation) {
-				collectProperty(javaElement, configPropertyAnnotation, null, false, context.getCollector(), context.getUtils(), context.getDocumentFormat());
+				collectProperty(javaElement, configPropertyAnnotation, null, false, context.getCollector());
 			}
 		}
 	}
 
 	protected void collectProperty(IJavaElement javaElement, IAnnotation configPropertyAnnotation, String prefix,
-			boolean useFieldNameIfAnnotationIsNotPresent, IPropertiesCollector collector, IJDTUtils utils, DocumentFormat documentFormat) throws JavaModelException {
+			boolean useFieldNameIfAnnotationIsNotPresent, IPropertiesCollector collector) throws JavaModelException {
 		String propertyName = getPropertyName(javaElement, configPropertyAnnotation, prefix,
 				useFieldNameIfAnnotationIsNotPresent);
 		if (propertyName != null && !propertyName.isEmpty()) {
 			String defaultValue = configPropertyAnnotation != null
 					? getAnnotationMemberValue(configPropertyAnnotation, CONFIG_PROPERTY_ANNOTATION_DEFAULT_VALUE)
 					: null;
-			collectProperty(javaElement, propertyName, defaultValue, collector, utils, documentFormat);
+			collectProperty(javaElement, propertyName, defaultValue, collector);
 		}
 	}
 
@@ -104,7 +100,7 @@ public class MicroProfileConfigPropertyProvider extends AbstractAnnotationTypeRe
 	}
 
 	private void collectProperty(IJavaElement javaElement, String name, String defaultValue,
-			IPropertiesCollector collector, IJDTUtils utils, DocumentFormat documentFormat) throws JavaModelException {
+			IPropertiesCollector collector) throws JavaModelException {
 		IJavaProject javaProject = javaElement.getJavaProject();
 		String varTypeName = getResolvedTypeName(javaElement);
 		IType varType = findType(javaProject, varTypeName);
@@ -115,10 +111,6 @@ public class MicroProfileConfigPropertyProvider extends AbstractAnnotationTypeRe
 		String sourceMethod = null;
 
 		String extensionName = null;
-
-		if (javaElement instanceof IMember) {
-			description = utils.getJavadoc((IMember) javaElement, documentFormat);
-		}
 
 		if (javaElement.getElementType() == IJavaElement.FIELD) {
 			sourceField = getSourceField(javaElement);
