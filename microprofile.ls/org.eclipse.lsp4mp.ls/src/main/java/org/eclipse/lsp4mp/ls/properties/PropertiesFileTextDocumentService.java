@@ -146,7 +146,7 @@ public class PropertiesFileTextDocumentService extends AbstractTextDocumentServi
 
 	@Override
 	public CompletableFuture<Hover> hover(HoverParams params) {
-		return getPropertiesModel(params.getTextDocument(), (document, cancelChecker) -> {
+		return getPropertiesModelCompose(params.getTextDocument(), (document, cancelChecker) -> {
 			// Get MicroProfile project information which stores all available MicroProfile
 			// properties
 			// Don't block if it hasn't been computed yet
@@ -160,7 +160,7 @@ public class PropertiesFileTextDocumentService extends AbstractTextDocumentServi
 			// then return hover by using the MicroProfile project information and the
 			// Properties model document
 			return getPropertiesFileLanguageService().doHover(document, params.getPosition(), projectInfo,
-					sharedSettings.getHoverSettings(), cancelChecker);
+					sharedSettings.getHoverSettings(), this.microprofileLanguageServer.getLanguageClient(), cancelChecker);
 		});
 	}
 

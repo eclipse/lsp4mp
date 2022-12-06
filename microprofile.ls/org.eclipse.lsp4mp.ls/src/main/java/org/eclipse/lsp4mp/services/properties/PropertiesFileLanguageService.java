@@ -36,6 +36,7 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.extensions.ExtendedMicroProfileProjectInfo;
 import org.eclipse.lsp4mp.ls.api.MicroProfilePropertyDefinitionProvider;
+import org.eclipse.lsp4mp.ls.api.MicroProfilePropertyDocumentationProvider;
 import org.eclipse.lsp4mp.model.PropertiesModel;
 import org.eclipse.lsp4mp.settings.MicroProfileCommandCapabilities;
 import org.eclipse.lsp4mp.settings.MicroProfileCompletionCapabilities;
@@ -94,16 +95,19 @@ public class PropertiesFileLanguageService {
 	/**
 	 * Returns Hover object for the currently hovered token
 	 *
-	 * @param document      the properties model document
-	 * @param position      the hover position
-	 * @param projectInfo   the MicroProfile project information
-	 * @param hoverSettings the hover settings
+	 * @param document              the properties model document
+	 * @param position              the hover position
+	 * @param projectInfo           the MicroProfile project information
+	 * @param hoverSettings         the hover settings
+	 * @param documentationProvider the documentation provider
+	 * @param cancelChecker         the cancel checker
 	 * @return Hover object for the currently hovered token
 	 */
-	public Hover doHover(PropertiesModel document, Position position, MicroProfileProjectInfo projectInfo,
-			MicroProfileHoverSettings hoverSettings, CancelChecker cancelChecker) {
+	public CompletableFuture<Hover> doHover(PropertiesModel document, Position position, MicroProfileProjectInfo projectInfo,
+			MicroProfileHoverSettings hoverSettings, MicroProfilePropertyDocumentationProvider documentationProvider,
+			CancelChecker cancelChecker) {
 		updateProperties(projectInfo, document);
-		return hover.doHover(document, position, projectInfo, hoverSettings, cancelChecker);
+		return hover.doHover(document, position, projectInfo, hoverSettings, documentationProvider, cancelChecker);
 	}
 
 	/**

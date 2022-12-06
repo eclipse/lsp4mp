@@ -56,6 +56,7 @@ import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfoParams;
 import org.eclipse.lsp4mp.commons.MicroProfilePropertiesScope;
 import org.eclipse.lsp4mp.commons.MicroProfilePropertyDefinitionParams;
+import org.eclipse.lsp4mp.commons.MicroProfilePropertyDocumentationParams;
 import org.eclipse.lsp4mp.jdt.core.utils.IJDTUtils;
 import org.eclipse.lsp4mp.jdt.core.utils.JDTMicroProfileUtils;
 import org.eclipse.lsp4mp.jdt.internal.core.FakeJavaProject;
@@ -451,7 +452,7 @@ public class PropertiesManager {
 				params.getSourceMethod(), utils, progress);
 	}
 
-	public Location findPropertyLocation(IJavaProject javaProject, String sourceType, String sourceField,
+	public IMember findProperty(IJavaProject javaProject, String sourceType, String sourceField,
 			String sourceMethod, IJDTUtils utils, IProgressMonitor progress) throws JavaModelException, CoreException {
 		IMember fieldOrMethod = findDeclaredProperty(javaProject, sourceType, sourceField, sourceMethod, progress);
 		if (fieldOrMethod != null) {
@@ -462,6 +463,15 @@ public class PropertiesManager {
 					utils.discoverSource(classFile, progress);
 				}
 			}
+			return fieldOrMethod;
+		}
+		return null;
+	}
+
+	public Location findPropertyLocation(IJavaProject javaProject, String sourceType, String sourceField,
+			String sourceMethod, IJDTUtils utils, IProgressMonitor progress) throws JavaModelException, CoreException {
+		IMember fieldOrMethod = findProperty(javaProject, sourceType, sourceField, sourceMethod, utils, progress);
+		if (fieldOrMethod != null) {
 			return utils.toLocation(fieldOrMethod);
 		}
 		return null;
@@ -548,6 +558,38 @@ public class PropertiesManager {
 		} finally {
 			mainMonitor.done();
 		}
+	}
+
+	// ---------------------------------- Properties documentation
+
+	/**
+	 * Returns the javadoc for the specified property in the specified format.
+	 *
+	 * @param params   the parameters used to locate the javadoc and specify the
+	 *                 format in which it should be returned
+	 * @param utils    the jdt utils
+	 * @param progress the progress monitor
+	 * @return the javadoc for the specified property in the specified format
+	 * @throws CoreException      when finding the class member specified in the
+	 *                            params fails
+	 * @throws JavaModelException when reading the javadoc from the class member
+	 *                            specified in the params fails
+	 */
+	public String collectPropertyDocumentation(MicroProfilePropertyDocumentationParams params, IJDTUtils utils,
+			IProgressMonitor progress) throws JavaModelException, CoreException {
+		IFile file = utils.findFile(params.getUri());
+		if (file == null) {
+			throw new UnsupportedOperationException(String.format("Cannot find IFile for '%s'", params.getUri()));
+		}
+		String projectName = file.getProject().getName();
+		IJavaProject javaProject = JavaModelManager.getJavaModelManager().getJavaModel().getJavaProject(projectName);
+
+		IMember member = findProperty(javaProject, params.getSourceType(), params.getSourceField(),
+				params.getSourceMethod(), utils, progress);
+		if (member == null) {
+			return null;
+		}
+		return utils.getJavadoc(member, params.getDocumentFormat());
 	}
 
 	private static String getMonitorTitle(IJavaProject javaProject, String sourceType, String sourceField,

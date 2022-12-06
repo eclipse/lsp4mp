@@ -24,14 +24,14 @@ import org.junit.Test;
 public class PropertiesFileHoverTest {
 
 	@Test
-	public void unkwownProperty() throws BadLocationException {
+	public void unkwownProperty() throws Exception {
 		String value = "unkwo|wn";
 		String hoverLabel = null;
 		assertHoverMarkdown(value, hoverLabel, 0);
 	};
 
 	@Test
-	public void testKeyHoverMarkdown() throws BadLocationException {
+	public void testKeyHoverMarkdown() throws Exception {
 		String value = "quarkus.applica|tion.name = name";
 		String hoverLabel = "**quarkus.application.name**" + System.lineSeparator() + System.lineSeparator() + //
 				"The name of the application.\nIf not set, defaults to the name of the project (except for tests where it is not set at all)."
@@ -44,7 +44,7 @@ public class PropertiesFileHoverTest {
 	};
 
 	@Test
-	public void testKeyHoverPlaintext() throws BadLocationException {
+	public void testKeyHoverPlaintext() throws Exception {
 		String value = "quarkus.applica|tion.name = name";
 		String hoverLabel = "quarkus.application.name" + System.lineSeparator() + System.lineSeparator() + //
 				"The name of the application.\nIf not set, defaults to the name of the project (except for tests where it is not set at all)."
@@ -57,7 +57,7 @@ public class PropertiesFileHoverTest {
 	};
 
 	@Test
-	public void testKeyHoverNoSpaces() throws BadLocationException {
+	public void testKeyHoverNoSpaces() throws Exception {
 		String value = "quarkus.applica|tion.name=name";
 		String hoverLabel = "**quarkus.application.name**" + System.lineSeparator() + System.lineSeparator() + //
 				"The name of the application.\nIf not set, defaults to the name of the project (except for tests where it is not set at all)."
@@ -70,27 +70,27 @@ public class PropertiesFileHoverTest {
 	};
 
 	@Test
-	public void testNoKeyHoverOnEqualsSign() throws BadLocationException {
+	public void testNoKeyHoverOnEqualsSign() throws Exception {
 		assertHoverMarkdown("quarkus.application.name |= name", null, 0);
 		assertHoverMarkdown("quarkus.application.name|=name", null, 0);
 		assertHoverMarkdown("quarkus.log.syslog.async.overflow|=DISCARD", null, 0);
 	};
 
 	@Test
-	public void testNoValueHoverOnEqualsSign() throws BadLocationException {
+	public void testNoValueHoverOnEqualsSign() throws Exception {
 		assertHoverMarkdown("quarkus.log.syslog.async.overflow |= DISCARD", null, 0);
 		assertHoverMarkdown("quarkus.log.syslog.async.overflow|=DISCARD", null, 0);
 	};
 
 	@Test
-	public void testNoHoverOnEqualsWhenNoValue() throws BadLocationException {
+	public void testNoHoverOnEqualsWhenNoValue() throws Exception {
 		String value = "a=1\n" + //
 				"b=|";
 		assertHoverMarkdown(value, null, 0);
 	};
 
 	@Test
-	public void testDefaultProfileHover() throws BadLocationException {
+	public void testDefaultProfileHover() throws Exception {
 		String value = "%d|ev.quarkus.log.syslog.async.overflow=DISCARD";
 		String hoverLabelMarkdown = "**dev**" + System.lineSeparator() + System.lineSeparator()
 				+ "Profile activated when in development mode (quarkus:dev)." + System.lineSeparator();
@@ -98,7 +98,7 @@ public class PropertiesFileHoverTest {
 	}
 
 	@Test
-	public void testDefaultProfileHoverSpacesInFront() throws BadLocationException {
+	public void testDefaultProfileHoverSpacesInFront() throws Exception {
 		String value = "        %d|ev.quarkus.log.syslog.async.overflow=DISCARD";
 		String hoverLabelMarkdown = "**dev**" + System.lineSeparator() + System.lineSeparator()
 				+ "Profile activated when in development mode (quarkus:dev)." + System.lineSeparator();
@@ -106,7 +106,7 @@ public class PropertiesFileHoverTest {
 	}
 
 	@Test
-	public void testOnlyDefaultProfile() throws BadLocationException {
+	public void testOnlyDefaultProfile() throws Exception {
 		String value = "%de|v";
 		String hoverLabelMarkdown = "**dev**" + System.lineSeparator() + System.lineSeparator()
 				+ "Profile activated when in development mode (quarkus:dev)." + System.lineSeparator();
@@ -124,7 +124,7 @@ public class PropertiesFileHoverTest {
 	};
 
 	@Test
-	public void testOnlyNonDefaultProfile() throws BadLocationException {
+	public void testOnlyNonDefaultProfile() throws Exception {
 		String value = "%hel|lo";
 		String hoverLabel = null;
 		assertHoverMarkdown(value, hoverLabel, 0);
@@ -137,7 +137,7 @@ public class PropertiesFileHoverTest {
 	};
 
 	@Test
-	public void testKeyWithProfileHoverMarkdown() throws BadLocationException {
+	public void testKeyWithProfileHoverMarkdown() throws Exception {
 		String value = "%dev.quarkus.applica|tion.name = name";
 		String hoverLabel = "**quarkus.application.name**" + System.lineSeparator() + System.lineSeparator() + //
 				"The name of the application.\nIf not set, defaults to the name of the project (except for tests where it is not set at all)."
@@ -151,7 +151,7 @@ public class PropertiesFileHoverTest {
 	};
 
 	@Test
-	public void testKeyMap() throws BadLocationException {
+	public void testKeyMap() throws Exception {
 		String value = "quar|kus.log.category.\"com.lordofthejars\".level=DEBUG";
 		String hoverLabel = "**quarkus.log.category.\\{\\*\\}.level**" + System.lineSeparator() + System.lineSeparator()
 				+ //
@@ -165,7 +165,7 @@ public class PropertiesFileHoverTest {
 	};
 
 	@Test
-	public void hoverWithEnums() throws BadLocationException {
+	public void hoverWithEnums() throws Exception {
 		String value = "quarkus.log.console.async.overflow=BLO|CK";
 		// OverflowAction enum type
 		String hoverLabel = "**BLOCK**" + System.lineSeparator();
@@ -173,7 +173,7 @@ public class PropertiesFileHoverTest {
 	}
 
 	@Test
-	public void hoverOnValueForLevelBasedOnRule() throws BadLocationException {
+	public void hoverOnValueForLevelBasedOnRule() throws Exception {
 		// quarkus.log.file.level has 'java.util.logging.Level'
 		String value = "quarkus.log.file.level=OF|F ";
 		String hoverLabel = "**OFF**" + //
@@ -186,7 +186,7 @@ public class PropertiesFileHoverTest {
 	}
 
 	@Test
-	public void hoverWithEnumsKebabCase() throws BadLocationException {
+	public void hoverWithEnumsKebabCase() throws Exception {
 		String value = "quarkus.datasource.transaction-isolation-level = read-unc|ommitted";
 		// io.agroal.api.configuration.AgroalConnectionFactoryConfiguration.TransactionIsolation
 		// enum type
