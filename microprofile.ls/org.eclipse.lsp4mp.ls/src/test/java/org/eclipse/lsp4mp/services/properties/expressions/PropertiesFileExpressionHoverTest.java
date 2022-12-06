@@ -23,7 +23,7 @@ import org.junit.Test;
 public class PropertiesFileExpressionHoverTest {
 
 	@Test
-	public void hoverWithEnums() throws BadLocationException {
+	public void hoverWithEnums() throws Exception {
 		String value = "quarkus.log.console.async.overflow=${ENV:BLO|CK}";
 		// OverflowAction enum type
 		String hoverLabel = "**BLOCK**" + System.lineSeparator();
@@ -31,7 +31,7 @@ public class PropertiesFileExpressionHoverTest {
 	}
 
 	@Test
-	public void hoverOnValueForLevelBasedOnRule() throws BadLocationException {
+	public void hoverOnValueForLevelBasedOnRule() throws Exception {
 		// quarkus.log.file.level has 'java.util.logging.Level'
 		String value = "quarkus.log.file.level=${ENV:OF|F} ";
 		String hoverLabel = "**OFF**" + //
@@ -44,7 +44,7 @@ public class PropertiesFileExpressionHoverTest {
 	}
 
 	@Test
-	public void hoverWithEnumsKebabCase() throws BadLocationException {
+	public void hoverWithEnumsKebabCase() throws Exception {
 		String value = "quarkus.datasource.transaction-isolation-level = ${ENV:read-unc|ommitted}";
 		// io.agroal.api.configuration.AgroalConnectionFactoryConfiguration.TransactionIsolation
 		// enum type
@@ -53,13 +53,13 @@ public class PropertiesFileExpressionHoverTest {
 	}
 
 	@Test
-	public void hoverInvalidProperty() throws BadLocationException {
+	public void hoverInvalidProperty() throws Exception {
 		String value = "aaa=${b|bb}";
 		assertNoHover(value);
 	}
 
 	@Test
-	public void hoverPropertiesFileReference() throws BadLocationException {
+	public void hoverPropertiesFileReference() throws Exception {
 		String value = "property.one = hello\n" + //
 				"property.two = ${prope|rty.one}";
 		String hoverLabel = "hello";
@@ -67,14 +67,14 @@ public class PropertiesFileExpressionHoverTest {
 	}
 
 	@Test
-	public void hoverDefaultPropertyValue() throws BadLocationException {
+	public void hoverDefaultPropertyValue() throws Exception {
 		String value = "property.one = ${mp.openapi.s|can.disable}";
 		String hoverLabel = "false";
 		assertHoverMarkdown(value, hoverLabel, 15);
 	}
 
 	@Test
-	public void hoverResolveTwoSteps() throws BadLocationException {
+	public void hoverResolveTwoSteps() throws Exception {
 		String value = "property.one = hello\n" + //
 				"property.two = ${property.one}\n" + //
 				"property.three = ${property.two}\n" + //
@@ -85,7 +85,7 @@ public class PropertiesFileExpressionHoverTest {
 	}
 
 	@Test
-	public void hoverMixtureOfReferencesAndRawText() throws BadLocationException {
+	public void hoverMixtureOfReferencesAndRawText() throws Exception {
 		String value = "property.one = one\n" + //
 				"property.two = ${property.one} two\n" + //
 				"property.four = ${proper|ty.three} five\n" + //
@@ -95,20 +95,20 @@ public class PropertiesFileExpressionHoverTest {
 	}
 
 	@Test
-	public void hoverSelfReference() throws BadLocationException {
+	public void hoverSelfReference() throws Exception {
 		String value = "property.one = ${prop|erty.one}";
 		assertHoverMarkdown(value, "${property.one}", 15);
 	}
 
 	@Test
-	public void hoverCircularReference() throws BadLocationException {
+	public void hoverCircularReference() throws Exception {
 		String value = "property.one = ${property.two}\n" + //
 				"property.two = ${p|roperty.one}";
 		assertHoverMarkdown(value, "${property.two}", 15);
 	}
 
 	@Test
-	public void hoverDependencyTreeAndDefaultValue() throws BadLocationException {
+	public void hoverDependencyTreeAndDefaultValue() throws Exception {
 		String value = "property.one = $|{property.two}\n" + //
 				"property.two=${property.three} ${mp.openapi.scan.disable}\n" + //
 				"property.three = hello";
@@ -116,7 +116,7 @@ public class PropertiesFileExpressionHoverTest {
 	}
 
 	@Test
-	public void hoverAnyCyclePreventsRecursiveResolution() throws BadLocationException {
+	public void hoverAnyCyclePreventsRecursiveResolution() throws Exception {
 		String value = "property.one = ${p|roperty.two}\n" + //
 				"property.two = ${property.three}\n" + //
 				"property.three = hi\n" + //
@@ -126,13 +126,13 @@ public class PropertiesFileExpressionHoverTest {
 	}
 
 	@Test
-	public void hoverEmptyPropertyName() throws BadLocationException {
+	public void hoverEmptyPropertyName() throws Exception {
 		String value = "property.one = ${|}";
 		assertNoHover(value);
 	}
 
 	@Test
-	public void hoverBoundsOnPropertyExpression() throws BadLocationException {
+	public void hoverBoundsOnPropertyExpression() throws Exception {
 		String value = "property.one = |${property.two}\n" + //
 				"property.two = hello";
 		assertHoverMarkdown(value, "hello", 15);
@@ -142,7 +142,7 @@ public class PropertiesFileExpressionHoverTest {
 	}
 
 	@Test
-	public void hoverMultilineReferencePropertyExpression() throws BadLocationException {
+	public void hoverMultilineReferencePropertyExpression() throws Exception {
 		String value = "property.one = ${prope|rty.two}\n" + //
 				"property.two = hello \\\n" + //
 				"  there";
@@ -150,7 +150,7 @@ public class PropertiesFileExpressionHoverTest {
 	}
 
 	@Test
-	public void hoverKeyWithReference() throws BadLocationException {
+	public void hoverKeyWithReference() throws Exception {
 		String value = "value = value\n" + //
 				"mp.metri|cs.appName=${value}";
 		assertHoverMarkdown(value, //
@@ -169,7 +169,7 @@ public class PropertiesFileExpressionHoverTest {
 	}
 
 	@Test
-	public void hoverKeyWithNoReferenceButWithDefaultValue() throws BadLocationException {
+	public void hoverKeyWithNoReferenceButWithDefaultValue() throws Exception {
 		String value = "mp.metri|cs.appName=${value:sa}";
 		assertHoverMarkdown(value, //
 				"**mp.metrics.appName**" + //
@@ -187,14 +187,14 @@ public class PropertiesFileExpressionHoverTest {
 	}
 
 	@Test
-	public void hoverKeyUndefinedProperty() throws BadLocationException {
+	public void hoverKeyUndefinedProperty() throws Exception {
 		String value = "pr|operty = value";
 		assertHoverMarkdown(value, "**property**" + System.lineSeparator() + System.lineSeparator() + //
 				" * Value: `value`", 0);
 	}
 
 	@Test
-	public void hoverKeyUndefinedPropertyWithReference() throws BadLocationException {
+	public void hoverKeyUndefinedPropertyWithReference() throws Exception {
 		String value = "value = amount\n" + //
 				"pr|operty = ${value}";
 		assertHoverMarkdown(value, "**property**" + System.lineSeparator() + System.lineSeparator() + //
@@ -203,7 +203,7 @@ public class PropertiesFileExpressionHoverTest {
 	}
 
 	@Test
-	public void hoverKeyUndefinedPropertyWithReferenceAndProfile() throws BadLocationException {
+	public void hoverKeyUndefinedPropertyWithReferenceAndProfile() throws Exception {
 		String value = "value = amount\n" + //
 				"%dev.pr|operty = ${value}";
 		assertHoverMarkdown(value, "**property**" + System.lineSeparator() + System.lineSeparator() + //
@@ -213,7 +213,7 @@ public class PropertiesFileExpressionHoverTest {
 	}
 
 	@Test
-	public void hoverKeyWithReferenceAndSelfLoop() throws BadLocationException {
+	public void hoverKeyWithReferenceAndSelfLoop() throws Exception {
 		String value = "value = ${value}\n" + //
 				"mp.metri|cs.appName=${value}";
 		assertHoverMarkdown(value, //
@@ -232,7 +232,7 @@ public class PropertiesFileExpressionHoverTest {
 	}
 
 	@Test
-	public void hoverKeyWithReferenceToEmptyProperty() throws BadLocationException {
+	public void hoverKeyWithReferenceToEmptyProperty() throws Exception {
 		String value = "value =\n" + //
 				"mp.metri|cs.appName = ${value}";
 		assertHoverMarkdown(value, //
@@ -251,7 +251,7 @@ public class PropertiesFileExpressionHoverTest {
 	}
 
 	@Test
-	public void hoverKeyWithReferenceToBlankProperty() throws BadLocationException {
+	public void hoverKeyWithReferenceToBlankProperty() throws Exception {
 		String value = "value =      \n" + //
 				"mp.metri|cs.appName = ${value}";
 		assertHoverMarkdown(value, //
@@ -270,27 +270,27 @@ public class PropertiesFileExpressionHoverTest {
 	}
 
 	@Test
-	public void hoverExistingPropertyReferenceWithoutADefaultValue() throws BadLocationException {
+	public void hoverExistingPropertyReferenceWithoutADefaultValue() throws Exception {
 		String value = "my.property = ${quarkus.app|lication.name}";
 		assertNoHover(value);
 	}
 
 	@Test
-	public void hoverExistingPropertyReferenceWithEmptyPropertyValue() throws BadLocationException {
+	public void hoverExistingPropertyReferenceWithEmptyPropertyValue() throws Exception {
 		String value = "quarkus.application.name=\n" + //
 				"my.property = ${quarkus.|application.name}";
 		assertNoHover(value);
 	}
 
 	@Test
-	public void hoverExistingPropertyReferenceWithNullPropertyValue() throws BadLocationException {
+	public void hoverExistingPropertyReferenceWithNullPropertyValue() throws Exception {
 		String value = "my.property = ${quarkus.|application.name}\n" + //
 				"quarkus.application.name=";
 		assertNoHover(value);
 	}
 
 	@Test
-	public void hoverWithNestedPropertyExpression1() throws BadLocationException {
+	public void hoverWithNestedPropertyExpression1() throws Exception {
 		String value = "asdf=${hj|kl}\n" + //
 				"hjkl = ${${foo}}\n" + //
 				"foo = bar\n" + //
@@ -299,7 +299,7 @@ public class PropertiesFileExpressionHoverTest {
 	}
 
 	@Test
-	public void hoverWithNestedPropertyExpression2() throws BadLocationException {
+	public void hoverWithNestedPropertyExpression2() throws Exception {
 		String value = "asdf=${hj|kl}\n" + //
 				"hjkl = ${${foo}}\n" + //
 				"foo = bar\n" + //
@@ -308,42 +308,42 @@ public class PropertiesFileExpressionHoverTest {
 	}
 
 	@Test
-	public void hoverWithNestedPropertyExpression3() throws BadLocationException {
+	public void hoverWithNestedPropertyExpression3() throws Exception {
 		String value = "asdf=${hj|kl}\n" + //
 				"hjkl = ${${asdf}}\n";
 		assertHoverMarkdown(value, "${${asdf}}", 5);
 	}
 
 	@Test
-	public void hoverWithNestedPropertyExpression4() throws BadLocationException {
+	public void hoverWithNestedPropertyExpression4() throws Exception {
 		String value = "asdf=${hj|kl}\n" + //
 				"hjkl = ${}\n";
 		assertHoverMarkdown(value, "${}", 5);
 	}
 
 	@Test
-	public void hoverWithNestedPropertyExpression5() throws BadLocationException {
+	public void hoverWithNestedPropertyExpression5() throws Exception {
 		String value = "asdf=${hj|kl}\n" + //
 				"hjkl = ${${foo}:ASDF}\n";
 		assertHoverMarkdown(value, "ASDF", 5);
 	}
 
 	@Test
-	public void hoverWithNestedPropertyExpression6() throws BadLocationException {
+	public void hoverWithNestedPropertyExpression6() throws Exception {
 		String value = "asdf=${hj|kl}\n" + //
 				"hjkl = ${${foo}:${foo:}\n";
 		assertNoHover(value);
 	}
 
 	@Test
-	public void hoverWithNestedPropertyExpression7() throws BadLocationException {
+	public void hoverWithNestedPropertyExpression7() throws Exception {
 		String value = "asdf=${hj|kl}\n" + //
 				"hjkl = ${${foo}:${foo:ASDF}\n";
 		assertHoverMarkdown(value, "ASDF", 5);
 	}
 
 	@Test
-	public void hoverWithBillionLaughs() throws BadLocationException {
+	public void hoverWithBillionLaughs() throws Exception {
 		String value = "asdf=${lu|lz}\n" + //
 				"lulz=${lol9}${lol9}${lol9}${lol9}${lol9}${lol9}${lol9}${lol9}${lol9}\n" //
 				+ "lol9=${lol8}${lol8}${lol8}${lol8}${lol8}${lol8}${lol8}${lol8}${lol8}\n" //

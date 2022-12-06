@@ -13,6 +13,7 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.services.properties;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -22,7 +23,10 @@ import org.eclipse.lsp4j.MarkupKind;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
+import org.eclipse.lsp4mp.commons.DocumentFormat;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
+import org.eclipse.lsp4mp.commons.MicroProfilePropertyDefinitionParams;
+import org.eclipse.lsp4mp.commons.MicroProfilePropertyDocumentationParams;
 import org.eclipse.lsp4mp.commons.metadata.ConfigurationMetadata;
 import org.eclipse.lsp4mp.commons.metadata.ItemHint;
 import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
@@ -31,6 +35,7 @@ import org.eclipse.lsp4mp.commons.utils.ConfigSourcePropertiesProviderUtils;
 import org.eclipse.lsp4mp.commons.utils.IConfigSourcePropertiesProvider;
 import org.eclipse.lsp4mp.commons.utils.PropertyValueExpander;
 import org.eclipse.lsp4mp.commons.utils.StringUtils;
+import org.eclipse.lsp4mp.ls.api.MicroProfilePropertyDocumentationProvider;
 import org.eclipse.lsp4mp.ls.commons.BadLocationException;
 import org.eclipse.lsp4mp.model.BasePropertyValue;
 import org.eclipse.lsp4mp.model.Node;
@@ -49,18 +54,21 @@ class PropertiesFileHover {
 
 	private static final Logger LOGGER = Logger.getLogger(PropertiesFileHover.class.getName());
 
+	private static final CompletableFuture<Hover> NULL_HOVER = CompletableFuture.completedFuture(null);
+
 	/**
 	 * Returns Hover object for the currently hovered token
 	 *
-	 * @param document      the properties model document
-	 * @param position      the hover position
-	 * @param projectInfo   the MicroProfile project information
-	 * @param hoverSettings the hover settings
-	 * @param cancelChecker the cancel checker
+	 * @param document              the properties model document
+	 * @param position              the hover position
+	 * @param projectInfo           the MicroProfile project information
+	 * @param hoverSettings         the hover settings
+	 * @param documentationProvider the documentation provider
+	 * @param cancelChecker         the cancel checker
 	 * @return Hover object for the currently hovered token
 	 */
-	public Hover doHover(PropertiesModel document, Position position, MicroProfileProjectInfo projectInfo,
-			MicroProfileHoverSettings hoverSettings, CancelChecker cancelChecker) {
+	public CompletableFuture<Hover> doHover(PropertiesModel document, Position position, MicroProfileProjectInfo projectInfo,
+			MicroProfileHoverSettings hoverSettings, MicroProfilePropertyDocumentationProvider documentationProvider, CancelChecker cancelChecker) {
 
 		Node node = null;
 		int offset = -1;
@@ -69,40 +77,40 @@ class PropertiesFileHover {
 			offset = document.offsetAt(position);
 		} catch (BadLocationException e) {
 			LOGGER.log(Level.SEVERE, "MicroProfileHover, position error", e);
-			return null;
+			return NULL_HOVER;
 		}
 		if (node == null) {
-			return null;
+			return NULL_HOVER;
 		}
 
 		switch (node.getNodeType()) {
 		case COMMENTS:
 			// no hover documentation
-			return null;
+			return NULL_HOVER;
 		case PROPERTY_VALUE_EXPRESSION:
 			PropertyValueExpression propExpr = (PropertyValueExpression) node;
 			boolean inDefaultValue = propExpr.isInDefaultValue(offset);
 			if (inDefaultValue) {
 				// quarkus.log.file.level=${ENV:OF|F}
-				return getPropertyValueHover(propExpr, inDefaultValue, projectInfo, hoverSettings);
+				return CompletableFuture.completedFuture(getPropertyValueHover(propExpr, inDefaultValue, projectInfo, hoverSettings));
 			}
 			// quarkus.log.file.level=${E|NV:OFF}
-			return getPropertyValueExpressionHover(propExpr, projectInfo, hoverSettings, cancelChecker);
+			return CompletableFuture.completedFuture(getPropertyValueExpressionHover(propExpr, projectInfo, hoverSettings, cancelChecker));
 		case PROPERTY_VALUE_LITERAL:
 		case PROPERTY_VALUE:
-			return getPropertyValueHover((BasePropertyValue) node, false, projectInfo, hoverSettings);
+			return CompletableFuture.completedFuture(getPropertyValueHover((BasePropertyValue) node, false, projectInfo, hoverSettings));
 		case PROPERTY_KEY:
 			PropertyKey key = (PropertyKey) node;
 			if (key.isBeforeProfile(offset)) {
 				// hover documentation on profile
-				return getProfileHover(key, hoverSettings);
+				return CompletableFuture.completedFuture(getProfileHover(key, hoverSettings));
 			} else {
 				// hover documentation on property key
-				return getPropertyKeyHover(key, projectInfo, hoverSettings, cancelChecker);
+				return getPropertyKeyHover(key, projectInfo, hoverSettings, documentationProvider, document.getDocumentURI(), cancelChecker);
 			}
 
 		default:
-			return null;
+			return NULL_HOVER;
 		}
 	}
 
@@ -139,11 +147,12 @@ class PropertiesFileHover {
 	 * @param offset        the hover offset
 	 * @param projectInfo   the MicroProfile project information
 	 * @param hoverSettings the hover settings
+	 * @param documentationProvider the documentation provider
 	 * @param cancelChecker the cancel checker
 	 * @return the documentation hover for property key represented by token
 	 */
-	private static Hover getPropertyKeyHover(PropertyKey key, MicroProfileProjectInfo projectInfo,
-			MicroProfileHoverSettings hoverSettings, CancelChecker cancelChecker) {
+	private static CompletableFuture<Hover> getPropertyKeyHover(PropertyKey key, MicroProfileProjectInfo projectInfo,
+			MicroProfileHoverSettings hoverSettings, MicroProfilePropertyDocumentationProvider documentationProvider, String uri, CancelChecker cancelChecker) {
 		boolean markdownSupported = hoverSettings.isContentFormatSupported(MarkupKind.MARKDOWN);
 		// retrieve MicroProfile property from the project information
 		String propertyName = key.getPropertyName();
@@ -161,24 +170,56 @@ class PropertiesFileHover {
 
 		ItemMetadata item = PropertiesFileUtils.getProperty(propertyName, projectInfo);
 
+		final String propertyValueFinal = propertyValue;
+
 		if (item != null || propertyValue != null) {
-			Hover hover = new Hover();
-			MarkupContent markupContent = null;
-			if (item != null) {
-				// MicroProfile property found, display the documentation as hover
-				markupContent = DocumentationUtils.getDocumentation(item, key.getProfile(), propertyValue,
-						markdownSupported);
-			} else {
-				// The property was not found, display just the resolved value
-				markupContent = DocumentationUtils.getDocumentation(key.getProfile(), propertyName, propertyValue,
-						markdownSupported);
+
+			CompletableFuture<Void> docsCollect = null;
+			if (item != null && (item.getDescription() == null || item.getDescription().isEmpty())) {
+				MicroProfilePropertyDocumentationParams params = new MicroProfilePropertyDocumentationParams();
+				params.setUri(uri);
+				params.setSourceField(item.getSourceField());
+				params.setSourceMethod(item.getSourceMethod());
+				params.setSourceType(item.getSourceType());
+				params.setDocumentFormat(markdownSupported ? DocumentFormat.Markdown : DocumentFormat.PlainText);
+				docsCollect = documentationProvider.getPropertyDocumentation(params) //
+						.thenAccept(docs -> {
+							if (docs != null && !docs.isEmpty()) {
+								item.setDescription(docs);
+							}
+						});
 			}
-			hover.setContents(markupContent);
-			hover.setRange(PositionUtils.createRange(key));
-			return hover;
+
+			if (docsCollect == null) {
+				Hover hover = new Hover();
+				MarkupContent markupContent = null;
+				if (item != null) {
+					// MicroProfile property found, display the documentation as hover
+					markupContent = DocumentationUtils.getDocumentation(item, key.getProfile(), propertyValue,
+							markdownSupported);
+				} else {
+					// The property was not found, display just the resolved value
+					markupContent = DocumentationUtils.getDocumentation(key.getProfile(), propertyName, propertyValue,
+							markdownSupported);
+				}
+				hover.setContents(markupContent);
+				hover.setRange(PositionUtils.createRange(key));
+				return CompletableFuture.completedFuture(hover);
+			}
+			return docsCollect.thenApply((_null) -> {
+				Hover hover = new Hover();
+				MarkupContent markupContent = null;
+				// Docs are only collected asynchronously from JDT.LS if the ItemMetadata resolves
+				// MicroProfile property found, display the documentation as hover
+				markupContent = DocumentationUtils.getDocumentation(item, key.getProfile(), propertyValueFinal,
+						markdownSupported);
+				hover.setContents(markupContent);
+				hover.setRange(PositionUtils.createRange(key));
+				return hover;
+			});
 		}
 
-		return null;
+		return NULL_HOVER;
 	}
 
 	/**

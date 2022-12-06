@@ -32,6 +32,7 @@ import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfoParams;
 import org.eclipse.lsp4mp.commons.MicroProfilePropertiesScope;
 import org.eclipse.lsp4mp.commons.MicroProfilePropertyDefinitionParams;
+import org.eclipse.lsp4mp.commons.MicroProfilePropertyDocumentationParams;
 import org.eclipse.lsp4mp.jdt.core.PropertiesManager;
 
 /**
@@ -48,6 +49,8 @@ public class MicroProfileDelegateCommandHandler extends AbstractMicroProfileDele
 
 	private static final String PROPERTY_DEFINITION_COMMAND_ID = "microprofile/propertyDefinition";
 
+	private static final String PROPERTY_DOCUMENTATION_COMMAND_ID = "microprofile/propertyDocumentation";
+
 	@Override
 	public Object executeCommand(String commandId, List<Object> arguments, IProgressMonitor progress) throws Exception {
 		switch (commandId) {
@@ -55,6 +58,8 @@ public class MicroProfileDelegateCommandHandler extends AbstractMicroProfileDele
 			return getMicroProfileProjectInfo(arguments, commandId, progress);
 		case PROPERTY_DEFINITION_COMMAND_ID:
 			return findDeclaredProperty(arguments, commandId, progress);
+		case PROPERTY_DOCUMENTATION_COMMAND_ID:
+			return collectPropertyDocumentation(arguments, commandId, progress);
 		default:
 			throw new UnsupportedOperationException(String.format("Unsupported command '%s'!", commandId));
 		}
@@ -152,6 +157,45 @@ public class MicroProfileDelegateCommandHandler extends AbstractMicroProfileDele
 		params.setSourceField(sourceField);
 		params.setSourceMethod(sourceMethod);
 		return PropertiesManager.getInstance().findPropertyLocation(params, JDTUtilsLSImpl.getInstance(), progress);
+	}
+
+	private static String collectPropertyDocumentation(List<Object> arguments, String commandId,
+			IProgressMonitor progress) throws CoreException {
+		Map<String, Object> obj = getFirst(arguments);
+		if (obj == null) {
+			throw new UnsupportedOperationException(String.format(
+					"Command '%s' must be called with one MicroProfilePropertyDocumentationParams argument!", commandId));
+		}
+		String applicationPropertiesUri = getString(obj, "uri");
+		if (applicationPropertiesUri == null) {
+			throw new UnsupportedOperationException(String.format(
+					"Command '%s' must be called with required MicroProfilePropertyDocumentationParams.uri (properties file URI)!",
+					commandId));
+		}
+		String sourceType = getString(obj, "sourceType");
+		if (sourceType == null) {
+			throw new UnsupportedOperationException(String.format(
+					"Command '%s' must be called with required MicroProfilePropertyDocumentationParams.sourceType!",
+					commandId));
+		}
+		DocumentFormat documentFormat = DocumentFormat.forValue(ArgumentUtils.getInt(obj, "documentFormat"));
+		if (documentFormat == null) {
+			throw new UnsupportedOperationException(String.format(
+					"Command '%s' must be called with required MicroProfilePropertyDocumentationParams.documentFormat!",
+					commandId));
+		}
+		String sourceField = getString(obj, "sourceField");
+		String sourceMethod = getString(obj, "sourceMethod");
+
+		MicroProfilePropertyDocumentationParams params = new MicroProfilePropertyDocumentationParams();
+		params.setUri(applicationPropertiesUri);
+		params.setSourceType(sourceType);
+		params.setSourceField(sourceField);
+		params.setSourceMethod(sourceMethod);
+		params.setDocumentFormat(documentFormat);
+
+		return PropertiesManager.getInstance().collectPropertyDocumentation(params, JDTUtilsLSImpl.getInstance(),
+				progress);
 	}
 
 }

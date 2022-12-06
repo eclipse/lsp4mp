@@ -20,6 +20,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import org.eclipse.lsp4j.CodeAction;
@@ -57,6 +59,7 @@ import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
 import org.eclipse.lsp4mp.extensions.ExtendedMicroProfileProjectInfo;
 import org.eclipse.lsp4mp.ls.MockMicroProfilePropertyDefinitionProvider;
 import org.eclipse.lsp4mp.ls.api.MicroProfilePropertyDefinitionProvider;
+import org.eclipse.lsp4mp.ls.api.MicroProfilePropertyDocumentationProvider;
 import org.eclipse.lsp4mp.ls.commons.BadLocationException;
 import org.eclipse.lsp4mp.ls.commons.TextDocument;
 import org.eclipse.lsp4mp.ls.commons.client.CommandCapabilities;
@@ -332,14 +335,14 @@ public class PropertiesFileAssert {
 
 	// ------------------- Hover assert
 
-	public static void assertNoHover(String value) throws BadLocationException {
+	public static void assertNoHover(String value) throws BadLocationException, InterruptedException, TimeoutException, ExecutionException {
 		MicroProfileHoverSettings hoverSettings = new MicroProfileHoverSettings();
 		hoverSettings.setCapabilities(new HoverCapabilities(Arrays.asList(MarkupKind.MARKDOWN), false));
 		assertHover(value, null, getDefaultMicroProfileProjectInfo(), hoverSettings, null, null);
 	}
 
 	public static void assertHoverMarkdown(String value, String expectedHoverLabel, Integer expectedHoverOffset)
-			throws BadLocationException {
+			throws BadLocationException, InterruptedException, TimeoutException, ExecutionException {
 
 		MicroProfileHoverSettings hoverSettings = new MicroProfileHoverSettings();
 		HoverCapabilities capabilities = new HoverCapabilities(Arrays.asList(MarkupKind.MARKDOWN), false);
@@ -350,7 +353,7 @@ public class PropertiesFileAssert {
 	}
 
 	public static void assertHoverPlaintext(String value, String expectedHoverLabel, Integer expectedHoverOffset)
-			throws BadLocationException {
+			throws BadLocationException, InterruptedException, TimeoutException, ExecutionException {
 
 		MicroProfileHoverSettings hoverSettings = new MicroProfileHoverSettings();
 		HoverCapabilities capabilities = new HoverCapabilities(Arrays.asList(MarkupKind.PLAINTEXT), false);
@@ -362,7 +365,7 @@ public class PropertiesFileAssert {
 
 	public static void assertHover(String value, String fileURI, MicroProfileProjectInfo projectInfo,
 			MicroProfileHoverSettings hoverSettings, String expectedHoverLabel, Integer expectedHoverOffset)
-			throws BadLocationException {
+			throws BadLocationException, InterruptedException, TimeoutException, ExecutionException {
 
 		int offset = value.indexOf("|");
 		value = value.substring(0, offset) + value.substring(offset + 1);
@@ -372,8 +375,9 @@ public class PropertiesFileAssert {
 
 		PropertiesFileLanguageService languageService = new PropertiesFileLanguageService();
 
-		Hover hover = languageService.doHover(model, position, projectInfo, hoverSettings, () -> {
-		});
+		Hover hover = languageService.doHover(model, position, projectInfo, hoverSettings,
+				new MicroProfilePropertyDocumentationProvider() {}, () -> {
+				}).get(2000, TimeUnit.MILLISECONDS);
 		if (expectedHoverLabel == null) {
 			Assert.assertNull(hover);
 		} else {
