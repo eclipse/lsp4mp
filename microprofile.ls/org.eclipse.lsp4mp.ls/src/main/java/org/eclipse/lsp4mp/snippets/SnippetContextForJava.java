@@ -34,20 +34,45 @@ import com.google.gson.stream.JsonWriter;
 public class SnippetContextForJava implements ISnippetContext<ProjectLabelInfoEntry> {
 
 	public static final TypeAdapter<SnippetContextForJava> TYPE_ADAPTER = new SnippetContextForJavaAdapter();
+
+	/**
+	 * A list of all types whose presence indicates the snippet should be displayed.
+	 */
 	private List<String> types;
 
-	public SnippetContextForJava(List<String> types) {
+	/**
+	 * A list of all types whose presence indicates the snippet shouldn't be
+	 * displayed.
+	 *
+	 * Takes precedence over {@link #types} i.e. if a type is present in
+	 * {@link #exclusionTypes}, then the snippet won't be shown, and {@link #types} won't be considered.
+	 */
+	private List<String> exclusionTypes;
+
+	public SnippetContextForJava(List<String> types, List<String> exclusionTypes) {
 		this.types = types;
+		this.exclusionTypes = exclusionTypes;
 	}
 
 	public List<String> getTypes() {
 		return types;
 	}
 
+	public List<String> getExcludedTypes() {
+		return this.exclusionTypes;
+	}
+
 	@Override
 	public boolean isMatch(ProjectLabelInfoEntry context) {
 		if (context == null) {
 			return true;
+		}
+		if (exclusionTypes != null && !exclusionTypes.isEmpty()) {
+			for (String type : exclusionTypes) {
+				if (context.hasLabel(type)) {
+					return false;
+				}
+			}
 		}
 		if (types == null || types.isEmpty()) {
 			return true;
@@ -70,6 +95,7 @@ public class SnippetContextForJava implements ISnippetContext<ProjectLabelInfoEn
 			}
 
 			List<String> types = new ArrayList<>();
+			List<String> exclusionTypes = new ArrayList<>();
 			in.beginObject();
 			while (in.hasNext()) {
 				String name = in.nextName();
@@ -85,12 +111,23 @@ public class SnippetContextForJava implements ISnippetContext<ProjectLabelInfoEn
 						types.add(in.nextString());
 					}
 					break;
+				case "exclusionType":
+					if (in.peek() == JsonToken.BEGIN_ARRAY) {
+						in.beginArray();
+						while (in.peek() != JsonToken.END_ARRAY) {
+							exclusionTypes.add(in.nextString());
+						}
+						in.endArray();
+					} else {
+						exclusionTypes.add(in.nextString());
+					}
+					break;
 				default:
 					in.skipValue();
 				}
 			}
 			in.endObject();
-			return new SnippetContextForJava(types);
+			return new SnippetContextForJava(types, exclusionTypes);
 		}
 
 		@Override

@@ -79,6 +79,14 @@ public class JavaTextDocumentSnippetRegistry extends TextDocumentSnippetRegistry
 						}
 					}
 				}
+				List<String> snippetExclusionTypes = ((SnippetContextForJava) snippet.getContext()).getExcludedTypes();
+				if (snippetExclusionTypes != null) {
+					for (String snippetExclusionType : snippetExclusionTypes) {
+						if (!types.contains(snippetExclusionType)) {
+							types.add(snippetExclusionType);
+						}
+					}
+				}
 			}
 		}
 		return types;
@@ -92,7 +100,7 @@ public class JavaTextDocumentSnippetRegistry extends TextDocumentSnippetRegistry
 
 	/**
 	 * Preprocess Snippet body for managing package name.
-	 * 
+	 *
 	 * @param snippet
 	 */
 	private void preprocessSnippetBody(Snippet snippet) {

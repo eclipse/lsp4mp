@@ -1,5 +1,5 @@
 {
-  "MicroProfile readiness check": {
+  "MicroProfile readiness check (javax)": {
     "prefix": "mpreadiness",
     "body": [
       "package ${1:packagename};",
@@ -21,11 +21,41 @@
       "}"
     ],
     "context": {
-      "type": "org.eclipse.microprofile.health.Readiness"
+      "type": "org.eclipse.microprofile.health.Readiness",
+      "exclusionType": "jakarta.enterprise.context.ApplicationScoped"
     },
     "description": "MicroProfile Health readiness check"
   },
-  "MicroProfile liveness check": {
+  "MicroProfile readiness check": {
+    "prefix": "mpreadiness",
+    "body": [
+      "package ${1:packagename};",
+      "",
+      "import org.eclipse.microprofile.health.HealthCheck;",
+      "import org.eclipse.microprofile.health.HealthCheckResponse;",
+      "import org.eclipse.microprofile.health.Readiness;",
+      "",
+      "import jakarta.enterprise.context.ApplicationScoped;",
+      "",
+      "@Readiness",
+      "@ApplicationScoped",
+      "public class ${TM_FILENAME_BASE} implements HealthCheck {",
+      "",
+      "\t@Override",
+      "\tpublic HealthCheckResponse call() {",
+      "\t\treturn HealthCheckResponse.named(${TM_FILENAME_BASE}.class.getSimpleName()).withData(\"ready\",true).up().build();",
+      "\t}",
+      "}"
+    ],
+    "context": {
+      "type": [
+        "org.eclipse.microprofile.health.Readiness",
+        "jakarta.enterprise.context.ApplicationScoped"
+      ]
+    },
+    "description": "MicroProfile Health readiness check"
+  },
+  "MicroProfile liveness check (javax)": {
     "prefix": "mpliveness",
     "body": [
       "package ${1:packagename};",
@@ -47,7 +77,37 @@
       "}"
     ],
     "context": {
-      "type": "org.eclipse.microprofile.health.Liveness"
+      "type": "org.eclipse.microprofile.health.Liveness",
+      "exclusionType": "jakarta.enterprise.context.ApplicationScoped"
+    },
+    "description": "MicroProfile Health liveness check"
+  },
+  "MicroProfile liveness check": {
+    "prefix": "mpliveness",
+    "body": [
+      "package ${1:packagename};",
+      "",
+      "import org.eclipse.microprofile.health.HealthCheck;",
+      "import org.eclipse.microprofile.health.HealthCheckResponse;",
+      "import org.eclipse.microprofile.health.Liveness;",
+      "",
+      "import jakarta.enterprise.context.ApplicationScoped;",
+      "",
+      "@Liveness",
+      "@ApplicationScoped",
+      "public class ${TM_FILENAME_BASE} implements HealthCheck {",
+      "",
+      "\t@Override",
+      "\tpublic HealthCheckResponse call() {",
+      "\t\treturn HealthCheckResponse.named(${TM_FILENAME_BASE}.class.getSimpleName()).withData(\"live\",true).up().build();",
+      "\t}",
+      "}"
+    ],
+    "context": {
+      "type": [
+        "org.eclipse.microprofile.health.Liveness",
+        "jakarta.enterprise.context.ApplicationScoped"
+      ]
     },
     "description": "MicroProfile Health liveness check"
   }

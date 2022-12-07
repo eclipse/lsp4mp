@@ -38,7 +38,7 @@ public class MicroProfileJavaSnippetRegistryLoader implements ISnippetRegistryLo
 				SnippetContextForJava.TYPE_ADAPTER);
 		registry.registerSnippets(MicroProfileJavaSnippetRegistryLoader.class.getResourceAsStream("mp-health.json"),
 				SnippetContextForJava.TYPE_ADAPTER);
-		registry.registerSnippets(MicroProfileJavaSnippetRegistryLoader.class.getResourceAsStream("jax-rs.json"),
+		registry.registerSnippets(MicroProfileJavaSnippetRegistryLoader.class.getResourceAsStream("rest.json"),
 				SnippetContextForJava.TYPE_ADAPTER);
 
 	}

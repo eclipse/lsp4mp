@@ -1,5 +1,5 @@
 {
-  "MicroProfile - new rest client": {
+  "MicroProfile - new rest client (javax)": {
     "prefix": "mpnrc",
     "body": [
       "package ${1:packagename};",
@@ -24,7 +24,39 @@
     ],
     "description": "MicroProfile - new rest client",
     "context": {
-      "type": "org.eclipse.microprofile.rest.client.inject.RegisterRestClient"
+      "type": "org.eclipse.microprofile.rest.client.inject.RegisterRestClient",
+      "exclusionType": "jakarta.ws.rs.GET"
+    }
+  },
+  "MicroProfile - new rest client": {
+    "prefix": "mpnrc",
+    "body": [
+      "package ${1:packagename};",
+      "",
+      "import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;",
+      "",
+      "import jakarta.enterprise.context.ApplicationScoped;",
+      "import jakarta.ws.rs.GET;",
+      "import jakarta.ws.rs.Path;",
+      "import jakarta.ws.rs.PathParam;",
+      "",
+      "@RegisterRestClient",
+      "@ApplicationScoped",
+      "public interface ${TM_FILENAME_BASE} {",
+      "",
+      "\t@GET",
+      "\t@Path(\"${2:/path}\")",
+      "\tString ${3:methodname}();",
+      "",
+      "}",
+      ""
+    ],
+    "description": "MicroProfile - new rest client",
+    "context": {
+      "type": [
+        "org.eclipse.microprofile.rest.client.inject.RegisterRestClient",
+        "jakarta.ws.rs.GET"
+      ]
     }
   },
   "MicroProfile - inject rest client": {

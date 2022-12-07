@@ -5,7 +5,7 @@
 * http://www.eclipse.org/legal/epl-v20.html
 *
 * SPDX-License-Identifier: EPL-2.0
-* 
+*
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
@@ -33,7 +33,7 @@ import org.junit.Test;
 
 /**
  * Test for Java snippet registry.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -62,6 +62,36 @@ public class JavaTextDocumentSnippetRegistryTest {
 		ProjectLabelInfoEntry projectInfo2 = new ProjectLabelInfoEntry("", "", Arrays.asList("javax.ws.rs.GET"));
 		boolean match2 = ((SnippetContextForJava) context).isMatch(projectInfo2);
 		assertTrue("Project has javax.ws.rs.GET type", match2);
+
+		ProjectLabelInfoEntry projectInfo3 = new ProjectLabelInfoEntry("", "", Arrays.asList("javax.ws.rs.GET", "jakarta.ws.rs.GET"));
+		boolean match3= ((SnippetContextForJava) context).isMatch(projectInfo3);
+		assertFalse("Project has javax.ws.rs.GET and jakarta.ws.rs.GET types, so the snippet won't display", match3);
+	}
+
+	@Test
+	public void jakartaRESTSnippets() {
+		Optional<Snippet> jakartaRESTResourceClassSnippet = findByPrefix("rest_class", registry);
+		assertTrue("Tests has rest_class Java snippets", jakartaRESTResourceClassSnippet.isPresent());
+
+		ISnippetContext<?> context = jakartaRESTResourceClassSnippet.get().getContext();
+		assertNotNull("rest_class snippet has context", context);
+		assertTrue("rest_class snippet context is Java context", context instanceof SnippetContextForJava);
+
+		ProjectLabelInfoEntry projectInfo = new ProjectLabelInfoEntry("", "", new ArrayList<>());
+		boolean match = ((SnippetContextForJava) context).isMatch(projectInfo);
+		assertFalse("Project has neither javax.ws.rs.GET nor jakarta.ws.rs.GET", match);
+
+		ProjectLabelInfoEntry projectInfo2 = new ProjectLabelInfoEntry("", "", Arrays.asList("javax.ws.rs.GET"));
+		boolean match2 = ((SnippetContextForJava) context).isMatch(projectInfo2);
+		assertFalse("Project has javax.ws.rs.GET", match2);
+
+		ProjectLabelInfoEntry projectInfo3 = new ProjectLabelInfoEntry("", "", Arrays.asList("jakarta.ws.rs.GET"));
+		boolean match3 = ((SnippetContextForJava) context).isMatch(projectInfo3);
+		assertTrue("Project has jakarta.ws.rs.GET", match3);
+
+		ProjectLabelInfoEntry projectInfo4 = new ProjectLabelInfoEntry("", "", Arrays.asList("javax.ws.rs.GET", "jakarta.ws.rs.GET"));
+		boolean match4 = ((SnippetContextForJava) context).isMatch(projectInfo4);
+		assertTrue("Project has javax.ws.rs.GET and jakarta.ws.rs.GET types", match4);
 	}
 
 	@Test
