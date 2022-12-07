@@ -13,8 +13,9 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.services.properties;
 
+import static org.eclipse.lsp4mp.services.properties.PropertiesInfoPropertiesProvider.resolveExpression;
+
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -24,10 +25,6 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
-import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
-import org.eclipse.lsp4mp.commons.utils.ConfigSourcePropertiesProviderUtils;
-import org.eclipse.lsp4mp.commons.utils.IConfigSourcePropertiesProvider;
-import org.eclipse.lsp4mp.commons.utils.PropertyValueExpander;
 import org.eclipse.lsp4mp.ls.commons.BadLocationException;
 import org.eclipse.lsp4mp.model.Node;
 import org.eclipse.lsp4mp.model.Node.NodeType;
@@ -63,11 +60,8 @@ class PropertiesFileInlayHint {
 
 	private static final Logger LOGGER = Logger.getLogger(PropertiesFileInlayHint.class.getName());
 
-	public List<InlayHint> getInlayHint(PropertiesModel document, MicroProfileProjectInfo projectInfo, Range range,
-			CancelChecker cancelChecker) {
-		List<ItemMetadata> metadatas = projectInfo != null && projectInfo.getProperties() != null
-				? projectInfo.getProperties()
-				: Collections.emptyList();
+	public List<InlayHint> getInlayHint(PropertiesModel document, MicroProfileProjectInfo projectInfo,
+			IPropertiesModelProvider propertiesModelProvider, Range range, CancelChecker cancelChecker) {
 		List<InlayHint> hints = new ArrayList<>();
 		List<Node> children = document.getChildren();
 		for (Node child : children) {
@@ -78,10 +72,8 @@ class PropertiesFileInlayHint {
 				if (valueNode != null && valueNode.hasExpression()) {
 					// The current property has a value with expression:
 					// ex : server.url=https://${host}:${port:8080}/${endpoint}
-					IConfigSourcePropertiesProvider propertiesProvider = ConfigSourcePropertiesProviderUtils
-							.layer(document, new PropertiesInfoPropertiesProvider(metadatas));
-					PropertyValueExpander expander = new PropertyValueExpander(propertiesProvider);
-					String resolved = expander.getValue(property.getKey().getPropertyNameWithProfile());
+					String resolved = resolveExpression(property.getPropertyNameWithProfile(), document, projectInfo,
+							propertiesModelProvider, cancelChecker);
 					if (resolved != null) {
 						try {
 							// The expression 'https://${host}:${port:8080}/${endpoint}' can be resolved
@@ -103,4 +95,5 @@ class PropertiesFileInlayHint {
 		}
 		return hints;
 	}
+
 }

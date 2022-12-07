@@ -34,18 +34,19 @@ class PropertiesFileDiagnostics {
 	 *
 	 * @param document           the properties model.
 	 * @param projectInfo        the MicroProfile properties
+	 * @param propertiesModelProvider 
 	 * @param validationSettings the validation settings.
 	 * @param cancelChecker      the cancel checker.
 	 * @return the result of the validation.
 	 */
 	public List<Diagnostic> doDiagnostics(PropertiesModel document, MicroProfileProjectInfo projectInfo,
-			MicroProfileValidationSettings validationSettings, CancelChecker cancelChecker) {
+			IPropertiesModelProvider propertiesModelProvider, MicroProfileValidationSettings validationSettings, CancelChecker cancelChecker) {
 		if (validationSettings == null) {
 			validationSettings = MicroProfileValidationSettings.DEFAULT;
 		}
 		List<Diagnostic> diagnostics = new ArrayList<Diagnostic>();
 		if (validationSettings.isEnabled()) {
-			PropertiesFileValidator validator = new PropertiesFileValidator(projectInfo, diagnostics, validationSettings);
+			PropertiesFileValidator validator = new PropertiesFileValidator(projectInfo, propertiesModelProvider, diagnostics, validationSettings);
 			validator.validate(document, cancelChecker);
 		}
 		return diagnostics;

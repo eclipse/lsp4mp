@@ -59,9 +59,9 @@ import org.eclipse.lsp4mp.ls.AbstractTextDocumentService;
 import org.eclipse.lsp4mp.ls.MicroProfileLanguageServer;
 import org.eclipse.lsp4mp.ls.api.MicroProfileLanguageServerAPI.JsonSchemaForProjectInfo;
 import org.eclipse.lsp4mp.ls.commons.ModelTextDocument;
-import org.eclipse.lsp4mp.ls.commons.ModelTextDocuments;
 import org.eclipse.lsp4mp.ls.commons.ValidatorDelayer;
 import org.eclipse.lsp4mp.model.PropertiesModel;
+import org.eclipse.lsp4mp.services.properties.IPropertiesModelProvider;
 import org.eclipse.lsp4mp.services.properties.PropertiesFileLanguageService;
 import org.eclipse.lsp4mp.settings.MicroProfileFormattingSettings;
 import org.eclipse.lsp4mp.settings.MicroProfileInlayHintSettings;
@@ -69,7 +69,6 @@ import org.eclipse.lsp4mp.settings.MicroProfileSymbolSettings;
 import org.eclipse.lsp4mp.settings.MicroProfileValidationSettings;
 import org.eclipse.lsp4mp.settings.SharedSettings;
 import org.eclipse.lsp4mp.utils.JSONSchemaUtils;
-import org.eclipse.lsp4mp.utils.URIUtils;
 
 /**
  * LSP text document service for 'microprofile-config.properties',
@@ -80,7 +79,7 @@ public class PropertiesFileTextDocumentService extends AbstractTextDocumentServi
 
 	private static final MicroProfileProjectInfo PROJECT_INFO_LOADING = new MicroProfileProjectInfo();
 
-	private final ModelTextDocuments<PropertiesModel> documents;
+	private final PropertiesTextDocuments documents;
 
 	private MicroProfileProjectInfoCache projectInfoCache;
 
@@ -89,7 +88,7 @@ public class PropertiesFileTextDocumentService extends AbstractTextDocumentServi
 	public PropertiesFileTextDocumentService(MicroProfileLanguageServer microprofileLanguageServer,
 			SharedSettings sharedSettings) {
 		super(microprofileLanguageServer, sharedSettings);
-		this.documents = new ModelTextDocuments<PropertiesModel>((document, cancelChecker) -> {
+		this.documents = new PropertiesTextDocuments((document, cancelChecker) -> {
 			return PropertiesModel.parse(document, cancelChecker);
 		});
 		this.validatorDelayer = new ValidatorDelayer<ModelTextDocument<PropertiesModel>>((document) -> {
@@ -138,8 +137,8 @@ public class PropertiesFileTextDocumentService extends AbstractTextDocumentServi
 			// then return completion by using the MicroProfile project information and the
 			// Properties model document
 			CompletionList list = getPropertiesFileLanguageService().doComplete(document, params.getPosition(),
-					projectInfo, sharedSettings.getCompletionCapabilities(), sharedSettings.getFormattingSettings(),
-					cancelChecker);
+					projectInfo, this, sharedSettings.getCompletionCapabilities(),
+					sharedSettings.getFormattingSettings(), cancelChecker);
 			return Either.forRight(list);
 		});
 	}
@@ -152,14 +151,11 @@ public class PropertiesFileTextDocumentService extends AbstractTextDocumentServi
 			// Don't block if it hasn't been computed yet
 			MicroProfileProjectInfoParams projectInfoParams = createProjectInfoParams(params.getTextDocument());
 			MicroProfileProjectInfo projectInfo = getProjectInfoCache().getProjectInfo(projectInfoParams).getNow(null);
-			if (projectInfo == null || projectInfo.getProperties().isEmpty()) {
-				return null;
-			}
 			cancelChecker.checkCanceled();
 
 			// then return hover by using the MicroProfile project information and the
 			// Properties model document
-			return getPropertiesFileLanguageService().doHover(document, params.getPosition(), projectInfo,
+			return getPropertiesFileLanguageService().doHover(document, params.getPosition(), projectInfo, this,
 					sharedSettings.getHoverSettings(), cancelChecker);
 		});
 	}
@@ -193,7 +189,7 @@ public class PropertiesFileTextDocumentService extends AbstractTextDocumentServi
 		return getPropertiesModelCompose(params.getTextDocument(), (document, cancelChecker) -> {
 			MicroProfileProjectInfoParams projectInfoParams = createProjectInfoParams(params.getTextDocument());
 			MicroProfileProjectInfo projectInfo = getProjectInfoCache().getProjectInfo(projectInfoParams).getNow(null);
-			return getPropertiesFileLanguageService().findDefinition(document, params.getPosition(), projectInfo,
+			return getPropertiesFileLanguageService().findDefinition(document, params.getPosition(), projectInfo, this,
 					microprofileLanguageServer.getLanguageClient(), isDefinitionLinkSupport(), cancelChecker);
 		});
 	}
@@ -268,7 +264,8 @@ public class PropertiesFileTextDocumentService extends AbstractTextDocumentServi
 
 	private List<InlayHint> inlayHint(InlayHintParams params, PropertiesModel document,
 			MicroProfileProjectInfo projectInfo, CancelChecker cancelChecker) {
-		return getPropertiesFileLanguageService().getInlayHint(document, projectInfo, params.getRange(), cancelChecker);
+		return getPropertiesFileLanguageService().getInlayHint(document, projectInfo, this, params.getRange(),
+				cancelChecker);
 	}
 
 	private MicroProfileProjectInfoParams createProjectInfoParams(TextDocumentIdentifier id) {
@@ -320,12 +317,9 @@ public class PropertiesFileTextDocumentService extends AbstractTextDocumentServi
 	private CompletionStage<Object> triggerValidationFor(PropertiesModel propertiesModel,
 			MicroProfileProjectInfo projectInfo, CancelChecker cancelChecker) {
 		cancelChecker.checkCanceled();
-		if (projectInfo.getProperties().isEmpty()) {
-			return CompletableFuture.completedFuture(null);
-		}
 
 		List<Diagnostic> diagnostics = getPropertiesFileLanguageService().doDiagnostics(propertiesModel, projectInfo,
-				getSharedSettings().getValidationSettings(), cancelChecker);
+				this, getSharedSettings().getValidationSettings(), cancelChecker);
 		cancelChecker.checkCanceled();
 		microprofileLanguageServer.getLanguageClient()
 				.publishDiagnostics(new PublishDiagnosticsParams(propertiesModel.getDocumentURI(), diagnostics));
@@ -431,22 +425,9 @@ public class PropertiesFileTextDocumentService extends AbstractTextDocumentServi
 	@Override
 	public PropertiesModel getPropertiesModel(String documentURI) {
 		// Try to get the document from the Map.
-		ModelTextDocument<PropertiesModel> document = documents.get(documentURI);
-		if (document != null) {
-			return document.getModel();
-		}
-		// vscode opens the file by encoding the file URI and the 'C' of hard drive
-		// lower case
-		// 'c'.
-		// for --> file:///C:/Users/a folder/application.properties
-		// vscode didOpen --> file:///c%3A/Users/a%20folder/application.properties
-		String encodedFileURI = URIUtils.encodeFileURI(documentURI).toUpperCase();
-		// We loop for all properties files which are opened and we compare the encoded
-		// file URI with upper case
-		for (ModelTextDocument<PropertiesModel> textDocument : documents.all()) {
-			if (textDocument.getUri().toUpperCase().equals(encodedFileURI)) {
-				return textDocument.getModel();
-			}
+		PropertiesModel model = documents.getModel(documentURI);
+		if (model != null) {
+			return model;
 		}
 		return null;
 	}

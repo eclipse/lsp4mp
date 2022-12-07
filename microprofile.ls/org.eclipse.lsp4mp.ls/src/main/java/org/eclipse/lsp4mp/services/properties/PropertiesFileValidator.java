@@ -28,6 +28,7 @@ import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
+import org.eclipse.lsp4mp.commons.ConfigSourceInfo;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.metadata.ConfigurationMetadata;
 import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
@@ -54,21 +55,23 @@ class PropertiesFileValidator {
 
 	private final MicroProfileProjectInfo projectInfo;
 
+	private final IPropertiesModelProvider propertiesModelProvider;
+
 	private final List<Diagnostic> diagnostics;
 
 	private final MicroProfileValidationSettings validationSettings;
-	private final Map<String, List<Property>> existingProperties;
-	private Set<String> allPropertiesFromFile;
+	private Map<String, List<Property>> allPropertiesFromFiles;
 	private Set<String> allPropertiesFromJava;
 
-	public PropertiesFileValidator(MicroProfileProjectInfo projectInfo, List<Diagnostic> diagnostics,
-		MicroProfileValidationSettings validationSettings) {
+	public PropertiesFileValidator(MicroProfileProjectInfo projectInfo,
+			IPropertiesModelProvider propertiesModelProvider, List<Diagnostic> diagnostics,
+			MicroProfileValidationSettings validationSettings) {
 		this.projectInfo = projectInfo;
+		this.propertiesModelProvider = propertiesModelProvider;
 		this.diagnostics = diagnostics;
 		this.validationSettings = validationSettings;
-		this.existingProperties = new HashMap<String, List<Property>>();
 		// to be lazily init
-		this.allPropertiesFromFile = null;
+		this.allPropertiesFromFiles = null;
 		this.allPropertiesFromJava = null;
 	}
 
@@ -76,25 +79,21 @@ class PropertiesFileValidator {
 		List<Node> nodes = document.getChildren();
 
 		for (Node node : nodes) {
-			if (cancelChecker != null) {
-				cancelChecker.checkCanceled();
-			}
+			checkCanceled(cancelChecker);
 			if (node.getNodeType() == NodeType.PROPERTY) {
-				validateProperty((Property) node);
+				validateProperty((Property) node, cancelChecker);
 			}
 		}
 
-		addDiagnosticsForDuplicates();
-		addDiagnosticsForMissingRequired(document);
+		addDiagnosticsForDuplicates(document, cancelChecker);
+		addDiagnosticsForMissingRequired(document, cancelChecker);
 	}
 
-	private void validateProperty(Property property) {
+	private void validateProperty(Property property, CancelChecker cancelChecker) {
 		String propertyNameWithProfile = property.getPropertyNameWithProfile();
 		if (!StringUtils.isEmpty(propertyNameWithProfile)) {
 			// Validate Syntax property
 			validateSyntaxProperty(propertyNameWithProfile, property);
-			// Validate Duplicate property
-			validateDuplicateProperty(propertyNameWithProfile, property);
 		}
 
 		String propertyName = property.getPropertyName();
@@ -108,7 +107,7 @@ class PropertiesFileValidator {
 				// Validate simple property Value
 				validateSimplePropertyValue(propertyNameWithProfile, metadata, property);
 			} else {
-				validatePropertyValueExpressions(propertyNameWithProfile, metadata, property);
+				validatePropertyValueExpressions(propertyNameWithProfile, metadata, property, cancelChecker);
 			}
 		}
 	}
@@ -121,22 +120,8 @@ class PropertiesFileValidator {
 		}
 		if (property.getDelimiterAssign() == null) {
 			addDiagnostic("Missing equals sign after '" + propertyName + "'", property.getKey(), severity,
-				ValidationType.syntax.name());
+					ValidationType.syntax.name());
 		}
-	}
-
-	private void validateDuplicateProperty(String propertyName, Property property) {
-		DiagnosticSeverity severity = validationSettings.getDuplicate().getDiagnosticSeverity(propertyName);
-		if (severity == null) {
-			// The duplicate validation must be ignored for this property name
-			return;
-		}
-
-		if (!existingProperties.containsKey(propertyName)) {
-			existingProperties.put(propertyName, new ArrayList<Property>());
-		}
-
-		existingProperties.get(propertyName).add(property);
 	}
 
 	private void validateUnknownProperty(String propertyName, Property property) {
@@ -146,7 +131,7 @@ class PropertiesFileValidator {
 			return;
 		}
 		addDiagnostic("Unknown property '" + propertyName + "'", property.getKey(), severity,
-			ValidationType.unknown.name());
+				ValidationType.unknown.name());
 	}
 
 	private void validateSimplePropertyValue(String propertyName, ItemMetadata metadata, Property property) {
@@ -157,11 +142,11 @@ class PropertiesFileValidator {
 		int start = propertyValue.getStart();
 		int end = propertyValue.getEnd();
 		validatePropertyValue(propertyName, metadata, property.getPropertyValue(), start, end,
-			property.getOwnerModel());
+				property.getOwnerModel());
 	}
 
 	private void validatePropertyValue(String propertyName, ItemMetadata metadata, String value, int start, int end,
-		PropertiesModel propertiesModel) {
+			PropertiesModel propertiesModel) {
 		if (metadata == null || StringUtils.isEmpty(value)) {
 			return;
 		}
@@ -190,16 +175,18 @@ class PropertiesFileValidator {
 	 * Checks if the property expression is closed, and if the referenced property
 	 * exists.
 	 *
-	 * @param property The property to validate
+	 * @param property      The property to validate
+	 * @param cancelChecker
 	 */
-	private void validatePropertyValueExpressions(String propertyName, ItemMetadata metadata, Property property) {
+	private void validatePropertyValueExpressions(String propertyName, ItemMetadata metadata, Property property,
+			CancelChecker cancelChecker) {
 		if (property.getValue() == null) {
 			return;
 		}
 		DiagnosticSeverity expressionSeverity = validationSettings.getExpression()
-			.getDiagnosticSeverity(property.getPropertyName());
+				.getDiagnosticSeverity(property.getPropertyName());
 		DiagnosticSeverity syntaxSeverity = validationSettings.getSyntax()
-			.getDiagnosticSeverity(property.getPropertyName());
+				.getDiagnosticSeverity(property.getPropertyName());
 		if (expressionSeverity == null || syntaxSeverity == null) {
 			return;
 		}
@@ -207,36 +194,29 @@ class PropertiesFileValidator {
 			if (child != null && child.getNodeType() == NodeType.PROPERTY_VALUE_EXPRESSION) {
 				PropertyValueExpression propValExpr = (PropertyValueExpression) child;
 				if (expressionSeverity != null) {
-					if (allPropertiesFromFile == null) {
-						// Collect names of all properties defined in the configuration file and the
-						// project information
-						allPropertiesFromFile = property.getOwnerModel().getChildren().stream().filter(n -> {
-							return n.getNodeType() == NodeType.PROPERTY;
-						}).map(prop -> {
-							return ((Property) prop).getPropertyNameWithProfile();
-						}).collect(Collectors.toSet());
-						allPropertiesFromJava = projectInfo.getProperties().stream().map((ItemMetadata info) -> {
-							return info.getName();
-						}).collect(Collectors.toSet());
-					}
 					String refdProp = propValExpr.getReferencedPropertyName();
-					if (!allPropertiesFromFile.contains(refdProp)) {
+					if (!getAllPropertiesFromFiles(property.getOwnerModel(), cancelChecker).containsKey(refdProp)) {
+						if (allPropertiesFromJava == null) {
+							allPropertiesFromJava = projectInfo.getProperties().stream().map((ItemMetadata info) -> {
+								return info.getName();
+							}).collect(Collectors.toSet());
+						}
 						// The referenced property name doesn't reference a property inside the file
 						if (allPropertiesFromJava.contains(refdProp)) {
 							Range range = PositionUtils.createRange(propValExpr.getReferenceStartOffset(),
-								propValExpr.getReferenceEndOffset(), propValExpr.getDocument());
+									propValExpr.getReferenceEndOffset(), propValExpr.getDocument());
 							if (range != null) {
 								ItemMetadata referencedProperty = PropertiesFileUtils.getProperty(refdProp,
-									projectInfo);
+										projectInfo);
 								if (referencedProperty.getDefaultValue() != null) {
 									// The referenced property has a default value.
 									addDiagnostic("Cannot reference the property '" + refdProp
-										+ "'. A default value defined via annotation like ConfigProperty is not eligible to be expanded since multiple candidates may be available.",
-										range, expressionSeverity, ValidationType.expression.name());
+											+ "'. A default value defined via annotation like ConfigProperty is not eligible to be expanded since multiple candidates may be available.",
+											range, expressionSeverity, ValidationType.expression.name());
 								} else if (!propValExpr.hasDefaultValue()) {
 									// The referenced property and the property expression have not a default value.
 									addDiagnostic("The referenced property '" + refdProp + "' has no default value.",
-										range, expressionSeverity, ValidationType.expression.name());
+											range, expressionSeverity, ValidationType.expression.name());
 								}
 							}
 						} else {
@@ -245,16 +225,16 @@ class PropertiesFileValidator {
 								int start = propValExpr.getDefaultValueStartOffset();
 								int end = propValExpr.getDefaultValueEndOffset();
 								validatePropertyValue(propertyName, metadata, propValExpr.getDefaultValue(), start, end,
-									propValExpr.getOwnerModel());
+										propValExpr.getOwnerModel());
 							} else {
 								if (!(EnvUtils.isEnvVariable(refdProp))) {
 									// or the expression is an ENV variable
 									// otherwise the error is reported
 									Range range = PositionUtils.createRange(propValExpr.getReferenceStartOffset(),
-										propValExpr.getReferenceEndOffset(), propValExpr.getDocument());
+											propValExpr.getReferenceEndOffset(), propValExpr.getDocument());
 									if (range != null) {
 										addDiagnostic("Unknown referenced property value expression '" + refdProp + "'",
-											range, expressionSeverity, ValidationType.expression.name());
+												range, expressionSeverity, ValidationType.expression.name());
 									}
 								}
 							}
@@ -263,6 +243,51 @@ class PropertiesFileValidator {
 				}
 				if (syntaxSeverity != null && !propValExpr.isClosed()) {
 					addDiagnostic("Missing '}'", propValExpr, syntaxSeverity, ValidationType.syntax.name());
+				}
+			}
+		}
+	}
+
+	private Map<String, List<Property>> getAllPropertiesFromFiles(PropertiesModel current,
+			CancelChecker cancelChecker) {
+		if (allPropertiesFromFiles != null) {
+			return allPropertiesFromFiles;
+		}
+		Map<String, List<Property>> allPropertiesFromFiles = new HashMap<>();
+		boolean fillWithCurrent = false;
+		Set<ConfigSourceInfo> configSources = projectInfo != null ? projectInfo.getConfigSources() : null;
+		if (configSources != null) {
+			for (ConfigSourceInfo configSource : configSources) {
+				checkCanceled(cancelChecker);
+				PropertiesModel document = propertiesModelProvider.getPropertiesModel(configSource.getUri());
+				if (document != null) {
+					if (document == current) {
+						fillWithCurrent = true;
+					}
+					fill(document, allPropertiesFromFiles, cancelChecker);
+				}
+			}
+		}
+		if (!fillWithCurrent) {
+			fill(current, allPropertiesFromFiles, cancelChecker);
+		}
+		this.allPropertiesFromFiles = allPropertiesFromFiles;
+		return this.allPropertiesFromFiles;
+	}
+
+	private void fill(PropertiesModel document, Map<String, List<Property>> allPropertiesFromFiles,
+			CancelChecker cancelChecker) {
+		List<Node> nodes = document.getChildren();
+		for (Node node : nodes) {
+			checkCanceled(cancelChecker);
+			if (node.getNodeType() == NodeType.PROPERTY) {
+				Property property = (Property) node;
+				String propertyNameWithProfile = property.getPropertyNameWithProfile();
+				if (!StringUtils.isEmpty(propertyNameWithProfile)) {
+					if (!allPropertiesFromFiles.containsKey(propertyNameWithProfile)) {
+						allPropertiesFromFiles.put(propertyNameWithProfile, new ArrayList<Property>());
+					}
+					allPropertiesFromFiles.get(propertyNameWithProfile).add(property);
 				}
 			}
 		}
@@ -278,7 +303,7 @@ class PropertiesFileValidator {
 	 *         property defined by <code>metadata</code>
 	 */
 	private String getErrorIfInvalidEnum(ItemMetadata metadata, ConfigurationMetadata configuration,
-		PropertiesModel model, String value) {
+			PropertiesModel model, String value) {
 		if (!PropertiesFileUtils.isValidEnum(metadata, configuration, value)) {
 			return "Invalid enum value: '" + value + "' is invalid for type " + metadata.getType();
 		}
@@ -311,14 +336,14 @@ class PropertiesFileValidator {
 
 		if (metadata.isBooleanType() && !isBooleanString(value)) {
 			return "Type mismatch: " + metadata.getType()
-				+ " expected. By default, this value will be interpreted as 'false'";
+					+ " expected. By default, this value will be interpreted as 'false'";
 		}
 
 		if ((metadata.isIntegerType() && !isIntegerString(value) || (metadata.isFloatType() && !isFloatString(value))
-			|| (metadata.isDoubleType() && !isDoubleString(value)) || (metadata.isLongType() && !isLongString(value))
-			|| (metadata.isShortType() && !isShortString(value))
-			|| (metadata.isBigDecimalType() && !isBigDecimalString(value))
-			|| (metadata.isBigIntegerType() && !isBigIntegerString(value)))) {
+				|| (metadata.isDoubleType() && !isDoubleString(value))
+				|| (metadata.isLongType() && !isLongString(value)) || (metadata.isShortType() && !isShortString(value))
+				|| (metadata.isBigDecimalType() && !isBigDecimalString(value))
+				|| (metadata.isBigIntegerType() && !isBigIntegerString(value)))) {
 			return "Type mismatch: " + metadata.getType() + " expected";
 		}
 		return null;
@@ -330,7 +355,7 @@ class PropertiesFileValidator {
 		}
 		String strUpper = str.toUpperCase();
 		return "TRUE".equals(strUpper) || "FALSE".equals(strUpper) || "Y".equals(strUpper) || "YES".equals(strUpper)
-			|| "1".equals(strUpper) || "ON".equals(strUpper);
+				|| "1".equals(strUpper) || "ON".equals(strUpper);
 	}
 
 	private static boolean isIntegerString(String str) {
@@ -421,8 +446,8 @@ class PropertiesFileValidator {
 		return str.startsWith("${") && str.endsWith("}");
 	}
 
-	private void addDiagnosticsForDuplicates() {
-		existingProperties.forEach((propertyName, propertyList) -> {
+	private void addDiagnosticsForDuplicates(PropertiesModel document, CancelChecker cancelChecker) {
+		getAllPropertiesFromFiles(document, cancelChecker).forEach((propertyName, propertyList) -> {
 			if (propertyList.size() <= 1) {
 				return;
 			}
@@ -431,12 +456,12 @@ class PropertiesFileValidator {
 
 			for (Property property : propertyList) {
 				addDiagnostic("Duplicate property '" + propertyName + "'", property.getKey(), severity,
-					ValidationType.duplicate.name());
+						ValidationType.duplicate.name());
 			}
 		});
 	}
 
-	private void addDiagnosticsForMissingRequired(PropertiesModel document) {
+	private void addDiagnosticsForMissingRequired(PropertiesModel document, CancelChecker cancelChecker) {
 		for (ItemMetadata property : projectInfo.getProperties()) {
 
 			String propertyName = property.getName();
@@ -444,18 +469,19 @@ class PropertiesFileValidator {
 			DiagnosticSeverity severity = validationSettings.getRequired().getDiagnosticSeverity(propertyName);
 
 			if (severity != null && property.isRequired()) {
-				if (!existingProperties.containsKey(propertyName)) {
+				if (!getAllPropertiesFromFiles(document, cancelChecker).containsKey(propertyName)) {
 					addDiagnostic("Missing required property '" + propertyName + "'", document, severity,
-						ValidationType.required.name());
+							ValidationType.required.name());
 				} else {
-					addDiagnosticsForRequiredIfNoValue(propertyName, severity);
+					addDiagnosticsForRequiredIfNoValue(document, propertyName, severity, cancelChecker);
 				}
 			}
 		}
 	}
 
-	private void addDiagnosticsForRequiredIfNoValue(String propertyName, DiagnosticSeverity severity) {
-		List<Property> propertyList = existingProperties.get(propertyName);
+	private void addDiagnosticsForRequiredIfNoValue(PropertiesModel document, String propertyName,
+			DiagnosticSeverity severity, CancelChecker cancelChecker) {
+		List<Property> propertyList = getAllPropertiesFromFiles(document, cancelChecker).get(propertyName);
 
 		for (Property property : propertyList) {
 			if (property.getValue() != null && !property.getValue().getValue().isEmpty()) {
@@ -465,7 +491,7 @@ class PropertiesFileValidator {
 
 		for (Property property : propertyList) {
 			addDiagnostic("Missing required property value for '" + propertyName + "'", property, severity,
-				ValidationType.requiredValue.name());
+					ValidationType.requiredValue.name());
 		}
 	}
 
@@ -482,4 +508,9 @@ class PropertiesFileValidator {
 		return validationSettings;
 	}
 
+	private void checkCanceled(CancelChecker cancelChecker) {
+		if (cancelChecker != null) {
+			cancelChecker.checkCanceled();
+		}
+	}
 }

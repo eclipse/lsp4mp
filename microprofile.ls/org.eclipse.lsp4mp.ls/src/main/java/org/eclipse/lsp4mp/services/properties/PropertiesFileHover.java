@@ -13,6 +13,8 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.services.properties;
 
+import static org.eclipse.lsp4mp.services.properties.PropertiesInfoPropertiesProvider.resolveExpression;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,9 +29,6 @@ import org.eclipse.lsp4mp.commons.metadata.ConfigurationMetadata;
 import org.eclipse.lsp4mp.commons.metadata.ItemHint;
 import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
 import org.eclipse.lsp4mp.commons.metadata.ValueHint;
-import org.eclipse.lsp4mp.commons.utils.ConfigSourcePropertiesProviderUtils;
-import org.eclipse.lsp4mp.commons.utils.IConfigSourcePropertiesProvider;
-import org.eclipse.lsp4mp.commons.utils.PropertyValueExpander;
 import org.eclipse.lsp4mp.commons.utils.StringUtils;
 import org.eclipse.lsp4mp.ls.commons.BadLocationException;
 import org.eclipse.lsp4mp.model.BasePropertyValue;
@@ -60,8 +59,11 @@ class PropertiesFileHover {
 	 * @return Hover object for the currently hovered token
 	 */
 	public Hover doHover(PropertiesModel document, Position position, MicroProfileProjectInfo projectInfo,
-			MicroProfileHoverSettings hoverSettings, CancelChecker cancelChecker) {
-
+			IPropertiesModelProvider propertiesModelProvider, MicroProfileHoverSettings hoverSettings,
+			CancelChecker cancelChecker) {
+		if (projectInfo == null) {
+			projectInfo = MicroProfileProjectInfo.EMPTY_PROJECT_INFO;
+		}
 		Node node = null;
 		int offset = -1;
 		try {
@@ -87,7 +89,8 @@ class PropertiesFileHover {
 				return getPropertyValueHover(propExpr, inDefaultValue, projectInfo, hoverSettings);
 			}
 			// quarkus.log.file.level=${E|NV:OFF}
-			return getPropertyValueExpressionHover(propExpr, projectInfo, hoverSettings, cancelChecker);
+			return getPropertyValueExpressionHover(propExpr, projectInfo, propertiesModelProvider, hoverSettings,
+					cancelChecker);
 		case PROPERTY_VALUE_LITERAL:
 		case PROPERTY_VALUE:
 			return getPropertyValueHover((BasePropertyValue) node, false, projectInfo, hoverSettings);
@@ -98,7 +101,7 @@ class PropertiesFileHover {
 				return getProfileHover(key, hoverSettings);
 			} else {
 				// hover documentation on property key
-				return getPropertyKeyHover(key, projectInfo, hoverSettings, cancelChecker);
+				return getPropertyKeyHover(key, projectInfo, propertiesModelProvider, hoverSettings, cancelChecker);
 			}
 
 		default:
@@ -135,26 +138,24 @@ class PropertiesFileHover {
 	 * Returns the documentation hover for property key represented by the property
 	 * key <code>key</code>
 	 *
-	 * @param key           the property key
-	 * @param offset        the hover offset
-	 * @param projectInfo   the MicroProfile project information
-	 * @param hoverSettings the hover settings
-	 * @param cancelChecker the cancel checker
+	 * @param key                     the property key
+	 * @param offset                  the hover offset
+	 * @param projectInfo             the MicroProfile project information
+	 * @param propertiesModelProvider
+	 * @param hoverSettings           the hover settings
+	 * @param cancelChecker           the cancel checker
 	 * @return the documentation hover for property key represented by token
 	 */
 	private static Hover getPropertyKeyHover(PropertyKey key, MicroProfileProjectInfo projectInfo,
-			MicroProfileHoverSettings hoverSettings, CancelChecker cancelChecker) {
+			IPropertiesModelProvider propertiesModelProvider, MicroProfileHoverSettings hoverSettings,
+			CancelChecker cancelChecker) {
 		boolean markdownSupported = hoverSettings.isContentFormatSupported(MarkupKind.MARKDOWN);
 		// retrieve MicroProfile property from the project information
 		String propertyName = key.getPropertyName();
 
 		PropertiesModel model = key.getOwnerModel();
-		IConfigSourcePropertiesProvider propertiesProvider = ConfigSourcePropertiesProviderUtils.layer(model,
-				new PropertiesInfoPropertiesProvider(projectInfo.getProperties()));
-		PropertyValueExpander expander = new PropertyValueExpander(propertiesProvider);
-		cancelChecker.checkCanceled();
-
-		String propertyValue = expander.getValue(key.getPropertyNameWithProfile());
+		String propertyValue = resolveExpression(key.getPropertyNameWithProfile(), model, projectInfo,
+				propertiesModelProvider, cancelChecker);
 		if (!StringUtils.hasText(propertyValue)) {
 			propertyValue = null;
 		}
@@ -217,18 +218,14 @@ class PropertiesFileHover {
 	}
 
 	private static Hover getPropertyValueExpressionHover(PropertyValueExpression node,
-			MicroProfileProjectInfo projectInfo, MicroProfileHoverSettings hoverSettings, CancelChecker cancelChecker) {
+			MicroProfileProjectInfo projectInfo, IPropertiesModelProvider propertiesModelProvider,
+			MicroProfileHoverSettings hoverSettings, CancelChecker cancelChecker) {
 		String referencedProp = node.getReferencedPropertyName();
 		if (referencedProp == null) {
 			return null;
 		}
-
-		PropertiesModel model = node.getOwnerModel();
-		IConfigSourcePropertiesProvider propertiesProvider = ConfigSourcePropertiesProviderUtils.layer(model, new PropertiesInfoPropertiesProvider(projectInfo.getProperties()));
-		PropertyValueExpander expander = new PropertyValueExpander(propertiesProvider);
-		cancelChecker.checkCanceled();
-
-		String resolvedValue = expander.getValue(referencedProp);
+		String resolvedValue = resolveExpression(referencedProp, node.getOwnerModel(), projectInfo,
+				propertiesModelProvider, cancelChecker);
 
 		if (StringUtils.hasText(resolvedValue)) {
 			return createHover(resolvedValue, node);

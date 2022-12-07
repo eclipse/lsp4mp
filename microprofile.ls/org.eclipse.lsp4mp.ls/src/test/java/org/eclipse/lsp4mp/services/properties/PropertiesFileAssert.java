@@ -188,7 +188,8 @@ public class PropertiesFileAssert {
 		formattingSettings.setSurroundEqualsWithSpaces(insertSpacing);
 
 		PropertiesFileLanguageService languageService = new PropertiesFileLanguageService();
-		CompletionList list = languageService.doComplete(model, position, projectInfo,
+		IPropertiesModelProvider propertiesModelProvider = documentURI -> model;
+		CompletionList list = languageService.doComplete(model, position, projectInfo, propertiesModelProvider,
 				microProfileCompletionCapabilities, formattingSettings, () -> {
 				});
 
@@ -371,9 +372,11 @@ public class PropertiesFileAssert {
 		Position position = model.positionAt(offset);
 
 		PropertiesFileLanguageService languageService = new PropertiesFileLanguageService();
+		IPropertiesModelProvider propertiesModelProvider = documentURI -> model;
 
-		Hover hover = languageService.doHover(model, position, projectInfo, hoverSettings, () -> {
-		});
+		Hover hover = languageService.doHover(model, position, projectInfo, propertiesModelProvider, hoverSettings,
+				() -> {
+				});
 		if (expectedHoverLabel == null) {
 			Assert.assertNull(hover);
 		} else {
@@ -473,9 +476,10 @@ public class PropertiesFileAssert {
 		PropertiesFileLanguageService languageService = new PropertiesFileLanguageService();
 		PropertiesModel document = parse(value, documentName);
 		Position position = document.positionAt(offset);
+		IPropertiesModelProvider propertiesModelProvider = documentURI -> document;
 
-		Either<List<? extends Location>, List<? extends LocationLink>> actual = languageService
-				.findDefinition(document, position, projectInfo, definitionProvider, true, NOOP_CHECKER).get();
+		Either<List<? extends Location>, List<? extends LocationLink>> actual = languageService.findDefinition(document,
+				position, projectInfo, propertiesModelProvider, definitionProvider, true, NOOP_CHECKER).get();
 		assertLocationLink(actual.getRight(), expected);
 
 	}
@@ -518,9 +522,11 @@ public class PropertiesFileAssert {
 			MicroProfileProjectInfo projectInfo, MicroProfileValidationSettings validationSettings,
 			Diagnostic... expected) {
 		PropertiesModel model = parse(value, fileURI);
+		IPropertiesModelProvider propertiesModelProvider = documentURI -> model;
 		PropertiesFileLanguageService languageService = new PropertiesFileLanguageService();
-		List<Diagnostic> actual = languageService.doDiagnostics(model, projectInfo, validationSettings, () -> {
-		});
+		List<Diagnostic> actual = languageService.doDiagnostics(model, projectInfo, propertiesModelProvider,
+				validationSettings, () -> {
+				});
 		if (expectedCount != null) {
 			assertEquals(expectedCount.intValue(), actual.size());
 		}
@@ -738,8 +744,10 @@ public class PropertiesFileAssert {
 		PropertiesModel model = parse(value, null);
 		Range range = null;
 		PropertiesFileLanguageService languageService = new PropertiesFileLanguageService();
-		List<InlayHint> actual = languageService.getInlayHint(model, projectInfo, range, () -> {
-		});
+		IPropertiesModelProvider propertiesModelProvider = documentURI -> model;
+		List<InlayHint> actual = languageService.getInlayHint(model, projectInfo, propertiesModelProvider, range,
+				() -> {
+				});
 		assertInlayHint(actual, expected);
 	}
 

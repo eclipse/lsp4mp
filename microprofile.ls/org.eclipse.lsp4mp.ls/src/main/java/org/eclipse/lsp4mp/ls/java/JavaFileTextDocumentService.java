@@ -64,10 +64,10 @@ import org.eclipse.lsp4mp.ls.commons.ValidatorDelayer;
 import org.eclipse.lsp4mp.ls.commons.client.CommandKind;
 import org.eclipse.lsp4mp.ls.commons.client.ExtendedCompletionCapabilities;
 import org.eclipse.lsp4mp.ls.java.JavaTextDocuments.JavaTextDocument;
-import org.eclipse.lsp4mp.ls.properties.IPropertiesModelProvider;
 import org.eclipse.lsp4mp.model.Node;
 import org.eclipse.lsp4mp.model.PropertiesModel;
 import org.eclipse.lsp4mp.model.Property;
+import org.eclipse.lsp4mp.services.properties.IPropertiesModelProvider;
 import org.eclipse.lsp4mp.settings.MicroProfileCodeLensSettings;
 import org.eclipse.lsp4mp.settings.MicroProfileValidationSettings;
 import org.eclipse.lsp4mp.settings.SharedSettings;
@@ -272,10 +272,7 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 										String documentURI = location.getTargetUri();
 										if (documentURI.endsWith(".properties")) {
 											PropertiesModel model = propertiesModelProvider
-													.getPropertiesModel(documentURI);
-											if (model == null) {
-												model = PropertiesFileUtils.loadProperties(documentURI);
-											}
+													.getPropertiesModel(documentURI);											
 											if (model != null) {
 												for (Node node : model.getChildren()) {
 													if (node.getNodeType() == Node.NodeType.PROPERTY) {
