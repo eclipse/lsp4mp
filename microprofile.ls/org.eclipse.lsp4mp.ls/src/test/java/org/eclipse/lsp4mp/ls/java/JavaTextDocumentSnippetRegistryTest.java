@@ -5,7 +5,7 @@
 * http://www.eclipse.org/legal/epl-v20.html
 *
 * SPDX-License-Identifier: EPL-2.0
-* 
+*
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
@@ -18,6 +18,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,7 +34,7 @@ import org.junit.Test;
 
 /**
  * Test for Java snippet registry.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -41,27 +42,41 @@ public class JavaTextDocumentSnippetRegistryTest {
 
 	private static JavaTextDocumentSnippetRegistry registry = new JavaTextDocumentSnippetRegistry();
 
+	private static final ProjectLabelInfoEntry JAVAX_PROJECT_INFO = new ProjectLabelInfoEntry("", "", Collections.emptyList());
+	private static final ProjectLabelInfoEntry JAKARTA_PROJECT_INFO = new ProjectLabelInfoEntry("", "", Collections.singletonList("jakarta.ws.rs.GET"));
+
 	@Test
 	public void haveJavaSnippets() {
 		assertFalse("Tests has MicroProfile Java snippets", registry.getSnippets().isEmpty());
 	}
 
 	@Test
-	public void jaxrsSnippets() {
-		Optional<Snippet> jaxrsSnippet = findByPrefix("jaxrc", registry);
-		assertTrue("Tests has jaxrc Java snippets", jaxrsSnippet.isPresent());
+	public void restSnippets() {
+		Optional<Snippet> restClassSnippet = findByPrefix("rest_class", registry);
+		assertTrue("Tests has rest_class Java snippet", restClassSnippet.isPresent());
 
-		ISnippetContext<?> context = jaxrsSnippet.get().getContext();
-		assertNotNull("jaxrc snippet has context", context);
-		assertTrue("jaxrc snippet context is Java context", context instanceof SnippetContextForJava);
+		Optional<Snippet> restGetSnippet = findByPrefix("rest_get", registry);
+		assertTrue("Tests has rest_get Java snippet", restGetSnippet.isPresent());
+
+		ISnippetContext<?> context = restClassSnippet.get().getContext();
+		assertNotNull("rest_class snippet has context", context);
+		assertTrue("rest_class snippet context is Java context", context instanceof SnippetContextForJava);
 
 		ProjectLabelInfoEntry projectInfo = new ProjectLabelInfoEntry("", "", new ArrayList<>());
 		boolean match = ((SnippetContextForJava) context).isMatch(projectInfo);
-		assertFalse("Project has no javax.ws.rs.GET type", match);
+		assertFalse("Project has no javax.ws.rs.GET or jakarta.ws.rs.GET type", match);
 
 		ProjectLabelInfoEntry projectInfo2 = new ProjectLabelInfoEntry("", "", Arrays.asList("javax.ws.rs.GET"));
 		boolean match2 = ((SnippetContextForJava) context).isMatch(projectInfo2);
 		assertTrue("Project has javax.ws.rs.GET type", match2);
+
+		ProjectLabelInfoEntry projectInfo3 = new ProjectLabelInfoEntry("", "", Arrays.asList("jakarta.ws.rs.GET"));
+		boolean match3 = ((SnippetContextForJava) context).isMatch(projectInfo3);
+		assertTrue("Project has jakarta.ws.rs.GET type", match3);
+
+		ProjectLabelInfoEntry projectInfo4 = new ProjectLabelInfoEntry("", "", Arrays.asList("javax.ws.rs.GET", "jakarta.ws.rs.GET"));
+		boolean match4= ((SnippetContextForJava) context).isMatch(projectInfo4);
+		assertTrue("Project has javax.ws.rs.GET and jakarta.ws.rs.GET types", match4);
 	}
 
 	@Test
@@ -172,13 +187,13 @@ public class JavaTextDocumentSnippetRegistryTest {
 	}
 
 	@Test
-	public void completionWithPackagename() {
+	public void completionWithPackagenameJavax() {
 		// Create the snippet
 		Snippet snippet = new Snippet();
 		snippet.setPrefixes(Arrays.asList("test"));
 		snippet.setBody(new ArrayList<>(Arrays.asList("package ${packagename};", //
-				"import javax.ws.rs.GET;", //
-				"import javax.ws.rs.Path;")));
+				"import ${ee-namespace}.ws.rs.GET;", //
+				"import ${ee-namespace}.ws.rs.Path;")));
 		JavaTextDocumentSnippetRegistry registry = new JavaTextDocumentSnippetRegistry(false);
 		registry.registerSnippet(snippet);
 
@@ -187,7 +202,7 @@ public class JavaTextDocumentSnippetRegistryTest {
 				.createDocument(new TextDocumentItem("test.java", "java", 0, "abcd"));
 		document.setPackageName("com.foo");
 
-		List<CompletionItem> items = registry.getCompletionItems(document, 0, true, true, (context, model) -> true);
+		List<CompletionItem> items = registry.getCompletionItems(document, 0, true, true, (context, model) -> true, JAVAX_PROJECT_INFO);
 		assertEquals("Completion size", 1, items.size());
 		CompletionItem item = items.get(0);
 		assertNotNull("Completion text edit", item.getTextEdit());
@@ -197,6 +212,35 @@ public class JavaTextDocumentSnippetRegistryTest {
 				"import javax.ws.rs.GET;" + //
 				System.lineSeparator() + //
 				"import javax.ws.rs.Path;" //
+				, item.getTextEdit().getLeft().getNewText());
+	}
+
+	@Test
+	public void completionWithPackagenameJakarta() {
+		// Create the snippet
+		Snippet snippet = new Snippet();
+		snippet.setPrefixes(Arrays.asList("test"));
+		snippet.setBody(new ArrayList<>(Arrays.asList("package ${packagename};", //
+				"import ${ee-namespace}.ws.rs.GET;", //
+				"import ${ee-namespace}.ws.rs.Path;")));
+		JavaTextDocumentSnippetRegistry registry = new JavaTextDocumentSnippetRegistry(false);
+		registry.registerSnippet(snippet);
+
+		// Create a Java text document with com.foo package.
+		JavaTextDocument document = new JavaTextDocuments(null, null)
+				.createDocument(new TextDocumentItem("test.java", "java", 0, "abcd"));
+		document.setPackageName("com.foo");
+
+		List<CompletionItem> items = registry.getCompletionItems(document, 0, true, true, (context, model) -> true, JAKARTA_PROJECT_INFO);
+		assertEquals("Completion size", 1, items.size());
+		CompletionItem item = items.get(0);
+		assertNotNull("Completion text edit", item.getTextEdit());
+		assertEquals("package com.foo;" + //
+				System.lineSeparator() + //
+				System.lineSeparator() + //
+				"import jakarta.ws.rs.GET;" + //
+				System.lineSeparator() + //
+				"import jakarta.ws.rs.Path;" //
 				, item.getTextEdit().getLeft().getNewText());
 	}
 
@@ -216,7 +260,7 @@ public class JavaTextDocumentSnippetRegistryTest {
 				.createDocument(new TextDocumentItem("test.java", "java", 0, "abcd"));
 		document.setPackageName(null);
 
-		List<CompletionItem> items = registry.getCompletionItems(document, 0, true, true, (context, model) -> true);
+		List<CompletionItem> items = registry.getCompletionItems(document, 0, true, true, (context, model) -> true, JAVAX_PROJECT_INFO);
 		assertEquals("Completion size", 1, items.size());
 		CompletionItem item = items.get(0);
 		assertNotNull("Completion text edit", item.getTextEdit());
@@ -245,7 +289,7 @@ public class JavaTextDocumentSnippetRegistryTest {
 				.createDocument(new TextDocumentItem("test.java", "java", 0, "abcd"));
 		document.setPackageName("");
 
-		List<CompletionItem> items = registry.getCompletionItems(document, 0, true, true, (context, model) -> true);
+		List<CompletionItem> items = registry.getCompletionItems(document, 0, true, true, (context, model) -> true, JAVAX_PROJECT_INFO);
 		assertEquals("Completion size", 1, items.size());
 		CompletionItem item = items.get(0);
 		assertNotNull("Completion text edit", item.getTextEdit());
@@ -258,4 +302,5 @@ public class JavaTextDocumentSnippetRegistryTest {
 	private static Optional<Snippet> findByPrefix(String prefix, SnippetRegistry registry) {
 		return registry.getSnippets().stream().filter(snippet -> snippet.getPrefixes().contains(prefix)).findFirst();
 	}
+
 }

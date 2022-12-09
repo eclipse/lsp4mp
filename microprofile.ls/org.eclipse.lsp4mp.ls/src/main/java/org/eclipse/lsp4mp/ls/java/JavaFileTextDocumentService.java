@@ -162,7 +162,8 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 							return ((SnippetContextForJava) context).isMatch(projectInfo);
 						}
 						return true;
-					}).forEach(item -> {
+					}, projectInfo) //
+					.forEach(item -> {
 						list1.getItems().add(item);
 					});
 
