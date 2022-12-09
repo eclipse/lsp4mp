@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.function.BiPredicate;
 
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4mp.commons.ProjectLabelInfoEntry;
 import org.eclipse.lsp4mp.commons.utils.StringUtils;
 import org.eclipse.lsp4mp.ls.commons.BadLocationException;
 import org.eclipse.lsp4mp.ls.commons.snippets.ISnippetContext;
@@ -41,6 +42,15 @@ import org.eclipse.lsp4mp.snippets.SnippetContextForJava;
 public class JavaTextDocumentSnippetRegistry extends TextDocumentSnippetRegistry {
 
 	private static final String PACKAGENAME_KEY = "packagename";
+	private static final String EE_NAMESPACE_KEY = "ee-namespace";
+	private static final String JAVAX_VALUE = "javax";
+	private static final String JAKARTA_VALUE = "jakarta";
+
+	/**
+	 * The type whose presence indicates that the jakarta namespace should be used.
+	 */
+	private static final String JAKARTA_FLAG_TYPE = "jakarta.ws.rs.GET";
+
 	private List<String> types;
 
 	public JavaTextDocumentSnippetRegistry() {
@@ -69,6 +79,7 @@ public class JavaTextDocumentSnippetRegistry extends TextDocumentSnippetRegistry
 			return types;
 		}
 		List<String> types = new ArrayList<>();
+		types.add(JAKARTA_FLAG_TYPE);
 		for (Snippet snippet : getSnippets()) {
 			if (snippet.getContext() != null && snippet.getContext() instanceof SnippetContextForJava) {
 				List<String> snippetTypes = ((SnippetContextForJava) snippet.getContext()).getTypes();
@@ -92,7 +103,7 @@ public class JavaTextDocumentSnippetRegistry extends TextDocumentSnippetRegistry
 
 	/**
 	 * Preprocess Snippet body for managing package name.
-	 * 
+	 *
 	 * @param snippet
 	 */
 	private void preprocessSnippetBody(Snippet snippet) {
@@ -128,7 +139,7 @@ public class JavaTextDocumentSnippetRegistry extends TextDocumentSnippetRegistry
 
 	public List<CompletionItem> getCompletionItems(JavaTextDocument document, int completionOffset,
 			boolean canSupportMarkdown, boolean snippetsSupported,
-			BiPredicate<ISnippetContext<?>, Map<String, String>> contextFilter) {
+			BiPredicate<ISnippetContext<?>, Map<String, String>> contextFilter, ProjectLabelInfoEntry projectInfo) {
 		Map<String, String> model = new HashMap<>();
 		String packageStatement = "";
 		String packageName = document.getPackageName();
@@ -154,7 +165,11 @@ public class JavaTextDocumentSnippetRegistry extends TextDocumentSnippetRegistry
 			}
 		}
 		model.put(PACKAGENAME_KEY, packageStatement);
+		model.put(EE_NAMESPACE_KEY, projectInfo.getLabels().contains(JavaTextDocumentSnippetRegistry.JAKARTA_FLAG_TYPE)
+				? JavaTextDocumentSnippetRegistry.JAKARTA_VALUE
+				: JavaTextDocumentSnippetRegistry.JAVAX_VALUE);
 		return super.getCompletionItems(document, completionOffset, canSupportMarkdown, snippetsSupported,
 				contextFilter, model);
 	}
+
 }

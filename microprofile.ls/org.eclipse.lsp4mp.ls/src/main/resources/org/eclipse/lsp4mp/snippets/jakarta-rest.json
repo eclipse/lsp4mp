@@ -1,0 +1,47 @@
+{
+  "New REST resource class": {
+    "prefix": "rest_class",
+    "body": [
+      "package ${1:packagename};",
+      "",
+      "import ${ee-namespace}.ws.rs.GET;",
+      "import ${ee-namespace}.ws.rs.Path;",
+      "import ${ee-namespace}.ws.rs.Produces;",
+      "import ${ee-namespace}.ws.rs.core.MediaType;",
+      "",
+      "@Path(\"${2:/path}\")",
+      "public class ${TM_FILENAME_BASE} {",
+      "",
+      "\t@GET",
+      "\t@Produces(MediaType.TEXT_PLAIN)",
+      "\tpublic String ${3:methodname}() {",
+      "\t\treturn \"hello\";",
+      "\t}",
+      "}"
+    ],
+    "description": "REST resource class",
+    "context": {
+      "type": [
+        "javax.ws.rs.GET",
+        "jakarta.ws.rs.GET"
+      ]
+    }
+  },
+  "New REST resource GET method": {
+    "prefix": "rest_get",
+    "body": [
+      "@GET",
+      "@Produces(MediaType.TEXT_PLAIN)",
+      "public String ${1:methodname}() {",
+      "\treturn \"hello\";",
+      "}"
+    ],
+    "description": "REST resource GET method",
+    "context": {
+      "type": [
+        "javax.ws.rs.GET",
+        "jakarta.ws.rs.GET"
+      ]
+    }
+  }
+}
