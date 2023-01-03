@@ -171,7 +171,6 @@ public abstract class AbstractPropertiesProvider implements IPropertiesProvider 
 					if (c.getElementType() == IJavaElement.FIELD && ((IField) c).isEnumConstant()) {
 						String enumName = ((IField) c).getElementName();
 						// TODO: extract Javadoc
-						String description = null;
 						ValueHint value = new ValueHint();
 						value.setValue(enumName);
 						itemHint.getValues().add(value);

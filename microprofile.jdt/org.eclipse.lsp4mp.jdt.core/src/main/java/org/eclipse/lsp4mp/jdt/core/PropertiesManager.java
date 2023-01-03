@@ -386,11 +386,11 @@ public class PropertiesManager {
 	 */
 	private static IJavaSearchScope createJavaSearchScope(IJavaProject fakeProject, boolean excludeTestCode,
 			IJavaElement[] elements, int includeMask) {
-		HashSet projectsToBeAdded = new HashSet(2);
+		HashSet<JavaProject> projectsToBeAdded = new HashSet<>(2);
 		for (int i = 0, length = elements.length; i < length; i++) {
 			IJavaElement element = elements[i];
-			if (element instanceof JavaProject) {
-				projectsToBeAdded.add(element);
+			if (element instanceof JavaProject javaProject) {
+				projectsToBeAdded.add(javaProject);
 			}
 		}
 		JavaSearchScope scope = new JavaSearchScope(excludeTestCode) {
