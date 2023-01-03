@@ -25,7 +25,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.lsp4mp.commons.utils.PropertyValueExpander;
 
 /**
  * {@link Properties} config file implementation.
@@ -34,8 +33,6 @@ import org.eclipse.lsp4mp.commons.utils.PropertyValueExpander;
  *
  */
 public class PropertiesConfigSource extends AbstractConfigSource<Properties> {
-
-	private transient PropertyValueExpander propertyValueExpander = null;
 
 	public PropertiesConfigSource(String configFileName, String profile, int ordinal, IJavaProject javaProject) {
 		super(configFileName, profile, ordinal, javaProject);
@@ -60,7 +57,6 @@ public class PropertiesConfigSource extends AbstractConfigSource<Properties> {
 
 	@Override
 	protected Properties loadConfig(InputStream input) throws IOException {
-		propertyValueExpander = null;
 		Properties properties = new Properties();
 		properties.load(input);
 		String profile = getProfile();

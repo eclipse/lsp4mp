@@ -22,7 +22,6 @@ import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IBinding;
-import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
@@ -85,7 +84,7 @@ public class InsertAnnotationProposal extends ASTRewriteCorrectionProposal {
 
 	/**
 	 * Returns the Compilation Unit node
-	 * 
+	 *
 	 * @return the invocation node for the Compilation Unit
 	 */
 	protected CompilationUnit getInvocationNode() {
@@ -94,7 +93,7 @@ public class InsertAnnotationProposal extends ASTRewriteCorrectionProposal {
 
 	/**
 	 * Returns the Binding object associated with the new annotation change
-	 * 
+	 *
 	 * @return the binding object
 	 */
 	protected IBinding getBinding() {
@@ -103,7 +102,7 @@ public class InsertAnnotationProposal extends ASTRewriteCorrectionProposal {
 
 	/**
 	 * Returns the annotations list
-	 * 
+	 *
 	 * @return the list of new annotations to add
 	 */
 	protected String[] getAnnotations() {
