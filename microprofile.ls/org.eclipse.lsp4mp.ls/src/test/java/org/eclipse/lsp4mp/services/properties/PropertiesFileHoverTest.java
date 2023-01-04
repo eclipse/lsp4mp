@@ -12,9 +12,7 @@ package org.eclipse.lsp4mp.services.properties;
 
 import static org.eclipse.lsp4mp.services.properties.PropertiesFileAssert.assertHoverMarkdown;
 import static org.eclipse.lsp4mp.services.properties.PropertiesFileAssert.assertHoverPlaintext;
-import static org.eclipse.lsp4mp.services.properties.PropertiesFileAssert.assertNoHover;
 
-import org.eclipse.lsp4mp.ls.commons.BadLocationException;
 import org.junit.Test;
 
 /**
@@ -70,16 +68,39 @@ public class PropertiesFileHoverTest {
 	};
 
 	@Test
-	public void testNoKeyHoverOnEqualsSign() throws Exception {
+	public void testKeyHoverOnEqualsSign() throws Exception {
 		assertHoverMarkdown("quarkus.application.name |= name", null, 0);
-		assertHoverMarkdown("quarkus.application.name|=name", null, 0);
-		assertHoverMarkdown("quarkus.log.syslog.async.overflow|=DISCARD", null, 0);
+		String hoverLabel = "**quarkus.application.name**" + System.lineSeparator() + System.lineSeparator() + //
+				"The name of the application.\nIf not set, defaults to the name of the project (except for tests where it is not set at all)."
+				+ System.lineSeparator() + System.lineSeparator() + //
+				" * Type: `java.util.Optional<java.lang.String>`" + System.lineSeparator() + //
+				" * Value: `name`" + System.lineSeparator() + //
+				" * Phase: `buildtime & runtime`" + System.lineSeparator() + //
+				" * Extension: `quarkus-core`";
+		assertHoverMarkdown("quarkus.application.name|=name", hoverLabel, 0);
+		hoverLabel = "**quarkus.log.syslog.async.overflow**" + System.lineSeparator() + System.lineSeparator() + //
+				"Determine whether to block the publisher (rather than drop the message) when the queue is full"
+				+ System.lineSeparator() + System.lineSeparator() + //
+				" * Type: `org.jboss.logmanager.handlers.AsyncHandler.OverflowAction`" + System.lineSeparator() + //
+				" * Default: `block`" + System.lineSeparator() + //
+				" * Value: `DISCARD`" + System.lineSeparator() + //
+				" * Phase: `runtime`" + System.lineSeparator() + //
+				" * Extension: `quarkus-core`";
+		assertHoverMarkdown("quarkus.log.syslog.async.overflow|=DISCARD", hoverLabel, 0);
 	};
 
 	@Test
-	public void testNoValueHoverOnEqualsSign() throws Exception {
+	public void testValueHoverOnEqualsSign() throws Exception {
 		assertHoverMarkdown("quarkus.log.syslog.async.overflow |= DISCARD", null, 0);
-		assertHoverMarkdown("quarkus.log.syslog.async.overflow|=DISCARD", null, 0);
+		String hoverLabel = "**quarkus.log.syslog.async.overflow**" + System.lineSeparator() + System.lineSeparator() + //
+				"Determine whether to block the publisher (rather than drop the message) when the queue is full"
+				+ System.lineSeparator() + System.lineSeparator() + //
+				" * Type: `org.jboss.logmanager.handlers.AsyncHandler.OverflowAction`" + System.lineSeparator() + //
+				" * Default: `block`" + System.lineSeparator() + //
+				" * Value: `DISCARD`" + System.lineSeparator() + //
+				" * Phase: `runtime`" + System.lineSeparator() + //
+				" * Extension: `quarkus-core`";
+		assertHoverMarkdown("quarkus.log.syslog.async.overflow|=DISCARD", hoverLabel, 0);
 	};
 
 	@Test
