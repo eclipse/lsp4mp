@@ -170,21 +170,32 @@ public class Property extends Node {
 		if (key == null) {
 			return this;
 		}
-		if (key.getEnd() == -1) {
+		/*
+		 * eg.
+		 *
+		 * asdf|
+		 * asdf| = value
+		 * asdf|=value
+		 */
+		if (key.getEnd() == -1 || offset <= key.getEnd()) {
 			return key;
 		}
 		Node assign = getDelimiterAssign();
 		if (assign == null) {
 			return key;
 		}
-		if (assign.getStart() == offset) {
+		Node value = getValue();
+		/*
+		 * eg.
+		 *
+		 * asdf =|
+		 * asdf |= value
+		 * asdf =| value
+		 */
+		if (value == null || offset < value.getStart()) {
 			return assign;
 		}
-		if (offset >= assign.getStart()) {
-			Node value = getValue();
-			return value != null ? value.findNodeAt(offset) : assign;
-		}
-		return key;
+		return value.findNodeAt(offset);
 	}
 
 	@Override

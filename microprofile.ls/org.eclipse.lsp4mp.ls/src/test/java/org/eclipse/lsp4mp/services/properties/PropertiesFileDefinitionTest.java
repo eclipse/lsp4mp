@@ -36,8 +36,40 @@ public class PropertiesFileDefinitionTest {
 	}
 
 	@Test
-	public void definitionOnKey() throws BadLocationException, InterruptedException, ExecutionException {
+	public void definitionOnKeyNoValue() throws BadLocationException, InterruptedException, ExecutionException {
 		String value = "quarkus.application.na|me";
+		testDefinitionFor(value, ll(
+				"jdt://contents/quarkus-core-1.3.2.Final.jar/io.quarkus.runtime/ApplicationConfig.class?=all-quarkus-extensions/C:%5C/Users%5C/azerr%5C/.m2%5C/repository%5C/io%5C/quarkus%5C/quarkus-core%5C/1.3.2.Final%5C/quarkus-core-1.3.2.Final.jar%3Cio.quarkus.runtime(ApplicationConfig.class",
+				r(0, 0, 24), r(16, 28, 32)));
+	}
+
+	@Test
+	public void definitionBeforeKeyNoValue() throws BadLocationException, InterruptedException, ExecutionException {
+		String value = "|quarkus.application.name";
+		testDefinitionFor(value, ll(
+				"jdt://contents/quarkus-core-1.3.2.Final.jar/io.quarkus.runtime/ApplicationConfig.class?=all-quarkus-extensions/C:%5C/Users%5C/azerr%5C/.m2%5C/repository%5C/io%5C/quarkus%5C/quarkus-core%5C/1.3.2.Final%5C/quarkus-core-1.3.2.Final.jar%3Cio.quarkus.runtime(ApplicationConfig.class",
+				r(0, 0, 24), r(16, 28, 32)));
+	}
+
+	@Test
+	public void definitionAfterKeyNoValue() throws BadLocationException, InterruptedException, ExecutionException {
+		String value = "quarkus.application.name|";
+		testDefinitionFor(value, ll(
+				"jdt://contents/quarkus-core-1.3.2.Final.jar/io.quarkus.runtime/ApplicationConfig.class?=all-quarkus-extensions/C:%5C/Users%5C/azerr%5C/.m2%5C/repository%5C/io%5C/quarkus%5C/quarkus-core%5C/1.3.2.Final%5C/quarkus-core-1.3.2.Final.jar%3Cio.quarkus.runtime(ApplicationConfig.class",
+				r(0, 0, 24), r(16, 28, 32)));
+	}
+
+	@Test
+	public void definitionAfterKeyNoSpace() throws BadLocationException, InterruptedException, ExecutionException {
+		String value = "quarkus.application.name|=my-app";
+		testDefinitionFor(value, ll(
+				"jdt://contents/quarkus-core-1.3.2.Final.jar/io.quarkus.runtime/ApplicationConfig.class?=all-quarkus-extensions/C:%5C/Users%5C/azerr%5C/.m2%5C/repository%5C/io%5C/quarkus%5C/quarkus-core%5C/1.3.2.Final%5C/quarkus-core-1.3.2.Final.jar%3Cio.quarkus.runtime(ApplicationConfig.class",
+				r(0, 0, 24), r(16, 28, 32)));
+	}
+
+	@Test
+	public void definitionBeforeKeyNoSpace() throws BadLocationException, InterruptedException, ExecutionException {
+		String value = "|quarkus.application.name=my-app";
 		testDefinitionFor(value, ll(
 				"jdt://contents/quarkus-core-1.3.2.Final.jar/io.quarkus.runtime/ApplicationConfig.class?=all-quarkus-extensions/C:%5C/Users%5C/azerr%5C/.m2%5C/repository%5C/io%5C/quarkus%5C/quarkus-core%5C/1.3.2.Final%5C/quarkus-core-1.3.2.Final.jar%3Cio.quarkus.runtime(ApplicationConfig.class",
 				r(0, 0, 24), r(16, 28, 32)));

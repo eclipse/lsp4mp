@@ -77,11 +77,11 @@ public class PropertiesFileDefinition {
 				return getEmptyDefinition();
 			}
 
-			boolean inDefautlValue = false;
+			boolean inDefaultValue = false;
 			if (node.getNodeType() == NodeType.PROPERTY_VALUE_EXPRESSION) {
 				PropertyValueExpression propertyValueExpression = (PropertyValueExpression) node;
-				inDefautlValue = propertyValueExpression.isInDefaultValue(offset);
-				if (!inDefautlValue) {
+				inDefaultValue = propertyValueExpression.isInDefaultValue(offset);
+				if (!inDefaultValue) {
 					return CompletableFuture
 							.completedFuture(findPropertyValueExpressionDefinition(document, propertyValueExpression));
 				}
@@ -101,11 +101,11 @@ public class PropertiesFileDefinition {
 			}
 
 			MicroProfilePropertyDefinitionParams definitionParams = getPropertyDefinitionParams(document, item,
-					projectInfo, node, inDefautlValue);
+					projectInfo, node, inDefaultValue);
 			if (definitionParams == null) {
 				return getEmptyDefinition();
 			}
-			boolean selectDefaultValue = inDefautlValue;
+			boolean selectDefaultValue = inDefaultValue;
 			return provider.getPropertyDefinition(definitionParams).thenApply(target -> {
 				cancelChecker.checkCanceled();
 				if (target == null) {
