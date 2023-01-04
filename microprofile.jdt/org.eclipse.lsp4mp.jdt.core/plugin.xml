@@ -110,7 +110,11 @@
    <!-- Microprofile Config Static Property support -->
 
    <extension point="org.eclipse.lsp4mp.jdt.core.staticPropertyProviders">
-      <staticPropertyProvider resource="/static-properties/mp-config-metadata.json" />
+      <staticPropertyProvider resource="/static-properties/mp-config-metadata.json" >
+         <enabledWhen>
+            <typeOnClasspath type="org.eclipse.microprofile.config.Config" />
+         </enabledWhen>
+      </staticPropertyProvider>
    </extension>
 
    <!-- Microprofile Context Propagation support -->
@@ -119,7 +123,7 @@
       <!-- Properties provider for MicroProfile Context Propagation -->
       <staticPropertyProvider resource="/static-properties/mp-context-propagation-metadata.json" >
          <enabledWhen>
-            <typeOnClasspath type = "org.eclipse.microprofile.context.ThreadContext" />
+            <typeOnClasspath type="org.eclipse.microprofile.context.ThreadContext" />
          </enabledWhen>
       </staticPropertyProvider>
    </extension>
@@ -179,7 +183,7 @@
       <!-- Properties provider for MicroProfile Health -->
       <staticPropertyProvider resource="/static-properties/mp-lra-metadata.json" >
          <enabledWhen>
-            <typeOnClasspath type = "org.eclipse.microprofile.lra.annotation.ws.rs.LRA" />
+            <typeOnClasspath type="org.eclipse.microprofile.lra.annotation.ws.rs.LRA" />
          </enabledWhen>
       </staticPropertyProvider>
    </extension>
@@ -190,7 +194,7 @@
       <!-- Properties provider for MicroProfile Metrics -->
       <staticPropertyProvider resource="/static-properties/mp-metrics-metadata.json" >
          <enabledWhen>
-            <typeOnClasspath type = "org.eclipse.microprofile.metrics.MetricID" />
+            <typeOnClasspath type="org.eclipse.microprofile.metrics.MetricID" />
          </enabledWhen>
       </staticPropertyProvider>
    </extension>
@@ -210,7 +214,7 @@
       <!-- Properties provider for MicroProfile OpenTracing -->
       <staticPropertyProvider resource="/static-properties/mp-opentracing-metadata.json" >
          <enabledWhen>
-            <typeOnClasspath type = "org.eclipse.microprofile.opentracing.Traced" />
+            <typeOnClasspath type="org.eclipse.microprofile.opentracing.Traced" />
          </enabledWhen>
       </staticPropertyProvider>
    </extension>
@@ -221,7 +225,7 @@
       <!-- Properties provider for the MicroProfile OpenAPI -->
       <staticPropertyProvider resource="/static-properties/mp-openapi-metadata.json" >
          <enabledWhen>
-            <typeOnClasspath type = "org.eclipse.microprofile.openapi.OASConfig" />
+            <typeOnClasspath type="org.eclipse.microprofile.openapi.OASConfig" />
          </enabledWhen>
       </staticPropertyProvider>
    </extension>
@@ -238,7 +242,7 @@
       <!-- Properties provider for MicroProfile Health -->
       <staticPropertyProvider resource="/static-properties/mp-health-metadata.json" >
          <enabledWhen>
-            <typeOnClasspath type = "org.eclipse.microprofile.health.Liveness" />
+            <typeOnClasspath type="org.eclipse.microprofile.health.Liveness" />
          </enabledWhen>
       </staticPropertyProvider>
    </extension>
@@ -300,7 +304,7 @@
       <!-- Properties provider for MicroProfile JWT -->
       <staticPropertyProvider resource="/static-properties/mp-jwt-metadata.json" >
          <enabledWhen>
-            <typeOnClasspath type = "org.eclipse.microprofile.jwt.Claim" />
+            <typeOnClasspath type="org.eclipse.microprofile.jwt.Claim" />
          </enabledWhen>
       </staticPropertyProvider>
    </extension>
@@ -311,7 +315,7 @@
       <!-- Properties provider for MicroProfile GraphQL -->
       <staticPropertyProvider resource="/static-properties/mp-graphql-metadata.json" >
          <enabledWhen>
-            <typeOnClasspath type = "org.eclipse.microprofile.graphql.Name" />
+            <typeOnClasspath type="org.eclipse.microprofile.graphql.Name" />
          </enabledWhen>
       </staticPropertyProvider>
    </extension>
