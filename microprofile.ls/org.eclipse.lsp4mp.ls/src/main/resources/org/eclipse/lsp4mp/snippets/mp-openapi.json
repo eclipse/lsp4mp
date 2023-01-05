@@ -12,7 +12,8 @@
     ],
     "description": "Describes an operation or typically a HTTP method against a specific path.",
     "context": {
-    	"type": "org.eclipse.microprofile.openapi.annotations.Operation"
+      "type": "org.eclipse.microprofile.openapi.annotations.Operation",
+      "contentType": "method-annotation"
     }
   },
   "@Content": {
@@ -24,7 +25,8 @@
     ],
     "description": "Provides media type",
     "context": {
-      "type": "org.eclipse.microprofile.openapi.annotations.media.Content"
+      "type": "org.eclipse.microprofile.openapi.annotations.media.Content",
+      "contentType": "method-annotation"
     }
   },
   "@Content with Schema": {
@@ -39,7 +41,8 @@
     ],
     "description": "Provides schema and examples for a particular media type.",
     "context": {
-      "type": "org.eclipse.microprofile.openapi.annotations.media.Content"
+      "type": "org.eclipse.microprofile.openapi.annotations.media.Content",
+      "contentType": "method-annotation"
     }
   },
   "@Schema with implementation": {
@@ -51,7 +54,8 @@
     ],
     "description": "Allows the definition of input and output data types.",
     "context": {
-      "type": "org.eclipse.microprofile.openapi.annotations.media.Schema"
+      "type": "org.eclipse.microprofile.openapi.annotations.media.Schema",
+      "contentType": "method-annotation"
     }
   },
   "@Schema with type": {
@@ -63,7 +67,8 @@
     ],
     "description": "Allows the definition of input and output data types.",
     "context": {
-      "type": "org.eclipse.microprofile.openapi.annotations.media.Schema"
+      "type": "org.eclipse.microprofile.openapi.annotations.media.Schema",
+      "contentType": "method-annotation"
     }
   },
   "@Schema with implementation and type": {
@@ -78,7 +83,8 @@
     ],
     "description": "Allows the definition of input and output data types.",
     "context": {
-      "type": "org.eclipse.microprofile.openapi.annotations.media.Schema"
+      "type": "org.eclipse.microprofile.openapi.annotations.media.Schema",
+      "contentType": "method-annotation"
     }
   },
   "@Parameters": {
@@ -93,7 +99,8 @@
     ],
     "description": "Encapsulates input parameters.",
     "context": {
-      "type": "org.eclipse.microprofile.openapi.annotations.parameters.Parameters"
+      "type": "org.eclipse.microprofile.openapi.annotations.parameters.Parameters",
+      "contentType": "method-annotation"
     }
   },
   "@Parameter": {
@@ -110,7 +117,8 @@
     ],
     "description": "Describes a single operation parameter.",
     "context": {
-      "type": "org.eclipse.microprofile.openapi.annotations.parameters.Parameter"
+      "type": "org.eclipse.microprofile.openapi.annotations.parameters.Parameter",
+      "contentType": "method-annotation"
     }
   },
   "@APIResponses": {
@@ -125,7 +133,8 @@
     ],
     "description": "A container for multiple responses from an API operation.",
     "context": {
-      "type": "org.eclipse.microprofile.openapi.annotations.responses.APIResponses"
+      "type": "org.eclipse.microprofile.openapi.annotations.responses.APIResponses",
+      "contentType": "method-annotation"
     }
   },
   "@APIResponse": {
@@ -142,7 +151,8 @@
     ],
     "description": "Describes a single response from an API operation.",
     "context": {
-      "type": "org.eclipse.microprofile.openapi.annotations.responses.APIResponse"
+      "type": "org.eclipse.microprofile.openapi.annotations.responses.APIResponse",
+      "contentType": "method-annotation"
     }
   }
 }

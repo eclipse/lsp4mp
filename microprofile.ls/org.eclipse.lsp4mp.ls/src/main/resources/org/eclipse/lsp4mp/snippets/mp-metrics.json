@@ -12,7 +12,8 @@
     ],
     "description": "An annotation that contains the metadata information when requesting a metric to be injected or produced. This annotation can be used on fields of type Meter, Timer, Counter, and Histogram. For Gauge, the @Metric annotation can only be used on producer methods/fields.",
     "context": {
-      "type": "org.eclipse.microprofile.metrics.annotation.Metric"
+      "type": "org.eclipse.microprofile.metrics.annotation.Metric",
+      "contentType": "method-annotation"
     }
   },
   "@Counted": {
@@ -27,7 +28,8 @@
     ],
     "description": "Denotes a counter, which counts the invocations of the annotated object.",
     "context": {
-      "type": "org.eclipse.microprofile.metrics.annotation.Counted"
+      "type": "org.eclipse.microprofile.metrics.annotation.Counted",
+      "contentType": "method-annotation"
     }
   },
   "@Gauge": {
@@ -43,7 +45,8 @@
     ],
     "description": "Denotes a gauge, which samples the value of the annotated object.",
     "context": {
-      "type": "org.eclipse.microprofile.metrics.annotation.Gauge"
+      "type": "org.eclipse.microprofile.metrics.annotation.Gauge",
+      "contentType": "method-annotation"
     }
   },
   "@ConcurrentGauge": {
@@ -58,7 +61,8 @@
     ],
     "description": "Denotes a gauge which counts the parallel invocations of the annotated object.",
     "context": {
-      "type": "org.eclipse.microprofile.metrics.annotation.ConcurrentGauge"
+      "type": "org.eclipse.microprofile.metrics.annotation.ConcurrentGauge",
+      "contentType": "method-annotation"
     }
   },
   "@Metered": {
@@ -73,7 +77,8 @@
     ],
     "description": "Denotes a meter, which tracks the frequency of invocations of the annotated object.",
     "context": {
-      "type": "org.eclipse.microprofile.metrics.annotation.Metered"
+      "type": "org.eclipse.microprofile.metrics.annotation.Metered",
+      "contentType": "method-annotation"
     }
   },
   "@Timed": {
@@ -88,7 +93,8 @@
     ],
     "description": "Denotes a timer, which tracks duration of the annotated object.",
     "context": {
-      "type": "org.eclipse.microprofile.metrics.annotation.Timed"
+      "type": "org.eclipse.microprofile.metrics.annotation.Timed",
+      "contentType": "method-annotation"
     }
   },
   "@SimplyTimed": {
@@ -103,7 +109,8 @@
     ],
     "description": "Denotes a simple timer, which tracks duration and invocations of the annotated object.",
     "context": {
-      "type": "org.eclipse.microprofile.metrics.annotation.SimplyTimed"
+      "type": "org.eclipse.microprofile.metrics.annotation.SimplyTimed",
+      "contentType": "method-annotation"
     }
   },
   "@RegistryType": {
@@ -115,7 +122,8 @@
     ],
     "description": "Qualifies the scope of Metric Registry to inject when injecting a MetricRegistry.",
     "context": {
-      "type": "org.eclipse.microprofile.metrics.annotation.RegistryType"
+      "type": "org.eclipse.microprofile.metrics.annotation.RegistryType",
+      "contentType": "method-annotation"
     }
   }
 }

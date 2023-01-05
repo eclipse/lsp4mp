@@ -39,11 +39,14 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4mp.commons.CodeActionResolveData;
 import org.eclipse.lsp4mp.commons.DocumentFormat;
+import org.eclipse.lsp4mp.commons.JavaCursorContextKind;
+import org.eclipse.lsp4mp.commons.JavaCursorContextResult;
 import org.eclipse.lsp4mp.commons.JavaFileInfo;
 import org.eclipse.lsp4mp.commons.MicroProfileDefinition;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeActionParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeLensParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCompletionParams;
+import org.eclipse.lsp4mp.commons.MicroProfileJavaCompletionResult;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaDefinitionParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaDiagnosticsParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaDiagnosticsSettings;
@@ -271,19 +274,21 @@ public class MicroProfileDelegateCommandHandlerForJava extends AbstractMicroProf
 	}
 
 	/**
-	 * Return the completion items for the given arguments
+	 * Return the completion result for the given arguments
 	 *
 	 * @param arguments
 	 * @param commandId
 	 * @param monitor
-	 * @return the completion items for the given arguments
+	 * @return the completion result for the given arguments
 	 * @throws JavaModelException
 	 * @throws CoreException
 	 */
-	private static CompletionList getCompletionForJava(List<Object> arguments, String commandId,
+	private static MicroProfileJavaCompletionResult getCompletionForJava(List<Object> arguments, String commandId,
 			IProgressMonitor monitor) throws JavaModelException, CoreException {
 		MicroProfileJavaCompletionParams params = createMicroProfileJavaCompletionParams(arguments, commandId);
-		return PropertiesManagerForJava.getInstance().completion(params, JDTUtilsLSImpl.getInstance(), monitor);
+		CompletionList completionList = PropertiesManagerForJava.getInstance().completion(params, JDTUtilsLSImpl.getInstance(), monitor);
+		JavaCursorContextResult cursorContext = PropertiesManagerForJava.javaCursorContext(params, JDTUtilsLSImpl.getInstance(), monitor);
+		return new MicroProfileJavaCompletionResult(completionList, cursorContext);
 	}
 
 	/**
@@ -376,7 +381,6 @@ public class MicroProfileDelegateCommandHandlerForJava extends AbstractMicroProf
 		MicroProfileJavaDiagnosticsParams params = createMicroProfileJavaDiagnosticsParams(arguments, commandId);
 		// Return diagnostics from parameter
 		return PropertiesManagerForJava.getInstance().diagnostics(params, JDTUtilsLSImpl.getInstance(), monitor);
-
 	}
 
 	/**
@@ -459,4 +463,5 @@ public class MicroProfileDelegateCommandHandlerForJava extends AbstractMicroProf
 		boolean surroundEqualsWithSpaces = ((Boolean) obj.get("surroundEqualsWithSpaces")).booleanValue();
 		return new MicroProfileJavaHoverParams(javaFileUri, hoverPosition, documentFormat, surroundEqualsWithSpaces);
 	}
+
 }

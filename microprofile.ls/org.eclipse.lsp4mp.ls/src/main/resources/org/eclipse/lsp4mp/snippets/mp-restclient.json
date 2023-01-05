@@ -24,7 +24,8 @@
     ],
     "description": "MicroProfile - new rest client",
     "context": {
-      "type": "org.eclipse.microprofile.rest.client.inject.RegisterRestClient"
+      "type": "org.eclipse.microprofile.rest.client.inject.RegisterRestClient",
+      "contentType": "class"
     }
   },
   "MicroProfile - inject rest client": {
@@ -32,7 +33,8 @@
     "body": ["@Inject", "@RestClient", "${1:Client} ${2:client};"],
     "description": "MicroProfile - inject rest client",
     "context": {
-      "type": "org.eclipse.microprofile.rest.client.inject.RegisterRestClient"
+      "type": "org.eclipse.microprofile.rest.client.inject.RegisterRestClient",
+      "contentType": "field"
     }
   }
 }

@@ -8,7 +8,8 @@
     ],
     "description": "The annotation to define a method execution timeout.",
     "context": {
-      "type": "org.eclipse.microprofile.faulttolerance.Timeout"
+      "type": "org.eclipse.microprofile.faulttolerance.Timeout",
+      "contentType": "method-annotation"
     }
   },
   "@Retry": {
@@ -25,7 +26,8 @@
     ],
     "description": "The retry annotation to define the number of retries",
     "context": {
-      "type": "org.eclipse.microprofile.faulttolerance.Retry"
+      "type": "org.eclipse.microprofile.faulttolerance.Retry",
+      "contentType": "method-annotation"
     }
   },
   "@Fallback with method": {
@@ -41,7 +43,8 @@
     ],
     "description": "The fallback annotation using a fallback method",
     "context": {
-      "type": "org.eclipse.microprofile.faulttolerance.Fallback"
+      "type": "org.eclipse.microprofile.faulttolerance.Fallback",
+      "contentType": "method-annotation"
     }
   },
   "@Fallback with class": {
@@ -57,7 +60,8 @@
     ],
     "description": "The fallback annotation using a fallback class",
     "context": {
-      "type": "org.eclipse.microprofile.faulttolerance.Fallback"
+      "type": "org.eclipse.microprofile.faulttolerance.Fallback",
+      "contentType": "method-annotation"
     }
   },
   "@CircuitBreaker": {
@@ -75,7 +79,8 @@
     ],
     "description": "Defines a circuit breaker policy to an individual method or a class.",
     "context": {
-      "type": "org.eclipse.microprofile.faulttolerance.CircuitBreaker"
+      "type": "org.eclipse.microprofile.faulttolerance.CircuitBreaker",
+      "contentType": "method-annotation"
     }
   },
   "@Bulkhead": {
@@ -87,7 +92,8 @@
     ],
     "description": "Define bulkhead policy to limit the number of the concurrent calls to an instance.",
     "context": {
-      "type": "org.eclipse.microprofile.faulttolerance.Bulkhead"
+      "type": "org.eclipse.microprofile.faulttolerance.Bulkhead",
+      "contentType": "method-annotation"
     }
   }
 }
