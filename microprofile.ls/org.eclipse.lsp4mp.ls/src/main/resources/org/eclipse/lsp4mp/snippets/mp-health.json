@@ -21,7 +21,8 @@
       "}"
     ],
     "context": {
-      "type": "org.eclipse.microprofile.health.Readiness"
+      "type": "org.eclipse.microprofile.health.Readiness",
+      "contentType": "class"
     },
     "description": "MicroProfile Health readiness check"
   },
@@ -47,7 +48,8 @@
       "}"
     ],
     "context": {
-      "type": "org.eclipse.microprofile.health.Liveness"
+      "type": "org.eclipse.microprofile.health.Liveness",
+      "contentType": "class"
     },
     "description": "MicroProfile Health liveness check"
   }

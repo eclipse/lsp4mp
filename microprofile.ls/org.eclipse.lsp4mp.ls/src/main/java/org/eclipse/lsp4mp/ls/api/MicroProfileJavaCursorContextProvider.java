@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2021 Red Hat Inc. and others.
+* Copyright (c) 2023 Red Hat Inc. and others.
 *
 * This program and the accompanying materials are made available under the
 * terms of the Eclipse Public License v. 2.0 which is available at
@@ -16,18 +16,19 @@ package org.eclipse.lsp4mp.ls.api;
 import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
+import org.eclipse.lsp4mp.commons.JavaCursorContextResult;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCompletionParams;
-import org.eclipse.lsp4mp.commons.MicroProfileJavaCompletionResult;
 
 /**
- * Interface for MicroProfile specific completion in Java files
+ * Returns context related to the cursor location in the given document,
+ * or null if the client doesn't yet support this.
  *
- * @author datho7561
+ * @see JavaCursorContextResult
  */
-public interface MicroProfileJavaCompletionProvider {
+public interface MicroProfileJavaCursorContextProvider {
 
-	@JsonRequest("microprofile/java/completion")
-	default CompletableFuture<MicroProfileJavaCompletionResult> getJavaCompletion(MicroProfileJavaCompletionParams javaParams) {
+	@JsonRequest("microprofile/java/javaCursorContext")
+	default CompletableFuture<JavaCursorContextResult> getJavaCursorContext(MicroProfileJavaCompletionParams context) {
 		return CompletableFuture.completedFuture(null);
 	}
 

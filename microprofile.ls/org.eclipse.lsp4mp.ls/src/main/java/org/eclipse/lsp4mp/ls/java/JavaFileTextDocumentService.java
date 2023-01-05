@@ -47,9 +47,11 @@ import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4mp.commons.DocumentFormat;
+import org.eclipse.lsp4mp.commons.JavaCursorContextResult;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeActionParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeLensParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCompletionParams;
+import org.eclipse.lsp4mp.commons.MicroProfileJavaCompletionResult;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaDefinitionParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaDiagnosticsParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaDiagnosticsSettings;
@@ -71,6 +73,7 @@ import org.eclipse.lsp4mp.model.Property;
 import org.eclipse.lsp4mp.settings.MicroProfileCodeLensSettings;
 import org.eclipse.lsp4mp.settings.MicroProfileValidationSettings;
 import org.eclipse.lsp4mp.settings.SharedSettings;
+import org.eclipse.lsp4mp.snippets.JavaSnippetCompletionContext;
 import org.eclipse.lsp4mp.snippets.SnippetContextForJava;
 import org.eclipse.lsp4mp.utils.PositionUtils;
 import org.eclipse.lsp4mp.utils.PropertiesFileUtils;
@@ -135,16 +138,11 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 			MicroProfileJavaCompletionParams javaParams = new MicroProfileJavaCompletionParams(
 					params.getTextDocument().getUri(), params.getPosition());
 
-			CompletableFuture<CompletionList> javaParticipantCompletionsFuture = CompletableFuture
-					.completedFuture(new CompletionList(new ArrayList<>()));
-			ExtendedCompletionCapabilities extendedCompletionCapabilities = this.microprofileLanguageServer
-					.getCapabilityManager().getClientCapabilities().getExtendedCapabilities().getCompletion();
-			if (!extendedCompletionCapabilities.isSkipSendingJavaCompletionThroughLanguageServer()) {
-				javaParticipantCompletionsFuture = microprofileLanguageServer.getLanguageClient()
-						.getJavaCompletion(javaParams);
-			}
+			// get the completion capabilities from the java language server component
+			CompletableFuture<MicroProfileJavaCompletionResult> javaParticipantCompletionsFuture = microprofileLanguageServer
+					.getLanguageClient().getJavaCompletion(javaParams);
 
-			// Returns java snippets
+			// calculate params for Java snippets
 			Integer completionOffset = null;
 			try {
 				completionOffset = document.offsetAt(params.getPosition());
@@ -152,33 +150,35 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 				LOGGER.log(Level.SEVERE, "Error while getting java snippet completions", e);
 				return null;
 			}
+			final Integer finalizedCompletionOffset = completionOffset;
 			boolean canSupportMarkdown = true;
 			boolean snippetsSupported = sharedSettings.getCompletionCapabilities().isCompletionSnippetsSupported();
-			CompletionList list1 = new CompletionList();
-			list1.setItems(new ArrayList<>());
-			documents.getSnippetRegistry().getCompletionItems(document, completionOffset, canSupportMarkdown,
-					snippetsSupported, (context, model) -> {
-						if (context != null && context instanceof SnippetContextForJava) {
-							return ((SnippetContextForJava) context).isMatch(projectInfo);
-						}
-						return true;
-					}, projectInfo) //
-					.forEach(item -> {
-						list1.getItems().add(item);
-					});
 
 			cancelChecker.checkCanceled();
 
-			return javaParticipantCompletionsFuture.thenApply((list2) -> {
+			return javaParticipantCompletionsFuture.thenApply((completionResult) -> {
 				cancelChecker.checkCanceled();
-				for (CompletionItem item : list2.getItems()) {
-					list1.getItems().add(item);
-				}
-				// This reduces the number of completion requests to the server
-				// see
+
+				CompletionList list = completionResult.getCompletionList();
+				JavaCursorContextResult cursorContext = completionResult.getCursorContext();
+
+				// calculate the snippet completion items based on the context
+				documents.getSnippetRegistry().getCompletionItems(document, finalizedCompletionOffset,
+						canSupportMarkdown, snippetsSupported, (context, model) -> {
+							if (context != null && context instanceof SnippetContextForJava) {
+								return ((SnippetContextForJava) context)
+										.isMatch(new JavaSnippetCompletionContext(projectInfo, cursorContext));
+							}
+							return true;
+						}, projectInfo) //
+						.forEach(item -> {
+							list.getItems().add(item);
+						});
+
+				// This reduces the number of completion requests to the server. See:
 				// https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_completion
-				list1.setIsIncomplete(false);
-				return Either.forRight(list1);
+				list.setIsIncomplete(false);
+				return Either.forRight(list);
 			});
 
 		}, Either.forLeft(Collections.emptyList()));

@@ -17,9 +17,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.lsp4mp.commons.JavaCursorContextKind;
+import org.eclipse.lsp4mp.commons.JavaCursorContextResult;
 import org.eclipse.lsp4mp.commons.ProjectLabelInfoEntry;
 import org.eclipse.lsp4mp.ls.commons.snippets.ISnippetContext;
 
+import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
@@ -31,13 +34,20 @@ import com.google.gson.stream.JsonWriter;
  * @author Angelo ZERR
  *
  */
-public class SnippetContextForJava implements ISnippetContext<ProjectLabelInfoEntry> {
+public class SnippetContextForJava implements ISnippetContext<JavaSnippetCompletionContext> {
 
 	public static final TypeAdapter<SnippetContextForJava> TYPE_ADAPTER = new SnippetContextForJavaAdapter();
+	private static final Gson GSON = new Gson();
 	private List<String> types;
+	private SnippetContentType contentType;
+
+	public SnippetContextForJava(List<String> types, SnippetContentType contentType) {
+		this.types = types;
+		this.contentType = contentType;
+	}
 
 	public SnippetContextForJava(List<String> types) {
-		this.types = types;
+		this(types, null);
 	}
 
 	public List<String> getTypes() {
@@ -45,19 +55,56 @@ public class SnippetContextForJava implements ISnippetContext<ProjectLabelInfoEn
 	}
 
 	@Override
-	public boolean isMatch(ProjectLabelInfoEntry context) {
+	public boolean isMatch(JavaSnippetCompletionContext context) {
 		if (context == null) {
 			return true;
 		}
-		if (types == null || types.isEmpty()) {
+
+		// Check types
+		boolean typeMatches = false;
+		if (context.getProjectLabelInfoEntry() != null) {
+			ProjectLabelInfoEntry label = context.getProjectLabelInfoEntry();
+			if (types == null || types.isEmpty()) {
+				return typeMatches = true;
+			} else {
+				for (String type : types) {
+					if (label.hasLabel(type)) {
+						typeMatches = true;
+						break;
+					}
+				}
+			}
+		} else {
+			typeMatches = true;
+		}
+
+		return typeMatches && snippetContentAppliesToContext(contentType, context.getJavaCursorContextResult());
+	}
+
+	private static boolean snippetContentAppliesToContext(SnippetContentType content, JavaCursorContextResult context) {
+		// content/context being null signals that the client doesn't support getting
+		// the completion context
+		if (content == null || context == null) {
 			return true;
 		}
-		for (String type : types) {
-			if (context.hasLabel(type)) {
-				return true;
-			}
+		JavaCursorContextKind kind = context.getKind();
+		String prefix = context.getPrefix();
+		boolean prefixMatchesAnnotation = prefix.startsWith("@");
+		switch (content) {
+		case METHOD_ANNOTATION:
+			return prefixMatchesAnnotation && (kind == JavaCursorContextKind.BEFORE_METHOD
+					|| kind == JavaCursorContextKind.IN_METHOD_ANNOTATIONS);
+		case CLASS:
+			return kind == JavaCursorContextKind.IN_EMPTY_FILE;
+		case METHOD:
+			return kind == JavaCursorContextKind.BEFORE_FIELD || kind == JavaCursorContextKind.BEFORE_METHOD
+					|| kind == JavaCursorContextKind.BEFORE_CLASS || kind == JavaCursorContextKind.IN_CLASS;
+		case FIELD:
+			return kind == JavaCursorContextKind.BEFORE_FIELD || kind == JavaCursorContextKind.BEFORE_METHOD
+					|| kind == JavaCursorContextKind.BEFORE_CLASS || kind == JavaCursorContextKind.IN_CLASS;
+		default:
+			return false;
 		}
-		return false;
 	}
 
 	private static class SnippetContextForJavaAdapter extends TypeAdapter<SnippetContextForJava> {
@@ -70,6 +117,7 @@ public class SnippetContextForJava implements ISnippetContext<ProjectLabelInfoEn
 			}
 
 			List<String> types = new ArrayList<>();
+			SnippetContentType contentType = null;
 			in.beginObject();
 			while (in.hasNext()) {
 				String name = in.nextName();
@@ -85,12 +133,16 @@ public class SnippetContextForJava implements ISnippetContext<ProjectLabelInfoEn
 						types.add(in.nextString());
 					}
 					break;
+				case "contentType":
+					String contentTypeString = in.nextString();
+					contentType = GSON.fromJson(contentTypeString, SnippetContentType.class);
+					break;
 				default:
 					in.skipValue();
 				}
 			}
 			in.endObject();
-			return new SnippetContextForJava(types);
+			return new SnippetContextForJava(types, contentType);
 		}
 
 		@Override

@@ -24,11 +24,14 @@ import java.util.Optional;
 
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.TextDocumentItem;
+import org.eclipse.lsp4mp.commons.JavaCursorContextKind;
+import org.eclipse.lsp4mp.commons.JavaCursorContextResult;
 import org.eclipse.lsp4mp.commons.ProjectLabelInfoEntry;
 import org.eclipse.lsp4mp.ls.commons.snippets.ISnippetContext;
 import org.eclipse.lsp4mp.ls.commons.snippets.Snippet;
 import org.eclipse.lsp4mp.ls.commons.snippets.SnippetRegistry;
 import org.eclipse.lsp4mp.ls.java.JavaTextDocuments.JavaTextDocument;
+import org.eclipse.lsp4mp.snippets.JavaSnippetCompletionContext;
 import org.eclipse.lsp4mp.snippets.SnippetContextForJava;
 import org.junit.Test;
 
@@ -63,20 +66,29 @@ public class JavaTextDocumentSnippetRegistryTest {
 		assertTrue("rest_class snippet context is Java context", context instanceof SnippetContextForJava);
 
 		ProjectLabelInfoEntry projectInfo = new ProjectLabelInfoEntry("", "", new ArrayList<>());
-		boolean match = ((SnippetContextForJava) context).isMatch(projectInfo);
+		boolean match = ((SnippetContextForJava) context).isMatch(context(projectInfo, JavaCursorContextKind.IN_EMPTY_FILE));
 		assertFalse("Project has no javax.ws.rs.GET or jakarta.ws.rs.GET type", match);
 
 		ProjectLabelInfoEntry projectInfo2 = new ProjectLabelInfoEntry("", "", Arrays.asList("javax.ws.rs.GET"));
-		boolean match2 = ((SnippetContextForJava) context).isMatch(projectInfo2);
+		boolean match2 = ((SnippetContextForJava) context).isMatch(context(projectInfo2, JavaCursorContextKind.IN_EMPTY_FILE));
 		assertTrue("Project has javax.ws.rs.GET type", match2);
 
 		ProjectLabelInfoEntry projectInfo3 = new ProjectLabelInfoEntry("", "", Arrays.asList("jakarta.ws.rs.GET"));
-		boolean match3 = ((SnippetContextForJava) context).isMatch(projectInfo3);
+		boolean match3 = ((SnippetContextForJava) context).isMatch(context(projectInfo3, JavaCursorContextKind.IN_EMPTY_FILE));
 		assertTrue("Project has jakarta.ws.rs.GET type", match3);
 
 		ProjectLabelInfoEntry projectInfo4 = new ProjectLabelInfoEntry("", "", Arrays.asList("javax.ws.rs.GET", "jakarta.ws.rs.GET"));
-		boolean match4= ((SnippetContextForJava) context).isMatch(projectInfo4);
+		boolean match4 = ((SnippetContextForJava) context).isMatch(context(projectInfo4, JavaCursorContextKind.IN_EMPTY_FILE));
 		assertTrue("Project has javax.ws.rs.GET and jakarta.ws.rs.GET types", match4);
+
+		boolean match5 = ((SnippetContextForJava) context).isMatch(context(projectInfo4, JavaCursorContextKind.NONE));
+		assertFalse("rest_class snippet not applicable in non-empty file", match5);
+
+		boolean match6 = ((SnippetContextForJava) context).isMatch(new JavaSnippetCompletionContext(projectInfo4, null));
+		assertTrue("rest_class snippet appears when cursor context cannot be determined", match6);
+
+		boolean match7 = ((SnippetContextForJava) context).isMatch(context(projectInfo4, JavaCursorContextKind.BEFORE_METHOD));
+		assertFalse("rest_class snippet not applicable when cursor is in a class declaration", match7);
 	}
 
 	@Test
@@ -89,13 +101,16 @@ public class JavaTextDocumentSnippetRegistryTest {
 		assertTrue("@Metric snippet context is Java context", context instanceof SnippetContextForJava);
 
 		ProjectLabelInfoEntry projectInfo = new ProjectLabelInfoEntry("", "", new ArrayList<>());
-		boolean match = ((SnippetContextForJava) context).isMatch(projectInfo);
+		boolean match = ((SnippetContextForJava) context).isMatch(context(projectInfo, JavaCursorContextKind.BEFORE_METHOD));
 		assertFalse("Project has no org.eclipse.microprofile.metrics.annotation.Metric type", match);
 
 		ProjectLabelInfoEntry projectInfo2 = new ProjectLabelInfoEntry("", "",
 				Arrays.asList("org.eclipse.microprofile.metrics.annotation.Metric"));
-		boolean match2 = ((SnippetContextForJava) context).isMatch(projectInfo2);
-		assertTrue("Project has org.eclipse.microprofile.metrics.annotation.Metric type", match2);
+		boolean match2 = ((SnippetContextForJava) context).isMatch(context(projectInfo2, JavaCursorContextKind.BEFORE_METHOD));
+		assertFalse("Project has org.eclipse.microprofile.metrics.annotation.Metric type, but cursor context has no @ prefix", match2);
+
+		boolean match3 = ((SnippetContextForJava) context).isMatch(context(projectInfo2, JavaCursorContextKind.BEFORE_METHOD, "@"));
+		assertTrue("Project has org.eclipse.microprofile.metrics.annotation.Metric type and cursor context has no @ prefix", match3);
 	}
 
 	@Test
@@ -108,13 +123,16 @@ public class JavaTextDocumentSnippetRegistryTest {
 		assertTrue("@APIResponse snippet context is Java context", context instanceof SnippetContextForJava);
 
 		ProjectLabelInfoEntry projectInfo = new ProjectLabelInfoEntry("", "", new ArrayList<>());
-		boolean match = ((SnippetContextForJava) context).isMatch(projectInfo);
+		boolean match = ((SnippetContextForJava) context).isMatch(context(projectInfo, JavaCursorContextKind.BEFORE_METHOD));
 		assertFalse("Project has no org.eclipse.microprofile.openapi.annotations.responses.APIResponse type", match);
 
 		ProjectLabelInfoEntry projectInfo2 = new ProjectLabelInfoEntry("", "",
 				Arrays.asList("org.eclipse.microprofile.openapi.annotations.responses.APIResponse"));
-		boolean match2 = ((SnippetContextForJava) context).isMatch(projectInfo2);
-		assertTrue("Project has org.eclipse.microprofile.openapi.annotations.responses.APIResponse type", match2);
+		boolean match2 = ((SnippetContextForJava) context).isMatch(context(projectInfo2, JavaCursorContextKind.BEFORE_METHOD));
+		assertFalse("Project has org.eclipse.microprofile.openapi.annotations.responses.APIResponse type, but file has no @ prefix", match2);
+
+		boolean match3 = ((SnippetContextForJava) context).isMatch(context(projectInfo2, JavaCursorContextKind.BEFORE_METHOD, "@"));
+		assertTrue("Project has org.eclipse.microprofile.openapi.annotations.responses.APIResponse type and cursor context has @ prefix", match3);
 	}
 
 	@Test
@@ -127,13 +145,16 @@ public class JavaTextDocumentSnippetRegistryTest {
 		assertTrue("@Fallback snippet context is Java context", context instanceof SnippetContextForJava);
 
 		ProjectLabelInfoEntry projectInfo = new ProjectLabelInfoEntry("", "", new ArrayList<>());
-		boolean match = ((SnippetContextForJava) context).isMatch(projectInfo);
+		boolean match = ((SnippetContextForJava) context).isMatch(context(projectInfo, JavaCursorContextKind.BEFORE_METHOD));
 		assertFalse("Project has no org.eclipse.microprofile.faulttolerance.Fallback type", match);
 
 		ProjectLabelInfoEntry projectInfo2 = new ProjectLabelInfoEntry("", "",
 				Arrays.asList("org.eclipse.microprofile.faulttolerance.Fallback"));
-		boolean match2 = ((SnippetContextForJava) context).isMatch(projectInfo2);
-		assertTrue("Project has org.eclipse.microprofile.faulttolerance.Fallback type", match2);
+		boolean match2 = ((SnippetContextForJava) context).isMatch(context(projectInfo2, JavaCursorContextKind.BEFORE_METHOD));
+		assertFalse("Project has org.eclipse.microprofile.faulttolerance.Fallback type, but cursor context has no @ prefix", match2);
+
+		boolean match3 = ((SnippetContextForJava) context).isMatch(context(projectInfo2, JavaCursorContextKind.BEFORE_METHOD, "@"));
+		assertTrue("Project has org.eclipse.microprofile.faulttolerance.Fallback type and cursor context has @ prefix", match3);
 	}
 
 	@Test
@@ -146,12 +167,12 @@ public class JavaTextDocumentSnippetRegistryTest {
 		assertTrue("mpreadiness snippet context is Java context", readinessContext instanceof SnippetContextForJava);
 
 		ProjectLabelInfoEntry readinessProjectInfo = new ProjectLabelInfoEntry("", "", new ArrayList<>());
-		boolean match = ((SnippetContextForJava) readinessContext).isMatch(readinessProjectInfo);
+		boolean match = ((SnippetContextForJava) readinessContext).isMatch(context(readinessProjectInfo, JavaCursorContextKind.IN_EMPTY_FILE));
 		assertFalse("Project has no org.eclipse.microprofile.health.Readiness type", match);
 
 		ProjectLabelInfoEntry readinessProjectInfo2 = new ProjectLabelInfoEntry("", "",
 				Arrays.asList("org.eclipse.microprofile.health.Readiness"));
-		boolean match2 = ((SnippetContextForJava) readinessContext).isMatch(readinessProjectInfo2);
+		boolean match2 = ((SnippetContextForJava) readinessContext).isMatch(context(readinessProjectInfo2, JavaCursorContextKind.IN_EMPTY_FILE));
 		assertTrue("Project has org.eclipse.microprofile.health.Readiness type", match2);
 
 		Optional<Snippet> livenessSnippet = findByPrefix("mpliveness", registry);
@@ -171,12 +192,12 @@ public class JavaTextDocumentSnippetRegistryTest {
 		assertTrue("mpnrc snippet context is Java context", context instanceof SnippetContextForJava);
 
 		ProjectLabelInfoEntry projectInfo = new ProjectLabelInfoEntry("", "", new ArrayList<>());
-		boolean match = ((SnippetContextForJava) context).isMatch(projectInfo);
+		boolean match = ((SnippetContextForJava) context).isMatch(context(projectInfo, JavaCursorContextKind.IN_EMPTY_FILE));
 		assertFalse("Project has no org.eclipse.microprofile.rest.client.inject.RegisterRestClient type", match);
 
 		ProjectLabelInfoEntry projectInfo2 = new ProjectLabelInfoEntry("", "",
 				Arrays.asList("org.eclipse.microprofile.rest.client.inject.RegisterRestClient"));
-		boolean match2 = ((SnippetContextForJava) context).isMatch(projectInfo2);
+		boolean match2 = ((SnippetContextForJava) context).isMatch(context(projectInfo2, JavaCursorContextKind.IN_EMPTY_FILE));
 		assertTrue("Project has org.eclipse.microprofile.rest.client.inject.RegisterRestClient type", match2);
 
 		Optional<Snippet> injectRestClientSnippet = findByPrefix("mpirc", registry);
@@ -301,6 +322,14 @@ public class JavaTextDocumentSnippetRegistryTest {
 
 	private static Optional<Snippet> findByPrefix(String prefix, SnippetRegistry registry) {
 		return registry.getSnippets().stream().filter(snippet -> snippet.getPrefixes().contains(prefix)).findFirst();
+	}
+
+	private static JavaSnippetCompletionContext context(ProjectLabelInfoEntry projectInfo, JavaCursorContextKind javaCursorContext) {
+		return context(projectInfo, javaCursorContext, "");
+	}
+
+	private static JavaSnippetCompletionContext context(ProjectLabelInfoEntry projectInfo, JavaCursorContextKind javaCursorContext, String prefix) {
+		return new JavaSnippetCompletionContext(projectInfo, new JavaCursorContextResult(javaCursorContext, prefix));
 	}
 
 }

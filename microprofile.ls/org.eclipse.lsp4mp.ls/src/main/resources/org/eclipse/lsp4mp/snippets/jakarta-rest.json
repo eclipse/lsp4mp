@@ -24,7 +24,8 @@
       "type": [
         "javax.ws.rs.GET",
         "jakarta.ws.rs.GET"
-      ]
+      ],
+      "contentType": "class"
     }
   },
   "New REST resource GET method": {
@@ -41,7 +42,8 @@
       "type": [
         "javax.ws.rs.GET",
         "jakarta.ws.rs.GET"
-      ]
+      ],
+      "contentType": "method"
     }
   }
 }

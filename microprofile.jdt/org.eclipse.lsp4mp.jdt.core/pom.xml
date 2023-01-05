@@ -12,5 +12,4 @@
 	<packaging>eclipse-plugin</packaging>
 	<name>MicroProfile JDT LS Extension</name>
 	<description>MicroProfile JDT LS Extension - Core</description>
-
 </project>

@@ -26,6 +26,6 @@ public interface MicroProfileLanguageClientAPI
 		MicroProfilePropertyDocumentationProvider, MicroProfileJavaCodeActionProvider, MicroProfileJavaCodeLensProvider,
 		MicroProfileJavaCompletionProvider, MicroProfileJavaDiagnosticsProvider, MicroProfileJavaDefinitionProvider,
 		MicroProfileJavaHoverProvider, MicroProfileJavaProjectLabelsProvider, MicroProfileJavaFileInfoProvider,
-		MicroProfileJavaCodeActionResolveProvider {
+		MicroProfileJavaCodeActionResolveProvider, MicroProfileJavaCursorContextProvider {
 
 }
