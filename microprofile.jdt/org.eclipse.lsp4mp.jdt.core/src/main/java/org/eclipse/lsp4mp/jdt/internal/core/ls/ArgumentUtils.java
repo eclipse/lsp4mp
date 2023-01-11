@@ -134,11 +134,18 @@ public class ArgumentUtils {
 		return null;
 	}
 
+	/**
+	 * Returns the child as a JsonObject if it exists and is an object, and null otherwise
+	 *
+	 * @param obj the object to get the child of
+	 * @param key the key of the child
+	 * @return the child as a JsonObject if it exists and is an object, and null otherwise
+	 */
 	public static JsonObject getObjectAsJson(Map<String, Object> obj, String key) {
 		Object child = obj.get(key);
 		if (child != null && child instanceof Map<?, ?>) {
 			Gson gson = new Gson();
-			return (JsonObject) gson.toJsonTree(obj);
+			return (JsonObject) gson.toJsonTree(child);
 		}
 		return null;
 	}
