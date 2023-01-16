@@ -13,6 +13,11 @@ package org.eclipse.lsp4mp.services.properties;
 import static org.eclipse.lsp4mp.services.properties.PropertiesFileAssert.assertHoverMarkdown;
 import static org.eclipse.lsp4mp.services.properties.PropertiesFileAssert.assertHoverPlaintext;
 
+import java.util.Arrays;
+
+import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
+import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
+import org.eclipse.lsp4mp.ls.commons.BadLocationException;
 import org.junit.Test;
 
 /**
@@ -213,6 +218,40 @@ public class PropertiesFileHoverTest {
 		// enum type
 		String hoverLabel = "**READ_UNCOMMITTED**" + System.lineSeparator();
 		assertHoverMarkdown(value, hoverLabel, 49);
+	}
+
+	@Test
+	public void hoverWithPropertyWithNullValue() throws Exception {
+		ItemMetadata appNameProperty = new ItemMetadata();
+		appNameProperty.setType("java.util.Optional\u003cjava.lang.String\u003e");
+		appNameProperty.setSourceField("name");
+		appNameProperty.setExtensionName("quarkus-core");
+		appNameProperty.setRequired(false);
+		appNameProperty.setPhase(2);
+		appNameProperty.setName("quarkus.application.name");
+		appNameProperty.setDescription("The name of the application.\nIf not set, defaults to the name of the project (except for tests where it is not set at all).");
+		appNameProperty.setSourceType("io.quarkus.runtime.ApplicationConfig");
+
+		ItemMetadata propertyWithNullValue = new ItemMetadata();
+		propertyWithNullValue.setName("my.property");
+		propertyWithNullValue.setDefaultValue(null);
+
+		ItemMetadata propertyWithNotNullValue = new ItemMetadata();
+		propertyWithNotNullValue.setName("my.property");
+		propertyWithNotNullValue.setDefaultValue("asdf");
+
+		MicroProfileProjectInfo projectInfo = new MicroProfileProjectInfo();
+		projectInfo.setProperties(Arrays.asList(propertyWithNullValue, propertyWithNotNullValue, appNameProperty));
+
+		String value = "quarkus.applica|tion.name = name";
+		String hoverLabel = "**quarkus.application.name**" + System.lineSeparator() + System.lineSeparator() + //
+				"The name of the application.\nIf not set, defaults to the name of the project (except for tests where it is not set at all)."
+				+ System.lineSeparator() + System.lineSeparator() + //
+				" * Type: `java.util.Optional<java.lang.String>`" + System.lineSeparator() + //
+				" * Value: `name`" + System.lineSeparator() + //
+				" * Phase: `buildtime & runtime`" + System.lineSeparator() + //
+				" * Extension: `quarkus-core`";
+		assertHoverMarkdown(value, hoverLabel, 0, projectInfo);
 	}
 
 }
