@@ -363,6 +363,16 @@ public class PropertiesFileAssert {
 				expectedHoverOffset);
 	}
 
+	public static void assertHoverMarkdown(String value, String expectedHoverLabel, Integer expectedHoverOffset,
+			MicroProfileProjectInfo projectInfo)
+			throws BadLocationException, InterruptedException, TimeoutException, ExecutionException {
+		MicroProfileHoverSettings hoverSettings = new MicroProfileHoverSettings();
+		HoverCapabilities capabilities = new HoverCapabilities(Arrays.asList(MarkupKind.MARKDOWN), false);
+		hoverSettings.setCapabilities(capabilities);
+
+		assertHover(value, null, projectInfo, hoverSettings, expectedHoverLabel, expectedHoverOffset);
+	}
+
 	public static void assertHover(String value, String fileURI, MicroProfileProjectInfo projectInfo,
 			MicroProfileHoverSettings hoverSettings, String expectedHoverLabel, Integer expectedHoverOffset)
 			throws BadLocationException, InterruptedException, TimeoutException, ExecutionException {

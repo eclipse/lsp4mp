@@ -17,14 +17,14 @@ import java.util.Set;
 
 /**
  * Represents a config source that maps keys to values
- * 
+ *
  * @author datho7561
  */
 public interface IConfigSourcePropertiesProvider {
 
 	/**
 	 * Returns a set of all the keys that the config source defines.
-	 * 
+	 *
 	 * @return a set of all the keys that the config source defines
 	 */
 	Set<String> keys();
@@ -32,7 +32,7 @@ public interface IConfigSourcePropertiesProvider {
 	/**
 	 * Returns true if the config source defines a non-null non-empty value for the
 	 * given key, and false otherwise.
-	 * 
+	 *
 	 * @param key the key to check if this config source defines
 	 * @return true if the config source defines a non-null non-empty value for the
 	 *         given key, and false otherwise
@@ -40,10 +40,10 @@ public interface IConfigSourcePropertiesProvider {
 	boolean hasKey(String key);
 
 	/**
-	 * Returns the value of the property, or null if the property doens't have a value
-	 * 
+	 * Returns the value of the property, or null if the property doesn't have a value
+	 *
 	 * @param key the property key
-	 * @return the value of the property, or null if the property doens't have a value
+	 * @return the value of the property, or null if the property doesn't have a value
 	 */
 	String getValue(String key);
 

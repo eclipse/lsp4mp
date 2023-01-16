@@ -24,7 +24,7 @@ import org.eclipse.lsp4mp.commons.utils.StringUtils;
 
 /**
  * Adapts a list of <code>ItemMetadata</code> to <code>IConfigSourcePropertiesProvider</code>
- * 
+ *
  * @author datho7561
  */
 class PropertiesInfoPropertiesProvider implements IConfigSourcePropertiesProvider {
@@ -63,7 +63,7 @@ class PropertiesInfoPropertiesProvider implements IConfigSourcePropertiesProvide
 			return null;
 		}
 		for (ItemMetadata item : properties) {
-			if (key.equals(item.getName())) {
+			if (key.equals(item.getName()) && StringUtils.hasText(item.getDefaultValue())) {
 				return item.getDefaultValue();
 			}
 		}

@@ -36,10 +36,10 @@ import io.smallrye.common.expression.Expression.Flag;
 /**
  * Expands property expressions to a final resolved value, while avoiding a few
  * pitfalls.
- * 
+ *
  * Checks for cycles before attempting expansion, and mitigates OOM due to
  * Billion Laughs by counting the number of variable references.
- * 
+ *
  * @author datho7561
  */
 public class PropertyValueExpander {
@@ -60,7 +60,7 @@ public class PropertyValueExpander {
 	/**
 	 * Returns the expanded value for the give key, or the unexpanded value if the
 	 * value can't be expanded.
-	 * 
+	 *
 	 * @param key the key to get the value of
 	 * @return the expanded value for the give key, or the unexpanded value if the
 	 *         value can't be expanded.
@@ -150,7 +150,7 @@ public class PropertyValueExpander {
 			// add edges
 			for (String key : properties.keys()) {
 				String unresolvedValue = properties.getValue(key);
-				if (unresolvedValue.contains("${")) {
+				if (StringUtils.hasText(unresolvedValue) && unresolvedValue.contains("${")) {
 					Expression expr = Expression.compile(unresolvedValue, Flag.LENIENT_SYNTAX);
 					expr.evaluate((resolver, builder) -> {
 						if (graph.nodes().contains(resolver.getKey())) {
