@@ -160,20 +160,22 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 				cancelChecker.checkCanceled();
 
 				CompletionList list = completionResult.getCompletionList();
+				if (list == null) {
+					list = new CompletionList();
+				}
+
 				JavaCursorContextResult cursorContext = completionResult.getCursorContext();
 
 				// calculate the snippet completion items based on the context
-				documents.getSnippetRegistry().getCompletionItems(document, finalizedCompletionOffset,
+				List<CompletionItem> snippetCompletionItems = documents.getSnippetRegistry().getCompletionItems(document, finalizedCompletionOffset,
 						canSupportMarkdown, snippetsSupported, (context, model) -> {
 							if (context != null && context instanceof SnippetContextForJava) {
 								return ((SnippetContextForJava) context)
 										.isMatch(new JavaSnippetCompletionContext(projectInfo, cursorContext));
 							}
 							return true;
-						}, projectInfo) //
-						.forEach(item -> {
-							list.getItems().add(item);
-						});
+						}, projectInfo);
+				list.getItems().addAll(snippetCompletionItems);
 
 				// This reduces the number of completion requests to the server. See:
 				// https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_completion
