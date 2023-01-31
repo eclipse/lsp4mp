@@ -100,6 +100,48 @@ public class MicroProfileRestClientJavaDiagnosticsTest extends BasePropertiesMan
 	}
 
 	@Test
+	public void restClientAnnotationMissingForFieldsJakarta() throws Exception {
+		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.open_liberty);
+		IJDTUtils utils = JDT_UTILS;
+
+		MicroProfileJavaDiagnosticsParams params = new MicroProfileJavaDiagnosticsParams();
+		IFile javaFile = javaProject.getProject()
+				.getFile(new Path("src/main/java/com/demo/rest/injectAnnotation.java"));
+		params.setUris(Arrays.asList(javaFile.getLocation().toFile().toURI().toString()));
+		params.setDocumentFormat(DocumentFormat.Markdown);
+
+		Diagnostic d1 = d(16, 19, 42,
+				"The Rest Client object should have the @Inject annotation to be injected as a CDI bean.",
+				DiagnosticSeverity.Warning, MicroProfileRestClientConstants.DIAGNOSTIC_SOURCE,
+				MicroProfileRestClientErrorCode.InjectAnnotationMissing);
+		Diagnostic d2 = d(18, 19, 55,
+				"The Rest Client object should have the @Inject and @RestClient annotations to be injected as a CDI bean.",
+				DiagnosticSeverity.Warning, MicroProfileRestClientConstants.DIAGNOSTIC_SOURCE,
+				MicroProfileRestClientErrorCode.InjectAndRestClientAnnotationMissing);
+
+		assertJavaDiagnostics(params, utils, //
+				d1, //
+				d2);
+
+		String uri = javaFile.getLocation().toFile().toURI().toString();
+
+		MicroProfileJavaCodeActionParams codeActionParams = createCodeActionParams(uri, d1);
+		assertJavaCodeAction(codeActionParams, utils, //
+				ca(uri, "Insert @Inject", d1, //
+						te(15, 4, 15, 4, "@Inject\n\t")),
+				ca(uri, "Generate OpenAPI Annotations for 'injectAnnotation'", d1, //
+						te(0, 0, 0, 0, "")));
+
+		codeActionParams = createCodeActionParams(uri, d2);
+		assertJavaCodeAction(codeActionParams, utils, //
+				ca(uri, "Insert @Inject, @RestClient", d2, //
+						te(18, 4, 18, 4, "@RestClient\n\t@Inject\n\t")),
+				ca(uri, "Generate OpenAPI Annotations for 'injectAnnotation'", d1, //
+						te(0, 0, 0, 0, "")));
+
+	}
+
+	@Test
 	public void restClientAnnotationMissingForInterface() throws Exception {
 		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.rest_client_quickstart);
 		IJDTUtils utils = JDT_UTILS;

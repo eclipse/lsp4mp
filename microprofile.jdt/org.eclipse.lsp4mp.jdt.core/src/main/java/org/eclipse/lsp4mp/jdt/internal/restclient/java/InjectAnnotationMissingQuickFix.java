@@ -13,8 +13,15 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.internal.restclient.java;
 
+import java.util.List;
+
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4mp.jdt.core.MicroProfileConfigConstants;
 import org.eclipse.lsp4mp.jdt.core.java.codeaction.InsertAnnotationMissingQuickFix;
+import org.eclipse.lsp4mp.jdt.core.java.codeaction.JavaCodeActionContext;
+import org.eclipse.lsp4mp.jdt.core.utils.JDTTypeUtils;
 import org.eclipse.lsp4mp.jdt.internal.restclient.MicroProfileRestClientErrorCode;
 
 /**
@@ -32,7 +39,7 @@ import org.eclipse.lsp4mp.jdt.internal.restclient.MicroProfileRestClientErrorCod
 public class InjectAnnotationMissingQuickFix extends InsertAnnotationMissingQuickFix {
 
 	public InjectAnnotationMissingQuickFix() {
-		super(MicroProfileConfigConstants.INJECT_ANNOTATION);
+		super(MicroProfileConfigConstants.INJECT_JAKARTA_ANNOTATION, MicroProfileConfigConstants.INJECT_JAVAX_ANNOTATION);
 	}
 
 	@Override
@@ -40,4 +47,15 @@ public class InjectAnnotationMissingQuickFix extends InsertAnnotationMissingQuic
 		return InjectAnnotationMissingQuickFix.class.getName();
 	}
 
+	@Override
+	protected void insertAnnotations(Diagnostic diagnostic, JavaCodeActionContext context, List<CodeAction> codeActions)
+			throws CoreException {
+		String[] annotations = getAnnotations();
+		for (String annotation : annotations) {
+			if (JDTTypeUtils.findType(context.getJavaProject(), annotation) != null) {
+				insertAnnotation(diagnostic, context, codeActions, annotation);
+				return;
+			}
+		}
+	}
 }

@@ -86,6 +86,7 @@ public class BasePropertiesManagerTest {
 		public static String microprofile_reactive_messaging = "microprofile-reactive-messaging";
 		public static String microprofile_graphql = "microprofile-graphql";
 		public static String microprofile_jwt_quickstart = "microprofile-jwt-quickstart";
+		public static String rest_client_ee9 = "rest-client-ee9";
 		public static String rest_client_quickstart = "rest-client-quickstart";
 		public static String using_vertx = "using-vertx";
 		public static String open_liberty = "open-liberty";

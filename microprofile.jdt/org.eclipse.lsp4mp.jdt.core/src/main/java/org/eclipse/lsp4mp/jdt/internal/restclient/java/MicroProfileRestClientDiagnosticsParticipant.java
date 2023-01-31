@@ -13,7 +13,8 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.internal.restclient.java;
 
-import static org.eclipse.lsp4mp.jdt.core.MicroProfileConfigConstants.INJECT_ANNOTATION;
+import static org.eclipse.lsp4mp.jdt.core.MicroProfileConfigConstants.INJECT_JAVAX_ANNOTATION;
+import static org.eclipse.lsp4mp.jdt.core.MicroProfileConfigConstants.INJECT_JAKARTA_ANNOTATION;
 import static org.eclipse.lsp4mp.jdt.internal.restclient.MicroProfileRestClientConstants.REGISTER_REST_CLIENT_ANNOTATION;
 import static org.eclipse.lsp4mp.jdt.internal.restclient.MicroProfileRestClientConstants.REST_CLIENT_ANNOTATION;
 
@@ -133,7 +134,7 @@ public class MicroProfileRestClientDiagnosticsParticipant implements IJavaDiagno
 			throws CoreException {
 		String uri = context.getUri();
 		DocumentFormat documentFormat = context.getDocumentFormat();
-		boolean hasInjectAnnotation = AnnotationUtils.hasAnnotation(field, INJECT_ANNOTATION);
+		boolean hasInjectAnnotation = AnnotationUtils.hasAnnotation(field, INJECT_JAVAX_ANNOTATION) || AnnotationUtils.hasAnnotation(field, INJECT_JAKARTA_ANNOTATION);
 		boolean hasRestClientAnnotation = AnnotationUtils.hasAnnotation(field, REST_CLIENT_ANNOTATION);
 		String fieldTypeName = JDTTypeUtils.getResolvedTypeName(field);
 		IType fieldType = JDTTypeUtils.findType(field.getJavaProject(), fieldTypeName);
@@ -226,7 +227,7 @@ public class MicroProfileRestClientDiagnosticsParticipant implements IJavaDiagno
 					}
 
 					private void validateReferenceField(IField field) throws CoreException {
-						boolean hasInjectAnnotation = AnnotationUtils.hasAnnotation(field, INJECT_ANNOTATION);
+						boolean hasInjectAnnotation = AnnotationUtils.hasAnnotation(field, INJECT_JAVAX_ANNOTATION);
 						boolean hasRestClientAnnotation = AnnotationUtils.hasAnnotation(field, REST_CLIENT_ANNOTATION);
 						if (hasInjectAnnotation && hasRestClientAnnotation) {
 							nbReferences.incrementAndGet();
