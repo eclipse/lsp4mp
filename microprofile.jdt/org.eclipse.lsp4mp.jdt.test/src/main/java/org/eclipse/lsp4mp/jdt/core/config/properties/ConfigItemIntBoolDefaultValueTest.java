@@ -20,7 +20,6 @@ import static org.eclipse.lsp4mp.jdt.core.MicroProfileAssert.p;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.MicroProfilePropertiesScope;
 import org.eclipse.lsp4mp.jdt.core.BasePropertiesManagerTest;
-import org.eclipse.lsp4mp.jdt.core.BasePropertiesManagerTest.MicroProfileMavenProjectName;
 import org.junit.Test;
 
 
@@ -38,11 +37,8 @@ public class ConfigItemIntBoolDefaultValueTest extends BasePropertiesManagerTest
 		MicroProfileProjectInfo infoFromClasspath = getMicroProfileProjectInfoFromMavenProject(
 				MicroProfileMavenProjectName.config_quickstart, MicroProfilePropertiesScope.SOURCES_AND_DEPENDENCIES);
 
-		String booleanDefault = "false";
-		String intDefault = "0";
-
 		assertProperties(infoFromClasspath,
-				20 /* properties from Java sources with ConfigProperty */ + //
+				31 /* properties from Java sources with ConfigProperty */ + //
 				7 /* static properties from microprofile-context-propagation-api */ + //
 				1 /* static property from microprofile config_ordinal */,
 
