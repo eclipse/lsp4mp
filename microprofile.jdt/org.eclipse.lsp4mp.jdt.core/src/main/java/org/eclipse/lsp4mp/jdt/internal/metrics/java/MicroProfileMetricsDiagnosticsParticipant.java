@@ -15,7 +15,6 @@ package org.eclipse.lsp4mp.jdt.internal.metrics.java;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -23,7 +22,6 @@ import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.ITypeHierarchy;
 import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Range;
@@ -34,13 +32,15 @@ import org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils;
 import org.eclipse.lsp4mp.jdt.core.utils.IJDTUtils;
 import org.eclipse.lsp4mp.jdt.core.utils.JDTTypeUtils;
 import org.eclipse.lsp4mp.jdt.core.utils.PositionUtils;
-import org.eclipse.lsp4mp.jdt.internal.metrics.java.MicroProfileMetricsErrorCode;
 
 import static org.eclipse.lsp4mp.jdt.internal.metrics.MicroProfileMetricsConstants.METRIC_ID;
 import static org.eclipse.lsp4mp.jdt.internal.metrics.MicroProfileMetricsConstants.GAUGE_ANNOTATION;
-import static org.eclipse.lsp4mp.jdt.internal.metrics.MicroProfileMetricsConstants.REQUEST_SCOPED_ANNOTATION;
-import static org.eclipse.lsp4mp.jdt.internal.metrics.MicroProfileMetricsConstants.SESSION_SCOPED_ANNOTATION;
-import static org.eclipse.lsp4mp.jdt.internal.metrics.MicroProfileMetricsConstants.DEPENDENT_ANNOTATION;
+import static org.eclipse.lsp4mp.jdt.internal.metrics.MicroProfileMetricsConstants.REQUEST_SCOPED_JAVAX_ANNOTATION;
+import static org.eclipse.lsp4mp.jdt.internal.metrics.MicroProfileMetricsConstants.SESSION_SCOPED_JAVAX_ANNOTATION;
+import static org.eclipse.lsp4mp.jdt.internal.metrics.MicroProfileMetricsConstants.DEPENDENT_JAVAX_ANNOTATION;
+import static org.eclipse.lsp4mp.jdt.internal.metrics.MicroProfileMetricsConstants.REQUEST_SCOPED_JAKARTA_ANNOTATION;
+import static org.eclipse.lsp4mp.jdt.internal.metrics.MicroProfileMetricsConstants.SESSION_SCOPED_JAKARTA_ANNOTATION;
+import static org.eclipse.lsp4mp.jdt.internal.metrics.MicroProfileMetricsConstants.DEPENDENT_JAKARTA_ANNOTATION;
 import static org.eclipse.lsp4mp.jdt.internal.metrics.MicroProfileMetricsConstants.DIAGNOSTIC_SOURCE;
 
 /**
@@ -99,9 +99,12 @@ public class MicroProfileMetricsDiagnosticsParticipant implements IJavaDiagnosti
 		String uri = context.getUri();
 		IJDTUtils utils = context.getUtils();
 		DocumentFormat documentFormat = context.getDocumentFormat();
-		boolean hasInvalidScopeAnnotation = AnnotationUtils.hasAnnotation(classType, REQUEST_SCOPED_ANNOTATION)
-				|| AnnotationUtils.hasAnnotation(classType, SESSION_SCOPED_ANNOTATION)
-				|| AnnotationUtils.hasAnnotation(classType, DEPENDENT_ANNOTATION);
+		boolean hasInvalidScopeAnnotation = AnnotationUtils.hasAnnotation(classType, REQUEST_SCOPED_JAVAX_ANNOTATION)
+				|| AnnotationUtils.hasAnnotation(classType, SESSION_SCOPED_JAVAX_ANNOTATION)
+				|| AnnotationUtils.hasAnnotation(classType, DEPENDENT_JAVAX_ANNOTATION)
+				|| AnnotationUtils.hasAnnotation(classType, REQUEST_SCOPED_JAKARTA_ANNOTATION)
+				|| AnnotationUtils.hasAnnotation(classType, SESSION_SCOPED_JAKARTA_ANNOTATION)
+				|| AnnotationUtils.hasAnnotation(classType, DEPENDENT_JAKARTA_ANNOTATION);
 		// check for Gauge annotation for Diagnostic 1 only if the class has an invalid
 		// scope annotation
 		if (hasInvalidScopeAnnotation) {
