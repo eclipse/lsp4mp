@@ -35,6 +35,7 @@ import org.eclipse.lsp4mp.jdt.core.java.codeaction.JavaCodeActionContext;
 import org.eclipse.lsp4mp.jdt.core.java.codeaction.JavaCodeActionResolveContext;
 import org.eclipse.lsp4mp.jdt.core.java.corrections.proposal.ChangeCorrectionProposal;
 import org.eclipse.lsp4mp.jdt.core.java.corrections.proposal.ReplaceAnnotationProposal;
+import org.eclipse.lsp4mp.jdt.core.utils.JDTTypeUtils;
 import org.eclipse.lsp4mp.jdt.internal.metrics.MicroProfileMetricsConstants;
 
 /**
@@ -59,7 +60,9 @@ public class ApplicationScopedAnnotationMissingQuickFix implements IJavaCodeActi
 			MicroProfileMetricsConstants.SESSION_SCOPED_ANNOTATION_NAME,
 			MicroProfileMetricsConstants.DEPENDENT_ANNOTATION_NAME };
 
-	private static final String ADD_ANNOTATION = MicroProfileMetricsConstants.APPLICATION_SCOPED_ANNOTATION;
+	private static final String[] ADD_ANNOTATIONS = new String[] {
+			MicroProfileMetricsConstants.APPLICATION_SCOPED_JAKARTA_ANNOTATION,
+			MicroProfileMetricsConstants.APPLICATION_SCOPED_JAVAX_ANNOTATION };
 
 	@Override
 	public String getParticipantId() {
@@ -69,7 +72,8 @@ public class ApplicationScopedAnnotationMissingQuickFix implements IJavaCodeActi
 	@Override
 	public List<? extends CodeAction> getCodeActions(JavaCodeActionContext context, Diagnostic diagnostic,
 			IProgressMonitor monitor) throws CoreException {
-		ExtendedCodeAction codeAction = new ExtendedCodeAction(getLabel(ADD_ANNOTATION));
+		String addAnnotation = getAddAnnotation(context);
+		ExtendedCodeAction codeAction = new ExtendedCodeAction(getLabel(addAnnotation));
 		codeAction.setRelevance(0);
 		codeAction.setDiagnostics(Collections.singletonList(diagnostic));
 		codeAction.setKind(CodeActionKind.QuickFix);
@@ -83,13 +87,14 @@ public class ApplicationScopedAnnotationMissingQuickFix implements IJavaCodeActi
 
 	@Override
 	public CodeAction resolveCodeAction(JavaCodeActionResolveContext context) {
+		String addAnnotation = getAddAnnotation(context);
 		CodeAction toResolve = context.getUnresolved();
-		String name = getLabel(ADD_ANNOTATION);
+		String name = getLabel(addAnnotation);
 		ASTNode node = context.getCoveringNode();
 		IBinding parentType = getBinding(node);
 
 		ChangeCorrectionProposal proposal = new ReplaceAnnotationProposal(name, context.getCompilationUnit(),
-				context.getASTRoot(), parentType, 0, ADD_ANNOTATION, REMOVE_ANNOTATION_NAMES);
+				context.getASTRoot(), parentType, 0, addAnnotation, REMOVE_ANNOTATION_NAMES);
 		try {
 			WorkspaceEdit we = context.convertToWorkspaceEdit(proposal);
 			toResolve.setEdit(we);
@@ -98,6 +103,15 @@ public class ApplicationScopedAnnotationMissingQuickFix implements IJavaCodeActi
 		}
 
 		return toResolve;
+	}
+
+	private String getAddAnnotation(JavaCodeActionContext context) {
+		for (String annotation : ADD_ANNOTATIONS) {
+			if (JDTTypeUtils.findType(context.getJavaProject(), annotation) != null) {
+				return annotation;
+			}
+		}
+		return MicroProfileMetricsConstants.APPLICATION_SCOPED_JAKARTA_ANNOTATION;
 	}
 
 	private IBinding getBinding(ASTNode node) {

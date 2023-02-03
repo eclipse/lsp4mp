@@ -70,5 +70,36 @@ public class MicroProfileMetricsJavaDiagnosticsTest extends BasePropertiesManage
 					"import javax.enterprise.context.RequestScoped;\n\n" + //
 					"@ApplicationScoped\n")));
 	}
-	
+
+	@Test
+	public void ApplicationScopedAnnotationMissingJakarta() throws Exception {
+		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.open_liberty);
+		IJDTUtils utils = JDT_UTILS;
+
+		MicroProfileJavaDiagnosticsParams diagnosticsParams = new MicroProfileJavaDiagnosticsParams();
+		IFile javaFile = javaProject.getProject()
+		.getFile(new Path("src/main/java/com/demo/rest/IncorrectScopeJakarta.java"));
+		diagnosticsParams.setUris(Arrays.asList(javaFile.getLocation().toFile().toURI().toString()));
+		diagnosticsParams.setDocumentFormat(DocumentFormat.Markdown);
+
+		// check for MicroProfile metrics diagnostic warning
+		Diagnostic d = d(10, 13, 34,
+				"The class `com.demo.rest.IncorrectScopeJakarta` using the @Gauge annotation should use the @ApplicationScoped annotation." +
+				" The @Gauge annotation does not support multiple instances of the underlying bean to be created.",
+				DiagnosticSeverity.Warning, MicroProfileMetricsConstants.DIAGNOSTIC_SOURCE,
+				MicroProfileMetricsErrorCode.ApplicationScopedAnnotationMissing);
+		assertJavaDiagnostics(diagnosticsParams, utils, d);
+
+		String uri = javaFile.getLocation().toFile().toURI().toString();
+		MicroProfileJavaCodeActionParams codeActionParams = createCodeActionParams(uri, d);
+		// check for MicroProfile metrics quick fix code action associated with
+		// diagnostic warning
+		assertJavaCodeAction(codeActionParams, utils, //
+			ca(uri, "Replace current scope with @ApplicationScoped", d, //
+				te(4, 57, 9, 0, "\n\nimport jakarta.enterprise.context.ApplicationScoped;\n" + //
+					"import jakarta.enterprise.context.RequestScoped;\n\n" + //
+					"@ApplicationScoped\n")),
+			ca(uri, "Generate OpenAPI Annotations for 'IncorrectScopeJakarta'", d, //
+				te(0, 0, 0, 0, "")));
+	}
 }
