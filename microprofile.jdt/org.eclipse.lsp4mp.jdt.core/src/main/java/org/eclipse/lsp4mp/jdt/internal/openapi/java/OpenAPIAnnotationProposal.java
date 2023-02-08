@@ -39,8 +39,8 @@ import org.eclipse.lsp4mp.jdt.internal.jaxrs.JaxRsConstants;
 import org.eclipse.lsp4mp.jdt.internal.openapi.MicroProfileOpenAPIConstants;
 
 /**
- * A proposal for generating OpenAPI annotations that works on an AST rewrite.  
- *  
+ * A proposal for generating OpenAPI annotations that works on an AST rewrite.
+ *
  * @author Benson Ning
  *
  */
@@ -49,23 +49,24 @@ public class OpenAPIAnnotationProposal extends ASTRewriteCorrectionProposal {
 	private final CompilationUnit fInvocationNode;
 	private final TypeDeclaration fTypeNode;
 	private final String fAnnotation;
-	
-	public OpenAPIAnnotationProposal(String label, ICompilationUnit targetCU, CompilationUnit invocationNode, 
+
+	public OpenAPIAnnotationProposal(String label, ICompilationUnit targetCU, CompilationUnit invocationNode,
 			TypeDeclaration type, String annotation, int relevance) {
 		super(label, CodeActionKind.Source, targetCU, null, relevance);
 		this.fInvocationNode = invocationNode;
 		this.fTypeNode = type;
 		this.fAnnotation = annotation;
 	}
-	
+
 	@Override
 	protected ASTRewrite getRewrite() throws CoreException {
 		MethodDeclaration methods[] = this.fTypeNode.getMethods();
 		List<MethodDeclaration> responseReturnMethods = new ArrayList<>();
 		for (MethodDeclaration method : methods) {
 			boolean operationFlag = false;
-			if (method.getReturnType2().resolveBinding().getQualifiedName().
-					equals(JaxRsConstants.JAVAX_WS_RS_RESPONSE_TYPE)) {
+			String qualifiedMethodName = method.getReturnType2().resolveBinding().getQualifiedName();
+			if (JaxRsConstants.JAVAX_WS_RS_RESPONSE_TYPE.equals(qualifiedMethodName)
+					|| JaxRsConstants.JAKARTA_WS_RS_RESPONSE_TYPE.equals(qualifiedMethodName)) {
 				List<?> modifiers = method.modifiers();
 				for (Iterator<?> iter = modifiers.iterator(); iter.hasNext();) {
 					Object next = iter.next();
@@ -81,20 +82,21 @@ public class OpenAPIAnnotationProposal extends ASTRewriteCorrectionProposal {
 						}
 					}
 				}
-	
+
 				if (!operationFlag) {
 					responseReturnMethods.add(method);
-				}	
+				}
 			}
 		}
-		
+
 		if (!responseReturnMethods.isEmpty()) {
 			AST ast = fTypeNode.getAST();
 			ASTRewrite rewrite = ASTRewrite.create(ast);
-			
+
 			ImportRewrite imports = createImportRewrite(this.fInvocationNode);
-			ImportRewriteContext importRewriteContext= new ContextSensitiveImportRewriteContext(this.fInvocationNode, imports);
-			
+			ImportRewriteContext importRewriteContext = new ContextSensitiveImportRewriteContext(this.fInvocationNode,
+					imports);
+
 			NormalAnnotation marker = ast.newNormalAnnotation();
 			marker.setTypeName(ast.newName(imports.addImport(fAnnotation, importRewriteContext)));
 			List<MemberValuePair> values = marker.values();
@@ -111,14 +113,14 @@ public class OpenAPIAnnotationProposal extends ASTRewriteCorrectionProposal {
 			stringValue = ast.newStringLiteral();
 			stringValue.setLiteralValue("");
 			memberValuePair.setValue(stringValue);
-			values.add(memberValuePair);			
-						
+			values.add(memberValuePair);
+
 			for (MethodDeclaration method : responseReturnMethods) {
 				rewrite.getListRewrite(method, MethodDeclaration.MODIFIERS2_PROPERTY).insertFirst(marker, null);
-			}			
+			}
 			return rewrite;
 		}
-		
+
 		return null;
 	}
 }

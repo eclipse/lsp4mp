@@ -110,33 +110,37 @@ public class MicroProfileRestClientJavaDiagnosticsTest extends BasePropertiesMan
 		params.setUris(Arrays.asList(javaFile.getLocation().toFile().toURI().toString()));
 		params.setDocumentFormat(DocumentFormat.Markdown);
 
-		Diagnostic d1 = d(16, 19, 42,
+		Diagnostic d1 = d(10, 21, 40,
+				"The corresponding `com.demo.rest.MyService` interface does not have the @RegisterRestClient annotation. The field `NoAnnotationMissing` will not be injected as a CDI bean.",
+				DiagnosticSeverity.Warning, MicroProfileRestClientConstants.DIAGNOSTIC_SOURCE, null);
+		Diagnostic d2 = d(13, 19, 42,
 				"The Rest Client object should have the @Inject annotation to be injected as a CDI bean.",
 				DiagnosticSeverity.Warning, MicroProfileRestClientConstants.DIAGNOSTIC_SOURCE,
 				MicroProfileRestClientErrorCode.InjectAnnotationMissing);
-		Diagnostic d2 = d(18, 19, 55,
+		Diagnostic d3 = d(15, 19, 55,
 				"The Rest Client object should have the @Inject and @RestClient annotations to be injected as a CDI bean.",
 				DiagnosticSeverity.Warning, MicroProfileRestClientConstants.DIAGNOSTIC_SOURCE,
 				MicroProfileRestClientErrorCode.InjectAndRestClientAnnotationMissing);
 
 		assertJavaDiagnostics(params, utils, //
 				d1, //
-				d2);
+				d2, //
+				d3);
 
 		String uri = javaFile.getLocation().toFile().toURI().toString();
 
-		MicroProfileJavaCodeActionParams codeActionParams = createCodeActionParams(uri, d1);
+		MicroProfileJavaCodeActionParams codeActionParams = createCodeActionParams(uri, d2);
 		assertJavaCodeAction(codeActionParams, utils, //
-				ca(uri, "Insert @Inject", d1, //
-						te(15, 4, 15, 4, "@Inject\n\t")),
-				ca(uri, "Generate OpenAPI Annotations for 'injectAnnotation'", d1, //
+				ca(uri, "Insert @Inject", d2, //
+						te(12, 4, 12, 4, "@Inject\n\t")),
+				ca(uri, "Generate OpenAPI Annotations for 'injectAnnotation'", d2, //
 						te(0, 0, 0, 0, "")));
 
-		codeActionParams = createCodeActionParams(uri, d2);
+		codeActionParams = createCodeActionParams(uri, d3);
 		assertJavaCodeAction(codeActionParams, utils, //
-				ca(uri, "Insert @Inject, @RestClient", d2, //
-						te(18, 4, 18, 4, "@RestClient\n\t@Inject\n\t")),
-				ca(uri, "Generate OpenAPI Annotations for 'injectAnnotation'", d1, //
+				ca(uri, "Insert @Inject, @RestClient", d3, //
+						te(15, 4, 15, 4, "@RestClient\n\t@Inject\n\t")),
+				ca(uri, "Generate OpenAPI Annotations for 'injectAnnotation'", d3, //
 						te(0, 0, 0, 0, "")));
 
 	}
@@ -165,5 +169,34 @@ public class MicroProfileRestClientJavaDiagnosticsTest extends BasePropertiesMan
 				ca(uri, "Insert @RegisterRestClient", d, //
 						te(0, 28, 2, 0,
 								"\r\n\r\nimport org.eclipse.microprofile.rest.client.inject.RegisterRestClient;\r\n\r\n@RegisterRestClient\r\n")));
+	}
+
+	@Test
+	public void restClientAnnotationMissingForInterfaceJakarta() throws Exception {
+		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.open_liberty);
+		IJDTUtils utils = JDT_UTILS;
+
+		MicroProfileJavaDiagnosticsParams params = new MicroProfileJavaDiagnosticsParams();
+		IFile javaFile = javaProject.getProject()
+				.getFile(new Path("src/main/java/com/demo/rest/MyService.java"));
+		params.setUris(Arrays.asList(javaFile.getLocation().toFile().toURI().toString()));
+		params.setDocumentFormat(DocumentFormat.Markdown);
+
+		Diagnostic d = d(2, 17, 26,
+				"The interface `MyService` does not have the @RegisterRestClient annotation. The 2 fields references will not be injected as CDI beans.",
+				DiagnosticSeverity.Warning, MicroProfileRestClientConstants.DIAGNOSTIC_SOURCE,
+				MicroProfileRestClientErrorCode.RegisterRestClientAnnotationMissing);
+
+		assertJavaDiagnostics(params, utils, //
+				d);
+
+		String uri = javaFile.getLocation().toFile().toURI().toString();
+		MicroProfileJavaCodeActionParams codeActionParams = createCodeActionParams(uri, d);
+		assertJavaCodeAction(codeActionParams, utils, //
+				ca(uri, "Insert @RegisterRestClient", d, //
+						te(0, 22, 2, 0,
+								"\r\n\r\nimport org.eclipse.microprofile.rest.client.inject.RegisterRestClient;\r\n\r\n@RegisterRestClient\r\n")),
+				ca(uri, "Generate OpenAPI Annotations for 'MyService'", d, //
+						te(0, 0, 0, 0, "")));
 	}
 }

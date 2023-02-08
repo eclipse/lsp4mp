@@ -134,7 +134,8 @@ public class MicroProfileRestClientDiagnosticsParticipant implements IJavaDiagno
 			throws CoreException {
 		String uri = context.getUri();
 		DocumentFormat documentFormat = context.getDocumentFormat();
-		boolean hasInjectAnnotation = AnnotationUtils.hasAnnotation(field, INJECT_JAVAX_ANNOTATION) || AnnotationUtils.hasAnnotation(field, INJECT_JAKARTA_ANNOTATION);
+		boolean hasInjectAnnotation = AnnotationUtils.hasAnnotation(field, INJECT_JAVAX_ANNOTATION)
+				|| AnnotationUtils.hasAnnotation(field, INJECT_JAKARTA_ANNOTATION);
 		boolean hasRestClientAnnotation = AnnotationUtils.hasAnnotation(field, REST_CLIENT_ANNOTATION);
 		String fieldTypeName = JDTTypeUtils.getResolvedTypeName(field);
 		IType fieldType = JDTTypeUtils.findType(field.getJavaProject(), fieldTypeName);
@@ -227,7 +228,8 @@ public class MicroProfileRestClientDiagnosticsParticipant implements IJavaDiagno
 					}
 
 					private void validateReferenceField(IField field) throws CoreException {
-						boolean hasInjectAnnotation = AnnotationUtils.hasAnnotation(field, INJECT_JAVAX_ANNOTATION);
+						boolean hasInjectAnnotation = AnnotationUtils.hasAnnotation(field, INJECT_JAVAX_ANNOTATION)
+								|| AnnotationUtils.hasAnnotation(field, INJECT_JAKARTA_ANNOTATION);
 						boolean hasRestClientAnnotation = AnnotationUtils.hasAnnotation(field, REST_CLIENT_ANNOTATION);
 						if (hasInjectAnnotation && hasRestClientAnnotation) {
 							nbReferences.incrementAndGet();

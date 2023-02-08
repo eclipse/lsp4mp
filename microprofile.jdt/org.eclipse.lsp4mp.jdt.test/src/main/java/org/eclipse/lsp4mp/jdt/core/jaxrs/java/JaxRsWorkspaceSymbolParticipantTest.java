@@ -62,7 +62,7 @@ public class JaxRsWorkspaceSymbolParticipantTest extends BasePropertiesManagerTe
 		List<SymbolInformation> actual = PropertiesManagerForJava.getInstance().workspaceSymbols(projectUri, utils, NULL_MONITOR);
 
 		assertWorkspaceSymbols(Arrays.asList( //
-				si("@/api/api/resource: GET", 13, 15, 13, 20), si("@/api/api/inject: GET", 21, 15, 21, 20)), actual);
+				si("@/api/api/resource: GET", 13, 15, 13, 20)), actual);
 	}
 
 	private static void assertWorkspaceSymbols(List<SymbolInformation> expected, List<SymbolInformation> actual) {
