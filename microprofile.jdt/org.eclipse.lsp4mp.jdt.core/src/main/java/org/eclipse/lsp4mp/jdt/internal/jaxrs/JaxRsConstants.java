@@ -74,4 +74,6 @@ public class JaxRsConstants {
 
 	public static final String JAVAX_WS_RS_RESPONSE_TYPE = "javax.ws.rs.core.Response";
 
+	public static final String JAKARTA_WS_RS_RESPONSE_TYPE = "jakarta.ws.rs.core.Response";
+
 }

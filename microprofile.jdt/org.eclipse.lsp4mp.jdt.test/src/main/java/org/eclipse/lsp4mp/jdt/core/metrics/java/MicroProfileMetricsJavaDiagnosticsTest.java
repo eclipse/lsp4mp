@@ -34,6 +34,7 @@ import org.eclipse.lsp4mp.jdt.core.BasePropertiesManagerTest;
 import org.eclipse.lsp4mp.jdt.core.utils.IJDTUtils;
 import org.eclipse.lsp4mp.jdt.internal.metrics.MicroProfileMetricsConstants;
 import org.eclipse.lsp4mp.jdt.internal.metrics.java.MicroProfileMetricsErrorCode;
+import org.eclipse.lsp4mp.jdt.internal.restclient.MicroProfileRestClientConstants;
 import org.junit.Test;
 
 /**
@@ -55,7 +56,7 @@ public class MicroProfileMetricsJavaDiagnosticsTest extends BasePropertiesManage
 
 		// check for MicroProfile metrics diagnostic warning
 		Diagnostic d = d(10, 13, 27,
-				"The class `org.acme.IncorrectScope` using the @Gauge annotation should use the @ApplicationScoped annotation." + 
+				"The class `org.acme.IncorrectScope` using the @Gauge annotation should use the @ApplicationScoped annotation." +
 				" The @Gauge annotation does not support multiple instances of the underlying bean to be created.",
 				DiagnosticSeverity.Warning, MicroProfileMetricsConstants.DIAGNOSTIC_SOURCE,
 				MicroProfileMetricsErrorCode.ApplicationScopedAnnotationMissing);
@@ -83,23 +84,26 @@ public class MicroProfileMetricsJavaDiagnosticsTest extends BasePropertiesManage
 		diagnosticsParams.setDocumentFormat(DocumentFormat.Markdown);
 
 		// check for MicroProfile metrics diagnostic warning
-		Diagnostic d = d(10, 13, 34,
+		Diagnostic d1 = d(11, 13, 34,
 				"The class `com.demo.rest.IncorrectScopeJakarta` using the @Gauge annotation should use the @ApplicationScoped annotation." +
 				" The @Gauge annotation does not support multiple instances of the underlying bean to be created.",
 				DiagnosticSeverity.Warning, MicroProfileMetricsConstants.DIAGNOSTIC_SOURCE,
 				MicroProfileMetricsErrorCode.ApplicationScopedAnnotationMissing);
-		assertJavaDiagnostics(diagnosticsParams, utils, d);
+        Diagnostic d2 = d(15, 21, 29,
+                "The corresponding `com.demo.rest.MyService` interface does not have the @RegisterRestClient annotation. The field `service1` will not be injected as a CDI bean.",
+                DiagnosticSeverity.Warning, MicroProfileRestClientConstants.DIAGNOSTIC_SOURCE, null);
+		assertJavaDiagnostics(diagnosticsParams, utils, d1, d2);
 
 		String uri = javaFile.getLocation().toFile().toURI().toString();
-		MicroProfileJavaCodeActionParams codeActionParams = createCodeActionParams(uri, d);
+		MicroProfileJavaCodeActionParams codeActionParams = createCodeActionParams(uri, d1);
 		// check for MicroProfile metrics quick fix code action associated with
 		// diagnostic warning
 		assertJavaCodeAction(codeActionParams, utils, //
-			ca(uri, "Replace current scope with @ApplicationScoped", d, //
-				te(4, 57, 9, 0, "\n\nimport jakarta.enterprise.context.ApplicationScoped;\n" + //
+			ca(uri, "Replace current scope with @ApplicationScoped", d1, //
+				te(6, 29, 10, 0, "\nimport jakarta.enterprise.context.ApplicationScoped;\n" + //
 					"import jakarta.enterprise.context.RequestScoped;\n\n" + //
 					"@ApplicationScoped\n")),
-			ca(uri, "Generate OpenAPI Annotations for 'IncorrectScopeJakarta'", d, //
+			ca(uri, "Generate OpenAPI Annotations for 'IncorrectScopeJakarta'", d1, //
 				te(0, 0, 0, 0, "")));
 	}
 }
