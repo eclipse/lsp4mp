@@ -15,7 +15,12 @@ package org.eclipse.lsp4mp.ls;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -28,6 +33,7 @@ import org.eclipse.lsp4j.WorkspaceSymbolParams;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.WorkspaceService;
 import org.eclipse.lsp4mp.ls.java.JavaTextDocuments;
+import org.eclipse.lsp4mp.utils.FutureUtils;
 
 /**
  * MicroProfile workspace service.
@@ -36,6 +42,8 @@ import org.eclipse.lsp4mp.ls.java.JavaTextDocuments;
 public class MicroProfileWorkspaceService implements WorkspaceService {
 
 	private static final Logger LOGGER = Logger.getLogger(MicroProfileWorkspaceService.class.getName());
+
+	private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
 	private final MicroProfileLanguageServer microprofileLanguageServer;
 	private final JavaTextDocuments javaTextDocuments;
@@ -58,33 +66,54 @@ public class MicroProfileWorkspaceService implements WorkspaceService {
 	@Override
 	public CompletableFuture<Either<List<? extends SymbolInformation>, List<? extends WorkspaceSymbol>>> symbol(
 			WorkspaceSymbolParams params) {
-		return javaTextDocuments.getWorkspaceProjects() //
-				.thenCompose(workspaceProjects -> {
+		return FutureUtils.computeAsyncCompose(cancelChecker -> {
 
-					List<CompletableFuture<List<SymbolInformation>>> symbolFutures = workspaceProjects.stream() //
-							.map(projectLabelInfo -> {
-								String uri = projectLabelInfo.getUri();
-								return microprofileLanguageServer.getLanguageClient().getJavaWorkspaceSymbols(uri);
-							}) //
-							.collect(Collectors.toList());
+			return javaTextDocuments.getWorkspaceProjects() //
+					.thenCompose((workspaceProjects) -> {
 
-					// NOTE: we don't need to implement resolve, because resolve is just
-					// for calculating the source range. The source range is very cheap to calculate
-					// in comparison to invoking the search engine to locate the symbols.
+						List<CompletableFuture<List<SymbolInformation>>> symbolFutures = workspaceProjects.stream() //
+								.map(projectLabelInfo -> {
+									String uri = projectLabelInfo.getUri();
+									return microprofileLanguageServer.getLanguageClient().getJavaWorkspaceSymbols(uri);
+								}) //
+								.collect(Collectors.toList());
 
-					return CompletableFuture
-							.allOf((CompletableFuture[]) symbolFutures.stream().toArray(CompletableFuture[]::new))
-							.exceptionally(e -> {
-								LOGGER.log(Level.SEVERE, "Failure while collecting symbols", e);
-								return null;
-							}).thenApply(_void -> {
-								return Either.forLeft(symbolFutures.stream() //
-										.flatMap(projectSymbolsFuture -> {
-											return projectSymbolsFuture.getNow(Collections.emptyList()).stream();
-										}) //
-										.collect(Collectors.toList()));
-							});
-				});
+						// Set up a background task that cancels the java language server requests
+						// if the client indicates the server request was cancelled
+						Future<?> cancellationPolling = scheduler.scheduleWithFixedDelay(() -> {
+							if (cancelChecker.isCanceled()) {
+								symbolFutures.stream().forEach(symbolFuture -> symbolFuture.cancel(false));
+							}
+						}, 0, 10, TimeUnit.MILLISECONDS);
+
+						// NOTE: we don't need to implement resolve, because resolve is just
+						// for calculating the source range. The source range is very cheap to calculate
+						// in comparison to invoking the search engine to locate the symbols.
+
+						return CompletableFuture
+								.allOf((CompletableFuture[]) symbolFutures.stream().toArray(CompletableFuture[]::new)) //
+								.exceptionally(e -> { //
+									if (!(e instanceof CancellationException)
+											&& !(e.getCause() instanceof CancellationException)) {
+										LOGGER.log(Level.SEVERE, "Failure while collecting symbols", e);
+									}
+									return null;
+								}) //
+								.thenApply(_void -> {
+									// remove the background task to cancel the delegate commands, since they should
+									// all be completed or cancelled by now
+									cancellationPolling.cancel(false);
+									cancelChecker.checkCanceled();
+
+									return Either.forLeft(symbolFutures.stream() //
+											.flatMap(projectSymbolsFuture -> {
+												return projectSymbolsFuture.getNow(Collections.emptyList()).stream();
+											}) //
+											.collect(Collectors.toList()));
+								});
+					});
+		});
+
 	}
 
 }
