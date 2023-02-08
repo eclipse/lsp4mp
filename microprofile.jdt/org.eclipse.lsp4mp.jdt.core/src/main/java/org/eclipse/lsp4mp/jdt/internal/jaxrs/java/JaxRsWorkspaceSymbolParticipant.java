@@ -94,10 +94,13 @@ public class JaxRsWorkspaceSymbolParticipant implements IJavaWorkspaceSymbolsPar
 							}
 						}
 
-					}, null);
+					}, monitor);
 		} catch (CoreException | ClassCastException e) {
 			LOGGER.log(Level.SEVERE,
 					"While collecting symbols for project " + project.getResource().getLocationURI().toString(), e);
+		}
+		if (monitor.isCanceled()) {
+			return;
 		}
 		annotatables
 				.forEach(annotatable -> collectSymbolFromAnnotatable(symbols, annotatable, applicationPrefix, utils));
