@@ -321,6 +321,11 @@
       </staticPropertyProvider>
    </extension>
 
+   <extension point="org.eclipse.lsp4mp.jdt.core.javaASTValidators">
+      <!-- Java validation for microprofile-graphql features -->
+      <validator class="org.eclipse.lsp4mp.jdt.internal.graphql.java.MicroProfileGraphQLASTValidator" />
+   </extension>
+
    <!-- JAX-RS support -->
 
    <extension point="org.eclipse.lsp4mp.jdt.core.javaFeatureParticipants">
