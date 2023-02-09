@@ -22,8 +22,9 @@ public class MicroProfileGraphQLConstants {
 	}
 
 	public static final String QUERY_ANNOTATION = "org.eclipse.microprofile.graphql.Query";
-
 	public static final String MUTATION_ANNOTATION = "org.eclipse.microprofile.graphql.Mutation";
+
+	public static final String GRAPHQL_API_ANNOTATION = "org.eclipse.microprofile.graphql.GraphQLApi";
 
 	public static final String DIAGNOSTIC_SOURCE = "microprofile-graphql";
 
