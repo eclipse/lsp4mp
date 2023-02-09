@@ -48,16 +48,22 @@ public class MicroProfileGraphQLValidationTest extends BasePropertiesManagerTest
 		diagnosticsParams.setUris(Arrays.asList(javaFile.getLocation().toFile().toURI().toString()));
 		diagnosticsParams.setDocumentFormat(DocumentFormat.Markdown);
 
-		Diagnostic d1 = d(89, 11, 15,
+		Diagnostic d1 = d(31, 13, 27,
+				"Annotate 'WeatherService' with '@GraphQLApi' in order for microprofile-graphql to recognize 'currentConditions' as a part of the GraphQL API.",
+				DiagnosticSeverity.Warning, MicroProfileGraphQLConstants.DIAGNOSTIC_SOURCE,
+				MicroProfileGraphQLErrorCode.MISSING_GRAPHQL_API_ANNOTATION);
+
+		Diagnostic d2 = d(88, 11, 15,
 				"Methods annotated with microprofile-graphql's `@Query` cannot have 'void' as a return type.",
 				DiagnosticSeverity.Error, MicroProfileGraphQLConstants.DIAGNOSTIC_SOURCE,
 				MicroProfileGraphQLErrorCode.NO_VOID_QUERIES);
 
-		Diagnostic d2 = d(93, 11, 15,
+		Diagnostic d3 = d(92, 11, 15,
 				"Methods annotated with microprofile-graphql's `@Mutation` cannot have 'void' as a return type.",
 				DiagnosticSeverity.Error, MicroProfileGraphQLConstants.DIAGNOSTIC_SOURCE,
 				MicroProfileGraphQLErrorCode.NO_VOID_MUTATIONS);
+
 		assertJavaDiagnostics(diagnosticsParams, utils, //
-				d1, d2);
+				d1, d2, d3);
 	}
 }

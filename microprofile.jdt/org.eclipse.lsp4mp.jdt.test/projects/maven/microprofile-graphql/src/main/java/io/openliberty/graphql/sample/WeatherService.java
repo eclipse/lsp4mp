@@ -28,7 +28,6 @@ import org.eclipse.microprofile.graphql.Name;
 import org.eclipse.microprofile.graphql.Query;
 import org.eclipse.microprofile.graphql.Source;
 
-@GraphQLApi
 @ApplicationScoped
 public class WeatherService {
 

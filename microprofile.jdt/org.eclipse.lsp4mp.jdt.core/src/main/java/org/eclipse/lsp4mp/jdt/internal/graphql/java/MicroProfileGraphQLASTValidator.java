@@ -24,10 +24,12 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4mp.jdt.core.java.diagnostics.JavaDiagnosticsContext;
 import org.eclipse.lsp4mp.jdt.core.java.validators.JavaASTValidator;
@@ -45,6 +47,7 @@ public class MicroProfileGraphQLASTValidator extends JavaASTValidator {
 
 	private static final String NO_VOID_QUERY_MESSAGE = "Methods annotated with microprofile-graphql's `@Query` cannot have 'void' as a return type.";
 	private static final String NO_VOID_MUTATION_MESSAGE = "Methods annotated with microprofile-graphql's `@Mutation` cannot have 'void' as a return type.";
+	private static final String GRAPH_QL_API_ANNOTATION_MESSAGE = "Annotate ''{0}'' with ''@GraphQLApi'' in order for microprofile-graphql to recognize ''{1}'' as a part of the GraphQL API.";
 
 	@Override
 	public boolean isAdaptedForDiagnostics(JavaDiagnosticsContext context, IProgressMonitor monitor)
@@ -60,6 +63,17 @@ public class MicroProfileGraphQLASTValidator extends JavaASTValidator {
 			validateMethod(node);
 		} catch (JavaModelException e) {
 			LOGGER.log(Level.WARNING, "An exception occurred when attempting to validate the annotation marked method");
+		}
+		super.visit(node);
+		return true;
+	}
+
+	@Override
+	public boolean visit(TypeDeclaration node) {
+		try {
+			validateTypeDeclaration(node);
+		} catch (JavaModelException e) {
+			LOGGER.log(Level.WARNING, "An exception occurred when attempting to validate the type");
 		}
 		super.visit(node);
 		return true;
@@ -93,6 +107,42 @@ public class MicroProfileGraphQLASTValidator extends JavaASTValidator {
 				}
 			}
 		}
+	}
+
+	private void validateTypeDeclaration(TypeDeclaration node) throws JavaModelException {
+		if (!hasGraphQLApiAnnotation(node)) {
+			for (MethodDeclaration method : node.getMethods()) {
+				if (hasGraphQLMethodAnnotation(method)) {
+					String message = MessageFormat.format(GRAPH_QL_API_ANNOTATION_MESSAGE, node.getName(),
+							method.getName());
+					super.addDiagnostic(message, MicroProfileGraphQLConstants.DIAGNOSTIC_SOURCE, node.getName(),
+							MicroProfileGraphQLErrorCode.MISSING_GRAPHQL_API_ANNOTATION, DiagnosticSeverity.Warning);
+					// prevent adding duplicate warnings
+					break;
+				}
+			}
+		}
+	}
+
+	private boolean hasGraphQLApiAnnotation(AbstractTypeDeclaration node) {
+		for (Object modifier : node.modifiers()) {
+			if (modifier instanceof Annotation annotation
+					&& isMatchAnnotation(annotation, MicroProfileGraphQLConstants.GRAPHQL_API_ANNOTATION)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean hasGraphQLMethodAnnotation(MethodDeclaration node) {
+		for (Object modifier : node.modifiers()) {
+			if (modifier instanceof Annotation annotation
+					&& (isMatchAnnotation(annotation, MicroProfileGraphQLConstants.QUERY_ANNOTATION)
+							|| isMatchAnnotation(annotation, MicroProfileGraphQLConstants.MUTATION_ANNOTATION))) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 }

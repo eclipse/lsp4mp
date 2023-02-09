@@ -21,7 +21,8 @@ import org.eclipse.lsp4mp.jdt.core.java.diagnostics.IJavaErrorCode;
 public enum MicroProfileGraphQLErrorCode implements IJavaErrorCode {
 
 	NO_VOID_QUERIES,
-	NO_VOID_MUTATIONS
+	NO_VOID_MUTATIONS,
+	MISSING_GRAPHQL_API_ANNOTATION
 	;
 
 	@Override
