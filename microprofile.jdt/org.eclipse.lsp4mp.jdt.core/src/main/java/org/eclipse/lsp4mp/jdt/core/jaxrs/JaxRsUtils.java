@@ -13,17 +13,17 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.core.jaxrs;
 
+import static org.eclipse.lsp4mp.jdt.core.jaxrs.JaxRsConstants.HTTP_METHOD_ANNOTATIONS;
+import static org.eclipse.lsp4mp.jdt.core.jaxrs.JaxRsConstants.JAKARTA_WS_RS_APPLICATIONPATH_ANNOTATION;
+import static org.eclipse.lsp4mp.jdt.core.jaxrs.JaxRsConstants.JAKARTA_WS_RS_GET_ANNOTATION;
+import static org.eclipse.lsp4mp.jdt.core.jaxrs.JaxRsConstants.JAKARTA_WS_RS_PATH_ANNOTATION;
+import static org.eclipse.lsp4mp.jdt.core.jaxrs.JaxRsConstants.JAVAX_WS_RS_APPLICATIONPATH_ANNOTATION;
+import static org.eclipse.lsp4mp.jdt.core.jaxrs.JaxRsConstants.JAVAX_WS_RS_GET_ANNOTATION;
+import static org.eclipse.lsp4mp.jdt.core.jaxrs.JaxRsConstants.JAVAX_WS_RS_PATH_ANNOTATION;
+import static org.eclipse.lsp4mp.jdt.core.jaxrs.JaxRsConstants.PATH_VALUE;
 import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.getAnnotation;
 import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.getAnnotationMemberValue;
 import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.hasAnnotation;
-import static org.eclipse.lsp4mp.jdt.internal.jaxrs.JaxRsConstants.HTTP_METHOD_ANNOTATIONS;
-import static org.eclipse.lsp4mp.jdt.internal.jaxrs.JaxRsConstants.JAKARTA_WS_RS_APPLICATIONPATH_ANNOTATION;
-import static org.eclipse.lsp4mp.jdt.internal.jaxrs.JaxRsConstants.JAKARTA_WS_RS_GET_ANNOTATION;
-import static org.eclipse.lsp4mp.jdt.internal.jaxrs.JaxRsConstants.JAKARTA_WS_RS_PATH_ANNOTATION;
-import static org.eclipse.lsp4mp.jdt.internal.jaxrs.JaxRsConstants.JAVAX_WS_RS_APPLICATIONPATH_ANNOTATION;
-import static org.eclipse.lsp4mp.jdt.internal.jaxrs.JaxRsConstants.JAVAX_WS_RS_GET_ANNOTATION;
-import static org.eclipse.lsp4mp.jdt.internal.jaxrs.JaxRsConstants.JAVAX_WS_RS_PATH_ANNOTATION;
-import static org.eclipse.lsp4mp.jdt.internal.jaxrs.JaxRsConstants.PATH_VALUE;
 
 import java.util.Collections;
 
@@ -174,5 +174,38 @@ public class JaxRsUtils {
 			}
 		}
 		return url.toString();
+	}
+
+	/**
+	 * Returns an HttpMethod given the FQN of a JAX-RS or Jakarta RESTful
+	 * annotation, nor null if the FQN doesn't match any HttpMethod.
+	 *
+	 * @param annotationFQN the FQN of the annotation to convert into a HttpMethod
+	 * @return an HttpMethod given the FQN of a JAX-RS or Jakarta RESTful
+	 *         annotation, nor null if the FQN doesn't match any HttpMethod
+	 */
+	public static HttpMethod getHttpMethodForAnnotation(String annotationFQN) {
+		switch (annotationFQN) {
+		case JaxRsConstants.JAKARTA_WS_RS_GET_ANNOTATION:
+		case JaxRsConstants.JAVAX_WS_RS_GET_ANNOTATION:
+			return HttpMethod.GET;
+		case JaxRsConstants.JAKARTA_WS_RS_HEAD_ANNOTATION:
+		case JaxRsConstants.JAVAX_WS_RS_HEAD_ANNOTATION:
+			return HttpMethod.HEAD;
+		case JaxRsConstants.JAKARTA_WS_RS_POST_ANNOTATION:
+		case JaxRsConstants.JAVAX_WS_RS_POST_ANNOTATION:
+			return HttpMethod.POST;
+		case JaxRsConstants.JAKARTA_WS_RS_PUT_ANNOTATION:
+		case JaxRsConstants.JAVAX_WS_RS_PUT_ANNOTATION:
+			return HttpMethod.PUT;
+		case JaxRsConstants.JAKARTA_WS_RS_DELETE_ANNOTATION:
+		case JaxRsConstants.JAVAX_WS_RS_DELETE_ANNOTATION:
+			return HttpMethod.DELETE;
+		case JaxRsConstants.JAKARTA_WS_RS_PATCH_ANNOTATION:
+		case JaxRsConstants.JAVAX_WS_RS_PATCH_ANNOTATION:
+			return HttpMethod.PATCH;
+		default:
+			return null;
+		}
 	}
 }

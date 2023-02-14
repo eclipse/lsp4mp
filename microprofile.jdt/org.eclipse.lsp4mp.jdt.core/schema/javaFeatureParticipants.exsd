@@ -26,6 +26,7 @@
                <element ref="definition" minOccurs="0" maxOccurs="unbounded"/>
                <element ref="hover" minOccurs="0" maxOccurs="unbounded"/>
                <element ref="workspaceSymbols" minOccurs="0" maxOccurs="unbounded"/>
+               <element ref="jaxrs" minOccurs="0" maxOccurs="unbounded"/>
             </choice>
          </sequence>
          <attribute name="point" type="string" use="required">
@@ -213,6 +214,26 @@
                </documentation>
                <appinfo>
                   <meta.attribute kind="java" basedOn=":org.eclipse.lsp4mp.jdt.core.java.symbol.IJavaWorkspaceSymbolsParticipant"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="jaxrs">
+      <annotation>
+         <documentation>
+            JAX-RS info provider.
+         </documentation>
+      </annotation>
+      <complexType>
+         <attribute name="class" type="string" use="required">
+            <annotation>
+               <documentation>
+                  Name of a class that implements IJaxRsInfoProvider
+               </documentation>
+               <appinfo>
+                  <meta.attribute kind="java" basedOn=":org.eclipse.lsp4mp.jdt.core.jaxrs.IJaxRsInfoProvider"/>
                </appinfo>
             </annotation>
          </attribute>

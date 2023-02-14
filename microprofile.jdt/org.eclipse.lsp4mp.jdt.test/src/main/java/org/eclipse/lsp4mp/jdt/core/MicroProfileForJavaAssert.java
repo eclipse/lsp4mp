@@ -22,21 +22,26 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionContext;
+import org.eclipse.lsp4j.CodeLens;
+import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Hover;
+import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.MarkupKind;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextEdit;
@@ -46,12 +51,14 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4mp.commons.DocumentFormat;
 import org.eclipse.lsp4mp.commons.MicroProfileDefinition;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeActionParams;
+import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeLensParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCompletionParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaDefinitionParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaDiagnosticsParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaHoverParams;
 import org.eclipse.lsp4mp.jdt.core.java.diagnostics.IJavaErrorCode;
 import org.eclipse.lsp4mp.jdt.core.utils.IJDTUtils;
+import org.eclipse.lsp4mp.jdt.core.utils.JDTMicroProfileUtils;
 import org.junit.Assert;
 
 /**
@@ -312,4 +319,105 @@ public class MicroProfileForJavaAssert {
 		String uriString = uri.toString();
 		return uriString.replaceFirst("file:/([^/])", "file:///$1");
 	}
+
+	// Assert for WorkspaceSymbol
+
+	/**
+	 * Returns a new symbol information.
+	 *
+	 * @param name  the name of the symbol
+	 * @param range the range of the symbol
+	 * @return a new symbol information
+	 */
+	public static SymbolInformation si(String name, Range range) {
+		SymbolInformation symbolInformation = new SymbolInformation();
+		symbolInformation.setName(name);
+		Location location = new Location("", range);
+		symbolInformation.setLocation(location);
+		return symbolInformation;
+	}
+
+	/**
+	 * Asserts that the actual workspace symbols for the given project are the same
+	 * as the list of expected workspace symbols.
+	 *
+	 * @param javaProject the project to check the workspace symbols of
+	 * @param utils       the jdt utils
+	 * @param expected    the expected workspace symbols
+	 * @throws JavaModelException
+	 */
+	public static void assertWorkspaceSymbols(IJavaProject javaProject, IJDTUtils utils, SymbolInformation... expected)
+			throws JavaModelException {
+		List<SymbolInformation> actual = PropertiesManagerForJava.getInstance()
+				.workspaceSymbols(JDTMicroProfileUtils.getProjectURI(javaProject), utils, new NullProgressMonitor());
+		MicroProfileForJavaAssert.assertWorkspaceSymbols(Arrays.asList(expected), actual);
+	}
+
+	/**
+	 * Asserts that the given lists of workspace symbols are the same.
+	 *
+	 * @param expected the expected symbols
+	 * @param actual   the actual symbols
+	 */
+	public static void assertWorkspaceSymbols(List<SymbolInformation> expected, List<SymbolInformation> actual) {
+		assertEquals(expected.size(), actual.size());
+		Collections.sort(expected, (si1, si2) -> si1.getName().compareTo(si2.getName()));
+		Collections.sort(actual, (si1, si2) -> si1.getName().compareTo(si2.getName()));
+		for (int i = 0; i < expected.size(); i++) {
+			assertSymbolInformation(expected.get(i), actual.get(i));
+		}
+	}
+
+	/**
+	 * Asserts that the expected and actual symbol informations' name and range are
+	 * the same.
+	 *
+	 * Doesn't check any of the other properties. For instance, the URI is avoided
+	 * since this will change between systems
+	 *
+	 * @param expected the expected symbol information
+	 * @param actual   the actual symbol information
+	 */
+	public static void assertSymbolInformation(SymbolInformation expected, SymbolInformation actual) {
+		assertEquals(expected.getName(), actual.getName());
+		assertEquals(expected.getLocation().getRange(), actual.getLocation().getRange());
+	}
+
+	// Assert for CodeLens
+
+	/**
+	 * Asserts that the expected code lens are in the document specified by the
+	 * params.
+	 *
+	 * @param params   the parameters specifying the document to get the code lens
+	 *                 for
+	 * @param utils    the jdt utils
+	 * @param expected the list of expected code lens
+	 * @throws JavaModelException
+	 */
+	public static void assertCodeLens(MicroProfileJavaCodeLensParams params, IJDTUtils utils, CodeLens... expected)
+			throws JavaModelException {
+		List<? extends CodeLens> actual = PropertiesManagerForJava.getInstance().codeLens(params, utils,
+				new NullProgressMonitor());
+		assertEquals(expected.length, actual.size());
+
+		for (int i = 0; i < expected.length; i++) {
+			assertEquals(expected[i], actual.get(i));
+		}
+	}
+
+	/**
+	 * Returns a new code lens.
+	 *
+	 * @param title     the title of the code lens
+	 * @param commandId the id of the command to run when the code lens is clicked
+	 * @param range     the range of the code lens
+	 * @return a new code lens
+	 */
+	public static CodeLens cl(String title, String commandId, Range range) {
+		CodeLens codeLens = new CodeLens(range);
+		codeLens.setCommand(new Command(title, commandId, Collections.singletonList(title)));
+		return codeLens;
+	}
+
 }
