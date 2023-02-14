@@ -13,23 +13,12 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.core.jaxrs.java;
 
-import static org.junit.Assert.assertEquals;
+import static org.eclipse.lsp4mp.jdt.core.MicroProfileForJavaAssert.assertWorkspaceSymbols;
+import static org.eclipse.lsp4mp.jdt.core.MicroProfileForJavaAssert.r;
+import static org.eclipse.lsp4mp.jdt.core.MicroProfileForJavaAssert.si;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.lsp4j.Location;
-import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4mp.jdt.core.BasePropertiesManagerTest;
-import org.eclipse.lsp4mp.jdt.core.PropertiesManagerForJava;
-import org.eclipse.lsp4mp.jdt.core.utils.IJDTUtils;
-import org.eclipse.lsp4mp.jdt.core.utils.JDTMicroProfileUtils;
 import org.junit.Test;
 
 /**
@@ -37,63 +26,25 @@ import org.junit.Test;
  */
 public class JaxRsWorkspaceSymbolParticipantTest extends BasePropertiesManagerTest {
 
-	private static IProgressMonitor NULL_MONITOR = new NullProgressMonitor();
-
 	@Test
 	public void testConfigQuickstart() throws Exception {
 		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.config_quickstart);
-		IJDTUtils utils = JDT_UTILS;
-		String projectUri = JDTMicroProfileUtils.getProjectURI(javaProject);
 
-		List<SymbolInformation> actual = PropertiesManagerForJava.getInstance().workspaceSymbols(projectUri, utils, NULL_MONITOR);
-
-		assertWorkspaceSymbols(Arrays.asList( //
-				si("@/greeting/hello4: GET", 40, 18, 40, 24), si("@/greeting/constructor: GET", 34, 18, 34, 23),
-				si("@/greeting/hello: GET", 33, 18, 33, 24), si("@/greeting: GET", 26, 18, 26, 23),
-				si("@/greeting/method: GET", 38, 18, 38, 23), si("@/greeting/hello5: PATCH", 46, 18, 46, 24)), actual);
+		assertWorkspaceSymbols(javaProject, JDT_UTILS, //
+				si("@/greeting/hello4: GET", r(40, 18, 24)), //
+				si("@/greeting/constructor: GET", r(34, 18, 23)), //
+				si("@/greeting/hello: GET", r(33, 18, 24)), //
+				si("@/greeting: GET", r(26, 18, 23)), //
+				si("@/greeting/method: GET", r(38, 18, 23)), //
+				si("@/greeting/hello5: PATCH", r(46, 18, 24)));
 	}
 
 	@Test
 	public void testOpenLiberty() throws Exception {
 		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.open_liberty);
-		IJDTUtils utils = JDT_UTILS;
-		String projectUri = JDTMicroProfileUtils.getProjectURI(javaProject);
 
-		List<SymbolInformation> actual = PropertiesManagerForJava.getInstance().workspaceSymbols(projectUri, utils, NULL_MONITOR);
-
-		assertWorkspaceSymbols(Arrays.asList( //
-				si("@/api/api/resource: GET", 13, 15, 13, 20)), actual);
+		assertWorkspaceSymbols(javaProject, JDT_UTILS, //
+				si("@/api/api/resource: GET", r(13, 15, 20)));
 	}
 
-	private static void assertWorkspaceSymbols(List<SymbolInformation> expected, List<SymbolInformation> actual) {
-		assertEquals(expected.size(), actual.size());
-		Collections.sort(expected, (si1, si2) -> si1.getName().compareTo(si2.getName()));
-		Collections.sort(actual, (si1, si2) -> si1.getName().compareTo(si2.getName()));
-		for (int i = 0; i < expected.size(); i++) {
-			assertSymbolInformation(expected.get(i), actual.get(i));
-		}
-	}
-
-	/**
-	 * Asserts that the expected and actual symbol informations' name and range are
-	 * the same.
-	 *
-	 * Doesn't check any of the other properties.
-	 *
-	 * @param expected the expected symbol information
-	 * @param actual   the actual symbol information
-	 */
-	private static void assertSymbolInformation(SymbolInformation expected, SymbolInformation actual) {
-		assertEquals(expected.getName(), actual.getName());
-		assertEquals(expected.getLocation().getRange(), actual.getLocation().getRange());
-	}
-
-	private static SymbolInformation si(String name, int startLine, int startChar, int endLine, int endChar) {
-		SymbolInformation symbolInformation = new SymbolInformation();
-		symbolInformation.setName(name);
-		Range range = new Range(new Position(startLine, startChar), new Position(endLine, endChar));
-		Location location = new Location("", range);
-		symbolInformation.setLocation(location);
-		return symbolInformation;
-	}
 }

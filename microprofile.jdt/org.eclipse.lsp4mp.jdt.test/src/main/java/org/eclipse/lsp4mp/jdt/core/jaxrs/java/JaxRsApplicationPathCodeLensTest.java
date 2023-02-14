@@ -13,19 +13,17 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.core.jaxrs.java;
 
-import java.util.List;
+import static org.eclipse.lsp4mp.jdt.core.MicroProfileForJavaAssert.assertCodeLens;
+import static org.eclipse.lsp4mp.jdt.core.MicroProfileForJavaAssert.cl;
+import static org.eclipse.lsp4mp.jdt.core.MicroProfileForJavaAssert.r;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeLensParams;
 import org.eclipse.lsp4mp.jdt.core.BasePropertiesManagerTest;
-import org.eclipse.lsp4mp.jdt.core.PropertiesManagerForJava;
 import org.eclipse.lsp4mp.jdt.core.utils.IJDTUtils;
-import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -53,7 +51,7 @@ public class JaxRsApplicationPathCodeLensTest extends BasePropertiesManagerTest 
 				"public class MyApplication extends Application {}\r\n", javaProject, true);
 
 		// Default port
-		assertCodeLense(8080, params, utils, "/api/path");
+		assertCodeLenses(8080, params, utils, "/api/path");
 	}
 
 	@Test
@@ -75,7 +73,7 @@ public class JaxRsApplicationPathCodeLensTest extends BasePropertiesManagerTest 
 				"public class MyApplication extends Application {}\r\n", javaProject, true);
 
 		// Default port
-		assertCodeLense(8080, params, utils, "/api/path");
+		assertCodeLenses(8080, params, utils, "/api/path");
 	}
 
 	@Test
@@ -97,7 +95,7 @@ public class JaxRsApplicationPathCodeLensTest extends BasePropertiesManagerTest 
 				"public class MyApplication extends Application {}\r\n", javaProject, true);
 
 		// Default port
-		assertCodeLense(8080, params, utils, "/api/path");
+		assertCodeLenses(8080, params, utils, "/api/path");
 
 		saveFile("org/acme/MyApplication.java", "package org.acme;\r\n" + //
 				"import javax.ws.rs.ApplicationPath;\r\n" + //
@@ -105,7 +103,7 @@ public class JaxRsApplicationPathCodeLensTest extends BasePropertiesManagerTest 
 				"@ApplicationPath(\"/ipa\")\r\n" + //
 				"public class MyApplication extends Application {}\r\n", javaProject, true);
 
-		assertCodeLense(8080, params, utils, "/ipa/path");
+		assertCodeLenses(8080, params, utils, "/ipa/path");
 	}
 
 	@Test
@@ -119,18 +117,14 @@ public class JaxRsApplicationPathCodeLensTest extends BasePropertiesManagerTest 
 		params.setUri(javaFile.getLocation().toFile().toURI().toString());
 		params.setUrlCodeLensEnabled(true);
 
-		assertCodeLense(8080, params, utils, "/api/api/resource");
+		assertCodeLens(params, utils, //
+				cl("http://localhost:8080/api/api/resource", "", r(13, 5, 5)));
 	}
 
-	private static void assertCodeLense(int port, MicroProfileJavaCodeLensParams params, IJDTUtils utils,
+	private static void assertCodeLenses(int port, MicroProfileJavaCodeLensParams params, IJDTUtils utils,
 			String actualEndpoint) throws JavaModelException {
-		List<? extends CodeLens> lenses = PropertiesManagerForJava.getInstance().codeLens(params, utils,
-				new NullProgressMonitor());
-		Assert.assertEquals(1, lenses.size());
-
-		CodeLens lenseForEndpoint = lenses.get(0);
-		Assert.assertNotNull(lenseForEndpoint.getCommand());
-		Assert.assertEquals("http://localhost:" + port + actualEndpoint, lenseForEndpoint.getCommand().getTitle());
+		assertCodeLens(params, utils, //
+				cl("http://localhost:" + port + actualEndpoint, "", r(12, 35, 35)));
 	}
 
 }

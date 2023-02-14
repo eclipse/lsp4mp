@@ -13,6 +13,10 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.core.restclient.java;
 
+import static org.eclipse.lsp4mp.jdt.core.MicroProfileForJavaAssert.assertCodeLens;
+import static org.eclipse.lsp4mp.jdt.core.MicroProfileForJavaAssert.cl;
+import static org.eclipse.lsp4mp.jdt.core.MicroProfileForJavaAssert.r;
+
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
@@ -120,7 +124,7 @@ public class MicroProfileRestClientJavaCodeLensTest extends BasePropertiesManage
 				javaProject);
 		assertCodeLenses("https://restcountries.url/${org.acme.restclient.CountriesService/mp-rest/url}", params,
 				utils);
-		
+
 		// /mp-rest/uri
 		// double reference
 		saveFile(MicroProfileConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE,
@@ -189,65 +193,15 @@ public class MicroProfileRestClientJavaCodeLensTest extends BasePropertiesManage
 
 	private static void assertCodeLenses(String baseURL, MicroProfileJavaCodeLensParams params, IJDTUtils utils)
 			throws JavaModelException {
-		List<? extends CodeLens> lenses = PropertiesManagerForJava.getInstance().codeLens(params, utils,
-				new NullProgressMonitor());
-		Assert.assertEquals(8, lenses.size());
-
-		// @GET
-		// @Path("/name/{name}")
-		// Set<Country> getByName(@PathParam String name);
-		CodeLens lensForGet = lenses.get(0);
-		Assert.assertNotNull(lensForGet.getCommand());
-		Assert.assertEquals(baseURL + "/v2/name/{name}", lensForGet.getCommand().getTitle());
-
-		// @GET
-		// @Path("/name/{name}")
-		// CompletionStage<Set<Country>> getByNameAsync(@PathParam String name);
-		CodeLens lensForGetSingle = lenses.get(1);
-		Assert.assertNotNull(lensForGetSingle.getCommand());
-		Assert.assertEquals(baseURL + "/v2/name/{name}", lensForGetSingle.getCommand().getTitle());
-		
-		// @POST
-		// @Path("/post")
-		// String post();
-		CodeLens lensForPost = lenses.get(2);
-		Assert.assertNotNull(lensForPost.getCommand());
-		Assert.assertEquals(baseURL + "/v2/post", lensForPost.getCommand().getTitle());
-		
-		// @PUT
-		// @Path("/put")
-		// String put();
-		CodeLens lensForPut = lenses.get(3);
-		Assert.assertNotNull(lensForPut.getCommand());
-		Assert.assertEquals(baseURL + "/v2/put", lensForPut.getCommand().getTitle());
-		
-		// @DELETE
-		// @Path("/delete")
-		// String delete();
-		CodeLens lensForDelete = lenses.get(4);
-		Assert.assertNotNull(lensForDelete.getCommand());
-		Assert.assertEquals(baseURL + "/v2/delete", lensForDelete.getCommand().getTitle());
-
-		// @HEAD
-		// @Path("/head")
-		// String head();
-		CodeLens lensForHead = lenses.get(5);
-		Assert.assertNotNull(lensForHead.getCommand());
-		Assert.assertEquals(baseURL + "/v2/head", lensForHead.getCommand().getTitle());
-
-		// @OPTIONS
-		// @Path("/options")
-		// String options();
-		CodeLens lensForOptions = lenses.get(6);
-		Assert.assertNotNull(lensForOptions.getCommand());
-		Assert.assertEquals(baseURL + "/v2/options", lensForOptions.getCommand().getTitle());
-
-		// @PATCH
-		// @Path("/patch")
-		// String patch();
-		CodeLens lensForPatch = lenses.get(7);
-		Assert.assertNotNull(lensForPatch.getCommand());
-		Assert.assertEquals(baseURL + "/v2/patch", lensForPatch.getCommand().getTitle());
+		assertCodeLens(params, utils, //
+				cl(baseURL + "/v2/name/{name}", "", r(24, 33, 33)), //
+				cl(baseURL + "/v2/name/{name}", "", r(29, 33, 33)), //
+				cl(baseURL + "/v2/post", "", r(33, 18, 18)), //
+				cl(baseURL + "/v2/put", "", r(37, 17, 17)), //
+				cl(baseURL + "/v2/delete", "", r(41, 20, 20)), //
+				cl(baseURL + "/v2/head", "", r(45, 18, 18)), //
+				cl(baseURL + "/v2/options", "", r(49, 21, 21)), //
+				cl(baseURL + "/v2/patch", "", r(53, 19, 19)));
 	}
 
 }

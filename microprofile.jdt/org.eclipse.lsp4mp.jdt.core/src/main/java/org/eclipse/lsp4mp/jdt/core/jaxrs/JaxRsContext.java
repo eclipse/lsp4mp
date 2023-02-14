@@ -13,9 +13,9 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.core.jaxrs;
 
+import static org.eclipse.lsp4mp.jdt.core.jaxrs.JaxRsConstants.JAKARTA_WS_RS_APPLICATIONPATH_ANNOTATION;
+import static org.eclipse.lsp4mp.jdt.core.jaxrs.JaxRsConstants.JAVAX_WS_RS_APPLICATIONPATH_ANNOTATION;
 import static org.eclipse.lsp4mp.jdt.core.jaxrs.JaxRsUtils.getJaxRsApplicationPathValue;
-import static org.eclipse.lsp4mp.jdt.internal.jaxrs.JaxRsConstants.JAKARTA_WS_RS_APPLICATIONPATH_ANNOTATION;
-import static org.eclipse.lsp4mp.jdt.internal.jaxrs.JaxRsConstants.JAVAX_WS_RS_APPLICATIONPATH_ANNOTATION;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -31,7 +31,6 @@ import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.SearchRequestor;
 import org.eclipse.lsp4mp.jdt.core.java.codelens.JavaCodeLensContext;
-import org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils;
 import org.eclipse.lsp4mp.jdt.core.utils.JDTTypeUtils;
 
 /**
@@ -61,6 +60,8 @@ public class JaxRsContext {
 	private String applicationPath;
 
 	private final IJavaProject javaProject;
+
+	private boolean applicationPathLoaded = false;
 
 	public JaxRsContext(IJavaProject javaProject) {
 		setServerPort(DEFAULT_PORT);
@@ -101,15 +102,17 @@ public class JaxRsContext {
 	 * @throws CoreException
 	 */
 	public String getApplicationPath(IProgressMonitor monitor) throws CoreException {
-		if (applicationPath == null) {
-			IType applicationPathType = JDTTypeUtils.findType(javaProject,
-					JAVAX_WS_RS_APPLICATIONPATH_ANNOTATION);
-			if (applicationPathType == null) {
-				applicationPathType = JDTTypeUtils.findType(javaProject,
-						JAKARTA_WS_RS_APPLICATIONPATH_ANNOTATION);
-			}
-			applicationPath = findApplicationPath(javaProject, monitor);
+		if (applicationPathLoaded) {
+			return applicationPath;
 		}
+		IType applicationPathType = JDTTypeUtils.findType(javaProject,
+				JAVAX_WS_RS_APPLICATIONPATH_ANNOTATION);
+		if (applicationPathType == null) {
+			applicationPathType = JDTTypeUtils.findType(javaProject,
+					JAKARTA_WS_RS_APPLICATIONPATH_ANNOTATION);
+		}
+		applicationPath = findApplicationPath(javaProject, monitor);
+		applicationPathLoaded = true;
 		return applicationPath;
 	}
 
@@ -141,6 +144,12 @@ public class JaxRsContext {
 		localBaseURL.append(getServerPort());
 		if (rootPath != null) {
 			localBaseURL.append(getRootPath());
+		}
+		// application path is lazy loaded, but we need it now
+		try {
+			getApplicationPath(null);
+		} catch (CoreException e) {
+			// do nothing
 		}
 		if (applicationPath != null) {
 			if (!applicationPath.startsWith("/")) {
