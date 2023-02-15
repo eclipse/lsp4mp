@@ -613,6 +613,9 @@ public class PropertiesManagerForJava {
 
 	private void collectWorkspaceSymbols(IJavaProject project, IJDTUtils utils, List<SymbolInformation> symbols,
 			IProgressMonitor monitor) {
+		if (monitor.isCanceled()) {
+			return;
+		}
 		List<JavaWorkspaceSymbolsDefinition> definitions = JavaFeaturesRegistry.getInstance()
 				.getJavaWorkspaceSymbolsDefinitions();
 		if (definitions.isEmpty()) {

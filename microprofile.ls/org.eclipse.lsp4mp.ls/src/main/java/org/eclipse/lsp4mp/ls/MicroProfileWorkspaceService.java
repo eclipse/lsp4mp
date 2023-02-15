@@ -18,9 +18,7 @@ import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -48,7 +46,8 @@ public class MicroProfileWorkspaceService implements WorkspaceService {
 	private final MicroProfileLanguageServer microprofileLanguageServer;
 	private final JavaTextDocuments javaTextDocuments;
 
-	public MicroProfileWorkspaceService(MicroProfileLanguageServer microprofileLanguageServer, JavaTextDocuments javaTextDocuments) {
+	public MicroProfileWorkspaceService(MicroProfileLanguageServer microprofileLanguageServer,
+			JavaTextDocuments javaTextDocuments) {
 		this.microprofileLanguageServer = microprofileLanguageServer;
 		this.javaTextDocuments = javaTextDocuments;
 	}
@@ -71,21 +70,18 @@ public class MicroProfileWorkspaceService implements WorkspaceService {
 			return javaTextDocuments.getWorkspaceProjects() //
 					.thenCompose((workspaceProjects) -> {
 
+						cancelChecker.checkCanceled();
+						
 						List<CompletableFuture<List<SymbolInformation>>> symbolFutures = workspaceProjects.stream() //
 								.map(projectLabelInfo -> {
 									String uri = projectLabelInfo.getUri();
-									return microprofileLanguageServer.getLanguageClient().getJavaWorkspaceSymbols(uri);
+									return cancelChecker.cancelIfNeeded(microprofileLanguageServer.getLanguageClient()
+											.getJavaWorkspaceSymbols(uri));
 								}) //
 								.collect(Collectors.toList());
 
-						// Set up a background task that cancels the java language server requests
-						// if the client indicates the server request was cancelled
-						Future<?> cancellationPolling = scheduler.scheduleWithFixedDelay(() -> {
-							if (cancelChecker.isCanceled()) {
-								symbolFutures.stream().forEach(symbolFuture -> symbolFuture.cancel(false));
-							}
-						}, 0, 10, TimeUnit.MILLISECONDS);
-
+						cancelChecker.checkCanceled();
+						
 						// NOTE: we don't need to implement resolve, because resolve is just
 						// for calculating the source range. The source range is very cheap to calculate
 						// in comparison to invoking the search engine to locate the symbols.
@@ -102,7 +98,6 @@ public class MicroProfileWorkspaceService implements WorkspaceService {
 								.thenApply(_void -> {
 									// remove the background task to cancel the delegate commands, since they should
 									// all be completed or cancelled by now
-									cancellationPolling.cancel(false);
 									cancelChecker.checkCanceled();
 
 									return Either.forLeft(symbolFutures.stream() //
