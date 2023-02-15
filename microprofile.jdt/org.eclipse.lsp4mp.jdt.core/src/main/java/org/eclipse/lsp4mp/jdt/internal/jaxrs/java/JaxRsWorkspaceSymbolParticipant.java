@@ -72,6 +72,9 @@ public class JaxRsWorkspaceSymbolParticipant implements IJavaWorkspaceSymbolsPar
 
 	@Override
 	public void collectSymbols(IJavaProject project, IJDTUtils utils, List<SymbolInformation> symbols, IProgressMonitor monitor) {
+		if (monitor.isCanceled()) {
+			return;
+		}
 		String applicationPrefix = getJaxApplicationPath(project);
 		SearchEngine engine = new SearchEngine();
 		IJavaSearchScope scope = BasicSearchEngine.createJavaSearchScope(true, new IJavaElement[] { project },

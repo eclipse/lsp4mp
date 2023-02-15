@@ -16,7 +16,6 @@ package org.eclipse.lsp4mp.utils;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
-import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4j.jsonrpc.CompletableFutures;
 
 /**
@@ -36,11 +35,13 @@ public class FutureUtils {
 	 * @return a future that sends the correct $/cancelRequest notification when
 	 *         canceled
 	 */
-	public static <R> CompletableFuture<R> computeAsyncCompose(Function<CancelChecker, CompletableFuture<R>> code) {
-		CompletableFuture<CancelChecker> start = new CompletableFuture<>();
+	public static <R> CompletableFuture<R> computeAsyncCompose(
+			Function<ExtendedCancelChecker, CompletableFuture<R>> code) {
+		CompletableFuture<ExtendedCancelChecker> start = new CompletableFuture<>();
 		CompletableFuture<R> result = start.thenComposeAsync(code);
-		start.complete(new CompletableFutures.FutureCancelChecker(result));
-		return result;
+		CompletableFutureWrapper<R> wrapper = new CompletableFutureWrapper<>(result);
+		start.complete(wrapper);
+		return wrapper;
 	}
 
 }
