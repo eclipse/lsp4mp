@@ -48,11 +48,16 @@ public class MicroProfileGraphQLValidationTest extends BasePropertiesManagerTest
 		diagnosticsParams.setUris(Arrays.asList(javaFile.getLocation().toFile().toURI().toString()));
 		diagnosticsParams.setDocumentFormat(DocumentFormat.Markdown);
 
-		Diagnostic d = d(89, 11, 15,
+		Diagnostic d1 = d(89, 11, 15,
 				"Methods annotated with microprofile-graphql's `@Query` cannot have 'void' as a return type.",
 				DiagnosticSeverity.Error, MicroProfileGraphQLConstants.DIAGNOSTIC_SOURCE,
 				MicroProfileGraphQLErrorCode.NO_VOID_QUERIES);
+
+		Diagnostic d2 = d(93, 11, 15,
+				"Methods annotated with microprofile-graphql's `@Mutation` cannot have 'void' as a return type.",
+				DiagnosticSeverity.Error, MicroProfileGraphQLConstants.DIAGNOSTIC_SOURCE,
+				MicroProfileGraphQLErrorCode.NO_VOID_MUTATIONS);
 		assertJavaDiagnostics(diagnosticsParams, utils, //
-				d);
+				d1, d2);
 	}
 }
