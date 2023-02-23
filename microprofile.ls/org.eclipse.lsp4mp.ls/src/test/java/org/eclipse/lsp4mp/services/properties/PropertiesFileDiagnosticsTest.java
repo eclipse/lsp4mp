@@ -56,8 +56,8 @@ public class PropertiesFileDiagnosticsTest {
 				"\n" + //
 				"";
 		testDiagnosticsFor(value, getDefaultMicroProfileProjectInfo(),
-				d(8, 0, 16, "Unknown property 'unknown.property'", DiagnosticSeverity.Warning, ValidationType.unknown), //
-				d(10, 0, 53, "Unknown property 'quarkus.log.category.XXXXXXXXXXXXX.YYYYYYYYYYYY.level'",
+				d(8, 0, 16, "Unrecognized property 'unknown.property', it is not referenced in any Java files", DiagnosticSeverity.Warning, ValidationType.unknown), //
+				d(10, 0, 53, "Unrecognized property 'quarkus.log.category.XXXXXXXXXXXXX.YYYYYYYYYYYY.level', it is not referenced in any Java files",
 						DiagnosticSeverity.Warning, ValidationType.unknown));
 	}
 
@@ -73,7 +73,7 @@ public class PropertiesFileDiagnosticsTest {
 		testDiagnosticsFor(value, getDefaultMicroProfileProjectInfo(),
 				d(0, 0, 16, "Missing equals sign after 'unknown.property'", DiagnosticSeverity.Error,
 						ValidationType.syntax),
-				d(0, 0, 16, "Unknown property 'unknown.property'", DiagnosticSeverity.Warning, ValidationType.unknown));
+				d(0, 0, 16, "Unrecognized property 'unknown.property', it is not referenced in any Java files", DiagnosticSeverity.Warning, ValidationType.unknown));
 	}
 
 	@Test
@@ -101,8 +101,8 @@ public class PropertiesFileDiagnosticsTest {
 		settings.setUnknown(unknown);
 
 		testDiagnosticsFor(value, getDefaultMicroProfileProjectInfo(), settings,
-				d(8, 0, 16, "Unknown property 'unknown.property'", DiagnosticSeverity.Error, ValidationType.unknown), //
-				d(10, 0, 53, "Unknown property 'quarkus.log.category.XXXXXXXXXXXXX.YYYYYYYYYYYY.level'",
+				d(8, 0, 16, "Unrecognized property 'unknown.property', it is not referenced in any Java files", DiagnosticSeverity.Error, ValidationType.unknown), //
+				d(10, 0, 53, "Unrecognized property 'quarkus.log.category.XXXXXXXXXXXXX.YYYYYYYYYYYY.level', it is not referenced in any Java files",
 						DiagnosticSeverity.Error, ValidationType.unknown));
 	}
 
@@ -132,7 +132,7 @@ public class PropertiesFileDiagnosticsTest {
 		settings.setUnknown(unknown);
 
 		testDiagnosticsFor(value, 1, getDefaultMicroProfileProjectInfo(), settings,
-				d(10, 0, 53, "Unknown property 'quarkus.log.category.XXXXXXXXXXXXX.YYYYYYYYYYYY.level'",
+				d(10, 0, 53, "Unrecognized property 'quarkus.log.category.XXXXXXXXXXXXX.YYYYYYYYYYYY.level', it is not referenced in any Java files",
 						DiagnosticSeverity.Error, ValidationType.unknown));
 	}
 
@@ -151,14 +151,14 @@ public class PropertiesFileDiagnosticsTest {
 		// com.mycompany.remoteServices.MyServiceClient/mp-rest/url is ignored
 		unknown.setExcluded(Arrays.asList("*/mp-rest/url"));
 		testDiagnosticsFor(value, 2, getDefaultMicroProfileProjectInfo(), settings,
-				d(1, 0, 56, "Unknown property 'com.mycompany.remoteServices.MyServiceClient/mp-rest/uri'",
+				d(1, 0, 56, "Unrecognized property 'com.mycompany.remoteServices.MyServiceClient/mp-rest/uri', it is not referenced in any Java files",
 						DiagnosticSeverity.Error, ValidationType.unknown),
-				d(2, 0, 17, "Unknown property 'com.mycompany.foo'", DiagnosticSeverity.Error, ValidationType.unknown));
+				d(2, 0, 17, "Unrecognized property 'com.mycompany.foo', it is not referenced in any Java files", DiagnosticSeverity.Error, ValidationType.unknown));
 
 		// */mp-rest/* pattern --> all errors containing path 'mp-rest' are ignored
 		unknown.setExcluded(Arrays.asList("*/mp-rest/*"));
 		testDiagnosticsFor(value, 1, getDefaultMicroProfileProjectInfo(), settings,
-				d(2, 0, 17, "Unknown property 'com.mycompany.foo'", DiagnosticSeverity.Error, ValidationType.unknown));
+				d(2, 0, 17, "Unrecognized property 'com.mycompany.foo', it is not referenced in any Java files", DiagnosticSeverity.Error, ValidationType.unknown));
 
 		value = "com.mycompany.remoteServices.MyServiceClient/mp-rest/url/foo=url\n" + //
 				"com.mycompany.remoteServices.MyServiceClient/mp-rest/uri/bar=uri\n" + //
@@ -174,52 +174,52 @@ public class PropertiesFileDiagnosticsTest {
 		// errors are ignored
 		unknown.setExcluded(Arrays.asList("com.mycompany.remoteServices.MyServiceClient/**/"));
 		testDiagnosticsFor(value, 3, getDefaultMicroProfileProjectInfo(), settings,
-				d(2, 0, 58, "Unknown property 'com.mycompany.remoteServices.MyOtherClient/mp-rest/url/foo'",
+				d(2, 0, 58, "Unrecognized property 'com.mycompany.remoteServices.MyOtherClient/mp-rest/url/foo', it is not referenced in any Java files",
 						DiagnosticSeverity.Error, ValidationType.unknown),
-				d(3, 0, 58, "Unknown property 'com.mycompany.remoteServices.MyOtherClient/mp-rest/uri/bar'",
+				d(3, 0, 58, "Unrecognized property 'com.mycompany.remoteServices.MyOtherClient/mp-rest/uri/bar', it is not referenced in any Java files",
 						DiagnosticSeverity.Error, ValidationType.unknown),
-				d(4, 0, 17, "Unknown property 'com.mycompany.foo'", DiagnosticSeverity.Error, ValidationType.unknown));
+				d(4, 0, 17, "Unrecognized property 'com.mycompany.foo', it is not referenced in any Java files", DiagnosticSeverity.Error, ValidationType.unknown));
 
 		// com.mycompany.remoteServices.MyServiceClient/**/foo --> all errors
 		// for 'MyServiceClient' properties ending with path 'foo' are ignored
 		unknown.setExcluded(Arrays.asList("com.mycompany.remoteServices.MyServiceClient/**/foo"));
 		testDiagnosticsFor(value, 4, getDefaultMicroProfileProjectInfo(), settings,
-				d(1, 0, 60, "Unknown property 'com.mycompany.remoteServices.MyServiceClient/mp-rest/uri/bar'",
+				d(1, 0, 60, "Unrecognized property 'com.mycompany.remoteServices.MyServiceClient/mp-rest/uri/bar', it is not referenced in any Java files",
 						DiagnosticSeverity.Error, ValidationType.unknown),
-				d(2, 0, 58, "Unknown property 'com.mycompany.remoteServices.MyOtherClient/mp-rest/url/foo'",
+				d(2, 0, 58, "Unrecognized property 'com.mycompany.remoteServices.MyOtherClient/mp-rest/url/foo', it is not referenced in any Java files",
 						DiagnosticSeverity.Error, ValidationType.unknown),
-				d(3, 0, 58, "Unknown property 'com.mycompany.remoteServices.MyOtherClient/mp-rest/uri/bar'",
+				d(3, 0, 58, "Unrecognized property 'com.mycompany.remoteServices.MyOtherClient/mp-rest/uri/bar', it is not referenced in any Java files",
 						DiagnosticSeverity.Error, ValidationType.unknown),
-				d(4, 0, 17, "Unknown property 'com.mycompany.foo'", DiagnosticSeverity.Error, ValidationType.unknown));
+				d(4, 0, 17, "Unrecognized property 'com.mycompany.foo', it is not referenced in any Java files", DiagnosticSeverity.Error, ValidationType.unknown));
 
 		// com.mycompany.*/**/foo --> all errors for properties
 		// ending with path 'foo' are ignored
 		unknown.setExcluded(Arrays.asList("com.mycompany.*/**/foo"));
 		testDiagnosticsFor(value, 3, getDefaultMicroProfileProjectInfo(), settings,
-				d(1, 0, 60, "Unknown property 'com.mycompany.remoteServices.MyServiceClient/mp-rest/uri/bar'",
+				d(1, 0, 60, "Unrecognized property 'com.mycompany.remoteServices.MyServiceClient/mp-rest/uri/bar', it is not referenced in any Java files",
 						DiagnosticSeverity.Error, ValidationType.unknown),
-				d(3, 0, 58, "Unknown property 'com.mycompany.remoteServices.MyOtherClient/mp-rest/uri/bar'",
+				d(3, 0, 58, "Unrecognized property 'com.mycompany.remoteServices.MyOtherClient/mp-rest/uri/bar', it is not referenced in any Java files",
 						DiagnosticSeverity.Error, ValidationType.unknown),
-				d(4, 0, 17, "Unknown property 'com.mycompany.foo'", DiagnosticSeverity.Error, ValidationType.unknown));
+				d(4, 0, 17, "Unrecognized property 'com.mycompany.foo', it is not referenced in any Java files", DiagnosticSeverity.Error, ValidationType.unknown));
 
 		// com*MyService*/**/foo --> all errors for 'MyService' properties
 		// ending with path 'foo' are ignored
 		unknown.setExcluded(Arrays.asList("com*MyService*/**/foo"));
 		testDiagnosticsFor(value, 4, getDefaultMicroProfileProjectInfo(), settings,
-				d(1, 0, 60, "Unknown property 'com.mycompany.remoteServices.MyServiceClient/mp-rest/uri/bar'",
+				d(1, 0, 60, "Unrecognized property 'com.mycompany.remoteServices.MyServiceClient/mp-rest/uri/bar', it is not referenced in any Java files",
 						DiagnosticSeverity.Error, ValidationType.unknown),
-				d(2, 0, 58, "Unknown property 'com.mycompany.remoteServices.MyOtherClient/mp-rest/url/foo'",
+				d(2, 0, 58, "Unrecognized property 'com.mycompany.remoteServices.MyOtherClient/mp-rest/url/foo', it is not referenced in any Java files",
 						DiagnosticSeverity.Error, ValidationType.unknown),
-				d(3, 0, 58, "Unknown property 'com.mycompany.remoteServices.MyOtherClient/mp-rest/uri/bar'",
+				d(3, 0, 58, "Unrecognized property 'com.mycompany.remoteServices.MyOtherClient/mp-rest/uri/bar', it is not referenced in any Java files",
 						DiagnosticSeverity.Error, ValidationType.unknown),
-				d(4, 0, 17, "Unknown property 'com.mycompany.foo'", DiagnosticSeverity.Error, ValidationType.unknown));
+				d(4, 0, 17, "Unrecognized property 'com.mycompany.foo', it is not referenced in any Java files", DiagnosticSeverity.Error, ValidationType.unknown));
 
 		// *foo --> all errors ending with 'foo' are ignored
 		unknown.setExcluded(Arrays.asList("*foo"));
 		testDiagnosticsFor(value, 2, getDefaultMicroProfileProjectInfo(), settings,
-				d(1, 0, 60, "Unknown property 'com.mycompany.remoteServices.MyServiceClient/mp-rest/uri/bar'",
+				d(1, 0, 60, "Unrecognized property 'com.mycompany.remoteServices.MyServiceClient/mp-rest/uri/bar', it is not referenced in any Java files",
 						DiagnosticSeverity.Error, ValidationType.unknown),
-				d(3, 0, 58, "Unknown property 'com.mycompany.remoteServices.MyOtherClient/mp-rest/uri/bar'",
+				d(3, 0, 58, "Unrecognized property 'com.mycompany.remoteServices.MyOtherClient/mp-rest/uri/bar', it is not referenced in any Java files",
 						DiagnosticSeverity.Error, ValidationType.unknown));
 
 		// * pattern --> all errors are ignored
@@ -759,7 +759,7 @@ public class PropertiesFileDiagnosticsTest {
 
 		value = "qu.\\\n" + "application.\\\n" + "name=name";
 		testDiagnosticsFor(value, getDefaultMicroProfileProjectInfo(), settings, //
-				d(0, 0, 2, 4, "Unknown property 'qu.application.name'", DiagnosticSeverity.Warning,
+				d(0, 0, 2, 4, "Unrecognized property 'qu.application.name', it is not referenced in any Java files", DiagnosticSeverity.Warning,
 						ValidationType.unknown));
 	}
 
