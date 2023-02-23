@@ -43,7 +43,8 @@ public class MicroProfileGraphQLASTValidator extends JavaASTValidator {
 
 	private static final Logger LOGGER = Logger.getLogger(MicroProfileGraphQLASTValidator.class.getName());
 
-	private static final String NO_VOID_MESSAGE = "Methods annotated with microprofile-graphql''s `@Query` cannot have ''void'' as a return type.";
+	private static final String NO_VOID_QUERY_MESSAGE = "Methods annotated with microprofile-graphql's `@Query` cannot have 'void' as a return type.";
+	private static final String NO_VOID_MUTATION_MESSAGE = "Methods annotated with microprofile-graphql's `@Mutation` cannot have 'void' as a return type.";
 
 	@Override
 	public boolean isAdaptedForDiagnostics(JavaDiagnosticsContext context, IProgressMonitor monitor)
@@ -73,11 +74,20 @@ public class MicroProfileGraphQLASTValidator extends JavaASTValidator {
 					Type returnType = node.getReturnType2();
 					if (returnType.isPrimitiveType() //
 							&& PrimitiveType.VOID.equals(((PrimitiveType) returnType).getPrimitiveTypeCode())) {
-						String message = MessageFormat.format(NO_VOID_MESSAGE, node.getName());
-						super.addDiagnostic(message, //
+						super.addDiagnostic(NO_VOID_QUERY_MESSAGE, //
 								MicroProfileGraphQLConstants.DIAGNOSTIC_SOURCE, //
 								returnType, //
 								MicroProfileGraphQLErrorCode.NO_VOID_QUERIES, //
+								DiagnosticSeverity.Error);
+					}
+				} else if (isMatchAnnotation(annotation, MicroProfileGraphQLConstants.MUTATION_ANNOTATION)) {
+					Type returnType = node.getReturnType2();
+					if (returnType.isPrimitiveType() //
+							&& PrimitiveType.VOID.equals(((PrimitiveType) returnType).getPrimitiveTypeCode())) {
+						super.addDiagnostic(NO_VOID_MUTATION_MESSAGE, //
+								MicroProfileGraphQLConstants.DIAGNOSTIC_SOURCE, //
+								returnType, //
+								MicroProfileGraphQLErrorCode.NO_VOID_MUTATIONS, //
 								DiagnosticSeverity.Error);
 					}
 				}
