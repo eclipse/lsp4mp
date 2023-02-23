@@ -166,9 +166,9 @@ public class MicroProfileLanguageServer implements LanguageServer, ProcessLangua
 
 	@Override
 	public CompletableFuture<Object> shutdown() {
-		if (capabilityManager.getClientCapabilities().getExtendedCapabilities().shouldLanguageServerExitOnShutdown()) {
+		if (capabilityManager.getClientCapabilities().shouldLanguageServerExitOnShutdown()) {
 			ScheduledExecutorService delayer = Executors.newScheduledThreadPool(1);
-			delayer.schedule(() -> exit(0) , 1, TimeUnit.SECONDS);
+			delayer.schedule(() -> exit(0), 1, TimeUnit.SECONDS);
 		}
 		return computeAsync(cc -> new Object());
 	}
