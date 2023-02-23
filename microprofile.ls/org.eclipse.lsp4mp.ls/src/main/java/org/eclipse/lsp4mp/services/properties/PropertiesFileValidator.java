@@ -145,7 +145,7 @@ class PropertiesFileValidator {
 			// The unknown validation must be ignored for this property name
 			return;
 		}
-		addDiagnostic("Unknown property '" + propertyName + "'", property.getKey(), severity,
+		addDiagnostic("Unrecognized property '" + propertyName + "', it is not referenced in any Java files", property.getKey(), severity,
 			ValidationType.unknown.name());
 	}
 

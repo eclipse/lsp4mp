@@ -47,7 +47,7 @@ public class PropertiesFileExpressionDiagnosticsTest {
 	public void undefinedPropertyInPropertyExpression() {
 		String value = "test.property = ${doesnt.exist.property}";
 		testDiagnosticsFor(value, //
-			d(0, 0, 13, "Unknown property 'test.property'", DiagnosticSeverity.Warning, ValidationType.unknown), //
+			d(0, 0, 13, "Unrecognized property 'test.property', it is not referenced in any Java files", DiagnosticSeverity.Warning, ValidationType.unknown), //
 			d(0, 18, 39, "Unknown referenced property value expression 'doesnt.exist.property'",
 				DiagnosticSeverity.Error, ValidationType.expression));
 	}
@@ -56,7 +56,7 @@ public class PropertiesFileExpressionDiagnosticsTest {
 	public void validateMicroProfilePropertyInPropertyExpression() {
 		String value = "test.property = ${mp.opentracing.server.skip-pattern}";
 		testDiagnosticsFor(value, //
-			d(0, 0, 13, "Unknown property 'test.property'", DiagnosticSeverity.Warning, ValidationType.unknown), //
+			d(0, 0, 13, "Unrecognized property 'test.property', it is not referenced in any Java files", DiagnosticSeverity.Warning, ValidationType.unknown), //
 			d(0, 18, 52, "The referenced property 'mp.opentracing.server.skip-pattern' has no default value.",
 				DiagnosticSeverity.Error, ValidationType.expression));
 	}
@@ -66,8 +66,8 @@ public class PropertiesFileExpressionDiagnosticsTest {
 		String value = "test.property = hello\n" + //
 			"other.property = ${test.property";
 		testDiagnosticsFor(value, //
-			d(0, 0, 13, "Unknown property 'test.property'", DiagnosticSeverity.Warning, ValidationType.unknown), //
-			d(1, 0, 14, "Unknown property 'other.property'", DiagnosticSeverity.Warning, ValidationType.unknown), //
+			d(0, 0, 13, "Unrecognized property 'test.property', it is not referenced in any Java files", DiagnosticSeverity.Warning, ValidationType.unknown), //
+			d(1, 0, 14, "Unrecognized property 'other.property', it is not referenced in any Java files", DiagnosticSeverity.Warning, ValidationType.unknown), //
 			d(1, 17, 32, "Missing '}'", DiagnosticSeverity.Error, ValidationType.syntax));
 	}
 
@@ -75,7 +75,7 @@ public class PropertiesFileExpressionDiagnosticsTest {
 	public void validateUnknownPropertyInPropertyExpressionAndMissingBrace() {
 		String value = "test.property = ${other.property";
 		testDiagnosticsFor(value, //
-			d(0, 0, 13, "Unknown property 'test.property'", DiagnosticSeverity.Warning, ValidationType.unknown), //
+			d(0, 0, 13, "Unrecognized property 'test.property', it is not referenced in any Java files", DiagnosticSeverity.Warning, ValidationType.unknown), //
 			d(0, 18, 32, "Unknown referenced property value expression 'other.property'", DiagnosticSeverity.Error,
 				ValidationType.expression), //
 			d(0, 16, 32, "Missing '}'", DiagnosticSeverity.Error, ValidationType.syntax));
@@ -88,14 +88,14 @@ public class PropertiesFileExpressionDiagnosticsTest {
 			"property.three = ${property.tw}\n" + //
 			"property.four = ${property.th}\n";
 		testDiagnosticsFor(value, //
-			d(0, 0, 12, "Unknown property 'property.one'", DiagnosticSeverity.Warning, ValidationType.unknown), //
-			d(1, 0, 12, "Unknown property 'property.two'", DiagnosticSeverity.Warning, ValidationType.unknown), //
+			d(0, 0, 12, "Unrecognized property 'property.one', it is not referenced in any Java files", DiagnosticSeverity.Warning, ValidationType.unknown), //
+			d(1, 0, 12, "Unrecognized property 'property.two', it is not referenced in any Java files", DiagnosticSeverity.Warning, ValidationType.unknown), //
 			d(1, 17, 28, "Unknown referenced property value expression 'property.on'", DiagnosticSeverity.Error,
 				ValidationType.expression), //
-			d(2, 0, 14, "Unknown property 'property.three'", DiagnosticSeverity.Warning, ValidationType.unknown), //
+			d(2, 0, 14, "Unrecognized property 'property.three', it is not referenced in any Java files", DiagnosticSeverity.Warning, ValidationType.unknown), //
 			d(2, 19, 30, "Unknown referenced property value expression 'property.tw'", DiagnosticSeverity.Error,
 				ValidationType.expression), //
-			d(3, 0, 13, "Unknown property 'property.four'", DiagnosticSeverity.Warning, ValidationType.unknown), //
+			d(3, 0, 13, "Unrecognized property 'property.four', it is not referenced in any Java files", DiagnosticSeverity.Warning, ValidationType.unknown), //
 			d(3, 18, 29, "Unknown referenced property value expression 'property.th'", DiagnosticSeverity.Error,
 				ValidationType.expression));
 	}
@@ -169,8 +169,8 @@ public class PropertiesFileExpressionDiagnosticsTest {
 		String value = "test.property = hello\n" + //
 			"other.property = ${test.property}";
 		testDiagnosticsFor(value, //
-			d(0, 0, 13, "Unknown property 'test.property'", DiagnosticSeverity.Warning, ValidationType.unknown), //
-			d(1, 0, 14, "Unknown property 'other.property'", DiagnosticSeverity.Warning, ValidationType.unknown));
+			d(0, 0, 13, "Unrecognized property 'test.property', it is not referenced in any Java files", DiagnosticSeverity.Warning, ValidationType.unknown), //
+			d(1, 0, 14, "Unrecognized property 'other.property', it is not referenced in any Java files", DiagnosticSeverity.Warning, ValidationType.unknown));
 	}
 
 	@Test

@@ -29,7 +29,7 @@ import org.junit.Test;
 
 /**
  * Test with code actions in 'microprofile-config.properties' file.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -41,7 +41,7 @@ public class PropertiesFileCodeActionsTest {
 				"quarkus.application.nme=X\n" + // <-- error
 				"\n" + //
 				"";
-		Diagnostic d = d(1, 0, 23, "Unknown property 'quarkus.application.nme'", DiagnosticSeverity.Warning,
+		Diagnostic d = d(1, 0, 23, "Unrecognized property 'quarkus.application.nme', it is not referenced in any Java files", DiagnosticSeverity.Warning,
 				ValidationType.unknown);
 
 		testDiagnosticsFor(value, d);
@@ -59,17 +59,17 @@ public class PropertiesFileCodeActionsTest {
 				"abcdefghij.readiness-probe.initial-delay-seconds=20\n" + //
 				"abcdefghij.readiness-probe.period-seconds=45";
 
-		Diagnostic d1 = d(0, 0, 16, "Unknown property 'abcdefghij.group'", DiagnosticSeverity.Warning,
+		Diagnostic d1 = d(0, 0, 16, "Unrecognized property 'abcdefghij.group', it is not referenced in any Java files", DiagnosticSeverity.Warning,
 				ValidationType.unknown);
-		Diagnostic d2 = d(1, 0, 19, "Unknown property 'abcdefghij.registry'", DiagnosticSeverity.Warning,
+		Diagnostic d2 = d(1, 0, 19, "Unrecognized property 'abcdefghij.registry', it is not referenced in any Java files", DiagnosticSeverity.Warning,
 				ValidationType.unknown);
-		Diagnostic d3 = d(2, 0, 24, "Unknown property 'abcdefghij.labels[0].key'", DiagnosticSeverity.Warning,
+		Diagnostic d3 = d(2, 0, 24, "Unrecognized property 'abcdefghij.labels[0].key', it is not referenced in any Java files", DiagnosticSeverity.Warning,
 				ValidationType.unknown);
-		Diagnostic d4 = d(3, 0, 26, "Unknown property 'abcdefghij.labels[0].value'", DiagnosticSeverity.Warning,
+		Diagnostic d4 = d(3, 0, 26, "Unrecognized property 'abcdefghij.labels[0].value', it is not referenced in any Java files", DiagnosticSeverity.Warning,
 				ValidationType.unknown);
-		Diagnostic d5 = d(4, 0, 48, "Unknown property 'abcdefghij.readiness-probe.initial-delay-seconds'",
+		Diagnostic d5 = d(4, 0, 48, "Unrecognized property 'abcdefghij.readiness-probe.initial-delay-seconds', it is not referenced in any Java files",
 				DiagnosticSeverity.Warning, ValidationType.unknown);
-		Diagnostic d6 = d(5, 0, 41, "Unknown property 'abcdefghij.readiness-probe.period-seconds'",
+		Diagnostic d6 = d(5, 0, 41, "Unrecognized property 'abcdefghij.readiness-probe.period-seconds', it is not referenced in any Java files",
 				DiagnosticSeverity.Warning, ValidationType.unknown);
 
 		testDiagnosticsFor(value, d1, d2, d3, d4, d5, d6);
@@ -96,8 +96,8 @@ public class PropertiesFileCodeActionsTest {
 		String value = "a.b.c.d=123\n" + //
 				"a.c.d=123";
 
-		Diagnostic d1 = d(0, 0, 7, "Unknown property 'a.b.c.d'", DiagnosticSeverity.Warning, ValidationType.unknown);
-		Diagnostic d2 = d(1, 0, 5, "Unknown property 'a.c.d'", DiagnosticSeverity.Warning, ValidationType.unknown);
+		Diagnostic d1 = d(0, 0, 7, "Unrecognized property 'a.b.c.d', it is not referenced in any Java files", DiagnosticSeverity.Warning, ValidationType.unknown);
+		Diagnostic d2 = d(1, 0, 5, "Unrecognized property 'a.c.d', it is not referenced in any Java files", DiagnosticSeverity.Warning, ValidationType.unknown);
 
 		testDiagnosticsFor(value, d1, d2);
 
@@ -113,7 +113,7 @@ public class PropertiesFileCodeActionsTest {
 
 		String value = "quarkus.a.b.c.d=123";
 
-		Diagnostic d = d(0, 0, 15, "Unknown property 'quarkus.a.b.c.d'", DiagnosticSeverity.Warning,
+		Diagnostic d = d(0, 0, 15, "Unrecognized property 'quarkus.a.b.c.d', it is not referenced in any Java files", DiagnosticSeverity.Warning,
 				ValidationType.unknown);
 
 		testDiagnosticsFor(value, d);
@@ -127,7 +127,7 @@ public class PropertiesFileCodeActionsTest {
 
 		String value = "a.b.c.d=123";
 
-		Diagnostic d1 = d(0, 0, 7, "Unknown property 'a.b.c.d'", DiagnosticSeverity.Warning, ValidationType.unknown);
+		Diagnostic d1 = d(0, 0, 7, "Unrecognized property 'a.b.c.d', it is not referenced in any Java files", DiagnosticSeverity.Warning, ValidationType.unknown);
 
 		testDiagnosticsFor(value, d1);
 
@@ -230,7 +230,7 @@ public class PropertiesFileCodeActionsTest {
 	 * <code>item</code> to be added to
 	 * <code>microprofile.tools.validation.unknown.excluded</code> client
 	 * configuration
-	 * 
+	 *
 	 * @param item       the item to add to the client configuration array
 	 * @param diagnostic the diagnostic for the <code>CodeAction</code>
 	 * @return a code action that causes <code>item</code> to be added to
