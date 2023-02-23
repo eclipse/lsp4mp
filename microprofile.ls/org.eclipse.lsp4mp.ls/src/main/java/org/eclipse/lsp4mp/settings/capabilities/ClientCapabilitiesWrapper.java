@@ -101,8 +101,17 @@ public class ClientCapabilitiesWrapper {
 		return this.capabilities.getWorkspace();
 	}
 
-	public ExtendedClientCapabilities getExtendedCapabilities() {
-		return extendedCapabilities;
+	/**
+	 * Returns true if the client should exit on shutdown() request and avoid
+	 * waiting for an exit() request
+	 *
+	 * @return true if the language server should exit on shutdown() request
+	 */
+	public boolean shouldLanguageServerExitOnShutdown() {
+		if (extendedCapabilities == null) {
+			return false;
+		}
+		return extendedCapabilities.shouldLanguageServerExitOnShutdown();
 	}
 
 	public boolean isResourceOperationSupported() {
