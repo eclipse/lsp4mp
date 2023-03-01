@@ -24,6 +24,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: io.quarkus.runtime.util,
  org.eclipse.lsp4mp.commons,
+ org.eclipse.lsp4mp.commons.codeaction,
  org.eclipse.lsp4mp.commons.metadata,
  org.eclipse.lsp4mp.jdt.core,
  org.eclipse.lsp4mp.jdt.core.java,

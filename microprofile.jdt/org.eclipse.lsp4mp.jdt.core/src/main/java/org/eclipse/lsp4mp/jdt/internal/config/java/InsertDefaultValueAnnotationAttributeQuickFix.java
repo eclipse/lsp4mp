@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.internal.config.java;
 
+import org.eclipse.lsp4mp.commons.codeaction.MicroProfileCodeActionId;
 import org.eclipse.lsp4mp.jdt.core.MicroProfileConfigConstants;
 import org.eclipse.lsp4mp.jdt.core.java.codeaction.InsertAnnotationAttributeQuickFix;
 
@@ -37,6 +38,11 @@ public class InsertDefaultValueAnnotationAttributeQuickFix extends InsertAnnotat
 	@Override
 	public String getParticipantId() {
 		return InsertDefaultValueAnnotationAttributeQuickFix.class.getName();
+	}
+
+	@Override
+	protected MicroProfileCodeActionId getCodeActionId() {
+		return MicroProfileCodeActionId.ConfigPropertyInsertDefaultValue;
 	}
 
 }

@@ -21,6 +21,7 @@ import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
+import org.eclipse.lsp4mp.commons.codeaction.MicroProfileCodeActionId;
 import org.eclipse.lsp4mp.ls.commons.BadLocationException;
 import org.eclipse.lsp4mp.ls.commons.client.CommandKind;
 import org.eclipse.lsp4mp.ls.commons.client.ConfigurationItemEdit;
@@ -46,7 +47,7 @@ public class PropertiesFileCodeActionsTest {
 
 		testDiagnosticsFor(value, d);
 		testCodeActionsFor(value, d,
-				ca("Did you mean 'quarkus.application.name' ?", te(1, 0, 1, 23, "quarkus.application.name"), d),
+				ca("Did you mean 'quarkus.application.name' ?", MicroProfileCodeActionId.UnknownPropertySimilarTextSuggestion,te(1, 0, 1, 23, "quarkus.application.name"), d),
 				caAddToExcluded("quarkus.application.nme", d), caAddToExcluded("quarkus.application.*", d));
 	}
 
@@ -142,7 +143,7 @@ public class PropertiesFileCodeActionsTest {
 				DiagnosticSeverity.Error, ValidationType.value);
 
 		testDiagnosticsFor(value, d);
-		testCodeActionsFor(value, d, ca("Did you mean 'WARNING'?", te(0, 18, 0, 24, "WARNING"), d));
+		testCodeActionsFor(value, d, ca("Did you mean 'WARNING'?", MicroProfileCodeActionId.UnknownEnumValueSimilarTextSuggestion, te(0, 18, 0, 24, "WARNING"), d));
 	}
 
 	@Test
@@ -152,10 +153,10 @@ public class PropertiesFileCodeActionsTest {
 				DiagnosticSeverity.Error, ValidationType.value);
 
 		testDiagnosticsFor(value, d);
-		testCodeActionsFor(value, d, ca("Did you mean 'FINE'?", te(0, 18, 0, 19, "FINE"), d),
-				ca("Did you mean 'FINER'?", te(0, 18, 0, 19, "FINER"), d),
-				ca("Did you mean 'FINEST'?", te(0, 18, 0, 19, "FINEST"), d),
-				ca("Did you mean 'FATAL'?", te(0, 18, 0, 19, "FATAL"), d));
+		testCodeActionsFor(value, d, ca("Did you mean 'FINE'?", MicroProfileCodeActionId.UnknownEnumValueSimilarTextSuggestion, te(0, 18, 0, 19, "FINE"), d),
+				ca("Did you mean 'FINER'?", MicroProfileCodeActionId.UnknownEnumValueSimilarTextSuggestion, te(0, 18, 0, 19, "FINER"), d),
+				ca("Did you mean 'FINEST'?", MicroProfileCodeActionId.UnknownEnumValueSimilarTextSuggestion, te(0, 18, 0, 19, "FINEST"), d),
+				ca("Did you mean 'FATAL'?", MicroProfileCodeActionId.UnknownEnumValueSimilarTextSuggestion, te(0, 18, 0, 19, "FATAL"), d));
 	}
 
 	@Test
@@ -166,7 +167,7 @@ public class PropertiesFileCodeActionsTest {
 				DiagnosticSeverity.Error, ValidationType.value);
 
 		testDiagnosticsFor(value, d);
-		testCodeActionsFor(value, d, ca("Did you mean 'WARNING'?", te(0, 38, 0, 44, "WARNING"), d));
+		testCodeActionsFor(value, d, ca("Did you mean 'WARNING'?", MicroProfileCodeActionId.UnknownEnumValueSimilarTextSuggestion, te(0, 38, 0, 44, "WARNING"), d));
 	}
 
 	@Test
@@ -177,7 +178,7 @@ public class PropertiesFileCodeActionsTest {
 				DiagnosticSeverity.Error, ValidationType.value);
 
 		testDiagnosticsFor(value, d);
-		testCodeActionsFor(value, d, ca("Did you mean 'BLOCK'?", te(0, 34, 0, 39, "BLOCK"), d));
+		testCodeActionsFor(value, d, ca("Did you mean 'BLOCK'?", MicroProfileCodeActionId.UnknownEnumValueSimilarTextSuggestion, te(0, 34, 0, 39, "BLOCK"), d));
 	}
 
 	@Test
@@ -189,7 +190,7 @@ public class PropertiesFileCodeActionsTest {
 				DiagnosticSeverity.Error, ValidationType.value);
 
 		testDiagnosticsFor(value, d);
-		testCodeActionsFor(value, d, ca("Did you mean 'BLOCK'?", te(0, 34, 0, 35, "BLOCK"), d));
+		testCodeActionsFor(value, d, ca("Did you mean 'BLOCK'?", MicroProfileCodeActionId.UnknownEnumValueSimilarTextSuggestion, te(0, 34, 0, 35, "BLOCK"), d));
 
 		// kebab_case
 		value = "quarkus.log.syslog.async.overflow=b";
@@ -198,7 +199,7 @@ public class PropertiesFileCodeActionsTest {
 				DiagnosticSeverity.Error, ValidationType.value);
 
 		testDiagnosticsFor(value, d);
-		testCodeActionsFor(value, d, ca("Did you mean 'block'?", te(0, 34, 0, 35, "block"), d));
+		testCodeActionsFor(value, d, ca("Did you mean 'block'?", MicroProfileCodeActionId.UnknownEnumValueSimilarTextSuggestion, te(0, 34, 0, 35, "block"), d));
 	}
 
 	@Test
@@ -209,7 +210,7 @@ public class PropertiesFileCodeActionsTest {
 				DiagnosticSeverity.Error, ValidationType.value);
 
 		testDiagnosticsFor(value, d);
-		testCodeActionsFor(value, d, ca("Did you mean 'false'?", te(0, 18, 0, 22, "false"), d));
+		testCodeActionsFor(value, d, ca("Did you mean 'false'?", MicroProfileCodeActionId.UnknownEnumValueSimilarTextSuggestion, te(0, 18, 0, 22, "false"), d));
 	}
 
 	@Test
@@ -220,8 +221,8 @@ public class PropertiesFileCodeActionsTest {
 				DiagnosticSeverity.Error, ValidationType.value);
 
 		testDiagnosticsFor(value, d);
-		testCodeActionsFor(value, d, ca("Replace with 'block'?", te(0, 34, 0, 47, "block"), d),
-				ca("Replace with 'discard'?", te(0, 34, 0, 47, "discard"), d));
+		testCodeActionsFor(value, d, ca("Replace with 'block'?", MicroProfileCodeActionId.UnknownEnumValueAllEnumsSuggestion, te(0, 34, 0, 47, "block"), d),
+				ca("Replace with 'discard'?", MicroProfileCodeActionId.UnknownEnumValueAllEnumsSuggestion, te(0, 34, 0, 47, "discard"), d));
 
 	}
 
@@ -244,6 +245,6 @@ public class PropertiesFileCodeActionsTest {
 		Command command = new Command("Add '" + item + "' to unknown excluded array",
 				CommandKind.COMMAND_CONFIGURATION_UPDATE, Arrays.asList(configItemEdit));
 
-		return ca("Exclude '" + item + "' from unknown property validation?", command, diagnostic);
+		return ca("Exclude '" + item + "' from unknown property validation?", MicroProfileCodeActionId.IgnoreUnknownProperty, command, diagnostic);
 	}
 }

@@ -27,7 +27,9 @@ import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Diagnostic;
-import org.eclipse.lsp4mp.commons.CodeActionResolveData;
+import org.eclipse.lsp4j.WorkspaceEdit;
+import org.eclipse.lsp4mp.commons.codeaction.CodeActionResolveData;
+import org.eclipse.lsp4mp.commons.codeaction.MicroProfileCodeActionId;
 import org.eclipse.lsp4mp.jdt.core.java.corrections.proposal.ChangeCorrectionProposal;
 import org.eclipse.lsp4mp.jdt.core.java.corrections.proposal.InsertAnnotationAttributeProposal;
 
@@ -64,7 +66,8 @@ public abstract class InsertAnnotationAttributeQuickFix implements IJavaCodeActi
 		codeAction.setData(
 				new CodeActionResolveData(context.getUri(), getParticipantId(), context.getParams().getRange(), null,
 						context.getParams().isResourceOperationSupported(),
-						context.getParams().isCommandConfigurationUpdateSupported()));
+						context.getParams().isCommandConfigurationUpdateSupported(),
+						getCodeActionId()));
 		return Collections.singletonList(codeAction);
 	}
 
@@ -83,6 +86,13 @@ public abstract class InsertAnnotationAttributeQuickFix implements IJavaCodeActi
 		}
 		return toResolve;
 	}
+
+	/**
+	 * Returns the id for this code action.
+	 *
+	 * @return the id for this code action
+	 */
+	protected abstract MicroProfileCodeActionId getCodeActionId();
 
 	private static String getLabel(String memberName) {
 		return MessageFormat.format(CODE_ACTION_LABEL, memberName);

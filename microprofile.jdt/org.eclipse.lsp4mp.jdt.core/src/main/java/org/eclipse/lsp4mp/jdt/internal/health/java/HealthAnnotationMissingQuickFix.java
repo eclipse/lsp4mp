@@ -18,6 +18,7 @@ import java.util.List;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4mp.commons.codeaction.MicroProfileCodeActionId;
 import org.eclipse.lsp4mp.jdt.core.java.codeaction.InsertAnnotationMissingQuickFix;
 import org.eclipse.lsp4mp.jdt.core.java.codeaction.JavaCodeActionContext;
 import org.eclipse.lsp4mp.jdt.core.utils.JDTTypeUtils;
@@ -69,4 +70,10 @@ public class HealthAnnotationMissingQuickFix extends InsertAnnotationMissingQuic
 			}
 		}
 	}
+
+	@Override
+	protected MicroProfileCodeActionId getCodeActionId() {
+		return MicroProfileCodeActionId.InsertMissingHealthAnnotation;
+	}
+
 }

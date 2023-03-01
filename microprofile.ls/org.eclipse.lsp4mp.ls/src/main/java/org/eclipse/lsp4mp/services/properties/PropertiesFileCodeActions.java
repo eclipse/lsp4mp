@@ -13,8 +13,12 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.services.properties;
 
-import static org.eclipse.lsp4mp.commons.MicroProfileCodeActionFactory.createAddToUnknownExcludedCodeAction;
+import static org.eclipse.lsp4mp.commons.codeaction.MicroProfileCodeActionFactory.createAddToUnknownExcludedCodeAction;
+import static org.eclipse.lsp4mp.commons.codeaction.MicroProfileCodeActionId.AddAllMissingRequiredProperties;
+import static org.eclipse.lsp4mp.commons.codeaction.MicroProfileCodeActionId.UnknownEnumValueAllEnumsSuggestion;
+import static org.eclipse.lsp4mp.commons.codeaction.MicroProfileCodeActionId.UnknownEnumValueSimilarTextSuggestion;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -29,6 +33,7 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
+import org.eclipse.lsp4mp.commons.codeaction.MicroProfileCodeActionId;
 import org.eclipse.lsp4mp.commons.metadata.ConverterKind;
 import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
 import org.eclipse.lsp4mp.commons.metadata.ValueHint;
@@ -58,6 +63,11 @@ class PropertiesFileCodeActions {
 	private static final float MAX_DISTANCE_DIFF_RATIO = 0.1f;
 
 	private static final Logger LOGGER = Logger.getLogger(PropertiesFileCodeActions.class.getName());
+
+	private static final String UNKNOWN_PROPERTY_SIMILAR_TEXT_SUGGESTION = "Did you mean ''{0}'' ?";
+	private static final String UNKNOWN_ENUM_VALUE_SIMILAR_TEXT_SUGGESTION = "Did you mean ''{0}''?";
+	private static final String UNKNOWN_ENUM_VALUE_ALL_ENUMS_SUGGESTION = "Replace with ''{0}''?";
+	private static final String ADD_ALL_MISSING_REQUIRED_PROPERTIES = "Add all missing required properties?";
 
 	/**
 	 * Returns code actions for the given diagnostics of the application.properties
@@ -123,8 +133,10 @@ class PropertiesFileCodeActions {
 					// Check if the property name is similar to the metadata name
 					if (isSimilar(metaProperty.getName(), propertyName)) {
 						Range range = PositionUtils.createRange(propertyKey);
-						CodeAction replaceAction = CodeActionFactory.replace("Did you mean '" + name + "' ?", range,
-								name, document.getDocument(), diagnostic);
+						CodeAction replaceAction = CodeActionFactory.replace(
+								MessageFormat.format(UNKNOWN_PROPERTY_SIMILAR_TEXT_SUGGESTION, name),
+								MicroProfileCodeActionId.UnknownPropertySimilarTextSuggestion, range, name,
+								document.getDocument(), diagnostic);
 						codeActions.add(replaceAction);
 					}
 				}
@@ -181,7 +193,7 @@ class PropertiesFileCodeActions {
 			Collection<String> similarEnums = new ArrayList<>();
 			for (ValueHint e : enums) {
 				if (converterKinds != null && !converterKinds.isEmpty()) {
-					// The metadata property has converters, loop for each converte and check for
+					// The metadata property has converters, loop for each converter and check for
 					// each converted value if it could be a similar value.
 					for (ConverterKind converterKind : converterKinds) {
 						String convertedValue = e.getValue(converterKind);
@@ -202,16 +214,21 @@ class PropertiesFileCodeActions {
 			if (!similarEnums.isEmpty()) {
 				// add code actions for all similar enums
 				for (String similarValue : similarEnums) {
-					CodeAction replaceAction = CodeActionFactory.replace("Did you mean '" + similarValue + "'?", range,
-							similarValue, document.getDocument(), diagnostic);
+					CodeAction replaceAction = CodeActionFactory.replace(
+							MessageFormat.format(UNKNOWN_ENUM_VALUE_SIMILAR_TEXT_SUGGESTION,
+									similarValue),
+							UnknownEnumValueSimilarTextSuggestion, range, similarValue, document.getDocument(),
+							diagnostic);
 					codeActions.add(replaceAction);
 				}
 			} else {
 				// add code actions for all enums
 				for (ValueHint e : enums) {
 					String preferredValue = e.getPreferredValue(converterKinds);
-					CodeAction replaceAction = CodeActionFactory.replace("Replace with '" + preferredValue + "'?",
-							range, preferredValue, document.getDocument(), diagnostic);
+					CodeAction replaceAction = CodeActionFactory.replace(
+							MessageFormat.format(UNKNOWN_ENUM_VALUE_ALL_ENUMS_SUGGESTION, preferredValue),
+							UnknownEnumValueAllEnumsSuggestion, range, preferredValue, document.getDocument(),
+							diagnostic);
 					codeActions.add(replaceAction);
 				}
 			}
@@ -287,8 +304,10 @@ class PropertiesFileCodeActions {
 				}
 			}
 
-			CodeAction insertAction = CodeActionFactory.insert("Add all missing required properties?", position,
-					stringToInsert.toString(), textDocument, requiredDiagnostics);
+			CodeAction insertAction = CodeActionFactory.insert(
+					MessageFormat.format(ADD_ALL_MISSING_REQUIRED_PROPERTIES, new Object[] {}),
+					AddAllMissingRequiredProperties, position, stringToInsert.toString(), textDocument,
+					requiredDiagnostics);
 			codeActions.add(insertAction);
 		} catch (BadLocationException e) {
 			LOGGER.log(Level.SEVERE, "In MicroProfileCodeActions, position error", e);

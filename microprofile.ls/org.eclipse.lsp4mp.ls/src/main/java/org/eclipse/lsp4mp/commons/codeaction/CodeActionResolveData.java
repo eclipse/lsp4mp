@@ -9,7 +9,7 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lsp4mp.commons;
+package org.eclipse.lsp4mp.commons.codeaction;
 
 import java.util.Map;
 import java.util.Objects;
@@ -21,7 +21,7 @@ import org.eclipse.lsp4j.Range;
  *
  * @author datho7561
  */
-public class CodeActionResolveData {
+public class CodeActionResolveData extends CodeActionData {
 
 	private String participantId;
 	private String documentUri;
@@ -39,7 +39,7 @@ public class CodeActionResolveData {
 	 * Needed for Gson
 	 */
 	public CodeActionResolveData() {
-		this(null, null, null, null, false, false);
+		this(null, null, null, null, false, false, null);
 	}
 
 	public CodeActionResolveData(String documentUri,
@@ -47,7 +47,9 @@ public class CodeActionResolveData {
 			Range range,
 			Map<String, Object> extendedData,
 			boolean resourceOperationSupported,
-			boolean commandConfigurationUpdateSupported) {
+			boolean commandConfigurationUpdateSupported,
+			ICodeActionId id) {
+		super(id);
 		this.documentUri = documentUri;
 		this.participantId = participantId;
 		this.range = range;

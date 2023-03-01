@@ -2,7 +2,7 @@
 <?pde version="3.8"?>
 <target name="LSP4MP Target Platform">
 	<locations>
-		<!--<location type="Target" uri="https://raw.githubusercontent.com/eclipse/eclipse.jdt.ls/master/org.eclipse.jdt.ls.target/org.eclipse.jdt.ls.tp.target"/>-->
+		<location type="Target" uri="https://raw.githubusercontent.com/eclipse/eclipse.jdt.ls/master/org.eclipse.jdt.ls.target/org.eclipse.jdt.ls.tp.target"/>
 		<location includeDependencyDepth="infinite" includeDependencyScopes="compile" includeSource="true" missingManifest="generate" type="Maven">
 			<dependencies>
 				<dependency>

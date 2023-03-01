@@ -28,6 +28,8 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.eclipse.lsp4mp.commons.codeaction.CodeActionData;
+import org.eclipse.lsp4mp.commons.codeaction.MicroProfileCodeActionId;
 
 /**
  * Factory for simple {@link CodeAction}
@@ -44,8 +46,8 @@ public class CodeActionFactory {
 	 * @param diagnostic
 	 * @return
 	 */
-	public static CodeAction remove(String title, Range range, TextDocumentItem document, Diagnostic diagnostic) {
-		return replace(title, range, "", document, diagnostic);
+	public static CodeAction remove(String title, MicroProfileCodeActionId id, Range range, TextDocumentItem document, Diagnostic diagnostic) {
+		return replace(title, id, range, "", document, diagnostic);
 	}
 
 	/**
@@ -58,9 +60,9 @@ public class CodeActionFactory {
 	 * @param diagnostic
 	 * @return
 	 */
-	public static CodeAction insert(String title, Position position, String insertText, TextDocumentItem document,
+	public static CodeAction insert(String title, MicroProfileCodeActionId id, Position position, String insertText, TextDocumentItem document,
 			Diagnostic diagnostic) {
-		return insert(title, position, insertText, document, Arrays.asList(diagnostic));
+		return insert(title, id, position, insertText, document, Arrays.asList(diagnostic));
 	}
 
 	/**
@@ -73,11 +75,12 @@ public class CodeActionFactory {
 	 * @param diagnostics
 	 * @return
 	 */
-	public static CodeAction insert(String title, Position position, String insertText, TextDocumentItem document,
+	public static CodeAction insert(String title, MicroProfileCodeActionId id, Position position, String insertText, TextDocumentItem document,
 			List<Diagnostic> diagnostics) {
 		CodeAction insertContentAction = new CodeAction(title);
 		insertContentAction.setKind(CodeActionKind.QuickFix);
 		insertContentAction.setDiagnostics(diagnostics);
+		insertContentAction.setData(new CodeActionData(id));
 		TextEdit edit = new TextEdit(new Range(position, position), insertText);
 		VersionedTextDocumentIdentifier versionedTextDocumentIdentifier = new VersionedTextDocumentIdentifier(
 				document.getUri(), document.getVersion());
@@ -85,16 +88,16 @@ public class CodeActionFactory {
 		TextDocumentEdit textDocumentEdit = new TextDocumentEdit(versionedTextDocumentIdentifier,
 				Collections.singletonList(edit));
 		WorkspaceEdit workspaceEdit = new WorkspaceEdit(Collections.singletonList(Either.forLeft(textDocumentEdit)));
-
 		insertContentAction.setEdit(workspaceEdit);
 		return insertContentAction;
 	}
 
-	public static CodeAction replace(String title, Range range, String replaceText, TextDocumentItem document,
+	public static CodeAction replace(String title, MicroProfileCodeActionId id, Range range, String replaceText, TextDocumentItem document,
 			Diagnostic diagnostic) {
 		CodeAction replaceContentAction = new CodeAction(title);
 		replaceContentAction.setKind(CodeActionKind.QuickFix);
 		replaceContentAction.setDiagnostics(Arrays.asList(diagnostic));
+		replaceContentAction.setData(new CodeActionData(id));
 		TextEdit edit = new TextEdit(range, replaceText);
 		VersionedTextDocumentIdentifier versionedTextDocumentIdentifier = new VersionedTextDocumentIdentifier(
 				document.getUri(), document.getVersion());
@@ -102,7 +105,6 @@ public class CodeActionFactory {
 		TextDocumentEdit textDocumentEdit = new TextDocumentEdit(versionedTextDocumentIdentifier,
 				Collections.singletonList(edit));
 		WorkspaceEdit workspaceEdit = new WorkspaceEdit(Collections.singletonList(Either.forLeft(textDocumentEdit)));
-
 		replaceContentAction.setEdit(workspaceEdit);
 		return replaceContentAction;
 	}

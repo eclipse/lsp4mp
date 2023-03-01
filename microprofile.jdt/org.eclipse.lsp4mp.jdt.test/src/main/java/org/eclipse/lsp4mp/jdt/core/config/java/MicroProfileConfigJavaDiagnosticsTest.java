@@ -29,10 +29,11 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4mp.commons.DocumentFormat;
-import org.eclipse.lsp4mp.commons.MicroProfileCodeActionFactory;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeActionParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaDiagnosticsParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaDiagnosticsSettings;
+import org.eclipse.lsp4mp.commons.codeaction.MicroProfileCodeActionFactory;
+import org.eclipse.lsp4mp.commons.codeaction.MicroProfileCodeActionId;
 import org.eclipse.lsp4mp.jdt.core.BasePropertiesManagerTest;
 import org.eclipse.lsp4mp.jdt.core.MicroProfileConfigConstants;
 import org.eclipse.lsp4mp.jdt.core.utils.IJDTUtils;
@@ -198,16 +199,16 @@ public class MicroProfileConfigJavaDiagnosticsTest extends BasePropertiesManager
 
 		MicroProfileJavaCodeActionParams codeActionParams1 = createCodeActionParams(javaUri, d1, false);
 		assertJavaCodeAction(codeActionParams1, utils, //
-				ca(javaUri, "Insert 'defaultValue' attribute", d1, //
+				ca(javaUri, "Insert 'defaultValue' attribute", MicroProfileCodeActionId.ConfigPropertyInsertDefaultValue, d1, //
 						te(8, 29, 8, 29, ", defaultValue = \"\"")),
-				ca(propertiesUri, "Insert 'foo' property in 'META-INF/microprofile-config.properties'", d1, //
+				ca(propertiesUri, "Insert 'foo' property in 'META-INF/microprofile-config.properties'", MicroProfileCodeActionId.AssignValueToProperty, d1, //
 						te(0, 0, 0, 0, "foo=\r\n")));
 
 		MicroProfileJavaCodeActionParams codeActionParams2 = createCodeActionParams(javaUri, d2, false);
 		assertJavaCodeAction(codeActionParams2, utils, //
-				ca(javaUri, "Insert 'defaultValue' attribute", d2, //
+				ca(javaUri, "Insert 'defaultValue' attribute", MicroProfileCodeActionId.ConfigPropertyInsertDefaultValue, d2, //
 						te(14, 30, 14, 30, ", defaultValue = \"\"")),
-				ca(propertiesUri, "Insert 'server.url' property in 'META-INF/microprofile-config.properties'", d2, //
+				ca(propertiesUri, "Insert 'server.url' property in 'META-INF/microprofile-config.properties'", MicroProfileCodeActionId.AssignValueToProperty, d2, //
 						te(0, 0, 0, 0, "server.url=\r\n")));
 
 		// Same code actions but with exclude
@@ -226,18 +227,19 @@ public class MicroProfileConfigJavaDiagnosticsTest extends BasePropertiesManager
 		codeActionParams1_1.setCommandConfigurationUpdateSupported(true);
 		assertJavaCodeAction(codeActionParams1_1, utils, //
 				MicroProfileCodeActionFactory.createAddToUnassignedExcludedCodeAction("foo", d1_1),
-				ca(javaUri, "Insert 'defaultValue' attribute", d1_1, //
+				ca(javaUri, "Insert 'defaultValue' attribute", MicroProfileCodeActionId.ConfigPropertyInsertDefaultValue, d1_1, //
 						te(8, 29, 8, 29, ", defaultValue = \"\"")),
-				ca(propertiesUri, "Insert 'foo' property in 'META-INF/microprofile-config.properties'", d1_1, //
+				ca(propertiesUri, "Insert 'foo' property in 'META-INF/microprofile-config.properties'",
+						MicroProfileCodeActionId.AssignValueToProperty, d1_1, //
 						te(0, 0, 0, 0, "foo=\r\n")));
 
 		MicroProfileJavaCodeActionParams codeActionParams2_1 = createCodeActionParams(javaUri, d2_1);
 		codeActionParams2_1.setCommandConfigurationUpdateSupported(true);
 		assertJavaCodeAction(codeActionParams2_1, utils, //
 				MicroProfileCodeActionFactory.createAddToUnassignedExcludedCodeAction("server.url", d2_1),
-				ca(javaUri, "Insert 'defaultValue' attribute", d2_1, //
+				ca(javaUri, "Insert 'defaultValue' attribute", MicroProfileCodeActionId.ConfigPropertyInsertDefaultValue, d2_1, //
 						te(14, 30, 14, 30, ", defaultValue = \"\"")),
-				ca(propertiesUri, "Insert 'server.url' property in 'META-INF/microprofile-config.properties'", d2_1, //
+				ca(propertiesUri, "Insert 'server.url' property in 'META-INF/microprofile-config.properties'", MicroProfileCodeActionId.AssignValueToProperty, d2_1, //
 						te(0, 0, 0, 0, "server.url=\r\n")));
 
 	}

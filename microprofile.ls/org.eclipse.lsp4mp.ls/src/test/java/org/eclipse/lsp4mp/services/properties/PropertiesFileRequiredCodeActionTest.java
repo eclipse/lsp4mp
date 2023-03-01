@@ -21,6 +21,7 @@ import java.util.List;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
+import org.eclipse.lsp4mp.commons.codeaction.MicroProfileCodeActionId;
 import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
 import org.eclipse.lsp4mp.ls.commons.BadLocationException;
 import org.eclipse.lsp4mp.settings.MicroProfileFormattingSettings;
@@ -31,7 +32,7 @@ import org.junit.Test;
 
 /**
  * Test with the required code actions in 'microprofile-config.properties' file.
- * 
+ *
  *
  */
 public class PropertiesFileRequiredCodeActionTest {
@@ -78,8 +79,8 @@ public class PropertiesFileRequiredCodeActionTest {
 				DiagnosticSeverity.Warning, ValidationType.required);
 
 		testDiagnosticsFor(value, projectInfo, validationSettings, d);
-		testCodeActionsFor(value, d, projectInfo,
-				ca("Add all missing required properties?", te(2, 37, 2, 37, "\nquarkus.required.property="), d));
+		testCodeActionsFor(value, d, projectInfo, ca("Add all missing required properties?",
+				MicroProfileCodeActionId.AddAllMissingRequiredProperties, te(2, 37, 2, 37, "\nquarkus.required.property="), d));
 	}
 
 	@Test
@@ -93,8 +94,8 @@ public class PropertiesFileRequiredCodeActionTest {
 				DiagnosticSeverity.Warning, ValidationType.required);
 
 		testDiagnosticsFor(value, projectInfo, validationSettings, d);
-		testCodeActionsFor(value, d, projectInfo,
-				ca("Add all missing required properties?", te(2, 37, 2, 37, "\r\nquarkus.required.property="), d));
+		testCodeActionsFor(value, d, projectInfo, ca("Add all missing required properties?",
+				MicroProfileCodeActionId.AddAllMissingRequiredProperties, te(2, 37, 2, 37, "\r\nquarkus.required.property="), d));
 	}
 
 	@Test
@@ -113,8 +114,9 @@ public class PropertiesFileRequiredCodeActionTest {
 		d.add(d2);
 
 		testDiagnosticsFor(value, projectInfo, validationSettings, d1, d2);
-		testCodeActionsFor(value, d, d.get(0).getRange(), projectInfo, ca("Add all missing required properties?",
-				te(1, 37, 1, 37, "\nquarkus.required.property=\nquarkus.second.required.property="), d1, d2));
+		testCodeActionsFor(value, d, d.get(0).getRange(), projectInfo,
+				ca("Add all missing required properties?", MicroProfileCodeActionId.AddAllMissingRequiredProperties,
+						te(1, 37, 1, 37, "\nquarkus.required.property=\nquarkus.second.required.property="), d1, d2));
 	}
 
 	@Test
@@ -133,8 +135,9 @@ public class PropertiesFileRequiredCodeActionTest {
 		d.add(d2);
 
 		testDiagnosticsFor(value, projectInfo, validationSettings, d1, d2);
-		testCodeActionsFor(value, d, d.get(0).getRange(), projectInfo, ca("Add all missing required properties?",
-				te(1, 37, 1, 37, "\nquarkus.required.property=\nquarkus.second.required.property="), d1, d2));
+		testCodeActionsFor(value, d, d.get(0).getRange(), projectInfo,
+				ca("Add all missing required properties?", MicroProfileCodeActionId.AddAllMissingRequiredProperties,
+						te(1, 37, 1, 37, "\nquarkus.required.property=\nquarkus.second.required.property="), d1, d2));
 	}
 
 	@Test
@@ -154,10 +157,10 @@ public class PropertiesFileRequiredCodeActionTest {
 		d.add(d2);
 		d.add(d3);
 		testDiagnosticsFor(value, projectInfo, validationSettings, d1, d2, d3);
-		testCodeActionsFor(value, d, d.get(0).getRange(), projectInfo, ca("Add all missing required properties?", te(0,
-				0, 0, 0,
-				"quarkus.required.property=\nquarkus.second.required.property=\nquarkus.third.required.property="), d1,
-				d2, d3));
+		testCodeActionsFor(value, d, d.get(0).getRange(), projectInfo,
+				ca("Add all missing required properties?", MicroProfileCodeActionId.AddAllMissingRequiredProperties, te(0, 0, 0, 0,
+						"quarkus.required.property=\nquarkus.second.required.property=\nquarkus.third.required.property="),
+						d1, d2, d3));
 	}
 
 	@Test
@@ -180,12 +183,13 @@ public class PropertiesFileRequiredCodeActionTest {
 		String lineSeparator = System.lineSeparator();
 
 		testDiagnosticsFor(value, projectInfo, validationSettings, d1, d2, d3);
-		testCodeActionsFor(value, d, d.get(0).getRange(), projectInfo,
-				ca("Add all missing required properties?", te(0, 0, 0, 0, "quarkus.required.property=" + //
+		testCodeActionsFor(value, d, d.get(0).getRange(), projectInfo, ca("Add all missing required properties?",
+				MicroProfileCodeActionId.AddAllMissingRequiredProperties, te(0, 0, 0, 0, "quarkus.required.property=" + //
 						lineSeparator + //
 						"quarkus.second.required.property=" + //
 						lineSeparator + //
-						"quarkus.third.required.property="), d1, d2, d3));
+						"quarkus.third.required.property="),
+				d1, d2, d3));
 	}
 
 	@Test
@@ -212,10 +216,12 @@ public class PropertiesFileRequiredCodeActionTest {
 
 		testDiagnosticsFor(value, projectInfo, validationSettings, d1, d2, d3);
 		testCodeActionsFor(value, d, d.get(0).getRange(), projectInfo, quarkusFormattingSettings,
-				ca("Add all missing required properties?", te(0, 0, 0, 0, "quarkus.required.property = " + //
-						lineSeparator + //
-						"quarkus.second.required.property = " + //
-						lineSeparator + //
-						"quarkus.third.required.property = "), d1, d2, d3));
+				ca("Add all missing required properties?", MicroProfileCodeActionId.AddAllMissingRequiredProperties,
+						te(0, 0, 0, 0, "quarkus.required.property = " + //
+								lineSeparator + //
+								"quarkus.second.required.property = " + //
+								lineSeparator + //
+								"quarkus.third.required.property = "),
+						d1, d2, d3));
 	}
 }

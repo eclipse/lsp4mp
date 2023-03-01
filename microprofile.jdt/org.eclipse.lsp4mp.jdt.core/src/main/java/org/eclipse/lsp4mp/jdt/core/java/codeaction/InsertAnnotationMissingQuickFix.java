@@ -32,7 +32,8 @@ import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.WorkspaceEdit;
-import org.eclipse.lsp4mp.commons.CodeActionResolveData;
+import org.eclipse.lsp4mp.commons.codeaction.CodeActionResolveData;
+import org.eclipse.lsp4mp.commons.codeaction.ICodeActionId;
 import org.eclipse.lsp4mp.jdt.core.java.corrections.proposal.ChangeCorrectionProposal;
 import org.eclipse.lsp4mp.jdt.core.java.corrections.proposal.InsertAnnotationProposal;
 
@@ -99,8 +100,7 @@ public abstract class InsertAnnotationMissingQuickFix implements IJavaCodeAction
 		ChangeCorrectionProposal proposal = new InsertAnnotationProposal(name, context.getCompilationUnit(),
 				context.getASTRoot(), parentType, 0, resolveAnnotationsArray);
 		try {
-			WorkspaceEdit we = context.convertToWorkspaceEdit(proposal);
-			toResolve.setEdit(we);
+			toResolve.setEdit(context.convertToWorkspaceEdit(proposal));
 		} catch (CoreException e) {
 			LOGGER.log(Level.SEVERE, "Unable to create workspace edit for code action to insert missing annotation", e);
 		}
@@ -143,7 +143,8 @@ public abstract class InsertAnnotationMissingQuickFix implements IJavaCodeAction
 		codeAction.setData(new CodeActionResolveData(context.getUri(), getParticipantId(),
 				context.getParams().getRange(), extendedData,
 				context.getParams().isResourceOperationSupported(),
-				context.getParams().isCommandConfigurationUpdateSupported()));
+				context.getParams().isCommandConfigurationUpdateSupported(),
+				getCodeActionId()));
 
 		codeActions.add(codeAction);
 	}
@@ -163,10 +164,17 @@ public abstract class InsertAnnotationMissingQuickFix implements IJavaCodeAction
 	}
 
 	/**
+	 * Returns the id for this code action.
+	 *
+	 * @return the id for this code action
+	 */
+	protected abstract ICodeActionId getCodeActionId();
+
+	/**
 	 * Returns true if all the listed annotations should be added in one code
 	 * action, and false if separate code actions should be generated for each
 	 * annotation.
-	 * 
+	 *
 	 * @return true if all the listed annotations should be added in one code
 	 *         action, and false if separate code actions should be generated for
 	 *         each annotation
