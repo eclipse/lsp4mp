@@ -55,6 +55,8 @@ import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4j.jsonrpc.json.adapters.EnumTypeAdapter;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
+import org.eclipse.lsp4mp.commons.codeaction.CodeActionData;
+import org.eclipse.lsp4mp.commons.codeaction.MicroProfileCodeActionId;
 import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
 import org.eclipse.lsp4mp.extensions.ExtendedMicroProfileProjectInfo;
 import org.eclipse.lsp4mp.ls.MockMicroProfilePropertyDefinitionProvider;
@@ -623,27 +625,28 @@ public class PropertiesFileAssert {
 		Assert.assertArrayEquals(expected, actual.toArray());
 	}
 
-	public static CodeAction ca(String title, TextEdit te, Diagnostic... d) {
-		return ca(title, te, null, d);
+	public static CodeAction ca(String title, MicroProfileCodeActionId id, TextEdit te, Diagnostic... d) {
+		return ca(title, id, te, null, d);
 	}
 
-	public static CodeAction ca(String title, Command command, Diagnostic... d) {
-		return ca(title, null, command, d);
+	public static CodeAction ca(String title, MicroProfileCodeActionId id, Command command, Diagnostic... d) {
+		return ca(title, id, null, command, d);
 	}
 
-	public static CodeAction ca(String title, TextEdit te, Command command, Diagnostic... d) {
+	public static CodeAction ca(String title, MicroProfileCodeActionId id, TextEdit te, Command command, Diagnostic... d) {
 		List<Diagnostic> diagnostics = new ArrayList<>();
 		for (int i = 0; i < d.length; i++) {
 			diagnostics.add(d[i]);
 		}
-		return ca(title, te, command, diagnostics);
+		return ca(title, id, te, command, diagnostics);
 	}
 
-	public static CodeAction ca(String title, TextEdit te, Command command, List<Diagnostic> diagnostics) {
+	public static CodeAction ca(String title, MicroProfileCodeActionId id, TextEdit te, Command command, List<Diagnostic> diagnostics) {
 		CodeAction codeAction = new CodeAction();
 		codeAction.setTitle(title);
 		codeAction.setDiagnostics(diagnostics);
 		codeAction.setCommand(command);
+		codeAction.setData(new CodeActionData(id));
 
 		if (te != null) {
 			VersionedTextDocumentIdentifier versionedTextDocumentIdentifier = new VersionedTextDocumentIdentifier(

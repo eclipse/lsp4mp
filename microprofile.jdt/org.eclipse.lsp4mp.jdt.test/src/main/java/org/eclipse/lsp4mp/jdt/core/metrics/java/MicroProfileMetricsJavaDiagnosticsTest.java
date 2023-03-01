@@ -30,6 +30,7 @@ import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4mp.commons.DocumentFormat;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeActionParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaDiagnosticsParams;
+import org.eclipse.lsp4mp.commons.codeaction.MicroProfileCodeActionId;
 import org.eclipse.lsp4mp.jdt.core.BasePropertiesManagerTest;
 import org.eclipse.lsp4mp.jdt.core.utils.IJDTUtils;
 import org.eclipse.lsp4mp.jdt.internal.metrics.MicroProfileMetricsConstants;
@@ -39,7 +40,7 @@ import org.junit.Test;
 
 /**
  * Java diagnostics and code action for MicroProfile Metrics.
- * 
+ *
  * @author Kathryn Kodama
  */
 public class MicroProfileMetricsJavaDiagnosticsTest extends BasePropertiesManagerTest {
@@ -66,7 +67,7 @@ public class MicroProfileMetricsJavaDiagnosticsTest extends BasePropertiesManage
 		MicroProfileJavaCodeActionParams codeActionParams = createCodeActionParams(uri, d);
 		// check for MicroProfile metrics quick fix code action associated with diagnostic warning
 		assertJavaCodeAction(codeActionParams, utils, //
-			ca(uri, "Replace current scope with @ApplicationScoped", d, //
+			ca(uri, "Replace current scope with @ApplicationScoped", MicroProfileCodeActionId.InsertApplicationScopedAnnotation, d, //
 				te(4, 57, 9, 0, "\n\nimport javax.enterprise.context.ApplicationScoped;\n" + //
 					"import javax.enterprise.context.RequestScoped;\n\n" + //
 					"@ApplicationScoped\n")));
@@ -89,9 +90,9 @@ public class MicroProfileMetricsJavaDiagnosticsTest extends BasePropertiesManage
 				" The @Gauge annotation does not support multiple instances of the underlying bean to be created.",
 				DiagnosticSeverity.Warning, MicroProfileMetricsConstants.DIAGNOSTIC_SOURCE,
 				MicroProfileMetricsErrorCode.ApplicationScopedAnnotationMissing);
-        Diagnostic d2 = d(15, 21, 29,
-                "The corresponding `com.demo.rest.MyService` interface does not have the @RegisterRestClient annotation. The field `service1` will not be injected as a CDI bean.",
-                DiagnosticSeverity.Warning, MicroProfileRestClientConstants.DIAGNOSTIC_SOURCE, null);
+		Diagnostic d2 = d(15, 21, 29,
+				"The corresponding `com.demo.rest.MyService` interface does not have the @RegisterRestClient annotation. The field `service1` will not be injected as a CDI bean.",
+				DiagnosticSeverity.Warning, MicroProfileRestClientConstants.DIAGNOSTIC_SOURCE, null);
 		assertJavaDiagnostics(diagnosticsParams, utils, d1, d2);
 
 		String uri = javaFile.getLocation().toFile().toURI().toString();
@@ -99,11 +100,11 @@ public class MicroProfileMetricsJavaDiagnosticsTest extends BasePropertiesManage
 		// check for MicroProfile metrics quick fix code action associated with
 		// diagnostic warning
 		assertJavaCodeAction(codeActionParams, utils, //
-			ca(uri, "Replace current scope with @ApplicationScoped", d1, //
+			ca(uri, "Replace current scope with @ApplicationScoped", MicroProfileCodeActionId.InsertApplicationScopedAnnotation, d1, //
 				te(6, 29, 10, 0, "\nimport jakarta.enterprise.context.ApplicationScoped;\n" + //
 					"import jakarta.enterprise.context.RequestScoped;\n\n" + //
 					"@ApplicationScoped\n")),
-			ca(uri, "Generate OpenAPI Annotations for 'IncorrectScopeJakarta'", d1, //
+			ca(uri, "Generate OpenAPI Annotations for 'IncorrectScopeJakarta'", MicroProfileCodeActionId.GenerateOpenApiAnnotations, d1, //
 				te(0, 0, 0, 0, "")));
 	}
 }

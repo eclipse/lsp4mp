@@ -13,6 +13,7 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.internal.restclient.java;
 
+import org.eclipse.lsp4mp.commons.codeaction.MicroProfileCodeActionId;
 import org.eclipse.lsp4mp.jdt.core.java.codeaction.InsertAnnotationMissingQuickFix;
 import org.eclipse.lsp4mp.jdt.internal.restclient.MicroProfileRestClientConstants;
 import org.eclipse.lsp4mp.jdt.internal.restclient.MicroProfileRestClientErrorCode;
@@ -38,6 +39,11 @@ public class RestClientAnnotationMissingQuickFix extends InsertAnnotationMissing
 	@Override
 	public String getParticipantId() {
 		return RestClientAnnotationMissingQuickFix.class.getName();
+	}
+
+	@Override
+	protected MicroProfileCodeActionId getCodeActionId() {
+		return MicroProfileCodeActionId.InsertRestClientAnnotation;
 	}
 
 }

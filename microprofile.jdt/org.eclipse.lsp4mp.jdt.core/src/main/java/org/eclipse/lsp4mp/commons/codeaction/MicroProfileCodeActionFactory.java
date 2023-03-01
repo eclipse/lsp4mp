@@ -11,7 +11,7 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lsp4mp.commons;
+package org.eclipse.lsp4mp.commons.codeaction;
 
 import java.text.MessageFormat;
 import java.util.Collections;
@@ -26,7 +26,7 @@ import org.eclipse.lsp4mp.ls.commons.client.ConfigurationItemEditType;
 
 /**
  * Specific code action factory for MicroProfile.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -64,8 +64,10 @@ public class MicroProfileCodeActionFactory {
 		String codeActionTitle = MessageFormat.format(UNASSIGNED_EXCLUDE_CODE_ACTION_TITLE, item);
 		String commandTitle = MessageFormat.format(UNASSIGNED_EXCLUDE_COMMAND_TITLE, item);
 		ConfigurationItemEditType editType = ConfigurationItemEditType.add;
-		return createConfigurationUpdateCodeAction(codeActionTitle, commandTitle, UNASSIGNED_EXCLUDED_SECTION, editType,
+		CodeAction codeAction = createConfigurationUpdateCodeAction(codeActionTitle, commandTitle, UNASSIGNED_EXCLUDED_SECTION, editType,
 				item, diagnostic);
+		codeAction.setData(new CodeActionData(MicroProfileCodeActionId.IgnoreUnknownProperty));
+		return codeAction;
 	}
 
 	/**
@@ -84,8 +86,10 @@ public class MicroProfileCodeActionFactory {
 		String codeActionTitle = MessageFormat.format(UNKNOWN_EXCLUDE_CODE_ACTION_TITLE, item);
 		String commandTitle = MessageFormat.format(UNKNOWN_EXCLUDE_COMMAND_TITLE, item);
 		ConfigurationItemEditType editType = ConfigurationItemEditType.add;
-		return createConfigurationUpdateCodeAction(codeActionTitle, commandTitle, UNKNOWN_EXCLUDED_SECTION, editType,
+		CodeAction codeAction = createConfigurationUpdateCodeAction(codeActionTitle, commandTitle, UNKNOWN_EXCLUDED_SECTION, editType,
 				item, diagnostic);
+		codeAction.setData(new CodeActionData(MicroProfileCodeActionId.IgnoreUnknownProperty));
+		return codeAction;
 	}
 
 	private static CodeAction createConfigurationUpdateCodeAction(String codeActionTitle, String commandTitle,

@@ -28,7 +28,8 @@ import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.WorkspaceEdit;
-import org.eclipse.lsp4mp.commons.CodeActionResolveData;
+import org.eclipse.lsp4mp.commons.codeaction.CodeActionResolveData;
+import org.eclipse.lsp4mp.commons.codeaction.MicroProfileCodeActionId;
 import org.eclipse.lsp4mp.jdt.core.java.codeaction.ExtendedCodeAction;
 import org.eclipse.lsp4mp.jdt.core.java.codeaction.IJavaCodeActionParticipant;
 import org.eclipse.lsp4mp.jdt.core.java.codeaction.JavaCodeActionContext;
@@ -80,7 +81,8 @@ public class ApplicationScopedAnnotationMissingQuickFix implements IJavaCodeActi
 		codeAction.setData(
 				new CodeActionResolveData(context.getUri(), getParticipantId(), context.getParams().getRange(), null,
 						context.getParams().isResourceOperationSupported(),
-						context.getParams().isCommandConfigurationUpdateSupported()));
+						context.getParams().isCommandConfigurationUpdateSupported(),
+						MicroProfileCodeActionId.InsertApplicationScopedAnnotation));
 
 		return Collections.singletonList(codeAction);
 	}
@@ -96,8 +98,7 @@ public class ApplicationScopedAnnotationMissingQuickFix implements IJavaCodeActi
 		ChangeCorrectionProposal proposal = new ReplaceAnnotationProposal(name, context.getCompilationUnit(),
 				context.getASTRoot(), parentType, 0, addAnnotation, REMOVE_ANNOTATION_NAMES);
 		try {
-			WorkspaceEdit we = context.convertToWorkspaceEdit(proposal);
-			toResolve.setEdit(we);
+			toResolve.setEdit(context.convertToWorkspaceEdit(proposal));
 		} catch (CoreException e) {
 			LOGGER.log(Level.SEVERE, "Failed to create workspace edit to replace bean scope annotation", e);
 		}

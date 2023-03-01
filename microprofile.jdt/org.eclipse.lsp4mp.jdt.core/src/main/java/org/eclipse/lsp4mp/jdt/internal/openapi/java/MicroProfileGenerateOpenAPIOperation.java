@@ -30,7 +30,8 @@ import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.WorkspaceEdit;
-import org.eclipse.lsp4mp.commons.CodeActionResolveData;
+import org.eclipse.lsp4mp.commons.codeaction.CodeActionResolveData;
+import org.eclipse.lsp4mp.commons.codeaction.MicroProfileCodeActionId;
 import org.eclipse.lsp4mp.jdt.core.java.codeaction.ExtendedCodeAction;
 import org.eclipse.lsp4mp.jdt.core.java.codeaction.IJavaCodeActionParticipant;
 import org.eclipse.lsp4mp.jdt.core.java.codeaction.JavaCodeActionContext;
@@ -80,7 +81,8 @@ public class MicroProfileGenerateOpenAPIOperation implements IJavaCodeActionPart
 				CodeActionResolveData data = new CodeActionResolveData(context.getUri(), getParticipantId(),
 						context.getParams().getRange(),
 						extendedData, context.getParams().isResourceOperationSupported(),
-						context.getParams().isCommandConfigurationUpdateSupported());
+						context.getParams().isCommandConfigurationUpdateSupported(),
+						MicroProfileCodeActionId.GenerateOpenApiAnnotations);
 
 				ExtendedCodeAction codeAction = new ExtendedCodeAction(
 						MessageFormat.format(MESSAGE, getSimpleName(typeName)));
@@ -124,8 +126,7 @@ public class MicroProfileGenerateOpenAPIOperation implements IJavaCodeActionPart
 				typeDeclaration, MicroProfileOpenAPIConstants.OPERATION_ANNOTATION, 0);
 
 		try {
-			WorkspaceEdit we = context.convertToWorkspaceEdit(proposal);
-			toResolve.setEdit(we);
+			toResolve.setEdit(context.convertToWorkspaceEdit(proposal));
 		} catch (CoreException e) {
 		}
 

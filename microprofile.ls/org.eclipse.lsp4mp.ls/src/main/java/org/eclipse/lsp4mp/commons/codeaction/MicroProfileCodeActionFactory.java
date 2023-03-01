@@ -11,7 +11,7 @@
 * Contributors:
 *     Red Hat Inc. - initial API and implementation
 *******************************************************************************/
-package org.eclipse.lsp4mp.commons;
+package org.eclipse.lsp4mp.commons.codeaction;
 
 import java.text.MessageFormat;
 import java.util.Collections;
@@ -26,7 +26,7 @@ import org.eclipse.lsp4mp.ls.commons.client.ConfigurationItemEditType;
 
 /**
  * Specific code action factory for MicroProfile.
- * 
+ *
  * @author Angelo ZERR
  *
  */
@@ -36,7 +36,7 @@ public class MicroProfileCodeActionFactory {
 
 	private static final String UNASSIGNED_EXCLUDED_SECTION = "microprofile.tools.validation.unassigned.excluded";
 
-	private static final String UNASSIGNED_EXCLUDE_CODE_ACTION_TITLE = "Exclude ''{0}'' from property validation?";
+	private static final String IGNORE_UNASSIGNED = "Exclude ''{0}'' from property validation?";
 
 	private static final String UNASSIGNED_EXCLUDE_COMMAND_TITLE = "Add ''{0}'' to unassigned excluded array";
 
@@ -44,7 +44,7 @@ public class MicroProfileCodeActionFactory {
 
 	private static final String UNKNOWN_EXCLUDED_SECTION = "microprofile.tools.validation.unknown.excluded";
 
-	private static final String UNKNOWN_EXCLUDE_CODE_ACTION_TITLE = "Exclude ''{0}'' from unknown property validation?";
+	private static final String IGNORE_UNKNOWN = "Exclude ''{0}'' from unknown property validation?";
 
 	private static final String UNKNOWN_EXCLUDE_COMMAND_TITLE = "Add ''{0}'' to unknown excluded array";
 
@@ -61,11 +61,14 @@ public class MicroProfileCodeActionFactory {
 	 *         configuration
 	 */
 	public static CodeAction createAddToUnassignedExcludedCodeAction(String item, Diagnostic diagnostic) {
-		String codeActionTitle = MessageFormat.format(UNASSIGNED_EXCLUDE_CODE_ACTION_TITLE, item);
+		String codeActionTitle = MessageFormat
+				.format(IGNORE_UNASSIGNED, item);
 		String commandTitle = MessageFormat.format(UNASSIGNED_EXCLUDE_COMMAND_TITLE, item);
 		ConfigurationItemEditType editType = ConfigurationItemEditType.add;
-		return createConfigurationUpdateCodeAction(codeActionTitle, commandTitle, UNASSIGNED_EXCLUDED_SECTION, editType,
-				item, diagnostic);
+		CodeAction codeAction = createConfigurationUpdateCodeAction(codeActionTitle, commandTitle,
+				UNASSIGNED_EXCLUDED_SECTION, editType, item, diagnostic);
+		codeAction.setData(new CodeActionData(MicroProfileCodeActionId.IgnoreUnassignedProperty));
+		return codeAction;
 	}
 
 	/**
@@ -81,11 +84,13 @@ public class MicroProfileCodeActionFactory {
 	 *         configuration
 	 */
 	public static CodeAction createAddToUnknownExcludedCodeAction(String item, Diagnostic diagnostic) {
-		String codeActionTitle = MessageFormat.format(UNKNOWN_EXCLUDE_CODE_ACTION_TITLE, item);
+		String codeActionTitle = MessageFormat.format(IGNORE_UNKNOWN, item);
 		String commandTitle = MessageFormat.format(UNKNOWN_EXCLUDE_COMMAND_TITLE, item);
 		ConfigurationItemEditType editType = ConfigurationItemEditType.add;
-		return createConfigurationUpdateCodeAction(codeActionTitle, commandTitle, UNKNOWN_EXCLUDED_SECTION, editType,
+		CodeAction codeAction = createConfigurationUpdateCodeAction(codeActionTitle, commandTitle, UNKNOWN_EXCLUDED_SECTION, editType,
 				item, diagnostic);
+		codeAction.setData(new CodeActionData(MicroProfileCodeActionId.IgnoreUnknownProperty));
+		return codeAction;
 	}
 
 	private static CodeAction createConfigurationUpdateCodeAction(String codeActionTitle, String commandTitle,

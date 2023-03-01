@@ -14,6 +14,7 @@
 package org.eclipse.lsp4mp.jdt.core;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.net.URI;
 import java.util.Arrays;
@@ -56,6 +57,8 @@ import org.eclipse.lsp4mp.commons.MicroProfileJavaCompletionParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaDefinitionParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaDiagnosticsParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaHoverParams;
+import org.eclipse.lsp4mp.commons.codeaction.CodeActionData;
+import org.eclipse.lsp4mp.commons.codeaction.MicroProfileCodeActionId;
 import org.eclipse.lsp4mp.jdt.core.java.diagnostics.IJavaErrorCode;
 import org.eclipse.lsp4mp.jdt.core.utils.IJDTUtils;
 import org.eclipse.lsp4mp.jdt.core.utils.JDTMicroProfileUtils;
@@ -101,6 +104,11 @@ public class MicroProfileForJavaAssert {
 			// we don't want to compare title, etc
 			ca.setCommand(null);
 			ca.setKind(null);
+
+			if (ca.getEdit() != null && ca.getEdit().getChanges() != null) {
+				assertTrue(ca.getEdit().getChanges().isEmpty());
+				ca.getEdit().setChanges(null);
+			}
 			if (ca.getDiagnostics() != null) {
 				ca.getDiagnostics().forEach(d -> {
 					d.setSeverity(null);
@@ -114,10 +122,11 @@ public class MicroProfileForJavaAssert {
 		for (int i = 0; i < expected.length; i++) {
 			Assert.assertEquals("Assert title [" + i + "]", expected[i].getTitle(), actual.get(i).getTitle());
 			Assert.assertEquals("Assert edit [" + i + "]", expected[i].getEdit(), actual.get(i).getEdit());
+			Assert.assertEquals("Assert id [" + i + "]", ((CodeActionData)(expected[i].getData())).getCodeActionId(), ((CodeActionData)(actual.get(i).getData())).getCodeActionId());
 		}
 	}
 
-	public static CodeAction ca(String uri, String title, Diagnostic d, TextEdit... te) {
+	public static CodeAction ca(String uri, String title, MicroProfileCodeActionId id, Diagnostic d, TextEdit... te) {
 		CodeAction codeAction = new CodeAction();
 		codeAction.setTitle(title);
 		codeAction.setDiagnostics(Arrays.asList(d));
@@ -126,8 +135,8 @@ public class MicroProfileForJavaAssert {
 
 		TextDocumentEdit textDocumentEdit = new TextDocumentEdit(versionedTextDocumentIdentifier, Arrays.asList(te));
 		WorkspaceEdit workspaceEdit = new WorkspaceEdit(Arrays.asList(Either.forLeft(textDocumentEdit)));
-		workspaceEdit.setChanges(Collections.emptyMap());
 		codeAction.setEdit(workspaceEdit);
+		codeAction.setData(new CodeActionData(id));
 		return codeAction;
 	}
 

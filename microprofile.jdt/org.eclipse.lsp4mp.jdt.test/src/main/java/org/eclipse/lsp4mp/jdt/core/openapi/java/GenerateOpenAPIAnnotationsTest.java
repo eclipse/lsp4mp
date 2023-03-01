@@ -25,6 +25,7 @@ import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeActionParams;
+import org.eclipse.lsp4mp.commons.codeaction.MicroProfileCodeActionId;
 import org.eclipse.lsp4mp.jdt.core.BasePropertiesManagerTest;
 import org.eclipse.lsp4mp.jdt.core.utils.IJDTUtils;
 import org.junit.Test;
@@ -57,7 +58,7 @@ public class GenerateOpenAPIAnnotationsTest extends BasePropertiesManagerTest {
 				"Response.ok(listContents()).build();\n\t}\n\n\t@Operation(summary = \"\", " +
 				"description = \"\")\n\t";
 		assertJavaCodeAction(codeActionParams, utils,
-				ca(uri, "Generate OpenAPI Annotations for 'NoOperationAnnotation'", d,
+				ca(uri, "Generate OpenAPI Annotations for 'NoOperationAnnotation'", MicroProfileCodeActionId.GenerateOpenApiAnnotations, d,
 						te(6, 33, 17, 1, newText)));
 	}
 

@@ -13,7 +13,7 @@
  *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.internal.config.java;
 
-import static org.eclipse.lsp4mp.commons.MicroProfileCodeActionFactory.createAddToUnassignedExcludedCodeAction;
+import static org.eclipse.lsp4mp.commons.codeaction.MicroProfileCodeActionFactory.createAddToUnassignedExcludedCodeAction;
 import static org.eclipse.lsp4mp.jdt.core.MicroProfileConfigConstants.CONFIG_PROPERTY_ANNOTATION;
 import static org.eclipse.lsp4mp.jdt.core.MicroProfileConfigConstants.CONFIG_PROPERTY_ANNOTATION_NAME;
 import static org.eclipse.lsp4mp.jdt.core.MicroProfileConfigConstants.DIAGNOSTIC_DATA_NAME;
@@ -43,7 +43,8 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
-import org.eclipse.lsp4mp.commons.CodeActionResolveData;
+import org.eclipse.lsp4mp.commons.codeaction.CodeActionResolveData;
+import org.eclipse.lsp4mp.commons.codeaction.MicroProfileCodeActionId;
 import org.eclipse.lsp4mp.jdt.core.java.codeaction.IJavaCodeActionParticipant;
 import org.eclipse.lsp4mp.jdt.core.java.codeaction.JavaCodeActionContext;
 import org.eclipse.lsp4mp.jdt.core.java.codeaction.JavaCodeActionResolveContext;
@@ -102,7 +103,7 @@ public class NoValueAssignedToPropertyQuickFix implements IJavaCodeActionPartici
 				// the properties file exists
 				TextDocumentItem document = new TextDocumentItem(uri, "properties", 0, insertText);
 				CodeAction codeAction = CodeActionFactory.insert(
-						getTitle(propertyName, configSource.getConfigFileName()), new Position(0, 0), insertText,
+						getTitle(propertyName, configSource.getConfigFileName()), MicroProfileCodeActionId.AssignValueToProperty, new Position(0, 0), insertText,
 						document, diagnostic);
 				codeActions.add(codeAction);
 			}
@@ -133,8 +134,7 @@ public class NoValueAssignedToPropertyQuickFix implements IJavaCodeActionPartici
 		String insertText = propertyName + "=" + lineSeparator;
 		TextDocumentEdit tde = insertTextEdit(new TextDocumentItem(uri, "properties", 0, insertText), insertText,
 				new Position(0, 0));
-		WorkspaceEdit workspaceEdit = new WorkspaceEdit(Collections.singletonList(Either.forLeft(tde)));
-		unresolved.setEdit(workspaceEdit);
+		unresolved.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(tde))));
 		return unresolved;
 	}
 

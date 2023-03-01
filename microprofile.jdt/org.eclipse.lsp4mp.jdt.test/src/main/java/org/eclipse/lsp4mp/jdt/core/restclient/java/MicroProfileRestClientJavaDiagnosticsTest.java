@@ -30,6 +30,7 @@ import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4mp.commons.DocumentFormat;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeActionParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaDiagnosticsParams;
+import org.eclipse.lsp4mp.commons.codeaction.MicroProfileCodeActionId;
 import org.eclipse.lsp4mp.jdt.core.BasePropertiesManagerTest;
 import org.eclipse.lsp4mp.jdt.core.utils.IJDTUtils;
 import org.eclipse.lsp4mp.jdt.internal.restclient.MicroProfileRestClientConstants;
@@ -84,17 +85,17 @@ public class MicroProfileRestClientJavaDiagnosticsTest extends BasePropertiesMan
 
 		MicroProfileJavaCodeActionParams codeActionParams = createCodeActionParams(uri, d3);
 		assertJavaCodeAction(codeActionParams, utils, //
-				ca(uri, "Insert @RestClient", d3, //
+				ca(uri, "Insert @RestClient", MicroProfileCodeActionId.InsertRestClientAnnotation, d3, //
 						te(14, 1, 14, 1, "@RestClient\r\n\t")));
 
 		codeActionParams = createCodeActionParams(uri, d4);
 		assertJavaCodeAction(codeActionParams, utils, //
-				ca(uri, "Insert @Inject", d4, //
+				ca(uri, "Insert @Inject", MicroProfileCodeActionId.InsertInjectAnnotation, d4, //
 						te(17, 1, 17, 1, "@Inject\r\n\t")));
 
 		codeActionParams = createCodeActionParams(uri, d5);
 		assertJavaCodeAction(codeActionParams, utils, //
-				ca(uri, "Insert @Inject, @RestClient", d5, //
+				ca(uri, "Insert @Inject, @RestClient",  MicroProfileCodeActionId.InsertInjectAndRestClientAnnotations, d5, //
 						te(20, 1, 20, 1, "@RestClient\r\n\t@Inject\r\n\t")));
 
 	}
@@ -131,16 +132,16 @@ public class MicroProfileRestClientJavaDiagnosticsTest extends BasePropertiesMan
 
 		MicroProfileJavaCodeActionParams codeActionParams = createCodeActionParams(uri, d2);
 		assertJavaCodeAction(codeActionParams, utils, //
-				ca(uri, "Insert @Inject", d2, //
+				ca(uri, "Insert @Inject",  MicroProfileCodeActionId.InsertInjectAnnotation, d2, //
 						te(12, 4, 12, 4, "@Inject\n\t")),
-				ca(uri, "Generate OpenAPI Annotations for 'injectAnnotation'", d2, //
+				ca(uri, "Generate OpenAPI Annotations for 'injectAnnotation'", MicroProfileCodeActionId.GenerateOpenApiAnnotations, d2, //
 						te(0, 0, 0, 0, "")));
 
 		codeActionParams = createCodeActionParams(uri, d3);
 		assertJavaCodeAction(codeActionParams, utils, //
-				ca(uri, "Insert @Inject, @RestClient", d3, //
+				ca(uri, "Insert @Inject, @RestClient", MicroProfileCodeActionId.InsertInjectAndRestClientAnnotations, d3, //
 						te(15, 4, 15, 4, "@RestClient\n\t@Inject\n\t")),
-				ca(uri, "Generate OpenAPI Annotations for 'injectAnnotation'", d3, //
+				ca(uri, "Generate OpenAPI Annotations for 'injectAnnotation'", MicroProfileCodeActionId.GenerateOpenApiAnnotations, d3, //
 						te(0, 0, 0, 0, "")));
 
 	}
@@ -166,7 +167,7 @@ public class MicroProfileRestClientJavaDiagnosticsTest extends BasePropertiesMan
 		String uri = javaFile.getLocation().toFile().toURI().toString();
 		MicroProfileJavaCodeActionParams codeActionParams = createCodeActionParams(uri, d);
 		assertJavaCodeAction(codeActionParams, utils, //
-				ca(uri, "Insert @RegisterRestClient", d, //
+				ca(uri, "Insert @RegisterRestClient", MicroProfileCodeActionId.InsertRegisterRestClient, d, //
 						te(0, 28, 2, 0,
 								"\r\n\r\nimport org.eclipse.microprofile.rest.client.inject.RegisterRestClient;\r\n\r\n@RegisterRestClient\r\n")));
 	}
@@ -193,10 +194,10 @@ public class MicroProfileRestClientJavaDiagnosticsTest extends BasePropertiesMan
 		String uri = javaFile.getLocation().toFile().toURI().toString();
 		MicroProfileJavaCodeActionParams codeActionParams = createCodeActionParams(uri, d);
 		assertJavaCodeAction(codeActionParams, utils, //
-				ca(uri, "Insert @RegisterRestClient", d, //
+				ca(uri, "Insert @RegisterRestClient", MicroProfileCodeActionId.InsertRegisterRestClient, d, //
 						te(0, 22, 2, 0,
 								"\r\n\r\nimport org.eclipse.microprofile.rest.client.inject.RegisterRestClient;\r\n\r\n@RegisterRestClient\r\n")),
-				ca(uri, "Generate OpenAPI Annotations for 'MyService'", d, //
+				ca(uri, "Generate OpenAPI Annotations for 'MyService'", MicroProfileCodeActionId.GenerateOpenApiAnnotations, d, //
 						te(0, 0, 0, 0, "")));
 	}
 }
