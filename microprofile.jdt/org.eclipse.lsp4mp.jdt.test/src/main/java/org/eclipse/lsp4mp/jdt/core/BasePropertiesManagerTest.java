@@ -157,13 +157,7 @@ public class BasePropertiesManagerTest {
 
 			// We need to call waitForBackgroundJobs with a Job which does nothing to have a
 			// resolved classpath (IJavaProject#getResolvedClasspath) when search is done.
-			IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
-				@Override
-				public void run(IProgressMonitor monitor) throws CoreException {
-					monitor.done();
-
-				}
-			};
+			IWorkspaceRunnable runnable = monitor -> monitor.done();
 			IProgressMonitor monitor = new NullProgressMonitor();
 			JavaCore.run(runnable, null, monitor);
 			waitForBackgroundJobs(monitor);
@@ -226,7 +220,7 @@ public class BasePropertiesManagerTest {
 			createParentFolders(resource.getParent());
 		switch (resource.getType()) {
 		case IResource.FOLDER:
-			((IFolder) resource).create(IResource.NONE, true, new NullProgressMonitor());
+			((IFolder) resource).create(IResource.FORCE, true, new NullProgressMonitor());
 			break;
 		case IResource.PROJECT:
 			((IProject) resource).create(new NullProgressMonitor());
