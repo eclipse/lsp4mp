@@ -15,6 +15,7 @@ import static org.eclipse.lsp4mp.services.properties.PropertiesFileAssert.testDe
 
 import java.util.concurrent.ExecutionException;
 
+import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.ls.commons.BadLocationException;
 import org.junit.Test;
 
@@ -127,6 +128,12 @@ public class PropertiesFileDefinitionTest {
 		testDefinitionFor(value);
 		value = "quarkus.datasource.driver=XXXX|";
 		testDefinitionFor(value);
+	}
+
+	@Test
+	public void noProject() throws BadLocationException, InterruptedException, ExecutionException {
+		String value = "quarkus.datasour|ce.driver=XXXX";
+		testDefinitionFor(value, null, (MicroProfileProjectInfo) null, null);
 	}
 
 }

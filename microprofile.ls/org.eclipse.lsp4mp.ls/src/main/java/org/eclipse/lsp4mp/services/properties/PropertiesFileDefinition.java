@@ -87,6 +87,12 @@ public class PropertiesFileDefinition {
 				}
 			}
 
+			// Here the MicroProfile project information is required. 
+			if (projectInfo == null) {
+				// The project is not loaded, return an empty definition. 
+				return getEmptyDefinition();
+			}
+			
 			// Get the property at the given position
 			PropertyKey key = getPropertyKey(node);
 
