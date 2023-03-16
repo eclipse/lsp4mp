@@ -141,4 +141,16 @@ public class PropertiesFileExpressionDefinitionTest {
 				"test.property=salutations";
 		testDefinitionFor(value, PROPERTY_DOCUMENT_NAME, ll(PROPERTY_DOCUMENT_NAME, r(0, 19, 37), r(1, 0, 18)));
 	}
+
+	@Test
+	public void noProject() throws BadLocationException, InterruptedException, ExecutionException {
+		// Same test than below but with no project.
+		String value = "other.property = ${%dev.test.prop|erty}\n" + //
+				"%dev.test.property=hi\n" + //
+				"%prop.test.property=hello\n" + //
+				"test.property=salutations";
+		testDefinitionFor(value, PROPERTY_DOCUMENT_NAME, (MicroProfileProjectInfo) null, null,
+				ll(PROPERTY_DOCUMENT_NAME, r(0, 19, 37), r(1, 0, 18)));
+	}
+
 }
