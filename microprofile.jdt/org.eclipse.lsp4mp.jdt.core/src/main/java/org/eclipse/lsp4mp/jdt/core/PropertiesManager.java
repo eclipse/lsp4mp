@@ -471,7 +471,7 @@ public class PropertiesManager {
 	public Location findPropertyLocation(IJavaProject javaProject, String sourceType, String sourceField,
 			String sourceMethod, IJDTUtils utils, IProgressMonitor progress) throws JavaModelException, CoreException {
 		IMember fieldOrMethod = findProperty(javaProject, sourceType, sourceField, sourceMethod, utils, progress);
-		if (fieldOrMethod != null) {
+		if (fieldOrMethod != null && fieldOrMethod.exists()) {
 			return utils.toLocation(fieldOrMethod);
 		}
 		return null;

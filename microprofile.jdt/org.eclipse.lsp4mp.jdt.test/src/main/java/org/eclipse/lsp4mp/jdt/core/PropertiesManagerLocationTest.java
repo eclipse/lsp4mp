@@ -21,6 +21,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.ls.core.internal.JavaLanguageServerPlugin;
 import org.eclipse.lsp4j.ClientCapabilities;
 import org.eclipse.lsp4j.Location;
+import org.eclipse.lsp4mp.jdt.core.BasePropertiesManagerTest.MicroProfileMavenProjectName;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -93,6 +94,31 @@ public class PropertiesManagerLocationTest extends BasePropertiesManagerTest {
 				JDT_UTILS, new NullProgressMonitor());
 
 		Assert.assertNotNull("Definition from GreetingConstructorResource constructor", location);
+	}
+
+	@Test
+	public void nonExistantFieldTest() throws Exception {
+		// Use case:
+		// In the properties file we have the following:
+		// ```properties
+		// my.fruit=Banana
+		// ```
+		//
+		// In a Java file, we have `my.fruit` defined as:
+		// ```java
+		// @ConfigProperty(name="my.fruit") public org.acme.vertx.Fruit myFruit;
+		// ```
+		//
+		// Because of this, we are expecting class "Fruit" to be an enum, but it is a
+		// POJO.
+		// When we attempt to locate the enum value `Banana`, it returns a handle to a
+		// non-existent field, which we must ignore.
+
+		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.using_vertx);
+
+		Location location = PropertiesManager.getInstance().findPropertyLocation(javaProject, "org.acme.vertx.Fruit",
+				"Banana", null, JDT_UTILS, new NullProgressMonitor());
+		Assert.assertNull(location);
 	}
 
 	private static void enableClassFileContentsSupport() {
