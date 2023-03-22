@@ -152,19 +152,23 @@ public class JaxRsCodeLensParticipant implements IJavaCodeLensParticipant {
 
 		IMethod method = methodInfo.getJavaMethod();
 		IAnnotation[] annotations = method.getAnnotations();
-		if (annotations == null) {
-			return null;
+		if (annotations != null && annotations.length > 0) {
+			ISourceRange r = annotations[annotations.length - 1].getSourceRange();
+
+			Range range = utils.toRange(method.getOpenable(), r.getOffset(), r.getLength());
+			// Increment line number for code lens to appear on the line right after the
+			// last annotation
+			Position codeLensPosition = new Position(range.getEnd().getLine() + 1, range.getEnd().getCharacter());
+			range.setStart(codeLensPosition);
+			range.setEnd(codeLensPosition);
+
+			lens.setRange(range);
+		} else {
+			ISourceRange r = method.getNameRange();
+			Range range = utils.toRange(method.getOpenable(), r.getOffset(), r.getLength());
+			lens.setRange(range);
 		}
-		ISourceRange r = annotations[annotations.length - 1].getSourceRange();
 
-		Range range = utils.toRange(method.getOpenable(), r.getOffset(), r.getLength());
-		// Increment line number for code lens to appear on the line right after the
-		// last annotation
-		Position codeLensPosition = new Position(range.getEnd().getLine() + 1, range.getEnd().getCharacter());
-		range.setStart(codeLensPosition);
-		range.setEnd(codeLensPosition);
-
-		lens.setRange(range);
 		lens.setCommand(new Command(methodInfo.getUrl(), //
 				isHttpMethodClickable(methodInfo.getHttpMethod()) && openUriCommandId != null ? openUriCommandId : "", //
 				Collections.singletonList(methodInfo.getUrl())));
