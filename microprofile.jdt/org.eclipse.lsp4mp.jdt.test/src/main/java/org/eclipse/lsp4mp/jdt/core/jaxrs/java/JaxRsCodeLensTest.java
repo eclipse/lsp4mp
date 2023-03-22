@@ -66,6 +66,22 @@ public class JaxRsCodeLensTest extends BasePropertiesManagerTest {
 		assertCodeLenses(8080, params, utils);
 	}
 
+	@Test
+	public void customJaxRsInfoProvider() throws Exception {
+		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.hibernate_orm_resteasy);
+		IJDTUtils utils = JDT_UTILS;
+
+		MicroProfileJavaCodeLensParams params = new MicroProfileJavaCodeLensParams();
+		params.setCheckServerAvailable(false);
+		IFile javaFile = javaProject.getProject()
+				.getFile(new Path("src/main/java/org/acme/hibernate/orm/CustomJaxRsResolving.java"));
+		params.setUri(javaFile.getLocation().toFile().toURI().toString());
+		params.setUrlCodeLensEnabled(true);
+
+		assertCodeLens(params, utils, //
+				cl("http://localhost:8080/myPath", "", r(7, 18, 26)));
+	}
+
 	private static void assertCodeLenses(int port, MicroProfileJavaCodeLensParams params, IJDTUtils utils) throws JavaModelException {
 		assertCodeLens(params, utils, //
 				cl("http://localhost:" + port + "/fruits", "", r(31, 8, 8)), //
