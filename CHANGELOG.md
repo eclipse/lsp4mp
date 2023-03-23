@@ -1,5 +1,31 @@
 # MicroProfile Language Server Changelog
 
+## [0.7.0](https://github.com/eclipse/lsp4mp/milestone/7?closed=1) (April 3, 2023)
+
+### Enhancements
+ * Validation for GraphQL `@Query` and `@Mutation` methods with `void` return type. See [#348](https://github.com/eclipse/lsp4mp/issues/348), [#359](https://github.com/eclipse/lsp4mp/issues/359).
+ * Navigate to REST endpoints using workspace symbols. See [#87](https://github.com/eclipse/lsp4mp/issues/87).
+ * Show config property documentation when hovering over the key in a properties file. See [#321](https://github.com/eclipse/lsp4mp/issues/321).
+ * Validate lists in `@ConfigProperty`'s `defaultValue`. See [#351](https://github.com/eclipse/lsp4mp/pull/351).
+ * Make Java file snippets context-aware. See [#108](https://github.com/eclipse/lsp4mp/issues/108).
+ * Add an `id` to track the type of each `CodeAction`. See [#371](https://github.com/eclipse/lsp4mp/pull/371).
+
+### Bug Fixes
+ * Hover fails in properties files when the Java language server is loading. See [#375](https://github.com/eclipse/lsp4mp/issues/375).
+ * Definition sometimes fails on property values in a properties file. See [#374](https://github.com/eclipse/lsp4mp/issues/374).
+ * Adjust go to definition range for property keys to include the offset between the property key and `=`. See [#335](https://github.com/eclipse/lsp4mp/pull/335).
+ * Fix `NullPointerException` during go to definition in properties files. See [#372](https://github.com/eclipse/lsp4mp/issues/372).
+ * Fix `NullPointerException` on shutdown when LSP client doesn't define extendedClientCapabilities. See [#363](https://github.com/eclipse/lsp4mp/pull/363).
+ * Completion causes Exceptions when typing in a Java file. See [#347](https://github.com/eclipse/lsp4mp/issues/347).
+ * Support the `jakarta` namespace (JakartaEE 9+). See [#344](https://github.com/eclipse/lsp4mp/issues/344).
+ * Hovering over properties file fails with `NullPointerException` when there are multiple definitions of a property. See [#341](https://github.com/eclipse/lsp4mp/issues/341).
+ * `config_ordinal` appears as a property even in non-MicroProfile projects. See [#312](https://github.com/eclipse/lsp4mp/issues/312).
+ * Quick fix to assign a value to a property now handles the prefix set by `@ConfigProperties` properly. See [#303](https://github.com/eclipse/lsp4mp/issues/303).
+ * Change wording of "Unknown property" error message to "Unrecognized property". See [#290](https://github.com/eclipse/lsp4mp/issues/290).
+
+### Build
+ * Fix test error in `BasePropertiesManagerTest#createParentFolders`. See [#369](https://github.com/eclipse/lsp4mp/issues/369).
+
 ## [0.6.0](https://github.com/eclipse/lsp4mp/milestone/6?closed=1) (December 1, 2022)
 
 ### Enhancements
