@@ -153,7 +153,7 @@ public class PropertiesFileTextDocumentService extends AbstractTextDocumentServi
 			MicroProfileProjectInfoParams projectInfoParams = createProjectInfoParams(params.getTextDocument());
 			MicroProfileProjectInfo projectInfo = getProjectInfoCache().getProjectInfo(projectInfoParams).getNow(null);
 			if (projectInfo == null || projectInfo.getProperties().isEmpty()) {
-				return null;
+				return CompletableFuture.completedFuture(null);
 			}
 			cancelChecker.checkCanceled();
 
