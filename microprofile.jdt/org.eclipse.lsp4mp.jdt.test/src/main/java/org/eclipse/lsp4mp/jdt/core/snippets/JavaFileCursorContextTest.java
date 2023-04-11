@@ -423,4 +423,20 @@ public class JavaFileCursorContextTest extends BasePropertiesManagerTest {
 		assertEquals("", PropertiesManagerForJava.javaCursorContext(params, JDT_UTILS, MONITOR).getPrefix());
 	}
 
+	@Test
+	public void testLombok() throws Exception {
+		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.config_hover);
+		IProject project = javaProject.getProject();
+		IFile javaFile = project.getFile(new Path("src/main/java/org/acme/config/WithLombok.java"));
+		String javaFileUri = javaFile.getLocation().toFile().toURI().toString();
+
+		MicroProfileJavaCompletionParams params = new MicroProfileJavaCompletionParams(javaFileUri, new Position(6, 0));
+		assertEquals(JavaCursorContextKind.BEFORE_FIELD,
+				PropertiesManagerForJava.javaCursorContext(params, JDT_UTILS, MONITOR).getKind());
+
+		params = new MicroProfileJavaCompletionParams(javaFileUri, new Position(8, 0));
+		assertEquals(JavaCursorContextKind.BEFORE_METHOD,
+				PropertiesManagerForJava.javaCursorContext(params, JDT_UTILS, MONITOR).getKind());
+	}
+
 }
