@@ -1,5 +1,10 @@
 # MicroProfile Language Server Changelog
 
+## [0.7.1](https://github.com/eclipse/lsp4mp/milestone/8?closed=1) (April 12, 2023)
+
+### Bug Fixes
+ * Fix context-aware snippets in projects that use Project Lombok. See [#381](https://github.com/eclipse/lsp4mp/pull/381).
+
 ## [0.7.0](https://github.com/eclipse/lsp4mp/milestone/7?closed=1) (April 3, 2023)
 
 ### Enhancements
