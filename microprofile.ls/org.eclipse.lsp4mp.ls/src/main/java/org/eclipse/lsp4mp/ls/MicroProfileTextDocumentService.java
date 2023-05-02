@@ -60,6 +60,7 @@ import org.eclipse.lsp4mp.ls.commons.client.ExtendedClientCapabilities;
 import org.eclipse.lsp4mp.ls.java.JavaFileTextDocumentService;
 import org.eclipse.lsp4mp.ls.java.JavaTextDocuments;
 import org.eclipse.lsp4mp.ls.properties.PropertiesFileTextDocumentService;
+import org.eclipse.lsp4mp.services.properties.CompletionData;
 import org.eclipse.lsp4mp.settings.MicroProfileCodeLensSettings;
 import org.eclipse.lsp4mp.settings.MicroProfileFormattingSettings;
 import org.eclipse.lsp4mp.settings.MicroProfileInlayHintSettings;
@@ -146,6 +147,16 @@ public class MicroProfileTextDocumentService implements TextDocumentService {
 		TextDocumentService service = getTextDocumentService(position.getTextDocument());
 		if (service != null) {
 			return service.completion(position);
+		}
+		return CompletableFuture.completedFuture(null);
+	}
+
+	@Override
+	public CompletableFuture<CompletionItem> resolveCompletionItem(CompletionItem unresolved) {
+		String uri = CompletionData.getCompletionData(unresolved).getUri();
+		TextDocumentService service = getTextDocumentService(new TextDocumentIdentifier(uri));
+		if (service != null) {
+			return service.resolveCompletionItem(unresolved);
 		}
 		return CompletableFuture.completedFuture(null);
 	}

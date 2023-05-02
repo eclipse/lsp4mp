@@ -39,7 +39,7 @@ public class ServerCapabilitiesConstants {
 	public static final String TEXT_DOCUMENT_CODE_LENS = "textDocument/codeLens";
 	public static final String TEXT_DOCUMENT_DOCUMENT_HIGHLIGHT = "textDocument/documentHighlight";
 	public static final String TEXT_DOCUMENT_INLAY_HINT = "textDocument/inlayHint";
-	
+
 	public static final String WORKSPACE_SYMBOLS = "workspace/symbol";
 
 	public static final String COMPLETION_ID = UUID.randomUUID().toString();
@@ -52,10 +52,10 @@ public class ServerCapabilitiesConstants {
 	public static final String CODE_LENS_ID = UUID.randomUUID().toString();
 	public static final String DOCUMENT_HIGHLIGHT_ID = UUID.randomUUID().toString();
 	public static final String INLAY_HINT_ID = UUID.randomUUID().toString();
-	
+
 	public static final String WORKSPACE_SYMBOL_ID = UUID.randomUUID().toString();
 
-	public static final CompletionOptions DEFAULT_COMPLETION_OPTIONS = new CompletionOptions(false,
+	public static final CompletionOptions DEFAULT_COMPLETION_OPTIONS = new CompletionOptions(true,
 			Arrays.asList(".", "%", "=", "$", "{", ":" /* triggered characters for properties file */ ,
 					"@" /* triggered characters for java snippets annotation */,
 					"\"" /* trigger characters for annotation property value completion */));
@@ -63,7 +63,7 @@ public class ServerCapabilitiesConstants {
 	public static final CodeLensOptions DEFAULT_CODELENS_OPTIONS = new CodeLensOptions();
 
 	public static final CodeActionOptions DEFAULT_CODEACTION_OPTIONS = createDefaultCodeActionOptions();
-	
+
 	public static final WorkspaceSymbolOptions DEFAULT_WORKSPACE_SYMBOL_OPTIONS = new WorkspaceSymbolOptions(false);
 
 	private static CodeActionOptions createDefaultCodeActionOptions() {
@@ -71,5 +71,5 @@ public class ServerCapabilitiesConstants {
 		options.setResolveProvider(Boolean.TRUE);
 		return options;
 	}
-	
+
 }
