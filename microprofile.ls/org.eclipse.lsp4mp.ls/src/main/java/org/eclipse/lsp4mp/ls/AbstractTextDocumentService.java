@@ -110,6 +110,11 @@ public abstract class AbstractTextDocumentService implements TextDocumentService
 	}
 
 	@Override
+	public CompletableFuture<CompletionItem> resolveCompletionItem(CompletionItem unresolved) {
+		return CompletableFuture.completedFuture(null);
+	}
+
+	@Override
 	public CompletableFuture<Hover> hover(HoverParams params) {
 		return CompletableFuture.completedFuture(null);
 	}

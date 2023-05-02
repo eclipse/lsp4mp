@@ -55,6 +55,7 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfoParams;
 import org.eclipse.lsp4mp.commons.MicroProfilePropertiesChangeEvent;
+import org.eclipse.lsp4mp.commons.utils.JSONUtility;
 import org.eclipse.lsp4mp.ls.AbstractTextDocumentService;
 import org.eclipse.lsp4mp.ls.MicroProfileLanguageServer;
 import org.eclipse.lsp4mp.ls.api.MicroProfileLanguageServerAPI.JsonSchemaForProjectInfo;
@@ -62,6 +63,7 @@ import org.eclipse.lsp4mp.ls.commons.ModelTextDocument;
 import org.eclipse.lsp4mp.ls.commons.ModelTextDocuments;
 import org.eclipse.lsp4mp.ls.commons.ValidatorDelayer;
 import org.eclipse.lsp4mp.model.PropertiesModel;
+import org.eclipse.lsp4mp.services.properties.CompletionData;
 import org.eclipse.lsp4mp.services.properties.PropertiesFileLanguageService;
 import org.eclipse.lsp4mp.settings.MicroProfileFormattingSettings;
 import org.eclipse.lsp4mp.settings.MicroProfileInlayHintSettings;
@@ -70,6 +72,9 @@ import org.eclipse.lsp4mp.settings.MicroProfileValidationSettings;
 import org.eclipse.lsp4mp.settings.SharedSettings;
 import org.eclipse.lsp4mp.utils.JSONSchemaUtils;
 import org.eclipse.lsp4mp.utils.URIUtils;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 /**
  * LSP text document service for 'microprofile-config.properties',
@@ -141,6 +146,21 @@ public class PropertiesFileTextDocumentService extends AbstractTextDocumentServi
 					projectInfo, sharedSettings.getCompletionCapabilities(), sharedSettings.getFormattingSettings(),
 					cancelChecker);
 			return Either.forRight(list);
+		});
+	}
+
+	@Override
+	public CompletableFuture<CompletionItem> resolveCompletionItem(CompletionItem unresolved) {
+		String uri = CompletionData.getCompletionData(unresolved).getUri();
+		if (uri == null) {
+			return CompletableFuture.completedFuture(null);
+		}
+		TextDocumentIdentifier identifier = new TextDocumentIdentifier(uri);
+		return getPropertiesModel(identifier, (document, cancelChecker) -> {
+			MicroProfileProjectInfoParams projectInfoParams = createProjectInfoParams(new TextDocumentIdentifier(uri));
+			MicroProfileProjectInfo projectInfo = getProjectInfoCache().getProjectInfo(projectInfoParams).getNow(null);
+			return getPropertiesFileLanguageService().resolveCompletionItem(unresolved, projectInfo,
+					sharedSettings.getCompletionCapabilities(), cancelChecker);
 		});
 	}
 

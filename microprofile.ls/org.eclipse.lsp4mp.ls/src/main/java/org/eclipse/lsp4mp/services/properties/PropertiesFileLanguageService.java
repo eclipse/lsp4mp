@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionContext;
+import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DocumentHighlight;
@@ -90,6 +91,20 @@ public class PropertiesFileLanguageService {
 		updateProperties(projectInfo, document);
 		return completions.doComplete(document, position, projectInfo, completionCapabilities, formattingSettings,
 				cancelChecker);
+	}
+
+	/**
+	 * Returns the completion item with the empty fields resolved.
+	 *
+	 * @param unresolved             the unresolved completion item
+	 * @param projectInfo            the MicroProfile project information
+	 * @param completionCapabilities the completion capabilities
+	 * @param cancelChecker          the cancel checker
+	 * @return the completion item with the empty fields resolved.
+	 */
+	public CompletionItem resolveCompletionItem(CompletionItem unresolved, MicroProfileProjectInfo projectInfo,
+		MicroProfileCompletionCapabilities completionCapabilities, CancelChecker cancelChecker) {
+		return completions.resolveCompletionItem(unresolved, projectInfo, completionCapabilities, cancelChecker);
 	}
 
 	/**

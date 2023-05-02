@@ -154,6 +154,27 @@ class PropertiesFileCompletions {
 	}
 
 	/**
+	 * Returns the completion item with the empty fields resolved.
+	 *
+	 * @param unresolved             the unresolved completion item
+	 * @param projectInfo            the MicroProfile project information
+	 * @param completionCapabilities the completion capabilities
+	 * @param cancelChecker          the cancel checker
+	 * @return the completion item with the empty fields resolved.
+	 */
+	public CompletionItem resolveCompletionItem(CompletionItem unresolved, MicroProfileProjectInfo projectInfo,
+			MicroProfileCompletionCapabilities completionCapabilities, CancelChecker cancelChecker) {
+		String propertyName = CompletionData.getCompletionData(unresolved).getPropertyName();
+		boolean markdownSupported = completionCapabilities.isDocumentationFormatSupported(MarkupKind.MARKDOWN);
+		ItemMetadata property = PropertiesFileUtils.getProperty(propertyName, projectInfo);
+		if (property == null) {
+			return unresolved;
+		}
+		unresolved.setDocumentation(DocumentationUtils.getDocumentation(property, null, null, markdownSupported));
+		return unresolved;
+	}
+
+	/**
 	 * Collect property keys.
 	 *
 	 * @param offset                 the offset where completion was invoked
@@ -168,6 +189,8 @@ class PropertiesFileCompletions {
 
 		boolean snippetsSupported = completionCapabilities.isCompletionSnippetsSupported();
 		boolean markdownSupported = completionCapabilities.isDocumentationFormatSupported(MarkupKind.MARKDOWN);
+		boolean completionResolveDocumentationSupported = completionCapabilities
+				.isCompletionResolveDocumentationSupported();
 
 		Range range = null;
 		try {
@@ -181,7 +204,8 @@ class PropertiesFileCompletions {
 		if (node != null && node.getNodeType() == NodeType.PROPERTY_KEY) {
 			PropertyKey key = (PropertyKey) node;
 			if (key.isBeforeProfile(offset)) {
-				collectProfileSuggestions(offset, key, model, markdownSupported, list);
+				collectProfileSuggestions(offset, key, model, markdownSupported,
+						completionResolveDocumentationSupported, list);
 				return;
 			}
 			profile = key.getProfile();
@@ -274,7 +298,11 @@ class PropertiesFileCompletions {
 			item.setTextEdit(Either.forLeft(new TextEdit(range, insertText.toString())));
 
 			item.setInsertTextFormat(snippetsSupported ? InsertTextFormat.Snippet : InsertTextFormat.PlainText);
-			item.setDocumentation(DocumentationUtils.getDocumentation(property, profile, null, markdownSupported));
+			if (completionResolveDocumentationSupported) {
+				item.setData(new CompletionData(propertyName, model.getDocumentURI()));
+			} else {
+				item.setDocumentation(DocumentationUtils.getDocumentation(property, profile, null, markdownSupported));
+			}
 			list.getItems().add(item);
 		}
 	}
@@ -289,7 +317,7 @@ class PropertiesFileCompletions {
 	 * @param list              the completion list
 	 */
 	private static void collectProfileSuggestions(int offset, PropertyKey key, PropertiesModel model,
-			boolean markdownSupported, CompletionList list) {
+			boolean markdownSupported, boolean completionResolveDocumentationSupported, CompletionList list) {
 
 		Range range = null;
 		Position currPosition = null;
@@ -327,7 +355,16 @@ class PropertiesFileCompletions {
 			item.setTextEdit(Either.forLeft(new TextEdit(range, insertText)));
 			item.setInsertTextFormat(InsertTextFormat.PlainText);
 			item.setFilterText(insertText);
-			addDocumentationIfDefaultProfile(item, markdownSupported);
+			if (completionResolveDocumentationSupported) {
+				for (ValueHint profile : QuarkusModel.DEFAULT_PROFILES.getValues()) {
+					if (profile.getValue().equals(item.getLabel())) {
+						item.setData(new CompletionData(key.getPropertyName(), model.getDocumentURI()));
+						break;
+					}
+				}
+			} else {
+				addDocumentationIfDefaultProfile(item, markdownSupported);
+			}
 			list.getItems().add(item);
 		}
 	}

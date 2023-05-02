@@ -12,6 +12,8 @@ package org.eclipse.lsp4mp.services.properties;
 import static org.eclipse.lsp4mp.services.properties.PropertiesFileAssert.c;
 import static org.eclipse.lsp4mp.services.properties.PropertiesFileAssert.r;
 import static org.eclipse.lsp4mp.services.properties.PropertiesFileAssert.testCompletionFor;
+import static org.eclipse.lsp4mp.services.properties.PropertiesFileAssert.testCompletionItemUnresolvedFor;
+import static org.eclipse.lsp4mp.services.properties.PropertiesFileAssert.testCompletionItemResolveFor;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -393,4 +395,28 @@ public class PropertiesFileCompletionTest {
 		testCompletionFor(value, true,
 				c("quarkus.banner.enabled", "quarkus.banner.enabled=${1|false,true|}", r(0, 0, 26)));
 	}
+
+	@Test
+	public void completionOnKeyResolve() throws BadLocationException {
+		String expectedDocumentation = "quarkus.http.cors" + System.lineSeparator() + System.lineSeparator() + //
+				"Enable the CORS filter." + System.lineSeparator() + System.lineSeparator() + //
+				"Type: boolean" + System.lineSeparator() + //
+				"Default: false" + System.lineSeparator() + //
+				"Phase: runtime" + System.lineSeparator() + //
+				"Extension: quarkus-vertx-http";
+		String value = "|";
+		testCompletionItemResolveFor(value,
+				c("quarkus.http.cors", "quarkus.http.cors=false", r(0, 0, 0), expectedDocumentation));
+		testCompletionItemUnresolvedFor(value, c("quarkus.http.cors", "quarkus.http.cors=false", r(0, 0, 0)));
+		value = " |";
+		testCompletionItemResolveFor(value,
+				c("quarkus.http.cors", "quarkus.http.cors=false", r(0, 0, 1), expectedDocumentation));
+		testCompletionItemUnresolvedFor(value, c("quarkus.http.cors", "quarkus.http.cors=false", r(0, 0, 1)));
+
+		value = " quarkus.http.co|rs = ";
+		testCompletionItemResolveFor(value,
+				c("quarkus.http.cors", "quarkus.http.cors=false", r(0, 0, 21), expectedDocumentation));
+		testCompletionItemUnresolvedFor(value, c("quarkus.http.cors", "quarkus.http.cors=false", r(0, 0, 21)));
+	}
+
 }

@@ -57,4 +57,19 @@ public class MicroProfileCompletionCapabilities {
 				&& completionCapabilities.getCompletionItem().getDocumentationFormat().contains(documentationFormat);
 	}
 
+	/**
+	 * Returns true if the client supports resolving the documentation property in
+	 * completionItem/resolve and false otherwise.
+	 *
+	 * @return true if the client supports resolving the documentation property in
+	 *         completionItem/resolve and false otherwise
+	 */
+	public boolean isCompletionResolveDocumentationSupported() {
+		return completionCapabilities != null && completionCapabilities.getCompletionItem() != null
+				&& completionCapabilities.getCompletionItem().getResolveSupport() != null
+				&& completionCapabilities.getCompletionItem().getResolveSupport().getProperties() != null
+				&& completionCapabilities.getCompletionItem().getResolveSupport().getProperties()
+						.contains("documentation");
+	}
+
 }

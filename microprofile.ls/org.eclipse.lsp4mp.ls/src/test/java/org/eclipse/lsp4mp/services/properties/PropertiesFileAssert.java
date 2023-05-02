@@ -10,6 +10,7 @@
 package org.eclipse.lsp4mp.services.properties;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -30,6 +31,7 @@ import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.CompletionCapabilities;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemCapabilities;
+import org.eclipse.lsp4j.CompletionItemResolveSupportCapabilities;
 import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
@@ -75,6 +77,7 @@ import org.eclipse.lsp4mp.settings.MicroProfileFormattingSettings;
 import org.eclipse.lsp4mp.settings.MicroProfileHoverSettings;
 import org.eclipse.lsp4mp.settings.MicroProfileInlayHintSettings;
 import org.eclipse.lsp4mp.settings.MicroProfileValidationSettings;
+import org.eclipse.lsp4mp.settings.SharedSettings;
 import org.eclipse.lsp4mp.snippets.LanguageId;
 import org.eclipse.lsp4mp.snippets.SnippetContextForProperties;
 import org.eclipse.lsp4mp.utils.DocumentationUtils;
@@ -292,6 +295,100 @@ public class PropertiesFileAssert {
 		return new Range(start, end);
 	}
 
+	// ------------------- Completion resolve assert
+
+	private static SharedSettings getResolveSharedSettings() {
+		CompletionItemResolveSupportCapabilities completionItemResolveSupportCapabilities = new CompletionItemResolveSupportCapabilities();
+		completionItemResolveSupportCapabilities.setProperties(Arrays.asList("documentation"));
+		CompletionItemCapabilities completionItemCapabilities = new CompletionItemCapabilities();
+		completionItemCapabilities.setResolveSupport(completionItemResolveSupportCapabilities);
+		CompletionCapabilities completionCapabilities = new CompletionCapabilities();
+		completionCapabilities.setCompletionItem(completionItemCapabilities);
+		SharedSettings sharedSettings = new SharedSettings();
+		sharedSettings.getCompletionCapabilities().setCapabilities(completionCapabilities);
+		return sharedSettings;
+	}
+
+	public static void testCompletionItemUnresolvedFor(String value, CompletionItem... expectedItems)
+			throws BadLocationException {
+		testCompletionItemUnresolvedFor(new PropertiesFileLanguageService(), value, null,
+				getDefaultMicroProfileProjectInfo(), getResolveSharedSettings(), null, expectedItems);
+	}
+
+	public static void testCompletionItemUnresolvedFor(PropertiesFileLanguageService propertiesFileLanguageService,
+			String value, String fileURI, MicroProfileProjectInfo projectInfo, SharedSettings sharedSettings,
+			Integer expectedCount, CompletionItem... expectedItems) throws BadLocationException {
+		int offset = value.indexOf('|');
+		value = value.substring(0, offset) + value.substring(offset + 1);
+
+		PropertiesModel model = parse(value, fileURI);
+		Position position = model.positionAt(offset);
+
+		CompletionList list = propertiesFileLanguageService.doComplete(model, position, projectInfo,
+				sharedSettings.getCompletionCapabilities(), sharedSettings.getFormattingSettings(), () -> {
+				});
+
+		if (expectedItems != null) {
+			for (CompletionItem item : expectedItems) {
+				assertUnresolvedCompletion(list, item);
+			}
+		}
+	}
+
+	public static void testCompletionItemResolveFor(String value, CompletionItem... expectedItems)
+			throws BadLocationException {
+		testCompletionItemResolveFor(new PropertiesFileLanguageService(), value, null,
+				getDefaultMicroProfileProjectInfo(), getResolveSharedSettings(), null, expectedItems);
+	}
+
+	public static void testCompletionItemResolveFor(PropertiesFileLanguageService propertiesFileLanguageService,
+			String value, String fileURI, MicroProfileProjectInfo projectInfo, SharedSettings sharedSettings,
+			Integer expectedCount, CompletionItem... expectedItems) throws BadLocationException {
+		int offset = value.indexOf('|');
+		value = value.substring(0, offset) + value.substring(offset + 1);
+
+		PropertiesModel model = parse(value, fileURI);
+		Position position = model.positionAt(offset);
+
+		CompletionList list = propertiesFileLanguageService.doComplete(model, position, projectInfo,
+				sharedSettings.getCompletionCapabilities(), sharedSettings.getFormattingSettings(), () -> {
+				});
+
+		CompletionList resolved = new CompletionList(list.getItems().stream() //
+				.map((item) -> {
+					return (CompletionItem) propertiesFileLanguageService.resolveCompletionItem(item, projectInfo,
+							sharedSettings.getCompletionCapabilities(), () -> {
+							});
+				}) //
+				.collect(Collectors.toList()));
+
+		if (expectedItems != null) {
+			for (CompletionItem item : expectedItems) {
+				assertCompletions(resolved, expectedCount, item);
+			}
+		}
+	}
+
+	public static void assertUnresolvedCompletion(CompletionList completions, CompletionItem expected) {
+		List<CompletionItem> matches = completions.getItems().stream().filter(completion -> {
+			return expected.getLabel().equals(completion.getLabel());
+		}).collect(Collectors.toList());
+
+		CompletionItem match = matches.get(0);
+		if (expected.getTextEdit() != null && match.getTextEdit() != null) {
+			if (expected.getTextEdit().getLeft().getNewText() != null) {
+				assertEquals(expected.getTextEdit().getLeft().getNewText(), match.getTextEdit().getLeft().getNewText());
+			}
+			Range r = expected.getTextEdit().getLeft().getRange();
+			if (r != null && r.getStart() != null && r.getEnd() != null) {
+				assertEquals(expected.getTextEdit().getLeft().getRange(), match.getTextEdit().getLeft().getRange());
+			}
+		}
+		if (expected.getFilterText() != null && match.getFilterText() != null) {
+			assertEquals(expected.getFilterText(), match.getFilterText());
+		}
+		assertNull(match.getDocumentation());
+	}
 	// ------------------- Snippet completion assert
 
 	public static void assertCompletion(String value, TextDocumentSnippetRegistry registry,
