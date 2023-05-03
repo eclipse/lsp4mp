@@ -291,7 +291,7 @@ public class MicroProfileDelegateCommandHandlerForJava extends AbstractMicroProf
 			IProgressMonitor monitor) throws JavaModelException, CoreException {
 		MicroProfileJavaCompletionParams params = createMicroProfileJavaCompletionParams(arguments, commandId);
 		CompletionList completionList = PropertiesManagerForJava.getInstance().completion(params, JDTUtilsLSImpl.getInstance(), monitor);
-		JavaCursorContextResult cursorContext = PropertiesManagerForJava.javaCursorContext(params, JDTUtilsLSImpl.getInstance(), monitor);
+		JavaCursorContextResult cursorContext = PropertiesManagerForJava.getInstance().javaCursorContext(params, JDTUtilsLSImpl.getInstance(), monitor);
 		return new MicroProfileJavaCompletionResult(completionList, cursorContext);
 	}
 

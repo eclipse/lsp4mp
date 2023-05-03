@@ -405,7 +405,7 @@ public class PropertiesManagerForJava {
 	 * @throws JavaModelException when the buffer for the file cannot be accessed or
 	 *                            the Java model cannot be accessed
 	 */
-	public static JavaCursorContextResult javaCursorContext(MicroProfileJavaCompletionParams params, IJDTUtils utils,
+	public JavaCursorContextResult javaCursorContext(MicroProfileJavaCompletionParams params, IJDTUtils utils,
 			IProgressMonitor monitor) throws JavaModelException {
 		String uri = params.getUri();
 		ITypeRoot typeRoot = resolveTypeRoot(uri, utils, monitor);
