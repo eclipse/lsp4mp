@@ -207,7 +207,7 @@ public class JavaFileCursorContextTest extends BasePropertiesManagerTest {
 		MicroProfileJavaCompletionParams params = new MicroProfileJavaCompletionParams(javaFileUri,
 				new Position(38, 0));
 		assertEquals(JavaCursorContextKind.NONE,
-				PropertiesManagerForJava.javaCursorContext(params, JDT_UTILS, MONITOR).getKind());
+				PropertiesManagerForJava.getInstance().javaCursorContext(params, JDT_UTILS, MONITOR).getKind());
 	}
 
 	@Test
@@ -223,7 +223,7 @@ public class JavaFileCursorContextTest extends BasePropertiesManagerTest {
 		// ...
 		MicroProfileJavaCompletionParams params = new MicroProfileJavaCompletionParams(javaFileUri, new Position(3, 0));
 		assertEquals(JavaCursorContextKind.BEFORE_FIELD,
-				PropertiesManagerForJava.javaCursorContext(params, JDT_UTILS, MONITOR).getKind());
+				PropertiesManagerForJava.getInstance().javaCursorContext(params, JDT_UTILS, MONITOR).getKind());
 
 		// ...
 		// public interface MyInterface {
@@ -233,7 +233,7 @@ public class JavaFileCursorContextTest extends BasePropertiesManagerTest {
 		// }
 		params = new MicroProfileJavaCompletionParams(javaFileUri, new Position(7, 0));
 		assertEquals(JavaCursorContextKind.IN_CLASS,
-				PropertiesManagerForJava.javaCursorContext(params, JDT_UTILS, MONITOR).getKind());
+				PropertiesManagerForJava.getInstance().javaCursorContext(params, JDT_UTILS, MONITOR).getKind());
 	}
 
 	@Test
@@ -250,7 +250,7 @@ public class JavaFileCursorContextTest extends BasePropertiesManagerTest {
 		// ...
 		MicroProfileJavaCompletionParams params = new MicroProfileJavaCompletionParams(javaFileUri, new Position(3, 0));
 		assertEquals(JavaCursorContextKind.BEFORE_FIELD,
-				PropertiesManagerForJava.javaCursorContext(params, JDT_UTILS, MONITOR).getKind());
+				PropertiesManagerForJava.getInstance().javaCursorContext(params, JDT_UTILS, MONITOR).getKind());
 
 		// ...
 		// public enum MyEnum {
@@ -260,7 +260,7 @@ public class JavaFileCursorContextTest extends BasePropertiesManagerTest {
 		// ...
 		params = new MicroProfileJavaCompletionParams(javaFileUri, new Position(7, 0));
 		assertEquals(JavaCursorContextKind.BEFORE_METHOD,
-				PropertiesManagerForJava.javaCursorContext(params, JDT_UTILS, MONITOR).getKind());
+				PropertiesManagerForJava.getInstance().javaCursorContext(params, JDT_UTILS, MONITOR).getKind());
 
 		// ...
 		// public enum MyEnum {
@@ -270,7 +270,7 @@ public class JavaFileCursorContextTest extends BasePropertiesManagerTest {
 		// }
 		params = new MicroProfileJavaCompletionParams(javaFileUri, new Position(9, 0));
 		assertEquals(JavaCursorContextKind.IN_CLASS,
-				PropertiesManagerForJava.javaCursorContext(params, JDT_UTILS, MONITOR).getKind());
+				PropertiesManagerForJava.getInstance().javaCursorContext(params, JDT_UTILS, MONITOR).getKind());
 	}
 
 	@Test
@@ -287,7 +287,7 @@ public class JavaFileCursorContextTest extends BasePropertiesManagerTest {
 		// ...
 		MicroProfileJavaCompletionParams params = new MicroProfileJavaCompletionParams(javaFileUri, new Position(3, 0));
 		assertEquals(JavaCursorContextKind.BEFORE_FIELD,
-				PropertiesManagerForJava.javaCursorContext(params, JDT_UTILS, MONITOR).getKind());
+				PropertiesManagerForJava.getInstance().javaCursorContext(params, JDT_UTILS, MONITOR).getKind());
 
 		// ...
 		// public @interface MyAnnotation {
@@ -297,7 +297,7 @@ public class JavaFileCursorContextTest extends BasePropertiesManagerTest {
 		// ...
 		params = new MicroProfileJavaCompletionParams(javaFileUri, new Position(5, 0));
 		assertEquals(JavaCursorContextKind.BEFORE_METHOD,
-				PropertiesManagerForJava.javaCursorContext(params, JDT_UTILS, MONITOR).getKind());
+				PropertiesManagerForJava.getInstance().javaCursorContext(params, JDT_UTILS, MONITOR).getKind());
 
 		// ...
 		// public @interface MyAnnotation {
@@ -307,7 +307,7 @@ public class JavaFileCursorContextTest extends BasePropertiesManagerTest {
 		// }
 		params = new MicroProfileJavaCompletionParams(javaFileUri, new Position(7, 0));
 		assertEquals(JavaCursorContextKind.IN_CLASS,
-				PropertiesManagerForJava.javaCursorContext(params, JDT_UTILS, MONITOR).getKind());
+				PropertiesManagerForJava.getInstance().javaCursorContext(params, JDT_UTILS, MONITOR).getKind());
 	}
 
 	@Test
@@ -326,7 +326,7 @@ public class JavaFileCursorContextTest extends BasePropertiesManagerTest {
 		// ...
 		MicroProfileJavaCompletionParams params = new MicroProfileJavaCompletionParams(javaFileUri, new Position(4, 0));
 		assertEquals(JavaCursorContextKind.BEFORE_CLASS,
-				PropertiesManagerForJava.javaCursorContext(params, JDT_UTILS, MONITOR).getKind());
+				PropertiesManagerForJava.getInstance().javaCursorContext(params, JDT_UTILS, MONITOR).getKind());
 
 		// ...
 		// @Singleton
@@ -337,7 +337,7 @@ public class JavaFileCursorContextTest extends BasePropertiesManagerTest {
 		// ...
 		params = new MicroProfileJavaCompletionParams(javaFileUri, new Position(5, 0));
 		assertEquals(JavaCursorContextKind.BEFORE_CLASS,
-				PropertiesManagerForJava.javaCursorContext(params, JDT_UTILS, MONITOR).getKind());
+				PropertiesManagerForJava.getInstance().javaCursorContext(params, JDT_UTILS, MONITOR).getKind());
 
 		// ...
 		// @Singleton
@@ -348,7 +348,7 @@ public class JavaFileCursorContextTest extends BasePropertiesManagerTest {
 		// ...
 		params = new MicroProfileJavaCompletionParams(javaFileUri, new Position(6, 0));
 		assertEquals(JavaCursorContextKind.IN_CLASS_ANNOTATIONS,
-				PropertiesManagerForJava.javaCursorContext(params, JDT_UTILS, MONITOR).getKind());
+				PropertiesManagerForJava.getInstance().javaCursorContext(params, JDT_UTILS, MONITOR).getKind());
 
 		// ...
 		// |
@@ -357,7 +357,7 @@ public class JavaFileCursorContextTest extends BasePropertiesManagerTest {
 		// ...
 		params = new MicroProfileJavaCompletionParams(javaFileUri, new Position(1, 0));
 		assertEquals(JavaCursorContextKind.BEFORE_CLASS,
-				PropertiesManagerForJava.javaCursorContext(params, JDT_UTILS, MONITOR).getKind());
+				PropertiesManagerForJava.getInstance().javaCursorContext(params, JDT_UTILS, MONITOR).getKind());
 
 		// ...
 		// @Singleton
@@ -365,7 +365,7 @@ public class JavaFileCursorContextTest extends BasePropertiesManagerTest {
 		// ...
 		params = new MicroProfileJavaCompletionParams(javaFileUri, new Position(3, 0));
 		assertEquals(JavaCursorContextKind.IN_CLASS_ANNOTATIONS,
-				PropertiesManagerForJava.javaCursorContext(params, JDT_UTILS, MONITOR).getKind());
+				PropertiesManagerForJava.getInstance().javaCursorContext(params, JDT_UTILS, MONITOR).getKind());
 	}
 
 	// prefix tests
@@ -379,7 +379,7 @@ public class JavaFileCursorContextTest extends BasePropertiesManagerTest {
 
 		// |
 		MicroProfileJavaCompletionParams params = new MicroProfileJavaCompletionParams(javaFileUri, new Position(0, 0));
-		assertEquals("", PropertiesManagerForJava.javaCursorContext(params, JDT_UTILS, MONITOR).getPrefix());
+		assertEquals("", PropertiesManagerForJava.getInstance().javaCursorContext(params, JDT_UTILS, MONITOR).getPrefix());
 	}
 
 	@Test
@@ -394,15 +394,15 @@ public class JavaFileCursorContextTest extends BasePropertiesManagerTest {
 		// rest_class|
 		MicroProfileJavaCompletionParams params = new MicroProfileJavaCompletionParams(javaFileUri,
 				new Position(0, "rest_class".length()));
-		assertEquals("rest_class", PropertiesManagerForJava.javaCursorContext(params, JDT_UTILS, MONITOR).getPrefix());
+		assertEquals("rest_class", PropertiesManagerForJava.getInstance().javaCursorContext(params, JDT_UTILS, MONITOR).getPrefix());
 
 		// |rest_class
 		params = new MicroProfileJavaCompletionParams(javaFileUri, new Position(0, 0));
-		assertEquals("", PropertiesManagerForJava.javaCursorContext(params, JDT_UTILS, MONITOR).getPrefix());
+		assertEquals("", PropertiesManagerForJava.getInstance().javaCursorContext(params, JDT_UTILS, MONITOR).getPrefix());
 
 		// rest_|class
 		params = new MicroProfileJavaCompletionParams(javaFileUri, new Position(0, 5));
-		assertEquals("rest_", PropertiesManagerForJava.javaCursorContext(params, JDT_UTILS, MONITOR).getPrefix());
+		assertEquals("rest_", PropertiesManagerForJava.getInstance().javaCursorContext(params, JDT_UTILS, MONITOR).getPrefix());
 	}
 
 	@Test
@@ -416,11 +416,11 @@ public class JavaFileCursorContextTest extends BasePropertiesManagerTest {
 
 		// asdf hjk|l
 		MicroProfileJavaCompletionParams params = new MicroProfileJavaCompletionParams(javaFileUri, new Position(0, 8));
-		assertEquals("hjk", PropertiesManagerForJava.javaCursorContext(params, JDT_UTILS, MONITOR).getPrefix());
+		assertEquals("hjk", PropertiesManagerForJava.getInstance().javaCursorContext(params, JDT_UTILS, MONITOR).getPrefix());
 
 		// asdf |hjkl
 		params = new MicroProfileJavaCompletionParams(javaFileUri, new Position(0, 5));
-		assertEquals("", PropertiesManagerForJava.javaCursorContext(params, JDT_UTILS, MONITOR).getPrefix());
+		assertEquals("", PropertiesManagerForJava.getInstance().javaCursorContext(params, JDT_UTILS, MONITOR).getPrefix());
 	}
 
 	@Test
@@ -432,11 +432,11 @@ public class JavaFileCursorContextTest extends BasePropertiesManagerTest {
 
 		MicroProfileJavaCompletionParams params = new MicroProfileJavaCompletionParams(javaFileUri, new Position(6, 0));
 		assertEquals(JavaCursorContextKind.BEFORE_FIELD,
-				PropertiesManagerForJava.javaCursorContext(params, JDT_UTILS, MONITOR).getKind());
+				PropertiesManagerForJava.getInstance().javaCursorContext(params, JDT_UTILS, MONITOR).getKind());
 
 		params = new MicroProfileJavaCompletionParams(javaFileUri, new Position(8, 0));
 		assertEquals(JavaCursorContextKind.BEFORE_METHOD,
-				PropertiesManagerForJava.javaCursorContext(params, JDT_UTILS, MONITOR).getKind());
+				PropertiesManagerForJava.getInstance().javaCursorContext(params, JDT_UTILS, MONITOR).getKind());
 	}
 
 }
