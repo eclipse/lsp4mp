@@ -72,4 +72,18 @@ public class MicroProfileCompletionCapabilities {
 						.contains("documentation");
 	}
 
+	/**
+	 * Returns true if the client supports editRange in itemDefaults support and
+	 * false otherwise.
+	 *
+	 * @param  param the completion itemDefaults parameter to be checked
+	 * @return true if the client supports editRange in itemDefaults support and
+	 *         false otherwise.
+	 */
+	public boolean isCompletionListItemDefaultsSupport(String param) {
+		return completionCapabilities != null && completionCapabilities.getCompletionList() != null
+				&& completionCapabilities.getCompletionList().getItemDefaults() != null
+				&& completionCapabilities.getCompletionList().getItemDefaults().contains(param);
+	}
+
 }

@@ -33,6 +33,7 @@ import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemCapabilities;
 import org.eclipse.lsp4j.CompletionItemResolveSupportCapabilities;
 import org.eclipse.lsp4j.CompletionList;
+import org.eclipse.lsp4j.CompletionListCapabilities;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.DocumentSymbol;
@@ -131,44 +132,50 @@ public class PropertiesFileAssert {
 
 	public static void testCompletionFor(String value, boolean snippetSupport, Integer expectedCount)
 			throws BadLocationException {
-		testCompletionFor(value, snippetSupport, false, expectedCount);
+		testCompletionFor(value, snippetSupport, false, false, expectedCount);
 	}
 
 	public static void testCompletionFor(String value, boolean snippetSupport, CompletionItem... expectedItems)
 			throws BadLocationException {
-		testCompletionFor(value, snippetSupport, false, null, expectedItems);
+		testCompletionFor(value, snippetSupport, false, false, null, expectedItems);
 	}
 
 	public static void testCompletionFor(String value, boolean snippetSupport, boolean insertSpacing,
 			CompletionItem... expectedItems) throws BadLocationException {
-		testCompletionFor(value, snippetSupport, insertSpacing, null, expectedItems);
+		testCompletionFor(value, snippetSupport, insertSpacing, false, null, expectedItems);
+	}
+
+	public static void testCompletionFor(String value, boolean snippetSupport, boolean insertSpacing,
+			boolean isItemDefaultsSupport, CompletionItem... expectedItems) throws BadLocationException {
+		testCompletionFor(value, snippetSupport, insertSpacing, isItemDefaultsSupport, null, expectedItems);
 	}
 
 	public static void testCompletionFor(String value, boolean snippetSupport, Integer expectedCount,
 			CompletionItem... expectedItems) throws BadLocationException {
-		testCompletionFor(value, snippetSupport, false, null, expectedCount, getDefaultMicroProfileProjectInfo(),
+		testCompletionFor(value, snippetSupport, false, false, null, expectedCount, getDefaultMicroProfileProjectInfo(),
 				expectedItems);
 	}
 
 	public static void testCompletionFor(String value, boolean snippetSupport, boolean insertSpacing,
-			Integer expectedCount, CompletionItem... expectedItems) throws BadLocationException {
-		testCompletionFor(value, snippetSupport, insertSpacing, null, expectedCount,
+			boolean isItemDefaultsSupport, Integer expectedCount, CompletionItem... expectedItems)
+			throws BadLocationException {
+		testCompletionFor(value, snippetSupport, insertSpacing, isItemDefaultsSupport, null, expectedCount,
 				getDefaultMicroProfileProjectInfo(), expectedItems);
 	}
 
 	public static void testCompletionFor(String value, boolean snippetSupport, Integer expectedCount,
 			MicroProfileProjectInfo projectInfo, CompletionItem... expectedItems) throws BadLocationException {
-		testCompletionFor(value, snippetSupport, false, null, expectedCount, projectInfo, expectedItems);
+		testCompletionFor(value, snippetSupport, false, false, null, expectedCount, projectInfo, expectedItems);
 	}
 
 	public static void testCompletionFor(String value, boolean snippetSupport, String fileURI, Integer expectedCount,
 			MicroProfileProjectInfo projectInfo, CompletionItem... expectedItems) throws BadLocationException {
-		testCompletionFor(value, snippetSupport, false, fileURI, expectedCount, projectInfo, expectedItems);
+		testCompletionFor(value, snippetSupport, false, false, fileURI, expectedCount, projectInfo, expectedItems);
 	}
 
 	public static void testCompletionFor(String value, MicroProfileProjectInfo projectInfo,
 			CompletionItem... expectedItems) throws BadLocationException {
-		testCompletionFor(value, true, false, null, expectedItems.length, projectInfo, expectedItems);
+		testCompletionFor(value, true, false, false, null, expectedItems.length, projectInfo, expectedItems);
 	}
 
 	public static void testCompletionFor(String value, MicroProfileProjectInfo projectInfo, Integer expectedCount)
@@ -176,9 +183,9 @@ public class PropertiesFileAssert {
 		testCompletionFor(value, true, null, expectedCount, projectInfo);
 	}
 
-	public static void testCompletionFor(String value, boolean snippetSupport, boolean insertSpacing, String fileURI,
-			Integer expectedCount, MicroProfileProjectInfo projectInfo, CompletionItem... expectedItems)
-			throws BadLocationException {
+	public static void testCompletionFor(String value, boolean snippetSupport, boolean insertSpacing,
+			boolean isItemDefaultsSupport, String fileURI, Integer expectedCount, MicroProfileProjectInfo projectInfo,
+			CompletionItem... expectedItems) throws BadLocationException {
 		int offset = value.indexOf('|');
 		value = value.substring(0, offset) + value.substring(offset + 1);
 
@@ -189,7 +196,13 @@ public class PropertiesFileAssert {
 		MicroProfileCompletionCapabilities microProfileCompletionCapabilities = new MicroProfileCompletionCapabilities();
 		CompletionItemCapabilities completionItemCapabilities = new CompletionItemCapabilities();
 		completionItemCapabilities.setSnippetSupport(snippetSupport);
+		CompletionListCapabilities completionListCapabilities = new CompletionListCapabilities();
 		CompletionCapabilities completionCapabilities = new CompletionCapabilities(completionItemCapabilities);
+		// Add itemDefault support for insertTextFormat and editRange
+		if (isItemDefaultsSupport) {
+			completionCapabilities.setCompletionList(completionListCapabilities);
+			completionCapabilities.getCompletionList().setItemDefaults(Arrays.asList("insertTextFormat", "editRange"));
+		}
 		microProfileCompletionCapabilities.setCapabilities(completionCapabilities);
 
 		MicroProfileFormattingSettings formattingSettings = new MicroProfileFormattingSettings();
@@ -200,10 +213,14 @@ public class PropertiesFileAssert {
 				microProfileCompletionCapabilities, formattingSettings, () -> {
 				});
 
-		assertCompletions(list, expectedCount, expectedItems);
+		assertCompletions(list, expectedCount, isItemDefaultsSupport, expectedItems);
 	}
 
-	public static void assertCompletions(CompletionList actual, Integer expectedCount,
+	public static void assertCompletions(CompletionList actual, Integer expectedCount, CompletionItem... expectedItems) {
+		assertCompletions(actual, expectedCount, false, expectedItems);
+	}
+
+	public static void assertCompletions(CompletionList actual, Integer expectedCount, boolean isItemDefaultsSupport,
 			CompletionItem... expectedItems) {
 		// no duplicate labels
 		List<String> labels = actual.getItems().stream().map(i -> i.getLabel()).sorted().collect(Collectors.toList());
@@ -219,12 +236,13 @@ public class PropertiesFileAssert {
 		}
 		if (expectedItems != null) {
 			for (CompletionItem item : expectedItems) {
-				assertCompletion(actual, item);
+				assertCompletion(actual, isItemDefaultsSupport, item);
 			}
 		}
 	}
 
-	private static void assertCompletion(CompletionList completions, CompletionItem expected) {
+	private static void assertCompletion(CompletionList completions, boolean isItemDefaultsSupport,
+			CompletionItem expected) {
 		List<CompletionItem> matches = completions.getItems().stream().filter(completion -> {
 			return expected.getLabel().equals(completion.getLabel());
 		}).collect(Collectors.toList());
@@ -235,22 +253,26 @@ public class PropertiesFileAssert {
 				1, matches.size());
 
 		CompletionItem match = matches.get(0);
-		/*
-		 * if (expected.documentation != null) {
-		 * assertEquals(match.getDocumentation().getRight().getValue(), expected.getd);
-		 * } if (expected.kind) { assertEquals(match.kind, expected.kind); }
-		 */
-		// if (expected.getTextEdit() != null && match.getTextEdit() != null) {
 		if (expected.getTextEdit() != null && expected.getTextEdit().getLeft() != null) {
-			assertEquals(expected.getTextEdit().getLeft().getNewText(), match.getTextEdit().getLeft().getNewText());
+			if (!isItemDefaultsSupport
+					|| (match.getTextEdit() != null && match.getTextEdit().getLeft().getRange() != expected.getTextEdit().getLeft().getRange())) {
+				assertEquals(expected.getTextEdit().getLeft().getNewText(), match.getTextEdit().getLeft().getNewText());
+			} else {
+				assertEquals(expected.getTextEdit().getLeft().getNewText(), match.getTextEditText());
+				assertNull(match.getTextEdit());
+			}
 		}
 		Range r = expected.getTextEdit() != null && expected.getTextEdit().getLeft() != null
 				? expected.getTextEdit().getLeft().getRange()
 				: null;
 		if (r != null && r.getStart() != null && r.getEnd() != null) {
-			assertEquals(expected.getTextEdit().getLeft().getRange(), match.getTextEdit().getLeft().getRange());
+			if (!isItemDefaultsSupport || (match.getTextEdit() != null && match.getTextEdit().getLeft().getRange() != expected.getTextEdit().getLeft().getRange())) {
+				assertEquals(expected.getTextEdit().getLeft().getRange(), match.getTextEdit().getLeft().getRange());
+			} else {
+				assertEquals(expected.getTextEdit().getLeft().getRange(),
+						completions.getItemDefaults().getEditRange().getLeft());
+			}
 		}
-		// }
 		if (expected.getFilterText() != null && match.getFilterText() != null) {
 			assertEquals(expected.getFilterText(), match.getFilterText());
 		}
@@ -364,7 +386,7 @@ public class PropertiesFileAssert {
 
 		if (expectedItems != null) {
 			for (CompletionItem item : expectedItems) {
-				assertCompletions(resolved, expectedCount, item);
+				assertCompletions(resolved, expectedCount, false, item);
 			}
 		}
 	}
@@ -405,7 +427,7 @@ public class PropertiesFileAssert {
 			return true;
 		}, new HashMap<>());
 		CompletionList actual = new CompletionList(items);
-		assertCompletions(actual, expectedCount, expectedItems);
+		assertCompletions(actual, expectedCount, false, expectedItems);
 	}
 
 	public static void assertCompletionWithProperties(String value, Integer expectedCount,
@@ -429,7 +451,7 @@ public class PropertiesFileAssert {
 			return false;
 		}, new HashMap<>());
 		CompletionList actual = new CompletionList(items);
-		assertCompletions(actual, expectedCount, expectedItems);
+		assertCompletions(actual, expectedCount, false, expectedItems);
 	}
 
 	// ------------------- Hover assert

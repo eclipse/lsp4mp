@@ -60,11 +60,39 @@ public class PropertiesFileCompletionTest {
 	}
 
 	@Test
+	public void completionOnKeyItemDefaults() throws BadLocationException {
+		String value = "|";
+		testCompletionFor(value, false, false, true, c("quarkus.http.cors", "quarkus.http.cors=false", r(0, 0, 0)));
+		testCompletionFor(value, true,  false, true, c("quarkus.http.cors", "quarkus.http.cors=${1|false,true|}", r(0, 0, 0)));
+
+		value = " |";
+		testCompletionFor(value, false,  false, true, c("quarkus.http.cors", "quarkus.http.cors=false", r(0, 0, 1)));
+		testCompletionFor(value, true, false, true, c("quarkus.http.cors", "quarkus.http.cors=${1|false,true|}", r(0, 0, 1)));
+
+		value = " quarkus.http.co|rs = ";
+		testCompletionFor(value, false, false, true, c("quarkus.http.cors", "quarkus.http.cors=false", r(0, 0, 21)));
+		testCompletionFor(value, true, false, true, c("quarkus.http.cors", "quarkus.http.cors=${1|false,true|}", r(0, 0, 21)));
+
+		value = " quarkus.application.name =| ";
+		testCompletionFor(value, true, false, true, 0);
+	}
+
+	@Test
 	public void completionOnKeyMap() throws BadLocationException {
 		String value = "quarkus.log.category|";
 		testCompletionFor(value, false,
 				c("quarkus.log.category.{*}.level", "quarkus.log.category.{*}.level=inherit", r(0, 0, 20)));
 		testCompletionFor(value, true, c("quarkus.log.category.{*}.level",
+				"quarkus.log.category.${1:key}.level=${2|OFF,SEVERE,WARNING,CONFIG,FINE,FINER,FINEST,ALL,FATAL,ERROR,WARN,INFO,DEBUG,TRACE|}",
+				r(0, 0, 20)));
+	}
+
+	@Test
+	public void completionOnKeyMapItemDefaults() throws BadLocationException {
+		String value = "quarkus.log.category|";
+		testCompletionFor(value, false, false, true,
+				c("quarkus.log.category.{*}.level", "quarkus.log.category.{*}.level=inherit", r(0, 0, 20)));
+		testCompletionFor(value, true,  false, true, c("quarkus.log.category.{*}.level",
 				"quarkus.log.category.${1:key}.level=${2|OFF,SEVERE,WARNING,CONFIG,FINE,FINER,FINEST,ALL,FATAL,ERROR,WARN,INFO,DEBUG,TRACE|}",
 				r(0, 0, 20)));
 	}
@@ -103,6 +131,12 @@ public class PropertiesFileCompletionTest {
 	public void completionOnValueOnPropertyValue() throws BadLocationException {
 		String value = "quarkus.log.console.async.overflow=BLO| ";
 		testCompletionFor(value, true, c("block", "block", r(0, 35, 39)));
+	}
+
+	@Test
+	public void completionOnValueOnPropertyValueItemDefaults() throws BadLocationException {
+		String value = "quarkus.log.console.async.overflow=BLO| ";
+		testCompletionFor(value, true, false, true, c("block", "block", r(0, 35, 39)));
 	}
 
 	@Test
@@ -205,6 +239,13 @@ public class PropertiesFileCompletionTest {
 	}
 
 	@Test
+	public void completionAfterProfileItemDefaults() throws BadLocationException {
+		String value = "%dev.|";
+		testCompletionFor(value, false, false, true, c("quarkus.http.cors", "%dev.quarkus.http.cors=false", r(0, 0, 5)));
+		testCompletionFor(value, true, false, true, c("quarkus.http.cors", "%dev.quarkus.http.cors=${1|false,true|}", r(0, 0, 5)));
+	}
+
+	@Test
 	public void noCompletionForExistingProperties() throws BadLocationException {
 
 		String value = "|";
@@ -286,7 +327,6 @@ public class PropertiesFileCompletionTest {
 		testCompletionFor(value, false, 2, projectInfo,
 				c("quarkus.http.cors", "%prod.quarkus.http.cors=", r(2, 0, 6)),
 				c("quarkus.application.name", "%prod.quarkus.application.name=", r(2, 0, 6)));
-
 	}
 
 	@Test
