@@ -13,7 +13,6 @@ package org.eclipse.lsp4mp.services.properties.expressions;
 import static org.eclipse.lsp4mp.services.properties.PropertiesFileAssert.assertHoverMarkdown;
 import static org.eclipse.lsp4mp.services.properties.PropertiesFileAssert.assertNoHover;
 
-import org.eclipse.lsp4mp.ls.commons.BadLocationException;
 import org.junit.Test;
 
 /**

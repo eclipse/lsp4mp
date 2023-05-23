@@ -27,8 +27,6 @@ import org.eclipse.lsp4mp.commons.MicroProfileJavaCompletionResult;
 public interface MicroProfileJavaCompletionProvider {
 
 	@JsonRequest("microprofile/java/completion")
-	default CompletableFuture<MicroProfileJavaCompletionResult> getJavaCompletion(MicroProfileJavaCompletionParams javaParams) {
-		return CompletableFuture.completedFuture(null);
-	}
+	CompletableFuture<MicroProfileJavaCompletionResult> getJavaCompletion(MicroProfileJavaCompletionParams javaParams);
 
 }

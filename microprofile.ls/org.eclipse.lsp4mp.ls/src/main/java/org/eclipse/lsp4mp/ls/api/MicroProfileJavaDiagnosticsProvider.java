@@ -27,9 +27,6 @@ import org.eclipse.lsp4mp.commons.MicroProfileJavaDiagnosticsParams;
 public interface MicroProfileJavaDiagnosticsProvider {
 
 	@JsonRequest("microprofile/java/diagnostics")
-	default CompletableFuture<List<PublishDiagnosticsParams>> getJavaDiagnostics(
-			MicroProfileJavaDiagnosticsParams javaParams) {
-		return CompletableFuture.completedFuture(null);
-	}
+	CompletableFuture<List<PublishDiagnosticsParams>> getJavaDiagnostics(MicroProfileJavaDiagnosticsParams javaParams);
 
 }

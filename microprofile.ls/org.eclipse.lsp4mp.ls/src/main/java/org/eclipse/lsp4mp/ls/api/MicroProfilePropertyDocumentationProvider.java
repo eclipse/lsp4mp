@@ -24,8 +24,6 @@ import org.eclipse.lsp4mp.commons.MicroProfilePropertyDocumentationParams;
 public interface MicroProfilePropertyDocumentationProvider {
 
 	@JsonRequest("microprofile/propertyDocumentation")
-	default CompletableFuture<String> getPropertyDocumentation(MicroProfilePropertyDocumentationParams params) {
-		return CompletableFuture.completedFuture(null);
-	}
+	CompletableFuture<String> getPropertyDocumentation(MicroProfilePropertyDocumentationParams params);
 
 }

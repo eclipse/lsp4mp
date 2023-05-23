@@ -29,14 +29,9 @@ import org.eclipse.lsp4mp.commons.ProjectLabelInfoEntry;
 public interface MicroProfileJavaProjectLabelsProvider {
 
 	@JsonRequest("microprofile/java/projectLabels")
-	default CompletableFuture<ProjectLabelInfoEntry> getJavaProjectLabels(
-			MicroProfileJavaProjectLabelsParams javaParams) {
-		return CompletableFuture.completedFuture(null);
-	}
+	CompletableFuture<ProjectLabelInfoEntry> getJavaProjectLabels(MicroProfileJavaProjectLabelsParams javaParams);
 
 	@JsonRequest("microprofile/java/workspaceLabels")
-	default CompletableFuture<List<ProjectLabelInfoEntry>> getAllJavaProjectLabels() {
-		return CompletableFuture.completedFuture(null);
-	}
+	CompletableFuture<List<ProjectLabelInfoEntry>> getAllJavaProjectLabels();
 
 }

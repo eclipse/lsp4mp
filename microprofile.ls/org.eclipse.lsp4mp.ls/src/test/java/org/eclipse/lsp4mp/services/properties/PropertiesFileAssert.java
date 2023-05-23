@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -58,6 +59,7 @@ import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4j.jsonrpc.json.adapters.EnumTypeAdapter;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
+import org.eclipse.lsp4mp.commons.MicroProfilePropertyDocumentationParams;
 import org.eclipse.lsp4mp.commons.codeaction.CodeActionData;
 import org.eclipse.lsp4mp.commons.codeaction.MicroProfileCodeActionId;
 import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
@@ -216,7 +218,8 @@ public class PropertiesFileAssert {
 		assertCompletions(list, expectedCount, isItemDefaultsSupport, expectedItems);
 	}
 
-	public static void assertCompletions(CompletionList actual, Integer expectedCount, CompletionItem... expectedItems) {
+	public static void assertCompletions(CompletionList actual, Integer expectedCount,
+			CompletionItem... expectedItems) {
 		assertCompletions(actual, expectedCount, false, expectedItems);
 	}
 
@@ -254,8 +257,8 @@ public class PropertiesFileAssert {
 
 		CompletionItem match = matches.get(0);
 		if (expected.getTextEdit() != null && expected.getTextEdit().getLeft() != null) {
-			if (!isItemDefaultsSupport
-					|| (match.getTextEdit() != null && match.getTextEdit().getLeft().getRange() != expected.getTextEdit().getLeft().getRange())) {
+			if (!isItemDefaultsSupport || (match.getTextEdit() != null
+					&& match.getTextEdit().getLeft().getRange() != expected.getTextEdit().getLeft().getRange())) {
 				assertEquals(expected.getTextEdit().getLeft().getNewText(), match.getTextEdit().getLeft().getNewText());
 			} else {
 				assertEquals(expected.getTextEdit().getLeft().getNewText(), match.getTextEditText());
@@ -266,7 +269,8 @@ public class PropertiesFileAssert {
 				? expected.getTextEdit().getLeft().getRange()
 				: null;
 		if (r != null && r.getStart() != null && r.getEnd() != null) {
-			if (!isItemDefaultsSupport || (match.getTextEdit() != null && match.getTextEdit().getLeft().getRange() != expected.getTextEdit().getLeft().getRange())) {
+			if (!isItemDefaultsSupport || (match.getTextEdit() != null
+					&& match.getTextEdit().getLeft().getRange() != expected.getTextEdit().getLeft().getRange())) {
 				assertEquals(expected.getTextEdit().getLeft().getRange(), match.getTextEdit().getLeft().getRange());
 			} else {
 				assertEquals(expected.getTextEdit().getLeft().getRange(),
@@ -456,7 +460,8 @@ public class PropertiesFileAssert {
 
 	// ------------------- Hover assert
 
-	public static void assertNoHover(String value) throws BadLocationException, InterruptedException, TimeoutException, ExecutionException {
+	public static void assertNoHover(String value)
+			throws BadLocationException, InterruptedException, TimeoutException, ExecutionException {
 		MicroProfileHoverSettings hoverSettings = new MicroProfileHoverSettings();
 		hoverSettings.setCapabilities(new HoverCapabilities(Arrays.asList(MarkupKind.MARKDOWN), false));
 		assertHover(value, null, getDefaultMicroProfileProjectInfo(), hoverSettings, null, null);
@@ -506,8 +511,15 @@ public class PropertiesFileAssert {
 
 		PropertiesFileLanguageService languageService = new PropertiesFileLanguageService();
 
-		Hover hover = languageService.doHover(model, position, projectInfo, hoverSettings,
-				new MicroProfilePropertyDocumentationProvider() {}, () -> {
+		Hover hover = languageService
+				.doHover(model, position, projectInfo, hoverSettings, new MicroProfilePropertyDocumentationProvider() {
+
+					@Override
+					public CompletableFuture<String> getPropertyDocumentation(
+							MicroProfilePropertyDocumentationParams params) {
+						return CompletableFuture.completedFuture(null);
+					}
+				}, () -> {
 				}).get(2000, TimeUnit.MILLISECONDS);
 		if (expectedHoverLabel == null) {
 			Assert.assertNull(hover);
@@ -752,7 +764,8 @@ public class PropertiesFileAssert {
 		return ca(title, id, null, command, d);
 	}
 
-	public static CodeAction ca(String title, MicroProfileCodeActionId id, TextEdit te, Command command, Diagnostic... d) {
+	public static CodeAction ca(String title, MicroProfileCodeActionId id, TextEdit te, Command command,
+			Diagnostic... d) {
 		List<Diagnostic> diagnostics = new ArrayList<>();
 		for (int i = 0; i < d.length; i++) {
 			diagnostics.add(d[i]);
@@ -760,7 +773,8 @@ public class PropertiesFileAssert {
 		return ca(title, id, te, command, diagnostics);
 	}
 
-	public static CodeAction ca(String title, MicroProfileCodeActionId id, TextEdit te, Command command, List<Diagnostic> diagnostics) {
+	public static CodeAction ca(String title, MicroProfileCodeActionId id, TextEdit te, Command command,
+			List<Diagnostic> diagnostics) {
 		CodeAction codeAction = new CodeAction();
 		codeAction.setTitle(title);
 		codeAction.setDiagnostics(diagnostics);

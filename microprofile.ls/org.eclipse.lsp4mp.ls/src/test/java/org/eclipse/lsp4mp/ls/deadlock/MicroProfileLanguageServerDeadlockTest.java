@@ -10,23 +10,7 @@
  ******************************************************************************/
 package org.eclipse.lsp4mp.ls.deadlock;
 
-import org.eclipse.lsp4j.DidOpenTextDocumentParams;
-import org.eclipse.lsp4j.MessageActionItem;
-import org.eclipse.lsp4j.MessageParams;
-import org.eclipse.lsp4j.PublishDiagnosticsParams;
-import org.eclipse.lsp4j.ShowMessageRequestParams;
-import org.eclipse.lsp4j.TextDocumentItem;
-import org.eclipse.lsp4j.jsonrpc.Launcher;
-import org.eclipse.lsp4mp.commons.MicroProfileJavaProjectLabelsParams;
-import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
-import org.eclipse.lsp4mp.commons.MicroProfileProjectInfoParams;
-import org.eclipse.lsp4mp.commons.ProjectLabelInfoEntry;
-import org.eclipse.lsp4mp.ls.MicroProfileServerLauncher;
-import org.eclipse.lsp4mp.ls.api.MicroProfileLanguageClientAPI;
-import org.eclipse.lsp4mp.ls.api.MicroProfileLanguageServerAPI;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,14 +24,31 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertTrue;
+import org.eclipse.lsp4j.DidOpenTextDocumentParams;
+import org.eclipse.lsp4j.MessageActionItem;
+import org.eclipse.lsp4j.MessageParams;
+import org.eclipse.lsp4j.PublishDiagnosticsParams;
+import org.eclipse.lsp4j.ShowMessageRequestParams;
+import org.eclipse.lsp4j.TextDocumentItem;
+import org.eclipse.lsp4j.jsonrpc.Launcher;
+import org.eclipse.lsp4mp.commons.MicroProfileJavaProjectLabelsParams;
+import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
+import org.eclipse.lsp4mp.commons.MicroProfileProjectInfoParams;
+import org.eclipse.lsp4mp.commons.ProjectLabelInfoEntry;
+import org.eclipse.lsp4mp.ls.MicroProfileServerLauncher;
+import org.eclipse.lsp4mp.ls.MockMicroProfileLanguageClient;
+import org.eclipse.lsp4mp.ls.api.MicroProfileLanguageServerAPI;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class MicroProfileLanguageServerDeadlockTest {
-    private static class MyLanguageClient implements MicroProfileLanguageClientAPI {
+    private static class MyLanguageClient extends MockMicroProfileLanguageClient {
 
         private final CountDownLatch latch;
 
         private MyLanguageClient(CountDownLatch latch) {
+        	super(null);
             this.latch = latch;
         }
 

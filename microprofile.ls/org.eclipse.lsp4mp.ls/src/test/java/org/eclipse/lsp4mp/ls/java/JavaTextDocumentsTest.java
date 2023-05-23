@@ -50,6 +50,11 @@ public class JavaTextDocumentsTest {
 			ProjectLabelInfoEntry projectInfo = new ProjectLabelInfoEntry(uri, "", labels);
 			return CompletableFuture.completedFuture(projectInfo);
 		}
+		
+		@Override
+		public CompletableFuture<List<ProjectLabelInfoEntry>> getAllJavaProjectLabels() {
+			return CompletableFuture.completedFuture(null);
+		}
 	};
 
 	@Test
