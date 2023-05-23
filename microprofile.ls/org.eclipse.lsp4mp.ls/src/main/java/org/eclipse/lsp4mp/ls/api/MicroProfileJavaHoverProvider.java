@@ -26,8 +26,6 @@ import org.eclipse.lsp4mp.commons.MicroProfileJavaHoverParams;
 public interface MicroProfileJavaHoverProvider {
 
 	@JsonRequest("microprofile/java/hover")
-	default CompletableFuture<Hover> getJavaHover(MicroProfileJavaHoverParams javaParams) {
-		return CompletableFuture.completedFuture(null);
-	}
+	CompletableFuture<Hover> getJavaHover(MicroProfileJavaHoverParams javaParams);
 
 }

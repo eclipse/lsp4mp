@@ -27,9 +27,6 @@ import org.eclipse.lsp4mp.commons.MicroProfileDefinition;
 public interface MicroProfileJavaDefinitionProvider {
 
 	@JsonRequest("microprofile/java/definition")
-	default CompletableFuture<List<MicroProfileDefinition>> getJavaDefinition(
-			MicroProfileJavaDefinitionParams javaParams) {
-		return CompletableFuture.completedFuture(null);
-	}
+	CompletableFuture<List<MicroProfileDefinition>> getJavaDefinition(MicroProfileJavaDefinitionParams javaParams);
 
 }

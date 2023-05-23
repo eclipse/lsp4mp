@@ -12,8 +12,8 @@ package org.eclipse.lsp4mp.services.properties;
 import static org.eclipse.lsp4mp.services.properties.PropertiesFileAssert.c;
 import static org.eclipse.lsp4mp.services.properties.PropertiesFileAssert.r;
 import static org.eclipse.lsp4mp.services.properties.PropertiesFileAssert.testCompletionFor;
-import static org.eclipse.lsp4mp.services.properties.PropertiesFileAssert.testCompletionItemUnresolvedFor;
 import static org.eclipse.lsp4mp.services.properties.PropertiesFileAssert.testCompletionItemResolveFor;
+import static org.eclipse.lsp4mp.services.properties.PropertiesFileAssert.testCompletionItemUnresolvedFor;
 
 import java.util.ArrayList;
 import java.util.Collections;

@@ -29,8 +29,6 @@ import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeActionParams;
 public interface MicroProfileJavaCodeActionProvider {
 
 	@JsonRequest("microprofile/java/codeAction")
-	default CompletableFuture<List<CodeAction>> getJavaCodeAction(MicroProfileJavaCodeActionParams javaParams) {
-		return CompletableFuture.completedFuture(null);
-	}
+	CompletableFuture<List<CodeAction>> getJavaCodeAction(MicroProfileJavaCodeActionParams javaParams);
 
 }

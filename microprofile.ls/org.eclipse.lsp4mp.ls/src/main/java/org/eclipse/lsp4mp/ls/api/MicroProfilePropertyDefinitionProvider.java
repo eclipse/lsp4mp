@@ -28,8 +28,6 @@ import org.eclipse.lsp4mp.commons.MicroProfilePropertyDefinitionParams;
 public interface MicroProfilePropertyDefinitionProvider {
 
 	@JsonRequest("microprofile/propertyDefinition")
-	default CompletableFuture<Location> getPropertyDefinition(MicroProfilePropertyDefinitionParams params) {
-		return CompletableFuture.completedFuture(null);
-	}
+	CompletableFuture<Location> getPropertyDefinition(MicroProfilePropertyDefinitionParams params);
 
 }

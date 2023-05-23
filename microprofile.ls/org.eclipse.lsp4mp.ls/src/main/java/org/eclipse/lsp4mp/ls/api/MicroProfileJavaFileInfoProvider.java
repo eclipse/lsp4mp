@@ -28,8 +28,6 @@ import org.eclipse.lsp4mp.commons.MicroProfileJavaFileInfoParams;
 public interface MicroProfileJavaFileInfoProvider {
 
 	@JsonRequest("microprofile/java/fileInfo")
-	default CompletableFuture<JavaFileInfo> getJavaFileInfo(MicroProfileJavaFileInfoParams javaParams) {
-		return CompletableFuture.completedFuture(null);
-	}
+	CompletableFuture<JavaFileInfo> getJavaFileInfo(MicroProfileJavaFileInfoParams javaParams);
 
 }

@@ -25,8 +25,6 @@ import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 public interface MicroProfileJavaCodeActionResolveProvider {
 
 	@JsonRequest("microprofile/java/codeActionResolve")
-	default CompletableFuture<CodeAction> resolveCodeAction(CodeAction unresolved) {
-		return CompletableFuture.completedFuture(null);
-	}
+	CompletableFuture<CodeAction> resolveCodeAction(CodeAction unresolved);
 
 }
