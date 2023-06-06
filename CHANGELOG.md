@@ -1,5 +1,19 @@
 # MicroProfile Language Server Changelog
 
+## [0.8.0](https://github.com/eclipse/lsp4mp/milestone/9?closed=1) (June 15, 2023)
+
+### Enhancements
+ * Improve completion performance in properties files (resolve support, and item defaults). See [#389](https://github.com/eclipse/lsp4mp/issues/389).
+ * Warning for type declarations that are incorrectly annotated while their methods are annotated with `@Query`/`@Mutation`. See [#355](https://github.com/eclipse/lsp4mp/issues/355).
+
+### Bug Fixes
+ * Don't implement by default custom language client API. See [#398](https://github.com/eclipse/lsp4mp/issues/398).
+ * Make `javaCursorContext` calls consistent with all `PropertiesManagerForJava` calls. See [#390](https://github.com/eclipse/lsp4mp/issues/390).
+ * Fix missing export packages for tests. See [#391](https://github.com/eclipse/lsp4mp/issues/391).
+
+### Build
+ * Update eclipse.jdt.ls to 1.24.0-SNAPSHOT. See [#401](https://github.com/eclipse/lsp4mp/pull/401).
+
 ## [0.7.1](https://github.com/eclipse/lsp4mp/milestone/8?closed=1) (April 12, 2023)
 
 ### Bug Fixes
