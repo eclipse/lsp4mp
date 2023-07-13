@@ -34,8 +34,7 @@ public class CompletionData {
 		this.uri = null;
 	}
 
-	public CompletionData(String propertyName, String uri) {
-		this.propertyName = propertyName;
+	public CompletionData(String uri) {
 		this.uri = uri;
 	}
 
