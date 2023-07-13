@@ -171,7 +171,7 @@ class PropertiesFileCompletions {
 	 */
 	public CompletionItem resolveCompletionItem(CompletionItem unresolved, MicroProfileProjectInfo projectInfo,
 			MicroProfileCompletionCapabilities completionCapabilities, CancelChecker cancelChecker) {
-		String propertyName = CompletionData.getCompletionData(unresolved).getPropertyName();
+		String propertyName = unresolved.getLabel();
 		boolean markdownSupported = completionCapabilities.isDocumentationFormatSupported(MarkupKind.MARKDOWN);
 		ItemMetadata property = PropertiesFileUtils.getProperty(propertyName, projectInfo);
 		if (property == null) {
@@ -267,9 +267,6 @@ class PropertiesFileCompletions {
 			FormattedPropertyResult formattedProperty = getPropertyName(name, snippetsSupported);
 			insertText.append(formattedProperty.getPropertyName());
 
-			String filterText = insertText.toString();
-			item.setFilterText(filterText);
-
 			if (formattingSettings.isSurroundEqualsWithSpaces()) {
 				insertText.append(' ');
 			}
@@ -315,7 +312,7 @@ class PropertiesFileCompletions {
 				item.setInsertTextFormat(snippetsSupported ? InsertTextFormat.Snippet : InsertTextFormat.PlainText);
 			}
 			if (completionResolveDocumentationSupported) {
-				item.setData(new CompletionData(propertyName, model.getDocumentURI()));
+				item.setData(new CompletionData(model.getDocumentURI()));
 			} else {
 				item.setDocumentation(DocumentationUtils.getDocumentation(property, profile, null, markdownSupported));
 			}
@@ -381,11 +378,10 @@ class PropertiesFileCompletions {
 					|| completionItemDefaults.getInsertTextFormat() != InsertTextFormat.PlainText) {
 				item.setInsertTextFormat(InsertTextFormat.PlainText);
 			}
-			item.setFilterText(insertText);
 			if (completionResolveDocumentationSupported) {
 				for (ValueHint profile : QuarkusModel.DEFAULT_PROFILES.getValues()) {
 					if (profile.getValue().equals(item.getLabel())) {
-						item.setData(new CompletionData(key.getPropertyName(), model.getDocumentURI()));
+						item.setData(new CompletionData(model.getDocumentURI()));
 						break;
 					}
 				}
