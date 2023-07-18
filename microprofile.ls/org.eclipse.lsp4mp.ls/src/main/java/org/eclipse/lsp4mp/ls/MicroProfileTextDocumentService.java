@@ -153,10 +153,13 @@ public class MicroProfileTextDocumentService implements TextDocumentService {
 
 	@Override
 	public CompletableFuture<CompletionItem> resolveCompletionItem(CompletionItem unresolved) {
-		String uri = CompletionData.getCompletionData(unresolved).getUri();
-		TextDocumentService service = getTextDocumentService(new TextDocumentIdentifier(uri));
-		if (service != null) {
-			return service.resolveCompletionItem(unresolved);
+		CompletionData data = CompletionData.getCompletionData(unresolved);
+		if (data != null) {
+			String uri = data.getUri();
+			TextDocumentService service = getTextDocumentService(new TextDocumentIdentifier(uri));
+			if (service != null) {
+				return service.resolveCompletionItem(unresolved);
+			}
 		}
 		return CompletableFuture.completedFuture(null);
 	}
