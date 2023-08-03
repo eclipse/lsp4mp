@@ -1,5 +1,19 @@
 # MicroProfile Language Server Changelog
 
+## [0.9.0](https://github.com/eclipse/lsp4mp/milestone/10?closed=1) (August 8, 2023)
+
+### Enhancements
+
+ * Improve completion performance of `microprofile-config.properties` (remove unnecessary parameters in response). See [#410](https://github.com/eclipse/lsp4mp/issues/410).
+
+### Bug Fixes
+
+ * Add null check for data field in `completionItem/resolve` request. See [#412](https://github.com/eclipse/lsp4mp/pull/412).
+
+### Build
+
+ * Update eclipse.jdt.ls to `1.27.0-SNAPSHOT`. See [#415](https://github.com/eclipse/lsp4mp/pull/415).
+
 ## [0.8.0](https://github.com/eclipse/lsp4mp/milestone/9?closed=1) (June 15, 2023)
 
 ### Enhancements
