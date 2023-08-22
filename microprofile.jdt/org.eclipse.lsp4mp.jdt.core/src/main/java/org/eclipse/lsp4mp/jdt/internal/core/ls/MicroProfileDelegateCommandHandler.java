@@ -117,12 +117,13 @@ public class MicroProfileDelegateCommandHandler extends AbstractMicroProfileDele
 			LOGGER.log(Level.WARNING, "Error while joining MicroProfile properties collector job", e);
 		}
 
-		Exception jobException = (Exception) job.getResult().getException();
+		Throwable jobException = job.getResult().getException();
 		if (jobException != null) {
-			if (jobException.getCause() != null) {
-				throw (Exception) jobException.getCause();
+			if (jobException instanceof Exception) {
+				throw (Exception) jobException;
+			} else {
+				throw new Exception(jobException);
 			}
-			throw jobException;
 		}
 
 		return projectInfo[0];
