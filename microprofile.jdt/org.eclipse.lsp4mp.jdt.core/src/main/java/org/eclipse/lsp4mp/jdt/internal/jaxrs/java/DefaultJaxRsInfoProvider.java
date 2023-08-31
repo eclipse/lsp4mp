@@ -82,8 +82,8 @@ public class DefaultJaxRsInfoProvider implements IJaxRsInfoProvider {
 	@Override
 	public boolean canProvideJaxRsMethodInfoForClass(ITypeRoot typeRoot, IProgressMonitor monitor) {
 		IJavaProject javaProject = typeRoot.getJavaProject();
-		return JDTTypeUtils.findType(javaProject, JAVAX_WS_RS_PATH_ANNOTATION) == null
-				|| JDTTypeUtils.findType(javaProject, JAKARTA_WS_RS_PATH_ANNOTATION) == null;
+		return JDTTypeUtils.findType(javaProject, JAVAX_WS_RS_PATH_ANNOTATION) != null
+				|| JDTTypeUtils.findType(javaProject, JAKARTA_WS_RS_PATH_ANNOTATION) != null;
 
 	}
 
