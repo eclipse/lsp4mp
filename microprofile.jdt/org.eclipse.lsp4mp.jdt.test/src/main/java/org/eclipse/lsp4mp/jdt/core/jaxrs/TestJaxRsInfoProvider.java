@@ -49,7 +49,7 @@ public class TestJaxRsInfoProvider implements IJaxRsInfoProvider {
 	public boolean canProvideJaxRsMethodInfoForClass(ITypeRoot typeRoot, IProgressMonitor monitor) {
 		// Only collect methods in org.acme.hibernate.orm.CustomJaxRsResolving
 		IType fruitResourceType = JDTTypeUtils.findType(typeRoot.getJavaProject(), CUSTOM_JAXRS_TEST_CLASS_FQN);
-		return typeRoot.equals(fruitResourceType.getTypeRoot());
+		return fruitResourceType != null && typeRoot.equals(fruitResourceType.getTypeRoot());
 	}
 
 	@Override
