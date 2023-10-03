@@ -1,5 +1,18 @@
 # MicroProfile Language Server Changelog
 
+## [0.10.0](https://github.com/eclipse/lsp4mp/milestone/11?closed=1) (October 5, 2023)
+
+### Bug Fixes
+
+ * Properly handle `StackOverflowError` in `MicroProfileDelegateCommandHandler.getMicroProfileProjectInfo`. See [#418](https://github.com/eclipse/lsp4mp/issues/418).
+ * Fix `NullPointerException` in `TestJaxRsInfoProvider.canProvideJaxRsMethodInfoForClass`. See [#424](https://github.com/eclipse/lsp4mp/issues/424).
+ * Fix `canProvideJaxRsMethodInfoForClass` for default JAX-RS. See [#420](https://github.com/eclipse/lsp4mp/pull/420).
+
+### Build
+
+ * Update to Tycho 3.0.5 and Maven 3.9.4. See [#422](https://github.com/eclipse/lsp4mp/pull/422), [#423](https://github.com/eclipse/lsp4mp/pull/423).
+ * Update eclipse.jdt.ls to 1.29.0-SNAPSHOT. See [#427](https://github.com/eclipse/lsp4mp/pull/427).
+
 ## [0.9.0](https://github.com/eclipse/lsp4mp/milestone/10?closed=1) (August 8, 2023)
 
 ### Enhancements
