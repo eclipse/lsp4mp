@@ -88,6 +88,8 @@ public class MicroProfileTextDocumentService implements TextDocumentService {
 				applicationPropertiesTextDocumentService, sharedSettings, javaTextDocuments);
 		textDocumentServicesMap.put("properties", applicationPropertiesTextDocumentService);
 		textDocumentServicesMap.put("java", javaTextDocumentService);
+		textDocumentServicesMap.put("class", javaTextDocumentService);
+		textDocumentServicesMap.put("kt", javaTextDocumentService);
 	}
 
 	/**
