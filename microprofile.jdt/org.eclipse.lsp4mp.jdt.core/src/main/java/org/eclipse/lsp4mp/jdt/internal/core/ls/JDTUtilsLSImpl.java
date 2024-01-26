@@ -36,7 +36,7 @@ import org.eclipse.jdt.ls.core.internal.JavaLanguageServerPlugin;
 import org.eclipse.jdt.ls.core.internal.ResourceUtils;
 import org.eclipse.jdt.ls.core.internal.handlers.DocumentLifeCycleHandler;
 import org.eclipse.jdt.ls.core.internal.handlers.JsonRpcHelpers;
-import org.eclipse.jdt.ls.core.internal.javadoc.JavadocContentAccess;
+import org.eclipse.jdt.ls.core.internal.javadoc.JavadocContentAccess2;
 import org.eclipse.jdt.ls.core.internal.managers.IBuildSupport;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Range;
@@ -131,8 +131,8 @@ public class JDTUtilsLSImpl implements IJDTUtils {
 	@Override
 	public String getJavadoc(IMember member, DocumentFormat documentFormat) throws JavaModelException {
 		boolean markdown = DocumentFormat.Markdown.equals(documentFormat);
-		Reader reader = markdown ? JavadocContentAccess.getMarkdownContentReader(member)
-				: JavadocContentAccess.getPlainTextContentReader(member);
+		Reader reader = markdown ? JavadocContentAccess2.getMarkdownContentReader(member)
+				: JavadocContentAccess2.getPlainTextContentReader(member);
 		return reader != null ? toString(reader) : null;
 	}
 
