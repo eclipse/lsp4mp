@@ -22,6 +22,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.io.FileUtils;
+import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -34,6 +35,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
@@ -135,7 +137,9 @@ public class BasePropertiesManagerTest {
 	}
 
 	public static IJavaProject loadGradleProject(String gradleProject) throws CoreException, Exception {
-		return loadJavaProject(gradleProject, "gradle");
+		var gradleJavaProject = loadJavaProject(gradleProject, "gradle");
+		Job.getJobManager().join(CorePlugin.GRADLE_JOB_FAMILY, new NullProgressMonitor());
+		return gradleJavaProject;
 	}
 
 	public static IJavaProject loadMavenProjectFromSubFolder(String mavenProject, String subFolder) throws Exception {
@@ -154,7 +158,6 @@ public class BasePropertiesManagerTest {
 		if (!project.exists()) {
 			project.create(description, null);
 			project.open(null);
-
 			// We need to call waitForBackgroundJobs with a Job which does nothing to have a
 			// resolved classpath (IJavaProject#getResolvedClasspath) when search is done.
 			IWorkspaceRunnable runnable = monitor -> monitor.done();
