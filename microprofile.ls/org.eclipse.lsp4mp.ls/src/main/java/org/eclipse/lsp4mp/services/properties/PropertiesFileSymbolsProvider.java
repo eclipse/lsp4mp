@@ -86,7 +86,10 @@ class PropertiesFileSymbolsProvider {
 				String name = getSymbolName(property);
 				if (!StringUtils.isEmpty(name)) {
 					// The property is not an empty line
-					String[] paths = name.split("[.]");
+					// If the property starts with '.', we don't split it to avoid having an empty
+					// name.
+					boolean startsWithDot = name.charAt(0) == '.';
+					String[] paths = startsWithDot ? name.split("[.]", 1) : name.split("[.]");
 					DocumentSymbol symbol = null;
 					for (String path : paths) {
 						symbol = getSymbol(path, property, symbol != null ? symbol.getChildren() : symbols);

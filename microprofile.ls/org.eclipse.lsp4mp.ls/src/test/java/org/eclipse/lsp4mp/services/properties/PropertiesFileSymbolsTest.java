@@ -107,9 +107,24 @@ public class PropertiesFileSymbolsTest {
 	@Test
 	public void justPeriod() throws BadLocationException {
 		String value = ".";
-		testDocumentSymbolsFor(value);
+		testDocumentSymbolsFor(value, ds(".", SymbolKind.Property, r(0, 0, 1), null));
 	}
 
+	@Test
+	public void propertiesWhichStartWithPeriod() throws BadLocationException {
+		String value = ".quarkus\n" + //
+				"  .quarkus2\n" + //
+				"quarkus.\n" + //
+				".mp\n" + //
+				"  .mp2\n";
+		testDocumentSymbolsFor(value, //
+				ds(".quarkus", SymbolKind.Property, r(0, 0, 8), null), //
+				ds(".quarkus2", SymbolKind.Property, r(1, 2, 11), null), //
+				ds("quarkus", SymbolKind.Property, r(2, 0, 8), null), //
+				ds(".mp", SymbolKind.Property, r(3, 0, 3), null), //
+				ds(".mp2", SymbolKind.Property, r(4, 2, 6), null));
+	}
+	
 	@Test
 	public void justEquals() throws BadLocationException {
 		String value = "=";
