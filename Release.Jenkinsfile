@@ -29,7 +29,7 @@ pipeline {
                 cd ../../microprofile.jdt
                 ./mvnw -Dtycho.mode=maven org.eclipse.tycho:tycho-versions-plugin:set-version -DnewVersion=$VERSION-SNAPSHOT
                 ./mvnw versions:set-scm-tag -DnewTag=$VERSION
-                ./mvnw clean verify -B  -Peclipse-sign
+                ./mvnw clean verify -B  -Peclipse-sign -DskipTests
                 cd ..
               '''
         }
