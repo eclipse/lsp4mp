@@ -1,5 +1,16 @@
 # MicroProfile Language Server Changelog
 
+## [0.11.0](https://github.com/eclipse/lsp4mp/milestone/12?closed=1) (February 1, 2024)
+
+### Enhancements
+ * Delegate kotlin file (*.kt) to java document service. See [#430](https://github.com/eclipse/lsp4mp/pull/430).
+
+### Bug Fixes
+ * Don't generate an empty symbol name when property starts with '.'. See [#433](https://github.com/eclipse/lsp4mp/pull/433).
+
+### Build
+ * Use newer JDT.LS's JavadocContentAccess2 methods. See [432](https://github.com/eclipse/lsp4mp/pull/432).
+
 ## [0.10.0](https://github.com/eclipse/lsp4mp/milestone/11?closed=1) (October 5, 2023)
 
 ### Bug Fixes
