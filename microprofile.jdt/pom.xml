@@ -24,7 +24,7 @@
     <jacoco.destFile>${project.build.directory}/jacoco.exec</jacoco.destFile>
     <sonar.jacoco.reportPath>${jacoco.destFile}</sonar.jacoco.reportPath>
     <surefire.timeout>600</surefire.timeout>
-    <jdt.ls.version>1.32.0-SNAPSHOT</jdt.ls.version>
+    <jdt.ls.version>1.34.0-SNAPSHOT</jdt.ls.version>
   </properties>
   <scm>
     <connection>scm:git:git@github.com:eclipse/lsp4mp.git</connection>
