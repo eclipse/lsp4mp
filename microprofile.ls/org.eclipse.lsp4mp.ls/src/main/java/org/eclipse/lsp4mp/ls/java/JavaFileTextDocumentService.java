@@ -211,7 +211,7 @@ public class JavaFileTextDocumentService extends AbstractTextDocumentService {
 			// javaParams.setLocalServerPort(8080); // TODO : manage this server port from
 			// the settings
 			return microprofileLanguageServer.getLanguageClient().getJavaCodelens(javaParams);
-		}, Collections.emptyList());
+		}, Collections.emptyList(), true);
 	}
 
 	// ------------------------------ Code Action ------------------------------

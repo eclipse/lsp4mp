@@ -231,41 +231,54 @@ public class JavaTextDocuments extends TextDocuments<JavaTextDocument> {
 		String projectURI = document.getProjectURI();
 		String documentURI = document.getUri();
 		// Search future which load project info in cache
-		CompletableFuture<ProjectLabelInfoEntry> projectInfo = null;
-		if (projectURI != null) {
-			// the java document has already been linked to a project URI, get future from
-			// the project cache.
-			projectInfo = projectCache.get(projectURI);
-		} else {
-			// get the current future for the given document URI
-			projectInfo = documentCache.get(documentURI);
-		}
+		CompletableFuture<ProjectLabelInfoEntry> projectInfo = getProjectFromCache(projectURI, documentURI);
 		if (projectInfo == null || projectInfo.isCancelled() || projectInfo.isCompletedExceptionally()) {
-			// not found in the cache, load the project info from the JDT LS Extension
-			MicroProfileJavaProjectLabelsParams params = new MicroProfileJavaProjectLabelsParams();
-			params.setUri(documentURI);
-			params.setTypes(getSnippetRegistry().getTypes());
-			final CompletableFuture<ProjectLabelInfoEntry> future = projectInfoProvider.getJavaProjectLabels(params);
-			future.thenApply(entry -> {
-				if (entry != null) {
-					// project info with labels are get from the JDT LS
-					String newProjectURI = entry.getUri();
-					// cache the project info in the project cache level.
-					projectCache.put(newProjectURI, future);
-					// update the project URI of the document to link it to a project URI
-					document.setProjectURI(newProjectURI);
-					// evict the document cache level.
-					documentCache.remove(documentURI);
+			// Here we synchronize the documentCache to avoid consuming too many LSP
+			// projectLabels request
+			// when there are several Thread which requires the load of project info for the
+			// same document.
+			synchronized (documentCache) {
+				projectInfo = getProjectFromCache(projectURI, documentURI);
+				if (projectInfo != null) {
+					return projectInfo;
 				}
-				return entry;
-			});
-			// cache the future in the document level.
-			documentCache.put(documentURI, future);
-			return future;
+				// not found in the cache, load the project info from the JDT LS Extension
+				MicroProfileJavaProjectLabelsParams params = new MicroProfileJavaProjectLabelsParams();
+				params.setUri(documentURI);
+				params.setTypes(getSnippetRegistry().getTypes());
+				final CompletableFuture<ProjectLabelInfoEntry> future = projectInfoProvider
+						.getJavaProjectLabels(params);
+				future.thenApply(entry -> {
+					if (entry != null) {
+						// project info with labels are get from the JDT LS
+						String newProjectURI = entry.getUri();
+						// cache the project info in the project cache level.
+						projectCache.put(newProjectURI, future);
+						// update the project URI of the document to link it to a project URI
+						document.setProjectURI(newProjectURI);
+						// evict the document cache level.
+						documentCache.remove(documentURI);
+					}
+					return entry;
+				});
+				// cache the future in the document level.
+				documentCache.put(documentURI, future);
+				return future;
+			}
 		}
 
 		// Returns the cached project info
 		return projectInfo;
+	}
+
+	private CompletableFuture<ProjectLabelInfoEntry> getProjectFromCache(String projectURI, String documentURI) {
+		if (projectURI != null) {
+			// the java document has already been linked to a project URI, get future from
+			// the project cache.
+			return projectCache.get(projectURI);
+		}
+		// get the current future for the given document URI
+		return documentCache.get(documentURI);
 	}
 
 	/**
