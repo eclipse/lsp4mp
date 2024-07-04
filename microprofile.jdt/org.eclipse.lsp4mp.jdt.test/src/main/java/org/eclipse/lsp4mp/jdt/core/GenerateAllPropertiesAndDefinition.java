@@ -185,9 +185,6 @@ public class GenerateAllPropertiesAndDefinition extends BasePropertiesManagerTes
 			LOGGER.info("Start generating all-quarkus-definitions.json");
 			// Generate all-quarkus-definitions.json
 
-			// Enable classFileContentsSupport to generate jdt Location
-			enableClassFileContentsSupport();
-
 			long definitionsCount = info.getProperties().size()
 					+ info.getHints().stream().map(hint -> hint.getValues().size()).count();
 			List<PropertyDefinition> definitions = new ArrayList<>();
@@ -248,10 +245,4 @@ public class GenerateAllPropertiesAndDefinition extends BasePropertiesManagerTes
 		return definition;
 	}
 
-	private static void enableClassFileContentsSupport() {
-		Map<String, Object> extendedClientCapabilities = new HashMap<>();
-		extendedClientCapabilities.put("classFileContentsSupport", "true");
-		JavaLanguageServerPlugin.getPreferencesManager().updateClientPrefences(new ClientCapabilities(),
-				extendedClientCapabilities);
-	}
 }

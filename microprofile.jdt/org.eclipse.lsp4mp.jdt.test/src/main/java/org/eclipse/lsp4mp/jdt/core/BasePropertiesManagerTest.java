@@ -17,7 +17,9 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -40,6 +42,8 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.ls.core.internal.JavaLanguageServerPlugin;
+import org.eclipse.lsp4j.ClientCapabilities;
 import org.eclipse.lsp4mp.commons.ClasspathKind;
 import org.eclipse.lsp4mp.commons.DocumentFormat;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
@@ -107,6 +111,7 @@ public class BasePropertiesManagerTest {
 	public static void setUp() {
 		oldLevel = LOGGER.getLevel();
 		LOGGER.setLevel(Level.INFO);
+		enableClassFileContentsSupport();
 	}
 
 	@AfterClass
@@ -275,5 +280,12 @@ public class BasePropertiesManagerTest {
 		IPath output = javaProject.getOutputLocation();
 		IPath filePath = output.append(configFileName);
 		return ResourcesPlugin.getWorkspace().getRoot().getFile(filePath);
+	}
+
+	private static void enableClassFileContentsSupport() {
+		Map<String, Object> extendedClientCapabilities = new HashMap<>();
+		extendedClientCapabilities.put("classFileContentsSupport", "true");
+		JavaLanguageServerPlugin.getPreferencesManager().updateClientPrefences(new ClientCapabilities(),
+				extendedClientCapabilities);
 	}
 }
