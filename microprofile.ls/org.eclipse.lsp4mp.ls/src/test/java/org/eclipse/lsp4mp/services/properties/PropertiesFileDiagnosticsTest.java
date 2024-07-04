@@ -731,9 +731,16 @@ public class PropertiesFileDiagnosticsTest {
 				d(0, 35, 36, "Unclosed character class near index 0" + ls + "[" + ls + "^" + ls + "",
 						DiagnosticSeverity.Error, ValidationType.value));
 
+		StringBuilder trailingBackslash = new StringBuilder();
+		if (JavaVersion.CURRENT > 17) {
+			trailingBackslash.append("Unescaped trailing backslash");
+		} else {
+			trailingBackslash.append("Unexpected internal error");
+		}
+		trailingBackslash.append(" near index 1");
 		value = "mp.opentracing.server.skip-pattern=\\";
 		testDiagnosticsFor(value, projectInfo, settings, //
-				d(0, 35, 36, "Unescaped trailing backslash near index 1" + ls + "\\" + ls + "", DiagnosticSeverity.Error,
+				d(0, 35, 36, trailingBackslash.toString() + ls + "\\" + ls + "", DiagnosticSeverity.Error,
 						ValidationType.value));
 
 		value = "mp.opentracing.server.skip-pattern={";

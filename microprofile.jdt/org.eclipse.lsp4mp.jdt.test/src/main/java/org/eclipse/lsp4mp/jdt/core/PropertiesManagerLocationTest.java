@@ -13,15 +13,9 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.core;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.ls.core.internal.JavaLanguageServerPlugin;
-import org.eclipse.lsp4j.ClientCapabilities;
 import org.eclipse.lsp4j.Location;
-import org.eclipse.lsp4mp.jdt.core.BasePropertiesManagerTest.MicroProfileMavenProjectName;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -35,9 +29,6 @@ public class PropertiesManagerLocationTest extends BasePropertiesManagerTest {
 
 	@Test
 	public void usingVertxTest() throws Exception {
-		// Enable classFileContentsSupport to generate jdt Location
-		enableClassFileContentsSupport();
-
 		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.using_vertx);
 
 		// Test with Java sources
@@ -49,9 +40,6 @@ public class PropertiesManagerLocationTest extends BasePropertiesManagerTest {
 
 	@Test
 	public void configPropertiesTest() throws Exception {
-		// Enable classFileContentsSupport to generate jdt Location
-		enableClassFileContentsSupport();
-
 		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.config_properties);
 
 		// Test with method
@@ -65,9 +53,6 @@ public class PropertiesManagerLocationTest extends BasePropertiesManagerTest {
 
 	@Test
 	public void configPropertiesMethodTest() throws Exception {
-		// Enable classFileContentsSupport to generate jdt Location
-		enableClassFileContentsSupport();
-
 		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.config_quickstart);
 
 		// Test with method with parameters
@@ -81,9 +66,6 @@ public class PropertiesManagerLocationTest extends BasePropertiesManagerTest {
 
 	@Test
 	public void configPropertiesConstructorTest() throws Exception {
-		// Enable classFileContentsSupport to generate jdt Location
-		enableClassFileContentsSupport();
-
 		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.config_quickstart);
 
 		// Test with constructor with parameters
@@ -119,13 +101,6 @@ public class PropertiesManagerLocationTest extends BasePropertiesManagerTest {
 		Location location = PropertiesManager.getInstance().findPropertyLocation(javaProject, "org.acme.vertx.Fruit",
 				"Banana", null, JDT_UTILS, new NullProgressMonitor());
 		Assert.assertNull(location);
-	}
-
-	private static void enableClassFileContentsSupport() {
-		Map<String, Object> extendedClientCapabilities = new HashMap<>();
-		extendedClientCapabilities.put("classFileContentsSupport", "true");
-		JavaLanguageServerPlugin.getPreferencesManager().updateClientPrefences(new ClientCapabilities(),
-				extendedClientCapabilities);
 	}
 
 }
