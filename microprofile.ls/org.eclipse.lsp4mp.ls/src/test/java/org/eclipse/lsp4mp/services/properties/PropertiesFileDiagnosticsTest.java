@@ -733,7 +733,7 @@ public class PropertiesFileDiagnosticsTest {
 
 		value = "mp.opentracing.server.skip-pattern=\\";
 		testDiagnosticsFor(value, projectInfo, settings, //
-				d(0, 35, 36, "Unexpected internal error near index 1" + ls + "\\" + ls + "", DiagnosticSeverity.Error,
+				d(0, 35, 36, "Unescaped trailing backslash near index 1" + ls + "\\" + ls + "", DiagnosticSeverity.Error,
 						ValidationType.value));
 
 		value = "mp.opentracing.server.skip-pattern={";
