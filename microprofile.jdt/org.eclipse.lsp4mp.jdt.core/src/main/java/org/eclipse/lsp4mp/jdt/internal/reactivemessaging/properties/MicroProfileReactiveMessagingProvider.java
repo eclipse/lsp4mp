@@ -21,7 +21,6 @@ import static org.eclipse.lsp4mp.jdt.core.utils.JDTTypeUtils.getSourceType;
 import static org.eclipse.lsp4mp.jdt.core.utils.JDTTypeUtils.isBinary;
 import static org.eclipse.lsp4mp.jdt.internal.reactivemessaging.MicroProfileReactiveMessagingConstants.CHANNEL_ANNOTATION;
 import static org.eclipse.lsp4mp.jdt.internal.reactivemessaging.MicroProfileReactiveMessagingConstants.CONNECTOR_ANNOTATION;
-import static org.eclipse.lsp4mp.jdt.internal.reactivemessaging.MicroProfileReactiveMessagingConstants.EMITTER_CLASS;
 import static org.eclipse.lsp4mp.jdt.internal.reactivemessaging.MicroProfileReactiveMessagingConstants.CONNECTOR_ATTRIBUTES_ANNOTATION;
 import static org.eclipse.lsp4mp.jdt.internal.reactivemessaging.MicroProfileReactiveMessagingConstants.CONNECTOR_ATTRIBUTE_ANNOTATION;
 import static org.eclipse.lsp4mp.jdt.internal.reactivemessaging.MicroProfileReactiveMessagingConstants.INCOMING_ANNOTATION;
@@ -40,7 +39,6 @@ import org.eclipse.lsp4mp.commons.metadata.ItemHint;
 import org.eclipse.lsp4mp.commons.metadata.ValueHint;
 import org.eclipse.lsp4mp.jdt.core.AbstractAnnotationTypeReferencePropertiesProvider;
 import org.eclipse.lsp4mp.jdt.core.SearchContext;
-import org.eclipse.lsp4mp.jdt.core.utils.JDTTypeUtils;
 
 /**
  * Properties provider to collect MicroProfile properties from the MicroProfile
@@ -104,13 +102,14 @@ import org.eclipse.lsp4mp.jdt.core.utils.JDTTypeUtils;
  */
 public class MicroProfileReactiveMessagingProvider extends AbstractAnnotationTypeReferencePropertiesProvider {
 
-	private static final String[] ANNOTATION_NAMES = { CONNECTOR_ANNOTATION, INCOMING_ANNOTATION, OUTGOING_ANNOTATION, CHANNEL_ANNOTATION };
+	private static final String[] ANNOTATION_NAMES = { CONNECTOR_ANNOTATION, INCOMING_ANNOTATION, OUTGOING_ANNOTATION,
+			CHANNEL_ANNOTATION };
 
-	private static enum Direction {
+	private enum Direction {
 		INCOMING, OUTGOING, INCOMING_AND_OUTGOING;
 	}
 
-	private static enum MessageType {
+	private enum MessageType {
 		INCOMING, OUTGOING, CONNECTOR;
 	}
 
@@ -145,11 +144,11 @@ public class MicroProfileReactiveMessagingProvider extends AbstractAnnotationTyp
 			// public double process(int priceInUsd) {
 			processIncomingChannel(javaElement, mprmAnnotation, context);
 			break;
-		case CHANNEL_ANNOTATION:
+		case CHANNEL_ANNOTATION: // Used for both incoming and outgoing channels
 			// @Inject
 			// @Channel("prices")
 			// Emitter<double> pricesEmitter;
-			if (isAnnotatingEmitterObject(javaElement)) {
+			if (isChannelField(javaElement)) {
 				processOutgoingChannel(javaElement, mprmAnnotation, context);
 			}
 			break;
@@ -164,16 +163,8 @@ public class MicroProfileReactiveMessagingProvider extends AbstractAnnotationTyp
 		}
 	}
 
-	private static boolean isAnnotatingEmitterObject(IJavaElement element) {
-		if (element.getElementType() != IJavaElement.FIELD) {
-			return false;
-		}
-		IField field = (IField) element;
-		String typeSignature = JDTTypeUtils.getResolvedTypeName(field);
-		if (typeSignature == null) {
-			return false;
-		}
-		return typeSignature.startsWith(EMITTER_CLASS);
+	private static boolean isChannelField(IJavaElement element) {
+		return element.getElementType() == IJavaElement.FIELD;
 	}
 
 	/**
@@ -238,8 +229,8 @@ public class MicroProfileReactiveMessagingProvider extends AbstractAnnotationTyp
 		boolean binary = isBinary(javaElement);
 		String description = null;
 		String type = "org.eclipse.microprofile.reactive.messaging.spi.Connector";
-		addMpMessagingItem(channelName, false, "connector", messageType, sourceType, sourceField, sourceMethod, binary, type,
-				description, null, context);
+		addMpMessagingItem(channelName, false, "connector", messageType, sourceType, sourceField, sourceMethod, binary,
+				type, description, null, context);
 	}
 
 	/**
@@ -310,34 +301,34 @@ public class MicroProfileReactiveMessagingProvider extends AbstractAnnotationTyp
 		case INCOMING:
 			// Generate mp.messaging.incoming.${connector-name}.[attribute]
 			// ex : mp.messaging.incoming.${smallrye-kafka}.topic
-			addMpMessagingItem(connectorName, true, attributeName, MessageType.INCOMING, sourceType, null, null, binary, type,
-					description, defaultValue, context);
+			addMpMessagingItem(connectorName, true, attributeName, MessageType.INCOMING, sourceType, null, null, binary,
+					type, description, defaultValue, context);
 			break;
 		case OUTGOING:
 			// Generate mp.messaging.outgoing.${connector-name}.[attribute]
-			addMpMessagingItem(connectorName, true, attributeName, MessageType.OUTGOING, sourceType, null, null, binary, type,
-					description, defaultValue, context);
+			addMpMessagingItem(connectorName, true, attributeName, MessageType.OUTGOING, sourceType, null, null, binary,
+					type, description, defaultValue, context);
 			break;
 		case INCOMING_AND_OUTGOING:
 			// Generate mp.messaging.incoming.${connector-name}.[attribute]
-			addMpMessagingItem(connectorName, true, attributeName, MessageType.INCOMING, sourceType, null, null, binary, type,
-					description, defaultValue, context);
+			addMpMessagingItem(connectorName, true, attributeName, MessageType.INCOMING, sourceType, null, null, binary,
+					type, description, defaultValue, context);
 			// Generate mp.messaging.outgoing.${connector-name}.[attribute]
-			addMpMessagingItem(connectorName, true, attributeName, MessageType.OUTGOING, sourceType, null, null, binary, type,
-					description, defaultValue, context);
+			addMpMessagingItem(connectorName, true, attributeName, MessageType.OUTGOING, sourceType, null, null, binary,
+					type, description, defaultValue, context);
 			break;
 		}
 		// Generate mp.messaging.connector.[connector-name].[attribute]
-		addMpMessagingItem(connectorName, false, attributeName, MessageType.CONNECTOR, sourceType, null, null, binary, type,
-				description, defaultValue, context);
+		addMpMessagingItem(connectorName, false, attributeName, MessageType.CONNECTOR, sourceType, null, null, binary,
+				type, description, defaultValue, context);
 	}
 
 	private void addMpMessagingItem(String connectorOrChannelName, boolean dynamic, String attributeName,
-			MessageType messageType, String sourceType, String sourceField, String sourceMethod, boolean binary, String type,
-			String description, String defaultValue, SearchContext context) {
+			MessageType messageType, String sourceType, String sourceField, String sourceMethod, boolean binary,
+			String type, String description, String defaultValue, SearchContext context) {
 		String propertyName = getMPMessagingName(messageType, dynamic, connectorOrChannelName, attributeName);
-		super.addItemMetadata(context.getCollector(), propertyName, type, description, sourceType, sourceField, sourceMethod,
-				defaultValue, null, binary);
+		super.addItemMetadata(context.getCollector(), propertyName, type, description, sourceType, sourceField,
+				sourceMethod, defaultValue, null, binary);
 	}
 
 	/**
@@ -373,12 +364,10 @@ public class MicroProfileReactiveMessagingProvider extends AbstractAnnotationTyp
 		if (StringUtils.isEmpty(connectorAttributeType)) {
 			return null;
 		}
-		switch (connectorAttributeType) {
-		case "string":
+		if (connectorAttributeType.equals("string")) {
 			return "java.lang.String";
-		default:
-			return connectorAttributeType;
 		}
+		return connectorAttributeType;
 	}
 
 	private static String getMPMessagingName(MessageType messageType, boolean dynamic, String connectorOrChannelName,
