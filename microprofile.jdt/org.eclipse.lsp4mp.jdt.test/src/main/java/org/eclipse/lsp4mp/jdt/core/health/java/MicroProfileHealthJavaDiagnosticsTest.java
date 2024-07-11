@@ -57,7 +57,7 @@ public class MicroProfileHealthJavaDiagnosticsTest extends BasePropertiesManager
 		diagnosticsParams.setDocumentFormat(DocumentFormat.Markdown);
 
 		Diagnostic d = d(9, 13, 37,
-				"The class `org.acme.health.DontImplementHealthCheck` using the @Liveness, @Readiness, or @Health annotation should implement the HealthCheck interface.",
+				"The class `org.acme.health.DontImplementHealthCheck` using the @Liveness, @Readiness or @Health annotation should implement the HealthCheck interface.",
 				DiagnosticSeverity.Warning, MicroProfileHealthConstants.DIAGNOSTIC_SOURCE,
 				MicroProfileHealthErrorCode.ImplementHealthCheck);
 		assertJavaDiagnostics(diagnosticsParams, utils, //
@@ -68,7 +68,8 @@ public class MicroProfileHealthJavaDiagnosticsTest extends BasePropertiesManager
 		codeActionParams.setResourceOperationSupported(true);
 		codeActionParams.setCommandConfigurationUpdateSupported(true);
 		assertJavaCodeAction(codeActionParams, utils, //
-				ca(uri, "Let 'DontImplementHealthCheck' implement '@HealthCheck'", MicroProfileCodeActionId.ImplementHealthCheck, d, //
+				ca(uri, "Let 'DontImplementHealthCheck' implement '@HealthCheck'",
+						MicroProfileCodeActionId.ImplementHealthCheck, d, //
 						te(2, 50, 9, 37, "\r\n\r\n" + //
 								"import org.eclipse.microprofile.health.HealthCheck;\r\n" + //
 								"import org.eclipse.microprofile.health.HealthCheckResponse;\r\n" + //
@@ -89,9 +90,9 @@ public class MicroProfileHealthJavaDiagnosticsTest extends BasePropertiesManager
 		diagnosticsParams.setDocumentFormat(DocumentFormat.Markdown);
 
 		Diagnostic d = d(5, 13, 33,
-				"The class `org.acme.health.ImplementHealthCheck` implementing the HealthCheck interface should use the @Liveness, @Readiness, or @Health annotation.",
-				DiagnosticSeverity.Warning, MicroProfileHealthConstants.DIAGNOSTIC_SOURCE,
-				MicroProfileHealthErrorCode.HealthAnnotationMissing);
+                "The class `org.acme.health.ImplementHealthCheck` implementing the HealthCheck interface should use the @Liveness, @Readiness or @Health annotation.",
+                DiagnosticSeverity.Warning, MicroProfileHealthConstants.DIAGNOSTIC_SOURCE,
+                MicroProfileHealthErrorCode.HealthAnnotationMissing);
 		assertJavaDiagnostics(diagnosticsParams, utils, //
 				d);
 
@@ -125,9 +126,9 @@ public class MicroProfileHealthJavaDiagnosticsTest extends BasePropertiesManager
 		diagnosticsParams.setDocumentFormat(DocumentFormat.Markdown);
 
 		Diagnostic d = d(5, 13, 28,
-				"The class `org.acme.MyLivenessCheck` implementing the HealthCheck interface should use the @Liveness or @Readiness annotation.",
-				DiagnosticSeverity.Warning, MicroProfileHealthConstants.DIAGNOSTIC_SOURCE,
-				MicroProfileHealthErrorCode.HealthAnnotationMissing);
+                "The class `org.acme.MyLivenessCheck` implementing the HealthCheck interface should use the @Liveness, @Readiness or @Startup annotation.",
+                DiagnosticSeverity.Warning, MicroProfileHealthConstants.DIAGNOSTIC_SOURCE,
+                MicroProfileHealthErrorCode.HealthAnnotationMissing);
 		assertJavaDiagnostics(diagnosticsParams, utils, //
 				d);
 
@@ -141,7 +142,11 @@ public class MicroProfileHealthJavaDiagnosticsTest extends BasePropertiesManager
 				ca(uri, "Insert @Readiness", MicroProfileCodeActionId.InsertMissingHealthAnnotation, d, //
 						te(3, 59, 5, 0, "\n" + //
 								"import org.eclipse.microprofile.health.Readiness;\n\n" + //
-								"@Readiness\n")) //
+								"@Readiness\n")), //
+				ca(uri, "Insert @Startup", MicroProfileCodeActionId.InsertMissingHealthAnnotation, d, //
+						te(3, 59, 5, 0, "\n" + //
+								"import org.eclipse.microprofile.health.Startup;\n\n" + //
+								"@Startup\n")) //
 		);
 	}
 

@@ -17,7 +17,7 @@ import static org.eclipse.lsp4mp.jdt.core.jaxrs.JaxRsUtils.createURLCodeLens;
 import static org.eclipse.lsp4mp.jdt.core.jaxrs.JaxRsUtils.getJaxRsPathValue;
 import static org.eclipse.lsp4mp.jdt.core.jaxrs.JaxRsUtils.isJaxRsRequestMethod;
 import static org.eclipse.lsp4mp.jdt.core.jaxrs.JaxRsUtils.isClickableJaxRsRequestMethod;
-import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.getAnnotation;
+import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.getFirstAnnotation;
 import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.getAnnotationMemberValue;
 import static org.eclipse.lsp4mp.jdt.core.utils.JDTTypeUtils.overlaps;
 import static org.eclipse.lsp4mp.jdt.internal.restclient.MicroProfileRestClientConstants.REGISTER_REST_CLIENT_ANNOTATION;
@@ -137,7 +137,7 @@ public class MicroProfileRestClientCodeLensParticipant implements IJavaCodeLensP
 	 * @throws JavaModelException
 	 */
 	private static String getBaseURL(IType type, JDTMicroProfileProject mpProject) throws JavaModelException {
-		IAnnotation registerRestClientAnnotation = getAnnotation(type, REGISTER_REST_CLIENT_ANNOTATION);
+		IAnnotation registerRestClientAnnotation = getFirstAnnotation(type, REGISTER_REST_CLIENT_ANNOTATION);
 		if (registerRestClientAnnotation == null) {
 			return null;
 		}

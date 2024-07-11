@@ -11,7 +11,7 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.internal.faulttolerance.properties;
 
-import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.getAnnotation;
+import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.getFirstAnnotation;
 import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.getAnnotationMemberValue;
 import static org.eclipse.lsp4mp.jdt.core.utils.JDTTypeUtils.findType;
 import static org.eclipse.lsp4mp.jdt.core.utils.JDTTypeUtils.getDefaultValue;
@@ -397,7 +397,7 @@ public class MicroProfileFaultToleranceProvider extends AbstractAnnotationTypeRe
 			if (javaElement.getElementType() == IJavaElement.METHOD) {
 				IMethod annotatedMethod = (IMethod) javaElement;
 				IType classType = annotatedMethod.getDeclaringType();
-				IAnnotation mpftAnnotationForClass = getAnnotation(classType, annotationName);
+				IAnnotation mpftAnnotationForClass = getFirstAnnotation(classType, annotationName);
 				collectProperties(context.getCollector(), info, classType, mpftAnnotationForClass, mpftContext);
 			}
 			// 3. Collect properties for <classname>/<annotation>/<list of parameters> or

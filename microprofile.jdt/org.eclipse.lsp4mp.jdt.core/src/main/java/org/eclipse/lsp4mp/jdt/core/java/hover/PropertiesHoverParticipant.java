@@ -13,7 +13,7 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.core.java.hover;
 
-import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.getAnnotation;
+import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.getFirstAnnotation;
 import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.getAnnotationMemberAt;
 import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.getAnnotationMemberValue;
 
@@ -140,7 +140,7 @@ public class PropertiesHoverParticipant implements IJavaHoverParticipant {
 		Position hoverPosition = context.getHoverPosition();
 		IAnnotatable hoverField = (IAnnotatable) hoverElement;
 
-		IAnnotation annotation = getAnnotation(hoverField, annotationName);
+		IAnnotation annotation = getFirstAnnotation(hoverField, annotationName);
 
 		if (annotation == null) {
 			return null;

@@ -13,7 +13,7 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.jdt.core.java.definition;
 
-import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.getAnnotation;
+import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.getFirstAnnotation;
 import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.getAnnotationMemberAt;
 
 import java.util.List;
@@ -109,7 +109,7 @@ public abstract class AbstractAnnotationDefinitionParticipant implements IJavaDe
 		Position definitionPosition = context.getHyperlinkedPosition();
 
 		// Try to get the annotation
-		IAnnotation annotation = getAnnotation((IAnnotatable) hyperlinkedElement, annotationName);
+		IAnnotation annotation = getFirstAnnotation((IAnnotatable) hyperlinkedElement, annotationName);
 
 		if (annotation == null) {
 			return null;
