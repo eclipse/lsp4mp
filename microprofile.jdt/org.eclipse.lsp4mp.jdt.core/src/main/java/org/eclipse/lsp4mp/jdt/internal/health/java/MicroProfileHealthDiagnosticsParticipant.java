@@ -18,6 +18,7 @@ import static org.eclipse.lsp4mp.jdt.internal.health.MicroProfileHealthConstants
 import static org.eclipse.lsp4mp.jdt.internal.health.MicroProfileHealthConstants.HEALTH_CHECK_INTERFACE_NAME;
 import static org.eclipse.lsp4mp.jdt.internal.health.MicroProfileHealthConstants.LIVENESS_ANNOTATION;
 import static org.eclipse.lsp4mp.jdt.internal.health.MicroProfileHealthConstants.READINESS_ANNOTATION;
+import static org.eclipse.lsp4mp.jdt.internal.health.MicroProfileHealthConstants.STARTUP_ANNOTATION;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,11 +48,11 @@ import org.eclipse.lsp4mp.jdt.internal.health.MicroProfileHealthConstants;
  *
  * <ul>
  * <li>Diagnostic 1:display Health annotation diagnostic message if
- * Health/Liveness/Readiness annotation exists but HealthCheck interface is not
- * implemented</li>
+ * Health/Liveness/Readiness/Startup annotation exists but HealthCheck interface
+ * is not implemented</li>
  * <li>Diagnostic 2: display HealthCheck diagnostic message if HealthCheck
- * interface is implemented but Health/Liveness/Readiness annotation does not
- * exist</li>
+ * interface is implemented but Health/Liveness/Readiness/Startup annotation
+ * does not exist</li>
  *
  * </ul>
  *
@@ -110,11 +111,11 @@ public class MicroProfileHealthDiagnosticsParticipant implements IJavaDiagnostic
 		IType[] interfaces = findImplementedInterfaces(classType, monitor);
 		boolean implementsHealthCheck = Stream.of(interfaces)
 				.anyMatch(interfaceType -> HEALTH_CHECK_INTERFACE_NAME.equals(interfaceType.getElementName()));
-		boolean hasOneOfHealthAnnotation = AnnotationUtils.hasAnnotation(classType, LIVENESS_ANNOTATION)
-				|| AnnotationUtils.hasAnnotation(classType, READINESS_ANNOTATION)
-				|| AnnotationUtils.hasAnnotation(classType, HEALTH_ANNOTATION);
+		boolean hasOneOfHealthAnnotation = AnnotationUtils.hasAnyAnnotation(classType, LIVENESS_ANNOTATION,
+				READINESS_ANNOTATION, STARTUP_ANNOTATION, HEALTH_ANNOTATION);
 		// Diagnostic 1:display Health annotation diagnostic message if
-		// Health/Liveness/Readiness annotation exists but HealthCheck interface is not
+		// Health/Liveness/Readiness/Startup annotation exists but HealthCheck interface
+		// is not
 		// implemented
 		if (hasOneOfHealthAnnotation && !implementsHealthCheck) {
 			Range healthCheckInterfaceRange = PositionUtils.toNameRange(classType, utils);
@@ -136,52 +137,48 @@ public class MicroProfileHealthDiagnosticsParticipant implements IJavaDiagnostic
 	}
 
 	private static String createDiagnostic1Message(IType classType, DocumentFormat documentFormat) {
-		StringBuilder message = new StringBuilder("The class ");
-		if (DocumentFormat.Markdown.equals(documentFormat)) {
-			message.append("`");
-		}
-		message.append(classType.getFullyQualifiedName());
-		if (DocumentFormat.Markdown.equals(documentFormat)) {
-			message.append("`");
-		}
-		message.append(" using the @Liveness");
-		boolean hasHealth = JDTTypeUtils.findType(classType.getJavaProject(), HEALTH_ANNOTATION) != null;
-		if (!hasHealth) {
-			message.append(" or ");
-		} else {
-			message.append(", ");
-		}
-		message.append("@Readiness");
-		if (hasHealth) {
-			message.append(", or @Health");
-		}
+		StringBuilder message = getMessage(classType, documentFormat);
+		message.append(" using the ");
+		listAvailableAnnotations(classType, message);
 		message.append(" annotation should implement the HealthCheck interface.");
 		return message.toString();
 	}
 
 	private static String createDiagnostic2Message(IType classType, DocumentFormat documentFormat) {
-		StringBuilder message = new StringBuilder("The class ");
-		if (DocumentFormat.Markdown.equals(documentFormat)) {
-			message.append("`");
-		}
-		message.append(classType.getFullyQualifiedName());
-		if (DocumentFormat.Markdown.equals(documentFormat)) {
-			message.append("`");
-		}
-		message.append(
-				" implementing the HealthCheck interface should use the @Liveness");
-		boolean hasHealth = JDTTypeUtils.findType(classType.getJavaProject(), HEALTH_ANNOTATION) != null;
-		if (!hasHealth) {
-			message.append(" or ");
-		} else {
-			message.append(", ");
-		}
-		message.append("@Readiness");
-		if (hasHealth) {
-			message.append(", or @Health");
-		}
+		StringBuilder message = getMessage(classType, documentFormat);
+		message.append(" implementing the HealthCheck interface should use the ");
+		listAvailableAnnotations(classType, message);
 		message.append(" annotation.");
 		return message.toString();
+	}
+
+	private static StringBuilder getMessage(IType classType, DocumentFormat documentFormat) {
+		StringBuilder message = new StringBuilder("The class ");
+		String backtick = (documentFormat == DocumentFormat.Markdown) ? "`" : "";
+		message.append(backtick).append(classType.getFullyQualifiedName()).append(backtick);
+		return message;
+	}
+
+	private static void listAvailableAnnotations(IType classType, StringBuilder message) {
+		List<String> annotations = new ArrayList<>(4);
+		annotations.add("@Liveness");
+		annotations.add("@Readiness");
+		if (JDTTypeUtils.findType(classType.getJavaProject(), STARTUP_ANNOTATION) != null) {
+			annotations.add("@Startup");
+		}
+		if (JDTTypeUtils.findType(classType.getJavaProject(), HEALTH_ANNOTATION) != null) {
+			annotations.add("@Health");
+		}
+		int size = annotations.size();
+		int secondLast = size - 2;
+		for (int i = 0; i < size; i++) {
+			message.append(annotations.get(i));
+			if (i == secondLast) {
+				message.append(" or ");
+			} else if (i < secondLast) {
+				message.append(", ");
+			}
+		}
 	}
 
 	private static IType[] findImplementedInterfaces(IType type, IProgressMonitor progressMonitor)

@@ -17,7 +17,7 @@ import static org.eclipse.lsp4mp.jdt.core.MicroProfileConfigConstants.CONFIG_PRO
 import static org.eclipse.lsp4mp.jdt.core.MicroProfileConfigConstants.CONFIG_PROPERTIES_ANNOTATION_PREFIX;
 import static org.eclipse.lsp4mp.jdt.core.MicroProfileConfigConstants.CONFIG_PROPERTIES_ANNOTATION_UNCONFIGURED_PREFIX;
 import static org.eclipse.lsp4mp.jdt.core.MicroProfileConfigConstants.CONFIG_PROPERTY_ANNOTATION;
-import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.getAnnotation;
+import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.getFirstAnnotation;
 import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.getAnnotationMemberValue;
 import static org.eclipse.lsp4mp.jdt.core.utils.JDTTypeUtils.findType;
 import static org.eclipse.lsp4mp.jdt.core.utils.JDTTypeUtils.getResolvedTypeName;
@@ -166,12 +166,12 @@ public class MicroProfileConfigPropertiesProvider extends MicroProfileConfigProp
 				IType fieldClass = findType(child.getJavaProject(), fieldTypeName);
 				if (isSimpleFieldType(fieldClass, fieldTypeName)) {
 					// Java simple type (int, String, etc...) generate a property.
-					IAnnotation configPropertyAnnotation = getAnnotation((IAnnotatable) child,
+					IAnnotation configPropertyAnnotation = getFirstAnnotation((IAnnotatable) child,
 							CONFIG_PROPERTY_ANNOTATION);
 					super.collectProperty(child, configPropertyAnnotation, prefix, true, collector);
 				} else {
 					// Class type, generate properties from this class type.
-					IAnnotation configPropertyAnnotation = getAnnotation((IAnnotatable) child,
+					IAnnotation configPropertyAnnotation = getFirstAnnotation((IAnnotatable) child,
 							CONFIG_PROPERTY_ANNOTATION);
 					String propertyName = super.getPropertyName(child, configPropertyAnnotation, prefix, true);
 					populateConfigObject(fieldClass, propertyName, typesAlreadyProcessed, collector, monitor);

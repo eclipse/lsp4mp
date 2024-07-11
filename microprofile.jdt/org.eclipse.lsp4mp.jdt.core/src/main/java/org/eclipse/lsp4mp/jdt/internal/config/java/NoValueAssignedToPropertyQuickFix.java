@@ -17,7 +17,7 @@ import static org.eclipse.lsp4mp.commons.codeaction.MicroProfileCodeActionFactor
 import static org.eclipse.lsp4mp.jdt.core.MicroProfileConfigConstants.CONFIG_PROPERTY_ANNOTATION;
 import static org.eclipse.lsp4mp.jdt.core.MicroProfileConfigConstants.CONFIG_PROPERTY_ANNOTATION_NAME;
 import static org.eclipse.lsp4mp.jdt.core.MicroProfileConfigConstants.DIAGNOSTIC_DATA_NAME;
-import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.getAnnotation;
+import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.getFirstAnnotation;
 import static org.eclipse.lsp4mp.jdt.core.utils.AnnotationUtils.getAnnotationMemberValue;
 
 import java.text.MessageFormat;
@@ -163,7 +163,7 @@ public class NoValueAssignedToPropertyQuickFix implements IJavaCodeActionPartici
 		int offset = utils.toOffset(typeRoot.getBuffer(), hoverPosition.getLine(), hoverPosition.getCharacter());
 		IJavaElement hoverElement = typeRoot.getElementAt(offset);
 
-		IAnnotation configPropertyAnnotation = getAnnotation((IAnnotatable) hoverElement, CONFIG_PROPERTY_ANNOTATION);
+		IAnnotation configPropertyAnnotation = getFirstAnnotation((IAnnotatable) hoverElement, CONFIG_PROPERTY_ANNOTATION);
 		return getAnnotationMemberValue(configPropertyAnnotation, CONFIG_PROPERTY_ANNOTATION_NAME);
 	}
 
