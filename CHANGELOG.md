@@ -1,5 +1,23 @@
 # MicroProfile Language Server Changelog
 
+## [0.12.0](https://github.com/eclipse/lsp4mp/milestone/13?closed=1) (August 26, 2024)
+
+### Enhancements
+
+- Resolve system properties/environment variables while browsing the application.properties values. See [#448](https://github.com/eclipse/lsp4mp/issues/448).
+- Add support for @Startup healthcheck diagnostic. See [#443](https://github.com/eclipse/lsp4mp/issues/443).
+
+### Bug Fixes
+
+- NPE with Workspace Symbol when LSP client return null as SymbolInformation List. See [#457](https://github.com/eclipse/lsp4mp/pull/457).
+- Unrecognized property mp.messaging.* when Channel annotation is used along with Multi. See [#451](https://github.com/eclipse/lsp4mp/pull/451).
+- fix: synchronized projectLabels + collect codeLens when project is loaded. See [#444](https://github.com/eclipse/lsp4mp/pull/444).
+
+### Build
+
+- Update eclipse.jdt.ls to 1.39.0-SNAPSHOT. See [#454](https://github.com/eclipse/lsp4mp/pull/454).
+- Add About files to JDT extension bundles & Maven artifacts. See [#437](https://github.com/eclipse/lsp4mp/pull/437).
+
 ## [0.11.0](https://github.com/eclipse/lsp4mp/milestone/12?closed=1) (February 1, 2024)
 
 ### Enhancements
