@@ -130,7 +130,8 @@ public class ExtendedMicroProfileProjectInfo extends MicroProfileProjectInfo {
 
 			// expand properties by using new dynamic properties
 			expandProperties(staticProperties, dynamicProperties, getHint);
-			// expand properties by using old dynamic properties (coming from binary properties)
+			// expand properties by using old dynamic properties (coming from binary
+			// properties)
 			expandProperties(staticProperties, getDynamicProperties(), getHint);
 			updateListFromPropertiesSources(getProperties(), staticProperties);
 			updateListFromPropertiesSources(getDynamicProperties(), dynamicProperties);
@@ -202,7 +203,10 @@ public class ExtendedMicroProfileProjectInfo extends MicroProfileProjectInfo {
 				// - a Java sources changes (document = null)
 				// - a microprofile-config.properties changes (document != null)
 				if (document != null || provider.isAvailable()) {
-					List<ItemMetadata> oldProperties = new ArrayList<>(provider.getProperties());
+					List<ItemMetadata> oldProperties = provider.getProperties();
+					if (oldProperties != null) {
+						oldProperties = new ArrayList<>(oldProperties);
+					}
 					provider.update(document);
 					List<ItemMetadata> newProperties = provider.getProperties();
 					if (!Objects.deepEquals(oldProperties, newProperties)) {

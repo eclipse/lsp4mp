@@ -1,1 +1,2 @@
 org.eclipse.lsp4mp.extensions.reactivemessaging.MicroProfileReactiveMessagingItemMetadataProviderFactory
+org.eclipse.lsp4mp.extensions.sysenv.SysEnvItemMetadataProviderFactory

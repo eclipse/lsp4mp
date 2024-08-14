@@ -27,8 +27,8 @@ import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
 import org.eclipse.lsp4mp.commons.metadata.ValueHint;
 import org.eclipse.lsp4mp.commons.metadata.ValueProvider;
 import org.eclipse.lsp4mp.commons.metadata.ValueProvider.ValueProviderDefaultName;
-import org.eclipse.lsp4mp.commons.utils.StringUtils;
 import org.eclipse.lsp4mp.commons.metadata.ValueProviderParameter;
+import org.eclipse.lsp4mp.commons.utils.StringUtils;
 import org.eclipse.lsp4mp.ls.commons.SnippetsBuilder;
 import org.eclipse.lsp4mp.model.PropertiesModel;
 import org.eclipse.lsp4mp.services.properties.QuarkusModel;
@@ -181,14 +181,26 @@ public class PropertiesFileUtils {
 	 *         otherwise.
 	 */
 	public static ItemMetadata getProperty(String propertyName, MicroProfileProjectInfo info) {
-		Collection<ItemMetadata> properties = info.getProperties();
 		if (StringUtils.isEmpty(propertyName)) {
 			return null;
 		}
-
+		Collection<ItemMetadata> properties = info.getProperties();
 		for (ItemMetadata property : properties) {
 			if (property != null && match(propertyName, property.getName())) {
 				return property;
+			}
+		}
+		if (EnvUtils.isWindows && System.getenv(propertyName) != null) {
+			// Here we are on Windows OS and the property name is an Environment variable
+			// As environment variable on Windows OS doesn't take care of case (ex : PATH,
+			// Path, path is the same for Windows OS)
+			// we need to search property by ignore the case.
+			for (ItemMetadata property : properties) {
+				if (EnvUtils.ENVIRONMENT_VARIABLES_ORIGIN.equals(property.getOrigin())) {
+					if (propertyName.equalsIgnoreCase(property.getName())) {
+						return property;
+					}
+				}
 			}
 		}
 		return null;
@@ -327,7 +339,9 @@ public class PropertiesFileUtils {
 	 */
 	public static PropertiesModel loadProperties(String documentURI) {
 		try {
-			return PropertiesModel.parse(IOUtils.convertStreamToString(new URL(documentURI).openStream()), documentURI, () -> {});
+			return PropertiesModel.parse(IOUtils.convertStreamToString(new URL(documentURI).openStream()), documentURI,
+					() -> {
+					});
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, "Error while loading properties file '" + documentURI + "'.", e);
 			return null;

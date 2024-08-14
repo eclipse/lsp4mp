@@ -98,6 +98,8 @@ import com.google.gson.GsonBuilder;
  */
 public class PropertiesFileAssert {
 
+	public static final int SYS_ENV_PROPERTIES_NUMBER = System.getProperties().size() + System.getenv().size();
+
 	private static MicroProfileProjectInfo DEFAULT_PROJECT;
 
 	private static MicroProfilePropertyDefinitionProvider DEFAULT_DEFINITION_PROVIDER;
