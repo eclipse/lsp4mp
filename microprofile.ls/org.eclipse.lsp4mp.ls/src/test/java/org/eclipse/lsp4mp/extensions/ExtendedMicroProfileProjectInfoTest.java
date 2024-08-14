@@ -16,6 +16,7 @@ import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.metadata.ItemHint;
 import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
 import org.eclipse.lsp4mp.commons.metadata.ValueHint;
+import org.eclipse.lsp4mp.services.properties.PropertiesFileAssert;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -99,12 +100,12 @@ public class ExtendedMicroProfileProjectInfoTest {
 		ExtendedMicroProfileProjectInfo wrapper = new ExtendedMicroProfileProjectInfo(info);
 
 		Assert.assertEquals(2, wrapper.getProperties().size());
-		Assert.assertEquals("quarkus.cache.caffeine.A.initial-capacity", wrapper.getProperties().get(0).getName());
-		Assert.assertEquals("quarkus.cache.caffeine.B.initial-capacity", wrapper.getProperties().get(1).getName());
+		assertPropertyExist("quarkus.cache.caffeine.A.initial-capacity", wrapper);
+		assertPropertyExist("quarkus.cache.caffeine.B.initial-capacity", wrapper);
 
 		// Update with empty hints
 		wrapper.updateSourcesProperties(new ArrayList<>(), new ArrayList<>());
-		Assert.assertEquals(0, wrapper.getProperties().size());
+		Assert.assertEquals(0 + PropertiesFileAssert.SYS_ENV_PROPERTIES_NUMBER, wrapper.getProperties().size());
 
 		// Update with 3 hints
 		value = new ValueHint();
@@ -112,10 +113,15 @@ public class ExtendedMicroProfileProjectInfoTest {
 		hint.getValues().add(value);
 
 		wrapper.updateSourcesProperties(new ArrayList<>(), Arrays.asList(hint));
-		Assert.assertEquals(3, wrapper.getProperties().size());
-		Assert.assertEquals("quarkus.cache.caffeine.A.initial-capacity", wrapper.getProperties().get(0).getName());
-		Assert.assertEquals("quarkus.cache.caffeine.B.initial-capacity", wrapper.getProperties().get(1).getName());
-		Assert.assertEquals("quarkus.cache.caffeine.C.initial-capacity", wrapper.getProperties().get(2).getName());
+		Assert.assertEquals(3 + PropertiesFileAssert.SYS_ENV_PROPERTIES_NUMBER, wrapper.getProperties().size());
+		assertPropertyExist("quarkus.cache.caffeine.A.initial-capacity", wrapper);
+		assertPropertyExist("quarkus.cache.caffeine.B.initial-capacity", wrapper);
+		assertPropertyExist("quarkus.cache.caffeine.C.initial-capacity", wrapper);
 
 	}
+
+	private void assertPropertyExist(String propertyName, ExtendedMicroProfileProjectInfo wrapper) {
+		Assert.assertTrue(wrapper.getProperties().stream().anyMatch(p -> propertyName.equals(p.getName())));
+	}
+
 }

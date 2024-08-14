@@ -25,7 +25,6 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4mp.commons.DocumentFormat;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
-import org.eclipse.lsp4mp.commons.MicroProfilePropertyDefinitionParams;
 import org.eclipse.lsp4mp.commons.MicroProfilePropertyDocumentationParams;
 import org.eclipse.lsp4mp.commons.metadata.ConfigurationMetadata;
 import org.eclipse.lsp4mp.commons.metadata.ItemHint;
@@ -67,8 +66,9 @@ class PropertiesFileHover {
 	 * @param cancelChecker         the cancel checker
 	 * @return Hover object for the currently hovered token
 	 */
-	public CompletableFuture<Hover> doHover(PropertiesModel document, Position position, MicroProfileProjectInfo projectInfo,
-			MicroProfileHoverSettings hoverSettings, MicroProfilePropertyDocumentationProvider documentationProvider, CancelChecker cancelChecker) {
+	public CompletableFuture<Hover> doHover(PropertiesModel document, Position position,
+			MicroProfileProjectInfo projectInfo, MicroProfileHoverSettings hoverSettings,
+			MicroProfilePropertyDocumentationProvider documentationProvider, CancelChecker cancelChecker) {
 
 		Node node = null;
 		int offset = -1;
@@ -92,13 +92,16 @@ class PropertiesFileHover {
 			boolean inDefaultValue = propExpr.isInDefaultValue(offset);
 			if (inDefaultValue) {
 				// quarkus.log.file.level=${ENV:OF|F}
-				return CompletableFuture.completedFuture(getPropertyValueHover(propExpr, inDefaultValue, projectInfo, hoverSettings));
+				return CompletableFuture
+						.completedFuture(getPropertyValueHover(propExpr, inDefaultValue, projectInfo, hoverSettings));
 			}
 			// quarkus.log.file.level=${E|NV:OFF}
-			return CompletableFuture.completedFuture(getPropertyValueExpressionHover(propExpr, projectInfo, hoverSettings, cancelChecker));
+			return CompletableFuture.completedFuture(
+					getPropertyValueExpressionHover(propExpr, projectInfo, hoverSettings, cancelChecker));
 		case PROPERTY_VALUE_LITERAL:
 		case PROPERTY_VALUE:
-			return CompletableFuture.completedFuture(getPropertyValueHover((BasePropertyValue) node, false, projectInfo, hoverSettings));
+			return CompletableFuture.completedFuture(
+					getPropertyValueHover((BasePropertyValue) node, false, projectInfo, hoverSettings));
 		case PROPERTY_KEY:
 			PropertyKey key = (PropertyKey) node;
 			if (key.isBeforeProfile(offset)) {
@@ -106,7 +109,8 @@ class PropertiesFileHover {
 				return CompletableFuture.completedFuture(getProfileHover(key, hoverSettings));
 			} else {
 				// hover documentation on property key
-				return getPropertyKeyHover(key, projectInfo, hoverSettings, documentationProvider, document.getDocumentURI(), cancelChecker);
+				return getPropertyKeyHover(key, projectInfo, hoverSettings, documentationProvider,
+						document.getDocumentURI(), cancelChecker);
 			}
 
 		default:
@@ -143,16 +147,17 @@ class PropertiesFileHover {
 	 * Returns the documentation hover for property key represented by the property
 	 * key <code>key</code>
 	 *
-	 * @param key           the property key
-	 * @param offset        the hover offset
-	 * @param projectInfo   the MicroProfile project information
-	 * @param hoverSettings the hover settings
+	 * @param key                   the property key
+	 * @param offset                the hover offset
+	 * @param projectInfo           the MicroProfile project information
+	 * @param hoverSettings         the hover settings
 	 * @param documentationProvider the documentation provider
-	 * @param cancelChecker the cancel checker
+	 * @param cancelChecker         the cancel checker
 	 * @return the documentation hover for property key represented by token
 	 */
 	private static CompletableFuture<Hover> getPropertyKeyHover(PropertyKey key, MicroProfileProjectInfo projectInfo,
-			MicroProfileHoverSettings hoverSettings, MicroProfilePropertyDocumentationProvider documentationProvider, String uri, CancelChecker cancelChecker) {
+			MicroProfileHoverSettings hoverSettings, MicroProfilePropertyDocumentationProvider documentationProvider,
+			String uri, CancelChecker cancelChecker) {
 		boolean markdownSupported = hoverSettings.isContentFormatSupported(MarkupKind.MARKDOWN);
 		// retrieve MicroProfile property from the project information
 		String propertyName = key.getPropertyName();
@@ -175,7 +180,8 @@ class PropertiesFileHover {
 		if (item != null || propertyValue != null) {
 
 			CompletableFuture<Void> docsCollect = null;
-			if (item != null && (item.getDescription() == null || item.getDescription().isEmpty())) {
+			if (item != null && item.isJavaOrigin() && StringUtils.isEmpty(item.getDescription())) {
+				// It is a property declared in a Java file, try to collect the Javadoc
 				MicroProfilePropertyDocumentationParams params = new MicroProfilePropertyDocumentationParams();
 				params.setUri(uri);
 				params.setSourceField(item.getSourceField());
@@ -209,7 +215,8 @@ class PropertiesFileHover {
 			return docsCollect.thenApply((_null) -> {
 				Hover hover = new Hover();
 				MarkupContent markupContent = null;
-				// Docs are only collected asynchronously from JDT.LS if the ItemMetadata resolves
+				// Docs are only collected asynchronously from JDT.LS if the ItemMetadata
+				// resolves
 				// MicroProfile property found, display the documentation as hover
 				markupContent = DocumentationUtils.getDocumentation(item, key.getProfile(), propertyValueFinal,
 						markdownSupported);
@@ -265,7 +272,8 @@ class PropertiesFileHover {
 		}
 
 		PropertiesModel model = node.getOwnerModel();
-		IConfigSourcePropertiesProvider propertiesProvider = ConfigSourcePropertiesProviderUtils.layer(model, new PropertiesInfoPropertiesProvider(projectInfo.getProperties()));
+		IConfigSourcePropertiesProvider propertiesProvider = ConfigSourcePropertiesProviderUtils.layer(model,
+				new PropertiesInfoPropertiesProvider(projectInfo.getProperties()));
 		PropertyValueExpander expander = new PropertyValueExpander(propertiesProvider);
 		cancelChecker.checkCanceled();
 

@@ -45,6 +45,15 @@ public class PropertiesFileExpressionCompletionTest {
 	}
 
 	@Test
+	public void justDollarSignNoNewlineItemDefaults() throws BadLocationException {
+		String text = //
+				"test.property = hello\n" + //
+						"other.test.property = $|";
+		testCompletionFor(text, true, false, true, null, null, generateInfoFor("test.property", "other.test.property"),
+				c("${test.property}", r(1, 22, 23)));
+	}
+
+	@Test
 	public void justDollarSignNewline() throws BadLocationException {
 		String text = //
 				"test.property = hello\n" + //
@@ -338,7 +347,7 @@ public class PropertiesFileExpressionCompletionTest {
 		testCompletionFor(text, generateInfoFor("asdf", "hjkl", "foo", "qwerty"), //
 				c("${foo}", r(2, 9, 12)), c("${hjkl}", r(2, 9, 12)));
 	}
-	
+
 	@Test
 	public void complexExpressions3() throws BadLocationException {
 		String text = "asdf = ${${hjkl}}\n" + //

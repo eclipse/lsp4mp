@@ -30,6 +30,8 @@ public class ItemBase {
 
 	private Boolean source;
 
+	private String origin;
+
 	public String getName() {
 		return name;
 	}
@@ -66,12 +68,42 @@ public class ItemBase {
 		this.source = source;
 	}
 
+	/**
+	 * Returns the origin of the item (Java, System / Environment variables).
+	 * 
+	 * @return the origin of the item (Java, System / Environment variables).
+	 */
+	public String getOrigin() {
+		return origin;
+	}
+
+	/**
+	 * Set the origin of the item (Java, System / Environment variables).
+	 * 
+	 * @param origin the origin of the item (Java, System / Environment variables).
+	 */
+	public void setOrigin(String origin) {
+		this.origin = origin;
+	}
+
+	/**
+	 * Returns true if the item is defined in a Java class and false otherwise (ex :
+	 * System / Environments variable).
+	 * 
+	 * @return true if the item is defined in a Java class and false otherwise (ex :
+	 *         System / Environments variable).
+	 */
+	public boolean isJavaOrigin() {
+		return origin == null;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((description == null) ? 0 : description.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((origin == null) ? 0 : origin.hashCode());
 		result = prime * result + ((source == null) ? 0 : source.hashCode());
 		result = prime * result + ((sourceType == null) ? 0 : sourceType.hashCode());
 		return result;
@@ -95,6 +127,11 @@ public class ItemBase {
 			if (other.name != null)
 				return false;
 		} else if (!name.equals(other.name))
+			return false;
+		if (origin == null) {
+			if (other.origin != null)
+				return false;
+		} else if (!origin.equals(other.origin))
 			return false;
 		if (source == null) {
 			if (other.source != null)

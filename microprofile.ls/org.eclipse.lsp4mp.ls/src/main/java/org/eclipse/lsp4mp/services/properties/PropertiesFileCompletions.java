@@ -15,10 +15,8 @@ package org.eclipse.lsp4mp.services.properties;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -41,7 +39,6 @@ import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.metadata.ConverterKind;
 import org.eclipse.lsp4mp.commons.metadata.ItemMetadata;
 import org.eclipse.lsp4mp.commons.metadata.ValueHint;
-import org.eclipse.lsp4mp.commons.utils.ConfigSourcePropertiesProviderUtils;
 import org.eclipse.lsp4mp.commons.utils.PropertyValueExpander;
 import org.eclipse.lsp4mp.commons.utils.StringUtils;
 import org.eclipse.lsp4mp.ls.commons.BadLocationException;
@@ -74,7 +71,6 @@ class PropertiesFileCompletions {
 
 	private static final Logger LOGGER = Logger.getLogger(PropertiesFileCompletions.class.getName());
 	private TextDocumentSnippetRegistry snippetRegistry;
-	private CompletionItemDefaults completionItemDefaults;
 
 	/**
 	 * Returns completion list for the given position
@@ -103,9 +99,6 @@ class PropertiesFileCompletions {
 			return list;
 		}
 
-		initializeCompletionListItemDefaults(document, completionCapabilities, offset);
-		list.setItemDefaults(completionItemDefaults);
-
 		switch (node.getNodeType()) {
 		case COMMENTS:
 			// no completions
@@ -113,17 +106,17 @@ class PropertiesFileCompletions {
 
 		case PROPERTY_VALUE_EXPRESSION:
 			PropertyValueExpression propExpr = (PropertyValueExpression) node;
-			boolean inDefautlValue = propExpr.isInDefaultValue(offset);
-			if (inDefautlValue || offset == propExpr.getStart()
+			boolean inDefaultValue = propExpr.isInDefaultValue(offset);
+			if (inDefaultValue || offset == propExpr.getStart()
 					|| (propExpr.isClosed() && propExpr.getEnd() == offset)) {
 				// other.test.property = ${}|
 				// quarkus.log.level = ${ENV_LEVEL:|}
-				collectPropertyValueSuggestions(node, document, inDefautlValue, projectInfo, completionCapabilities,
-						completionItemDefaults, list);
+				collectPropertyValueSuggestions(node, document, inDefaultValue, projectInfo, completionCapabilities,
+						list);
 			} else {
 				// other.test.property = ${|}
-				collectPropertyValueExpressionSuggestions(propExpr, document, projectInfo, completionCapabilities,
-						list, cancelChecker);
+				collectPropertyValueExpressionSuggestions(propExpr, document, projectInfo, completionCapabilities, list,
+						cancelChecker);
 			}
 			break;
 
@@ -131,26 +124,24 @@ class PropertiesFileCompletions {
 			// Only collect if on right side of =
 			if (offset >= node.getEnd()) {
 				// quarkus.datasource.transaction-isolation-level=|
-				collectPropertyValueSuggestions(node, document, false, projectInfo, completionCapabilities,
-						completionItemDefaults, list);
+				collectPropertyValueSuggestions(node, document, false, projectInfo, completionCapabilities, list);
 			} else {
 				// completion on property key if on the left side of =
 				collectPropertyKeySuggestions(offset, node, document, projectInfo, completionCapabilities,
-						formattingSettings, completionItemDefaults, list);
+						formattingSettings, list);
 			}
 			break;
 		case PROPERTY_VALUE:
 		case PROPERTY_VALUE_LITERAL:
 			// completion on property value
 			// quarkus.log.console.async.overflow=B|L
-			collectPropertyValueSuggestions(node, document, false, projectInfo, completionCapabilities,
-					completionItemDefaults, list);
+			collectPropertyValueSuggestions(node, document, false, projectInfo, completionCapabilities, list);
 			break;
 
 		default:
 			// completion on property key
 			collectPropertyKeySuggestions(offset, node, document, projectInfo, completionCapabilities,
-					formattingSettings, completionItemDefaults, list);
+					formattingSettings, list);
 			// Collect completion items with snippet
 			collectSnippetSuggestions(offset, node, document, projectInfo, completionCapabilities, getSnippetRegistry(),
 					list);
@@ -189,13 +180,11 @@ class PropertiesFileCompletions {
 	 * @param projectInfo            the MicroProfile project information
 	 * @param completionCapabilities the completion capabilities
 	 * @param formattingSettings     the formatting settings
-	 * @param completionItemDefaults the completion itemDefaults
 	 * @param list                   the completion list to fill
 	 */
 	private static void collectPropertyKeySuggestions(int offset, Node node, PropertiesModel model,
 			MicroProfileProjectInfo projectInfo, MicroProfileCompletionCapabilities completionCapabilities,
-			MicroProfileFormattingSettings formattingSettings, CompletionItemDefaults completionItemDefaults,
-			CompletionList list) {
+			MicroProfileFormattingSettings formattingSettings, CompletionList list) {
 		boolean snippetsSupported = completionCapabilities.isCompletionSnippetsSupported();
 		boolean markdownSupported = completionCapabilities.isDocumentationFormatSupported(MarkupKind.MARKDOWN);
 		boolean completionResolveDocumentationSupported = completionCapabilities
@@ -208,13 +197,14 @@ class PropertiesFileCompletions {
 			LOGGER.log(Level.SEVERE, "In MicroProfileCompletion#collectPropertyKeySuggestions, position error", e);
 			return;
 		}
+		initializeCompletionListItemDefaults(completionCapabilities, range, list);
 
 		String profile = null;
 		if (node != null && node.getNodeType() == NodeType.PROPERTY_KEY) {
 			PropertyKey key = (PropertyKey) node;
 			if (key.isBeforeProfile(offset)) {
 				collectProfileSuggestions(offset, key, model, markdownSupported,
-						completionResolveDocumentationSupported, completionCapabilities, completionItemDefaults, list);
+						completionResolveDocumentationSupported, completionCapabilities, list);
 				return;
 			}
 			profile = key.getProfile();
@@ -301,16 +291,11 @@ class PropertiesFileCompletions {
 				}
 			}
 
-			if (completionItemDefaults.getEditRange() != null) {
-				item.setTextEditText(insertText.toString());
-			} else {
-				item.setTextEdit(Either.forLeft(new TextEdit(range, insertText.toString())));
-			}
+			CompletionItemDefaults completionItemDefaults = list.getItemDefaults();
+			updateTextEdit(item, range, insertText.toString(), completionItemDefaults);
+			updateInsertTextFormat(item, snippetsSupported ? InsertTextFormat.Snippet : InsertTextFormat.PlainText,
+					completionItemDefaults);
 
-			if (!completionCapabilities.isCompletionListItemDefaultsSupport("insertTextFormat")
-					|| completionItemDefaults.getInsertTextFormat() == null) {
-				item.setInsertTextFormat(snippetsSupported ? InsertTextFormat.Snippet : InsertTextFormat.PlainText);
-			}
 			if (completionResolveDocumentationSupported) {
 				item.setData(new CompletionData(model.getDocumentURI()));
 			} else {
@@ -327,7 +312,8 @@ class PropertiesFileCompletions {
 	 *                                                was invoked
 	 * @param key                                     the property key
 	 * @param model                                   the properties model
-	 * @param markdownSupported                       boolean determining if markdown is supported
+	 * @param markdownSupported                       boolean determining if
+	 *                                                markdown is supported
 	 * @param completionResolveDocumentationSupported true if completion resolve for
 	 *                                                documentation is supported
 	 * @param completionCapabilities                  the completion capabilities
@@ -336,8 +322,7 @@ class PropertiesFileCompletions {
 	 */
 	private static void collectProfileSuggestions(int offset, PropertyKey key, PropertiesModel model,
 			boolean markdownSupported, boolean completionResolveDocumentationSupported,
-			MicroProfileCompletionCapabilities completionCapabilities, CompletionItemDefaults completionItemDefaults,
-			CompletionList list) {
+			MicroProfileCompletionCapabilities completionCapabilities, CompletionList list) {
 
 		Range range = null;
 		Position currPosition = null;
@@ -349,10 +334,12 @@ class PropertiesFileCompletions {
 			currPosition = textDocument.positionAt(offset);
 			line = textDocument.lineText(currPosition.getLine());
 			addPeriod = currPosition.getCharacter() < line.length() && line.charAt(currPosition.getCharacter()) != '.';
+			range.setEnd(currPosition);
 		} catch (BadLocationException e) {
-			LOGGER.log(Level.SEVERE, "In MicroProfileCompletion#collectPropertyKeySuggestions, position error", e);
+			LOGGER.log(Level.SEVERE, "In MicroProfileCompletion#collectProfileSuggestions, position error", e);
 			return;
 		}
+		initializeCompletionListItemDefaults(completionCapabilities, range, list);
 
 		// Collect all existing profiles declared in application.properties
 		Set<String> profiles = model.getChildren().stream().filter(n -> n.getNodeType() == NodeType.PROPERTY).map(n -> {
@@ -361,6 +348,7 @@ class PropertiesFileCompletions {
 		}).filter(Objects::nonNull).filter(not(String::isEmpty)).distinct().collect(Collectors.toSet());
 		// merge existings profiles with default profiles.
 		profiles.addAll(QuarkusModel.getDefaultProfileNames());
+
 		// Completion on profiles
 		for (String p : profiles) {
 			if (p.equals(key.getProfile())) {
@@ -371,13 +359,9 @@ class PropertiesFileCompletions {
 			item.setKind(CompletionItemKind.Struct);
 
 			String insertText = new StringBuilder("%").append(p).append(addPeriod ? "." : "").toString();
-			range.setEnd(currPosition);
-			item.setTextEdit(Either.forLeft(new TextEdit(range, insertText)));
-			if (!completionCapabilities.isCompletionListItemDefaultsSupport("insertTextFormat")
-					|| completionItemDefaults.getInsertTextFormat() == null
-					|| completionItemDefaults.getInsertTextFormat() != InsertTextFormat.PlainText) {
-				item.setInsertTextFormat(InsertTextFormat.PlainText);
-			}
+			updateTextEdit(item, range, insertText, list.getItemDefaults());
+			updateInsertTextFormat(item, InsertTextFormat.PlainText, list.getItemDefaults());
+
 			if (completionResolveDocumentationSupported) {
 				for (ValueHint profile : QuarkusModel.DEFAULT_PROFILES.getValues()) {
 					if (profile.getValue().equals(item.getLabel())) {
@@ -450,15 +434,15 @@ class PropertiesFileCompletions {
 	 * Collect property values.
 	 *
 	 * @param node                   the property value node
-	 * @param inDefautlValue         true if the offset is in the default value.
+	 * @param inDefaultValue         true if the offset is in the default value.
 	 * @param projectInfo            the MicroProfile project information
 	 * @param completionCapabilities the completion capabilities
 	 * @param completionItemDefaults the completion itemDefaults
 	 * @param list                   the completion list to fill
 	 */
-	private static void collectPropertyValueSuggestions(Node node, PropertiesModel model, boolean inDefautlValue,
+	private static void collectPropertyValueSuggestions(Node node, PropertiesModel model, boolean inDefaultValue,
 			MicroProfileProjectInfo projectInfo, MicroProfileCompletionCapabilities completionCapabilities,
-			CompletionItemDefaults completionItemDefaults, CompletionList list) {
+			CompletionList list) {
 
 		Property property = null;
 
@@ -487,7 +471,7 @@ class PropertiesFileCompletions {
 					TextDocument doc = model.getDocument();
 					int startOffset;
 					int endOffset = -1;
-					if (inDefautlValue) {
+					if (inDefaultValue) {
 						PropertyValueExpression propExpr = (PropertyValueExpression) node;
 						startOffset = propExpr.getDefaultValueStartOffset();
 						endOffset = propExpr.getDefaultValueEndOffset();
@@ -502,13 +486,16 @@ class PropertiesFileCompletions {
 						range.setEnd(doc.positionAt(endOffset));
 					}
 				} catch (BadLocationException e) {
-					LOGGER.log(Level.SEVERE, "In MicroProfileCompletion#getEnumCompletionItem, position error", e);
+					LOGGER.log(Level.SEVERE,
+							"In MicroProfileCompletion#collectPropertyValueSuggestions, position error", e);
+					return;
 				}
 
+				initializeCompletionListItemDefaults(completionCapabilities, range, list);
 				boolean markdownSupported = completionCapabilities.isDocumentationFormatSupported(MarkupKind.MARKDOWN);
 				for (ValueHint e : enums) {
-					list.getItems().add(getValueCompletionItem(e, item.getConverterKinds(), range, model,
-							markdownSupported, completionItemDefaults));
+					list.getItems().add(getValueCompletionItem(e, item.getConverterKinds(), range, markdownSupported,
+							list.getItemDefaults()));
 				}
 			}
 		}
@@ -526,18 +513,35 @@ class PropertiesFileCompletions {
 		String completionPropertyName = node.getProperty().getPropertyKey();
 		List<String> independentProperties = expander.getIndependentProperties(completionPropertyName);
 		cancelChecker.checkCanceled();
+
+		// Compute range
+		Range range = null;
+		try {
+
+			range = new Range(model.getDocument().positionAt(node.getStart()),
+					model.getDocument().positionAt(node.getEnd()));
+		} catch (BadLocationException e) {
+			LOGGER.log(Level.SEVERE,
+					"In MicroProfileCompletion#collectPropertyValueExpressionSuggestions, position error", e);
+			return;
+		}
+		initializeCompletionListItemDefaults(completionCapabilities, range, list);
+
+		CompletionItemDefaults completionItemDefaults = list.getItemDefaults();
 		// Add all independent properties as completion items
 		for (String independentProperty : independentProperties) {
-			list.getItems().add(getPropertyCompletionItem(independentProperty, node, model));
+			list.getItems()
+					.add(getPropertyExpressionCompletionItem(independentProperty, range, completionItemDefaults));
 		}
 
 		// Add all properties not referenced in the properties file as completion
 		// options only the property has no default value
 		for (ItemMetadata candidateCompletion : projectInfo.getProperties()) {
-			if (candidateCompletion.getDefaultValue() == null) {
+			if (!candidateCompletion.isJavaOrigin() || candidateCompletion.getDefaultValue() == null) {
 				String candidateCompletionName = candidateCompletion.getName();
 				if (!model.hasKey(candidateCompletionName)) {
-					list.getItems().add(getPropertyCompletionItem(candidateCompletionName, node, model));
+					list.getItems().add(getPropertyExpressionCompletionItem(candidateCompletionName, range,
+							completionItemDefaults));
 				}
 			}
 		}
@@ -550,46 +554,38 @@ class PropertiesFileCompletions {
 	 * @param item                   the value item.
 	 * @param converterKinds         the converter kinds.
 	 * @param range                  the range for completion
-	 * @param model                  the property model
-	 * @param markdownSupported      true if markdown is supported and false otherwise.
+	 * @param markdownSupported      true if markdown is supported and false
+	 *                               otherwise.
 	 * @param completionItemDefaults the completion itemDefaults
 	 * @return the value completion item
 	 */
 	private static CompletionItem getValueCompletionItem(ValueHint item, List<ConverterKind> converterKinds,
-			Range range, PropertiesModel model, boolean markdownSupported,
-			CompletionItemDefaults completionItemDefaults) {
+			Range range, boolean markdownSupported, CompletionItemDefaults completionItemDefaults) {
 		String value = item.getPreferredValue(converterKinds);
 		CompletionItem completionItem = new CompletionItem(value);
 		completionItem.setKind(CompletionItemKind.Value);
-
-		if (completionItemDefaults.getEditRange() != null && range == completionItemDefaults.getEditRange().getLeft()) {
-			completionItem.setTextEditText(value);
-		} else {
-			completionItem.setTextEdit(Either.forLeft(new TextEdit(range, value)));
-		}
+		updateTextEdit(completionItem, range, value, completionItemDefaults);
+		updateInsertTextFormat(completionItem, InsertTextFormat.PlainText, completionItemDefaults);
 		completionItem.setDocumentation(DocumentationUtils.getDocumentation(item, markdownSupported));
-
 		return completionItem;
 	}
 
 	/**
 	 * Make a completion item for a property given its metadata
+	 * 
+	 * @param list
+	 * @param range
 	 *
 	 * @param property the metadata of the property to create a completion item for
 	 */
-	private static CompletionItem getPropertyCompletionItem(String propertyName,
-			PropertyValueExpression propertyValueExpression, PropertiesModel model) {
+	private static CompletionItem getPropertyExpressionCompletionItem(String propertyName, Range range,
+			CompletionItemDefaults completionItemDefaults) {
 		String completionText = "${" + propertyName + "}";
 		CompletionItem completionItem = new CompletionItem(completionText);
 		completionItem.setKind(CompletionItemKind.Value);
-		try {
-			Range range = new Range(model.getDocument().positionAt(propertyValueExpression.getStart()),
-					model.getDocument().positionAt(propertyValueExpression.getEnd()));
-			completionItem.setTextEdit(Either.forLeft(new TextEdit(range, completionText)));
-			return completionItem;
-		} catch (BadLocationException e) {
-			return null;
-		}
+		updateTextEdit(completionItem, range, completionText, completionItemDefaults);
+		updateInsertTextFormat(completionItem, InsertTextFormat.PlainText, completionItemDefaults);
+		return completionItem;
 	}
 
 	private static void collectSnippetSuggestions(int completionOffset, Node node, PropertiesModel document,
@@ -626,23 +622,38 @@ class PropertiesFileCompletions {
 		return snippetRegistry;
 	}
 
-	private void initializeCompletionListItemDefaults(PropertiesModel model,
-			MicroProfileCompletionCapabilities completionCapabilities, int offset) {
-		completionItemDefaults = new CompletionItemDefaults();
-		boolean snippetsSupported = completionCapabilities.isCompletionSnippetsSupported();
-		if (completionCapabilities.isCompletionListItemDefaultsSupport("insertTextFormat")) {
-			completionItemDefaults
-					.setInsertTextFormat(snippetsSupported ? InsertTextFormat.Snippet : InsertTextFormat.PlainText);
+	private static void initializeCompletionListItemDefaults(MicroProfileCompletionCapabilities completionCapabilities,
+			Range range, CompletionList list) {
+		boolean insertTextFormatSupported = completionCapabilities
+				.isCompletionListItemDefaultsSupport("insertTextFormat");
+		boolean editRangeSupported = completionCapabilities.isCompletionListItemDefaultsSupport("editRange");
+		if (!insertTextFormatSupported && !editRangeSupported) {
+			return;
 		}
-		if (completionCapabilities.isCompletionListItemDefaultsSupport("editRange")) {
-			Range range;
-			try {
-				range = model.getDocument().lineRangeAt(offset);
-				completionItemDefaults.setEditRange(Either.forLeft(range));
-			} catch (BadLocationException e) {
-				LOGGER.log(Level.SEVERE,
-						"In MicroProfileCompletion#initializeCompletionListItemDefaults, position error", e);
-			}
+		CompletionItemDefaults completionItemDefaults = new CompletionItemDefaults();
+		if (insertTextFormatSupported) {
+			completionItemDefaults.setInsertTextFormat(InsertTextFormat.PlainText);
+		}
+		if (editRangeSupported) {
+			completionItemDefaults.setEditRange(Either.forLeft(range));
+		}
+		list.setItemDefaults(completionItemDefaults);
+	}
+
+	private static void updateTextEdit(CompletionItem completionItem, Range range, String insertText,
+			CompletionItemDefaults completionItemDefaults) {
+		if (completionItemDefaults != null && completionItemDefaults.getEditRange() != null
+				&& range == completionItemDefaults.getEditRange().getLeft()) {
+			completionItem.setTextEditText(insertText);
+		} else {
+			completionItem.setTextEdit(Either.forLeft(new TextEdit(range, insertText)));
+		}
+	}
+
+	private static void updateInsertTextFormat(CompletionItem completionItem, InsertTextFormat insertTextFormat,
+			CompletionItemDefaults completionItemDefaults) {
+		if (completionItemDefaults == null || !insertTextFormat.equals(completionItemDefaults.getInsertTextFormat())) {
+			completionItem.setInsertTextFormat(insertTextFormat);
 		}
 	}
 

@@ -18,6 +18,12 @@ package org.eclipse.lsp4mp.utils;
  *
  */
 public class EnvUtils {
+
+	public static final boolean isWindows = isWindows();
+
+	public static final String SYSTEM_PROPERTIES_ORIGN = "System Properties";
+	public static final String ENVIRONMENT_VARIABLES_ORIGIN = "Environment variables";
+
 	/**
 	 * Return true if the variable is an ENV variable, and false otherwise
 	 *
@@ -32,5 +38,14 @@ public class EnvUtils {
 			}
 		}
 		return true;
+	}
+
+	private static boolean isWindows() {
+		try {
+			String property = System.getProperty("os.name");
+			return property != null ? property.toLowerCase().contains("win") : false;
+		} catch (SecurityException e) {
+			return false;
+		}
 	}
 }

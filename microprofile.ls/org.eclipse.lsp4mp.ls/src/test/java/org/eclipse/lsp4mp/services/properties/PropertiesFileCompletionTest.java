@@ -63,15 +63,18 @@ public class PropertiesFileCompletionTest {
 	public void completionOnKeyItemDefaults() throws BadLocationException {
 		String value = "|";
 		testCompletionFor(value, false, false, true, c("quarkus.http.cors", "quarkus.http.cors=false", r(0, 0, 0)));
-		testCompletionFor(value, true,  false, true, c("quarkus.http.cors", "quarkus.http.cors=${1|false,true|}", r(0, 0, 0)));
+		testCompletionFor(value, true, false, true,
+				c("quarkus.http.cors", "quarkus.http.cors=${1|false,true|}", r(0, 0, 0)));
 
 		value = " |";
-		testCompletionFor(value, false,  false, true, c("quarkus.http.cors", "quarkus.http.cors=false", r(0, 0, 1)));
-		testCompletionFor(value, true, false, true, c("quarkus.http.cors", "quarkus.http.cors=${1|false,true|}", r(0, 0, 1)));
+		testCompletionFor(value, false, false, true, c("quarkus.http.cors", "quarkus.http.cors=false", r(0, 0, 1)));
+		testCompletionFor(value, true, false, true,
+				c("quarkus.http.cors", "quarkus.http.cors=${1|false,true|}", r(0, 0, 1)));
 
 		value = " quarkus.http.co|rs = ";
 		testCompletionFor(value, false, false, true, c("quarkus.http.cors", "quarkus.http.cors=false", r(0, 0, 21)));
-		testCompletionFor(value, true, false, true, c("quarkus.http.cors", "quarkus.http.cors=${1|false,true|}", r(0, 0, 21)));
+		testCompletionFor(value, true, false, true,
+				c("quarkus.http.cors", "quarkus.http.cors=${1|false,true|}", r(0, 0, 21)));
 
 		value = " quarkus.application.name =| ";
 		testCompletionFor(value, true, false, true, 0);
@@ -92,7 +95,7 @@ public class PropertiesFileCompletionTest {
 		String value = "quarkus.log.category|";
 		testCompletionFor(value, false, false, true,
 				c("quarkus.log.category.{*}.level", "quarkus.log.category.{*}.level=inherit", r(0, 0, 20)));
-		testCompletionFor(value, true,  false, true, c("quarkus.log.category.{*}.level",
+		testCompletionFor(value, true, false, true, c("quarkus.log.category.{*}.level",
 				"quarkus.log.category.${1:key}.level=${2|OFF,SEVERE,WARNING,CONFIG,FINE,FINER,FINEST,ALL,FATAL,ERROR,WARN,INFO,DEBUG,TRACE|}",
 				r(0, 0, 20)));
 	}
@@ -241,8 +244,10 @@ public class PropertiesFileCompletionTest {
 	@Test
 	public void completionAfterProfileItemDefaults() throws BadLocationException {
 		String value = "%dev.|";
-		testCompletionFor(value, false, false, true, c("quarkus.http.cors", "%dev.quarkus.http.cors=false", r(0, 0, 5)));
-		testCompletionFor(value, true, false, true, c("quarkus.http.cors", "%dev.quarkus.http.cors=${1|false,true|}", r(0, 0, 5)));
+		testCompletionFor(value, false, false, true,
+				c("quarkus.http.cors", "%dev.quarkus.http.cors=false", r(0, 0, 5)));
+		testCompletionFor(value, true, false, true,
+				c("quarkus.http.cors", "%dev.quarkus.http.cors=${1|false,true|}", r(0, 0, 5)));
 	}
 
 	@Test
@@ -275,8 +280,7 @@ public class PropertiesFileCompletionTest {
 	@Test
 	public void noCompletionForExistingPropertiesWithProfile() throws BadLocationException {
 
-		String value = "%prod.quarkus.application.name=name\n" +
-				"%prod.|";
+		String value = "%prod.quarkus.application.name=name\n" + "%prod.|";
 
 		MicroProfileProjectInfo projectInfo = new MicroProfileProjectInfo();
 		List<ItemMetadata> properties = new ArrayList<ItemMetadata>();
@@ -290,12 +294,21 @@ public class PropertiesFileCompletionTest {
 
 		projectInfo.setProperties(properties);
 
-		testCompletionFor(value, false, 1, projectInfo,
-				c("quarkus.http.cors", "%prod.quarkus.http.cors=", r(1, 0, 6)));
+		testCompletionFor(value, false, 1, projectInfo, c("quarkus.http.cors", "%prod.quarkus.http.cors=", r(1, 0, 6)));
 	}
 
 	@Test
 	public void completionForExistingPropertiesDifferentProfile() throws BadLocationException {
+		testCompletionForExistingPropertiesDifferentProfile(false);
+	}
+
+	@Test
+	public void completionForExistingPropertiesDifferentProfileItemsDefaults() throws BadLocationException {
+		testCompletionForExistingPropertiesDifferentProfile(true);
+	}
+
+	private void testCompletionForExistingPropertiesDifferentProfile(boolean isItemDefaultsSupport)
+			throws BadLocationException {
 
 		String value = "|";
 
@@ -310,13 +323,14 @@ public class PropertiesFileCompletionTest {
 
 		projectInfo.setProperties(properties);
 
-		testCompletionFor(value, false, 2, projectInfo, c("quarkus.http.cors", "quarkus.http.cors=", r(0, 0, 0)),
+		testCompletionFor(value, false, false, isItemDefaultsSupport, null, 2, projectInfo,
+				c("quarkus.http.cors", "quarkus.http.cors=", r(0, 0, 0)),
 				c("quarkus.application.name", "quarkus.application.name=", r(0, 0, 0)));
 
 		value = "quarkus.http.cors=false\r\n" + //
 				"%dev.|";
 
-		testCompletionFor(value, false, 2, projectInfo,
+		testCompletionFor(value, false, false, isItemDefaultsSupport, null, 2, projectInfo,
 				c("quarkus.http.cors", "%dev.quarkus.http.cors=", r(1, 0, 5)),
 				c("quarkus.application.name", "%dev.quarkus.application.name=", r(1, 0, 5)));
 
@@ -324,7 +338,7 @@ public class PropertiesFileCompletionTest {
 				"%dev.quarkus.application.name\r\n" + //
 				"%prod.|";
 
-		testCompletionFor(value, false, 2, projectInfo,
+		testCompletionFor(value, false, false, isItemDefaultsSupport, null, 2, projectInfo,
 				c("quarkus.http.cors", "%prod.quarkus.http.cors=", r(2, 0, 6)),
 				c("quarkus.application.name", "%prod.quarkus.application.name=", r(2, 0, 6)));
 	}
@@ -377,7 +391,8 @@ public class PropertiesFileCompletionTest {
 		projectInfo.setProperties(Collections.singletonList(metadata));
 
 		String value = "|";
-		testCompletionFor(value, true, 1, projectInfo, c("price.string", "price.string=${0:Price: {10\\}}", r(0, 0, 0)));
+		testCompletionFor(value, true, 1, projectInfo,
+				c("price.string", "price.string=${0:Price: {10\\}}", r(0, 0, 0)));
 		testCompletionFor(value, false, 1, projectInfo, c("price.string", "price.string=Price: {10}", r(0, 0, 0)));
 	}
 
@@ -390,22 +405,22 @@ public class PropertiesFileCompletionTest {
 		projectInfo.setProperties(Collections.singletonList(metadata));
 
 		String value = "|";
-		testCompletionFor(value, true, 1, projectInfo, c("price.string", "price.string=${0:Price: \\${price\\}}", r(0, 0, 0)));
+		testCompletionFor(value, true, 1, projectInfo,
+				c("price.string", "price.string=${0:Price: \\${price\\}}", r(0, 0, 0)));
 		testCompletionFor(value, false, 1, projectInfo, c("price.string", "price.string=Price: ${price}", r(0, 0, 0)));
 	}
 
 	@Test
 	public void completionBetweenPropertyNameAndEquals() throws BadLocationException {
 		String value = "quarkus.http.cors|=";
-		testCompletionFor(value, false,
-				c("quarkus.http.cors.headers", "quarkus.http.cors.headers=", r(0, 0, 18)));
+		testCompletionFor(value, false, c("quarkus.http.cors.headers", "quarkus.http.cors.headers=", r(0, 0, 18)));
 	}
 
 	@Test
 	public void completionBetweenIncompletePropertyNameAndEquals() throws BadLocationException {
 		String value = "quarkus.|=";
-		testCompletionFor(value, false,
-				c("quarkus.application.name", "quarkus.application.name=", r(0, 0, 9)));	}
+		testCompletionFor(value, false, c("quarkus.application.name", "quarkus.application.name=", r(0, 0, 9)));
+	}
 
 	@Test
 	public void completionBetweenPropertyNameAndEqualsWithValue() throws BadLocationException {
@@ -430,8 +445,7 @@ public class PropertiesFileCompletionTest {
 	@Test
 	public void completionBetweenPropertyNameAndSpaceWithBooleanValue() throws BadLocationException {
 		String value = "quarkus.banner.en|=existing";
-		testCompletionFor(value, false,
-				c("quarkus.banner.enabled", "quarkus.banner.enabled=existing", r(0, 0, 26)));
+		testCompletionFor(value, false, c("quarkus.banner.enabled", "quarkus.banner.enabled=existing", r(0, 0, 26)));
 		testCompletionFor(value, true,
 				c("quarkus.banner.enabled", "quarkus.banner.enabled=${1|false,true|}", r(0, 0, 26)));
 	}

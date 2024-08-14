@@ -32,6 +32,8 @@ import org.junit.Test;
  */
 public class MicroProfileLanguageServerScopeChangedTest {
 
+	private static final int SYS_ENV_PROPERTIES_NUMBER = System.getProperties().size() + System.getenv().size();
+	
 	private static final String PROJECT1 = "project1";
 	private static final String PROJECT1_APPLICATION_PROPERTIES = PROJECT1 + "/application.properties";
 
@@ -87,27 +89,30 @@ public class MicroProfileLanguageServerScopeChangedTest {
 
 		server.didOpen(PROJECT1_APPLICATION_PROPERTIES);
 		CompletionList list = server.completion(PROJECT1_APPLICATION_PROPERTIES);
-		assertCompletions(list, 3, c("quarkus.application.name", "quarkus.application.name=", r(0, 0, 0)), //
+		assertCompletions(list, 3 + SYS_ENV_PROPERTIES_NUMBER,
+				c("quarkus.application.name", "quarkus.application.name=", r(0, 0, 0)), //
 				c("quarkus.application.version", "quarkus.application.version=", r(0, 0, 0)), //
 				c("greeting.message", "greeting.message=", r(0, 0, 0)));
 
 		// Emulate change of classpath (Jar and Java sources)
 		client.changedClasspath(PROJECT1, property1FromJar, property1FromSources);
 		list = server.completion(PROJECT1_APPLICATION_PROPERTIES);
-		assertCompletions(list, 2, c("quarkus.application.name", "quarkus.application.name=", r(0, 0, 0)), //
+		assertCompletions(list, 2 + SYS_ENV_PROPERTIES_NUMBER,
+				c("quarkus.application.name", "quarkus.application.name=", r(0, 0, 0)), //
 				c("greeting.message", "greeting.message=", r(0, 0, 0)));
 
 		// Emulate change of Java sources (add)
 		client.changedJavaSources(PROJECT1, property2FromSources);
 		list = server.completion(PROJECT1_APPLICATION_PROPERTIES);
-		assertCompletions(list, 2, c("quarkus.application.name", "quarkus.application.name=", r(0, 0, 0)), //
+		assertCompletions(list, 2 + SYS_ENV_PROPERTIES_NUMBER,
+				c("quarkus.application.name", "quarkus.application.name=", r(0, 0, 0)), //
 				c("greeting.suffix", "greeting.suffix=", r(0, 0, 0)));
 
 		// Emulate change of Java sources with dynamic properties
 		client.changedJavaSources(PROJECT1, dynamicProperty1FromSources, dynamicProperty2FromSources,
 				itemHintFromSources);
 		list = server.completion(PROJECT1_APPLICATION_PROPERTIES);
-		assertCompletions(list, 1 /* (from JAR ) */ + 4 /* from sources */,
+		assertCompletions(list, 1 /* (from JAR ) */ + 4 /* from sources */ + SYS_ENV_PROPERTIES_NUMBER,
 				c("quarkus.application.name", "quarkus.application.name=", r(0, 0, 0)), //
 				c("org.acme.restclient.CountriesService/mp-rest/url",
 						"org.acme.restclient.CountriesService/mp-rest/url=", r(0, 0, 0)),
@@ -126,14 +131,16 @@ public class MicroProfileLanguageServerScopeChangedTest {
 
 		server.didOpen(PROJECT1_APPLICATION_PROPERTIES);
 		CompletionList list = server.completion(PROJECT1_APPLICATION_PROPERTIES);
-		assertCompletions(list, 3, c("quarkus.application.name", "quarkus.application.name=", r(0, 0, 0)), //
+		assertCompletions(list, 3 + SYS_ENV_PROPERTIES_NUMBER,
+				c("quarkus.application.name", "quarkus.application.name=", r(0, 0, 0)), //
 				c("quarkus.application.version", "quarkus.application.version=", r(0, 0, 0)), //
 				c("greeting.message", "greeting.message=", r(0, 0, 0)));
 
 		// Emulate change of classpath (Jar and Java sources)
 		client.changedClasspath(PROJECT1, property1FromJar, property1FromSources);
 		list = server.completion(PROJECT1_APPLICATION_PROPERTIES);
-		assertCompletions(list, 2, c("quarkus.application.name", "quarkus.application.name=", r(0, 0, 0)), //
+		assertCompletions(list, 2 + SYS_ENV_PROPERTIES_NUMBER,
+				c("quarkus.application.name", "quarkus.application.name=", r(0, 0, 0)), //
 				c("greeting.message", "greeting.message=", r(0, 0, 0)));
 
 		// create a lot of thread which change java sources (update properties)
@@ -153,7 +160,7 @@ public class MicroProfileLanguageServerScopeChangedTest {
 			thread.join();
 		}
 		Integer max = count.stream().max(Math::max).get();
-		Assert.assertTrue(max <= 2);
+		Assert.assertTrue(max <= 2 + SYS_ENV_PROPERTIES_NUMBER);
 	}
 
 	private Thread createCompletionThread(MockMicroProfileLanguageServer server, MockMicroProfileLanguageClient client,
