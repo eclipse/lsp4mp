@@ -13,7 +13,7 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.ls;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
@@ -22,6 +22,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.lsp4j.DidChangeConfigurationParams;
 import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
@@ -71,7 +72,7 @@ public class MicroProfileWorkspaceService implements WorkspaceService {
 					.thenCompose((workspaceProjects) -> {
 
 						cancelChecker.checkCanceled();
-						
+
 						List<CompletableFuture<List<SymbolInformation>>> symbolFutures = workspaceProjects.stream() //
 								.map(projectLabelInfo -> {
 									String uri = projectLabelInfo.getUri();
@@ -81,7 +82,7 @@ public class MicroProfileWorkspaceService implements WorkspaceService {
 								.collect(Collectors.toList());
 
 						cancelChecker.checkCanceled();
-						
+
 						// NOTE: we don't need to implement resolve, because resolve is just
 						// for calculating the source range. The source range is very cheap to calculate
 						// in comparison to invoking the search engine to locate the symbols.
@@ -102,7 +103,8 @@ public class MicroProfileWorkspaceService implements WorkspaceService {
 
 									return Either.forLeft(symbolFutures.stream() //
 											.flatMap(projectSymbolsFuture -> {
-												return projectSymbolsFuture.getNow(Collections.emptyList()).stream();
+												List<SymbolInformation> symbols = projectSymbolsFuture.getNow(null);
+												return symbols != null ? symbols.stream() : Stream.empty();
 											}) //
 											.collect(Collectors.toList()));
 								});
