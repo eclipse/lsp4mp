@@ -20,7 +20,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CancellationException;
 import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
@@ -38,6 +41,8 @@ import org.eclipse.lsp4mp.model.Node.NodeType;
 import org.eclipse.lsp4mp.model.PropertiesModel;
 import org.eclipse.lsp4mp.model.Property;
 import org.eclipse.lsp4mp.model.PropertyValueExpression;
+import org.eclipse.lsp4mp.services.properties.extensions.PropertiesFileExtensionRegistry;
+import org.eclipse.lsp4mp.services.properties.extensions.participants.IPropertyValidatorParticipant;
 import org.eclipse.lsp4mp.settings.MicroProfileValidationSettings;
 import org.eclipse.lsp4mp.utils.EnvUtils;
 import org.eclipse.lsp4mp.utils.PositionUtils;
@@ -51,6 +56,7 @@ import org.eclipse.lsp4mp.utils.PropertiesFileUtils;
  */
 class PropertiesFileValidator {
 
+	private static final Logger LOGGER = Logger.getLogger(PropertiesFileValidator.class.getName());
 	private static final String MICROPROFILE_DIAGNOSTIC_SOURCE = "microprofile";
 
 	private final MicroProfileProjectInfo projectInfo;
@@ -58,15 +64,20 @@ class PropertiesFileValidator {
 	private final List<Diagnostic> diagnostics;
 
 	private final MicroProfileValidationSettings validationSettings;
+	private final PropertiesFileExtensionRegistry extensionRegistry;
 	private final Map<String, List<Property>> existingProperties;
 	private Set<String> declaredProperties;
 	private Map<String, ItemMetadata> availableProperties;
 
+	private ValidationKeyContext validationKeyContext;
+	private ValidationValueContext validationValueContext;
+
 	public PropertiesFileValidator(MicroProfileProjectInfo projectInfo, List<Diagnostic> diagnostics,
-			MicroProfileValidationSettings validationSettings) {
+			MicroProfileValidationSettings validationSettings, PropertiesFileExtensionRegistry extensionRegistry) {
 		this.projectInfo = projectInfo;
 		this.diagnostics = diagnostics;
 		this.validationSettings = validationSettings;
+		this.extensionRegistry = extensionRegistry;
 		this.existingProperties = new HashMap<String, List<Property>>();
 		// to be lazily init
 		this.declaredProperties = null;
@@ -81,7 +92,7 @@ class PropertiesFileValidator {
 				cancelChecker.checkCanceled();
 			}
 			if (node.getNodeType() == NodeType.PROPERTY) {
-				validateProperty((Property) node);
+				validateProperty((Property) node, cancelChecker);
 			}
 		}
 
@@ -89,7 +100,7 @@ class PropertiesFileValidator {
 		addDiagnosticsForMissingRequired(document);
 	}
 
-	private void validateProperty(Property property) {
+	private void validateProperty(Property property, CancelChecker cancelChecker) {
 		String propertyNameWithProfile = property.getPropertyNameWithProfile();
 		if (!StringUtils.isEmpty(propertyNameWithProfile)) {
 			// Validate Syntax property
@@ -101,18 +112,13 @@ class PropertiesFileValidator {
 		String propertyName = property.getPropertyName();
 		if (!StringUtils.isEmpty(propertyName)) {
 			ItemMetadata metadata = PropertiesFileUtils.getProperty(propertyName, projectInfo);
-			if (metadata == null) {
-				// Validate Unknown property
-				validateUnknownProperty(propertyName, property);
-			}
-			if (!property.isPropertyValueExpression()) {
-				// Validate simple property Value
-				validateSimplePropertyValue(propertyNameWithProfile, metadata, property);
-			} else {
-				validatePropertyValueExpressions(propertyNameWithProfile, metadata, property);
-			}
+			validatePropertyKey(property, propertyName, metadata, cancelChecker);
+			// Validate simple / expression property value
+			validatePropertyValue(property, propertyNameWithProfile, metadata, cancelChecker);
 		}
 	}
+
+	// ---------------- Property syntax/duplicate validation
 
 	private void validateSyntaxProperty(String propertyName, Property property) {
 		DiagnosticSeverity severity = validationSettings.getSyntax().getDiagnosticSeverity(propertyName);
@@ -140,6 +146,47 @@ class PropertiesFileValidator {
 		existingProperties.get(propertyName).add(property);
 	}
 
+	// ---------------- Property key validation
+
+	private void validatePropertyKey(Property property, String propertyName, ItemMetadata metadata,
+			CancelChecker cancelChecker) {
+		// 1. Custom property key validation
+		ValidationKeyContext context = getValidationKeyContext();
+		context.setProperty(property);
+		context.setPropertyName(propertyName);
+		context.setMetadata(metadata);
+		context.setPropertiesModel(property.getOwnerModel());
+		if (validatePropertyKeyWithParticipant(context, cancelChecker)) {
+			// There is a custom validator which validates the property key which overrides
+			// the standard property key validation.
+			return;
+		}
+
+		// 2. Standard property key validation
+		if (metadata != null) {
+			return;
+		}
+		validateUnknownProperty(propertyName, property);
+
+	}
+
+	private boolean validatePropertyKeyWithParticipant(ValidationKeyContext context, CancelChecker cancelChecker) {
+		boolean override = false;
+		for (IPropertyValidatorParticipant propertyValidatorParticipant : extensionRegistry
+				.getPropertyValidatorParticipants()) {
+			cancelChecker.checkCanceled();
+			try {
+				override = override | propertyValidatorParticipant.validatePropertyKey(context, cancelChecker);
+			} catch (CancellationException e) {
+				throw e;
+			} catch (Exception e) {
+				LOGGER.log(Level.SEVERE, "Error while validating property key for the participant '"
+						+ propertyValidatorParticipant.getClass().getName() + "'.", e);
+			}
+		}
+		return override;
+	}
+
 	private void validateUnknownProperty(String propertyName, Property property) {
 		DiagnosticSeverity severity = validationSettings.getUnknown().getDiagnosticSeverity(propertyName);
 		if (severity == null) {
@@ -150,29 +197,59 @@ class PropertiesFileValidator {
 				property.getKey(), severity, ValidationType.unknown.name());
 	}
 
-	private void validateSimplePropertyValue(String propertyName, ItemMetadata metadata, Property property) {
+	// ---------------- Property value validation
+
+	private void validatePropertyValue(Property property, String propertyNameWithProfile, ItemMetadata metadata,
+			CancelChecker cancelChecker) {
+		if (!property.isPropertyValueExpression()) {
+			// Validate simple property Value
+			validateSimplePropertyValue(propertyNameWithProfile, metadata, property, cancelChecker);
+		} else {
+			validatePropertyValueExpressions(propertyNameWithProfile, metadata, property, cancelChecker);
+		}
+	}
+
+	private void validateSimplePropertyValue(String propertyName, ItemMetadata metadata, Property property,
+			CancelChecker cancelChecker) {
 		Node propertyValue = property.getValue();
 		if (propertyValue == null) {
 			return;
 		}
 		int start = propertyValue.getStart();
 		int end = propertyValue.getEnd();
-		validatePropertyValue(propertyName, metadata, property.getPropertyValue(), start, end,
-				property.getOwnerModel());
+		validatePropertyValue(propertyName, metadata, property.getPropertyValue(), start, end, property.getOwnerModel(),
+				cancelChecker);
 	}
 
 	private void validatePropertyValue(String propertyName, ItemMetadata metadata, String value, int start, int end,
-			PropertiesModel propertiesModel) {
-		if (metadata == null || StringUtils.isEmpty(value)) {
-			return;
-		}
-
+			PropertiesModel propertiesModel, CancelChecker cancelChecker) {
 		DiagnosticSeverity severity = validationSettings.getValue().getDiagnosticSeverity(propertyName);
 		if (severity == null) {
 			// The value validation must be ignored for this property name
 			return;
 		}
 
+		// 1. Custom property value validation
+		ValidationValueContext context = getValidationValueContext();
+		context.setPropertyName(propertyName);
+		context.setMetadata(metadata);
+		context.setValue(value);
+		context.setStart(start);
+		context.setEnd(end);
+		context.setPropertiesModel(propertiesModel);
+		if (validatePropertyValueWithParticipant(context, cancelChecker)) {
+			// There is a custom validator which validates the property value which
+			// overrides
+			// the standard property value validation.
+			return;
+		}
+
+		// 2. Standard property value validation
+		if (metadata == null || StringUtils.isEmpty(value)) {
+			return;
+		}
+
+		//
 		String errorMessage = getErrorIfInvalidEnum(metadata, projectInfo, propertiesModel, value);
 		if (errorMessage == null) {
 			errorMessage = getErrorIfValueTypeMismatch(metadata, value);
@@ -184,6 +261,23 @@ class PropertiesFileValidator {
 		}
 	}
 
+	private boolean validatePropertyValueWithParticipant(ValidationValueContext context, CancelChecker cancelChecker) {
+		boolean override = false;
+		for (IPropertyValidatorParticipant propertyValidatorParticipant : extensionRegistry
+				.getPropertyValidatorParticipants()) {
+			cancelChecker.checkCanceled();
+			try {
+				override = override | propertyValidatorParticipant.validatePropertyValue(context, cancelChecker);
+			} catch (CancellationException e) {
+				throw e;
+			} catch (Exception e) {
+				LOGGER.log(Level.SEVERE, "Error while validating property value for the participant '"
+						+ propertyValidatorParticipant.getClass().getName() + "'.", e);
+			}
+		}
+		return override;
+	}
+
 	/**
 	 * Validates the property value expressions (${other.property}) of the given
 	 * property.
@@ -191,9 +285,11 @@ class PropertiesFileValidator {
 	 * Checks if the property expression is closed, and if the referenced property
 	 * exists.
 	 *
-	 * @param property The property to validate
+	 * @param property      The property to validate
+	 * @param cancelChecker
 	 */
-	private void validatePropertyValueExpressions(String propertyName, ItemMetadata metadata, Property property) {
+	private void validatePropertyValueExpressions(String propertyName, ItemMetadata metadata, Property property,
+			CancelChecker cancelChecker) {
 		if (property.getValue() == null) {
 			return;
 		}
@@ -254,7 +350,7 @@ class PropertiesFileValidator {
 								int start = propValExpr.getDefaultValueStartOffset();
 								int end = propValExpr.getDefaultValueEndOffset();
 								validatePropertyValue(propertyName, metadata, propValExpr.getDefaultValue(), start, end,
-										propValExpr.getOwnerModel());
+										propValExpr.getOwnerModel(), cancelChecker);
 							} else {
 								if (!(EnvUtils.isEnvVariable(refdProp))) {
 									// or the expression is an ENV variable
@@ -478,17 +574,43 @@ class PropertiesFileValidator {
 		}
 	}
 
-	private void addDiagnostic(String message, Node node, DiagnosticSeverity severity, String code) {
+	Diagnostic addDiagnostic(String message, Node node, DiagnosticSeverity severity, String code) {
 		Range range = PositionUtils.createRange(node);
-		addDiagnostic(message, range, severity, code);
+		return addDiagnostic(message, range, severity, code);
 	}
 
-	private void addDiagnostic(String message, Range range, DiagnosticSeverity severity, String code) {
-		diagnostics.add(new Diagnostic(range, message, severity, MICROPROFILE_DIAGNOSTIC_SOURCE, code));
+	/**
+	 * Add diagnostic.
+	 * 
+	 * @param message  the diagnostic message.
+	 * @param range    the diagnostic range.
+	 * @param severity the diagnostic severity.
+	 * @param code     the diagnostic code.
+	 * 
+	 * @return the diagnostic.
+	 */
+	Diagnostic addDiagnostic(String message, Range range, DiagnosticSeverity severity, String code) {
+		Diagnostic d = new Diagnostic(range, message, severity, MICROPROFILE_DIAGNOSTIC_SOURCE, code);
+		diagnostics.add(d);
+		return d;
 	}
 
 	public MicroProfileValidationSettings getValidationSettings() {
 		return validationSettings;
+	}
+
+	private ValidationKeyContext getValidationKeyContext() {
+		if (validationKeyContext == null) {
+			validationKeyContext = new ValidationKeyContext(this);
+		}
+		return validationKeyContext;
+	}
+
+	private ValidationValueContext getValidationValueContext() {
+		if (validationValueContext == null) {
+			validationValueContext = new ValidationValueContext(this);
+		}
+		return validationValueContext;
 	}
 
 }
