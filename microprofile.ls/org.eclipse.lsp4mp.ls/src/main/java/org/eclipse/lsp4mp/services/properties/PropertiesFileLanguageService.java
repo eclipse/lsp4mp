@@ -39,6 +39,7 @@ import org.eclipse.lsp4mp.extensions.ExtendedMicroProfileProjectInfo;
 import org.eclipse.lsp4mp.ls.api.MicroProfilePropertyDefinitionProvider;
 import org.eclipse.lsp4mp.ls.api.MicroProfilePropertyDocumentationProvider;
 import org.eclipse.lsp4mp.model.PropertiesModel;
+import org.eclipse.lsp4mp.services.properties.extensions.PropertiesFileExtensionRegistry;
 import org.eclipse.lsp4mp.settings.MicroProfileCommandCapabilities;
 import org.eclipse.lsp4mp.settings.MicroProfileCompletionCapabilities;
 import org.eclipse.lsp4mp.settings.MicroProfileFormattingSettings;
@@ -51,7 +52,7 @@ import org.eclipse.lsp4mp.settings.MicroProfileValidationSettings;
  * @author Angelo ZERR
  *
  */
-public class PropertiesFileLanguageService {
+public class PropertiesFileLanguageService extends PropertiesFileExtensionRegistry {
 
 	private final PropertiesFileCompletions completions;
 	private final PropertiesFileSymbolsProvider symbolsProvider;
@@ -68,7 +69,7 @@ public class PropertiesFileLanguageService {
 		this.symbolsProvider = new PropertiesFileSymbolsProvider();
 		this.hover = new PropertiesFileHover();
 		this.definition = new PropertiesFileDefinition();
-		this.diagnostics = new PropertiesFileDiagnostics();
+		this.diagnostics = new PropertiesFileDiagnostics(this);
 		this.formatter = new PropertiesFileFormatter();
 		this.codeActions = new PropertiesFileCodeActions();
 		this.documentHighlight = new PropertiesFileDocumentHighlight();

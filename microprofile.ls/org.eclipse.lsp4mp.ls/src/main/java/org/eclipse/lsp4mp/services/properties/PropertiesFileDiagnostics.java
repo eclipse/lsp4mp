@@ -20,6 +20,7 @@ import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.model.PropertiesModel;
+import org.eclipse.lsp4mp.services.properties.extensions.PropertiesFileExtensionRegistry;
 import org.eclipse.lsp4mp.settings.MicroProfileValidationSettings;
 
 /**
@@ -27,6 +28,12 @@ import org.eclipse.lsp4mp.settings.MicroProfileValidationSettings;
  *
  */
 class PropertiesFileDiagnostics {
+	
+	private final PropertiesFileExtensionRegistry extensionRegistry;
+	
+	public PropertiesFileDiagnostics(PropertiesFileExtensionRegistry extensionRegistry) {
+		this.extensionRegistry = extensionRegistry;
+	}
 
 	/**
 	 * Validate the given application.properties <code>document</code> by using the
@@ -45,7 +52,7 @@ class PropertiesFileDiagnostics {
 		}
 		List<Diagnostic> diagnostics = new ArrayList<Diagnostic>();
 		if (validationSettings.isEnabled()) {
-			PropertiesFileValidator validator = new PropertiesFileValidator(projectInfo, diagnostics, validationSettings);
+			PropertiesFileValidator validator = new PropertiesFileValidator(projectInfo, diagnostics, validationSettings, extensionRegistry);
 			validator.validate(document, cancelChecker);
 		}
 		return diagnostics;

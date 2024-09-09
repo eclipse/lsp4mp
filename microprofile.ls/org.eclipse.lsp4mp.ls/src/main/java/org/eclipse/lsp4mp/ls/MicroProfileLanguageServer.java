@@ -94,7 +94,9 @@ public class MicroProfileLanguageServer implements LanguageServer, ProcessLangua
 	@Override
 	public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
 		LOGGER.info("Initializing MicroProfile server " + getVersion() + " with " + System.getProperty("java.home"));
-
+		
+		propertiesFileLanguageService.initializeParams(params);
+		
 		this.parentProcessId = params.getProcessId();
 
 		ExtendedClientCapabilities extendedClientCapabilities = InitializationOptionsExtendedClientCapabilities
@@ -166,6 +168,7 @@ public class MicroProfileLanguageServer implements LanguageServer, ProcessLangua
 
 	@Override
 	public CompletableFuture<Object> shutdown() {
+		propertiesFileLanguageService.dispose();
 		if (capabilityManager.getClientCapabilities().shouldLanguageServerExitOnShutdown()) {
 			ScheduledExecutorService delayer = Executors.newScheduledThreadPool(1);
 			delayer.schedule(() -> exit(0), 1, TimeUnit.SECONDS);
