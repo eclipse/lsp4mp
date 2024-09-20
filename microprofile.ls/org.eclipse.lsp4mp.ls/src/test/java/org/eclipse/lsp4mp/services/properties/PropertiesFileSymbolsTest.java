@@ -100,8 +100,7 @@ public class PropertiesFileSymbolsTest {
 				"application \\\n" + //
 				"name";
 		testSymbolInformationsFor(value, //
-				s("quarkus.application.name", SymbolKind.Property, "microprofile-config.properties", r(0, 0, 3, 4))
-		);
+				s("quarkus.application.name", SymbolKind.Property, "microprofile-config.properties", r(0, 0, 3, 4)));
 	};
 
 	@Test
@@ -110,6 +109,37 @@ public class PropertiesFileSymbolsTest {
 		testDocumentSymbolsFor(value, ds(".", SymbolKind.Property, r(0, 0, 1), null));
 	}
 
+	@Test
+	public void twoPeriods() throws BadLocationException {
+		String value = "a..b";
+		testDocumentSymbolsFor(value, //
+				ds("a", SymbolKind.Package, r(0, 0, 4), null, //
+						Arrays.asList( //
+								ds(".b", SymbolKind.Property, r(0, 0, 4), null))));
+	}
+
+	@Test
+	public void threePeriods() throws BadLocationException {
+		String value = "a...b";
+		testDocumentSymbolsFor(value, //
+				ds("a", SymbolKind.Package, r(0, 0, 5), null, //
+						Arrays.asList( //
+								ds(".", SymbolKind.Package, r(0, 0, 5), null, //
+										Arrays.asList( //
+												ds("b", SymbolKind.Property, r(0, 0, 5), null))))));
+	}
+	
+	@Test
+	public void fourPeriods() throws BadLocationException {
+		String value = "a....b";
+		testDocumentSymbolsFor(value, //
+				ds("a", SymbolKind.Package, r(0, 0, 6), null, //
+						Arrays.asList( //
+								ds(".", SymbolKind.Package, r(0, 0, 6), null, //
+										Arrays.asList( //
+												ds(".b", SymbolKind.Property, r(0, 0, 6), null))))));
+	}
+	
 	@Test
 	public void propertiesWhichStartWithPeriod() throws BadLocationException {
 		String value = ".quarkus\n" + //
@@ -124,7 +154,7 @@ public class PropertiesFileSymbolsTest {
 				ds(".mp", SymbolKind.Property, r(3, 0, 3), null), //
 				ds(".mp2", SymbolKind.Property, r(4, 2, 6), null));
 	}
-	
+
 	@Test
 	public void justEquals() throws BadLocationException {
 		String value = "=";
