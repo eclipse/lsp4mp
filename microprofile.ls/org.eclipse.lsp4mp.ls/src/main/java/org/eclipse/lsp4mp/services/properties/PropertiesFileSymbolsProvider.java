@@ -88,10 +88,8 @@ class PropertiesFileSymbolsProvider {
 					// The property is not an empty line
 					// If the property starts with '.', we don't split it to avoid having an empty
 					// name.
-					boolean startsWithDot = name.charAt(0) == '.';
-					String[] paths = startsWithDot ? name.split("[.]", 1) : name.split("[.]");
 					DocumentSymbol symbol = null;
-					for (String path : paths) {
+					for (String path : getPaths(name)) {
 						symbol = getSymbol(path, property, symbol != null ? symbol.getChildren() : symbols);
 					}
 					if (symbol != null) {
@@ -105,6 +103,30 @@ class PropertiesFileSymbolsProvider {
 			}
 		}
 		return symbols;
+	}
+
+	private List<String> getPaths(String name) {
+		List<String> paths = new ArrayList<>();
+		StringBuilder path = new StringBuilder();
+		Character previous = null;
+		for (int i = 0; i < name.length(); i++) {
+			char c = name.charAt(i);
+			if (c == '.') {
+				if (previous == null || (previous == '.' && path.length() == 0)) {
+					path.append(c);
+				} else {
+					paths.add(path.length() > 0 ? path.toString() : ".");
+					path.setLength(0);
+				}
+			} else {
+				path.append(c);
+			}
+			previous = c;
+		}
+		if (path.length() > 0) {
+			paths.add(path.toString());
+		}
+		return paths;
 	}
 
 	private static DocumentSymbol getSymbol(String path, Property property, List<DocumentSymbol> children) {
