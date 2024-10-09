@@ -13,8 +13,8 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.settings.capabilities;
 
-import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_CODELENS_OPTIONS;
 import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_CODEACTION_OPTIONS;
+import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_CODELENS_OPTIONS;
 import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_COMPLETION_OPTIONS;
 
 import org.eclipse.lsp4j.ServerCapabilities;

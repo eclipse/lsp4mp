@@ -9,7 +9,8 @@
 *******************************************************************************/
 package org.eclipse.lsp4mp.settings.capabilities;
 
-import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.COMPLETION_ID;
+import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.COMPLETION_ID_FOR_JAVA;
+import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.COMPLETION_ID_FOR_PROPERTIES;
 import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_COMPLETION_OPTIONS;
 import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.HOVER_ID;
 import static org.junit.Assert.assertEquals;
@@ -58,8 +59,9 @@ public class MicroProfileCapabilitiesTest {
 		setAllCapabilities(true);
 		setAndInitializeCapabilities();
 
-		assertEquals(2, capabilityIDs.size());
-		assertEquals(true, capabilityIDs.contains(COMPLETION_ID));
+		assertEquals(3, capabilityIDs.size());
+		assertEquals(true, capabilityIDs.contains(COMPLETION_ID_FOR_PROPERTIES));
+		assertEquals(true, capabilityIDs.contains(COMPLETION_ID_FOR_JAVA));
 		assertEquals(true, capabilityIDs.contains(HOVER_ID));
 
 		ServerCapabilities serverCapabilities = ServerCapabilitiesInitializer
@@ -96,8 +98,9 @@ public class MicroProfileCapabilitiesTest {
 
 		setAndInitializeCapabilities();
 
-		assertEquals(1, capabilityIDs.size());
-		assertEquals(true, capabilityIDs.contains(COMPLETION_ID));
+		assertEquals(2, capabilityIDs.size());
+		assertEquals(true, capabilityIDs.contains(COMPLETION_ID_FOR_PROPERTIES));
+		assertEquals(true, capabilityIDs.contains(COMPLETION_ID_FOR_JAVA));
 		assertEquals(false, capabilityIDs.contains(HOVER_ID));
 
 		ServerCapabilities serverCapabilities = ServerCapabilitiesInitializer

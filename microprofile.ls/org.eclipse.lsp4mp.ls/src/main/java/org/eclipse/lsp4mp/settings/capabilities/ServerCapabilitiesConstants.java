@@ -42,7 +42,9 @@ public class ServerCapabilitiesConstants {
 
 	public static final String WORKSPACE_SYMBOLS = "workspace/symbol";
 
-	public static final String COMPLETION_ID = UUID.randomUUID().toString();
+	public static final String COMPLETION_ID_FOR_PROPERTIES = UUID.randomUUID().toString();
+	public static final String COMPLETION_ID_FOR_JAVA = UUID.randomUUID().toString();
+
 	public static final String HOVER_ID = UUID.randomUUID().toString();
 	public static final String DOCUMENT_SYMBOL_ID = UUID.randomUUID().toString();
 	public static final String DEFINITION_ID = UUID.randomUUID().toString();
