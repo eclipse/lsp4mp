@@ -15,9 +15,10 @@ package org.eclipse.lsp4mp.settings.capabilities;
 
 import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.CODE_ACTION_ID;
 import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.CODE_LENS_ID;
-import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.COMPLETION_ID;
+import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.COMPLETION_ID_FOR_JAVA;
+import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.COMPLETION_ID_FOR_PROPERTIES;
 import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_CODEACTION_OPTIONS;
-import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_COMPLETION_OPTIONS;
+import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_WORKSPACE_SYMBOL_OPTIONS;
 import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.DEFINITION_ID;
 import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.DOCUMENT_HIGHLIGHT_ID;
 import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.DOCUMENT_SYMBOL_ID;
@@ -35,11 +36,11 @@ import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstan
 import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_HOVER;
 import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_INLAY_HINT;
 import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_RANGE_FORMATTING;
-import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.WORKSPACE_SYMBOL_ID;
 import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.WORKSPACE_SYMBOLS;
-import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.DEFAULT_WORKSPACE_SYMBOL_OPTIONS;
+import static org.eclipse.lsp4mp.settings.capabilities.ServerCapabilitiesConstants.WORKSPACE_SYMBOL_ID;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -47,11 +48,18 @@ import java.util.ServiceLoader;
 import java.util.Set;
 
 import org.eclipse.lsp4j.ClientCapabilities;
+import org.eclipse.lsp4j.CompletionRegistrationOptions;
 import org.eclipse.lsp4j.DocumentFilter;
+import org.eclipse.lsp4j.DocumentFormattingRegistrationOptions;
+import org.eclipse.lsp4j.DocumentHighlightRegistrationOptions;
+import org.eclipse.lsp4j.DocumentRangeFormattingRegistrationOptions;
+import org.eclipse.lsp4j.DocumentSymbolRegistrationOptions;
+import org.eclipse.lsp4j.InlayHintRegistrationOptions;
 import org.eclipse.lsp4j.Registration;
 import org.eclipse.lsp4j.RegistrationParams;
 import org.eclipse.lsp4j.TextDocumentRegistrationOptions;
 import org.eclipse.lsp4j.services.LanguageClient;
+import org.eclipse.lsp4mp.MicroProfileLanguageIds;
 import org.eclipse.lsp4mp.ls.commons.client.ExtendedClientCapabilities;
 
 /**
@@ -84,13 +92,26 @@ public class MicroProfileCapabilityManager {
 			registerCapability(CODE_LENS_ID, TEXT_DOCUMENT_CODE_LENS);
 		}
 		if (this.getClientCapabilities().isCompletionDynamicRegistrationSupported()) {
-			registerCapability(COMPLETION_ID, TEXT_DOCUMENT_COMPLETION, DEFAULT_COMPLETION_OPTIONS);
+
+			registerCapability(COMPLETION_ID_FOR_PROPERTIES, TEXT_DOCUMENT_COMPLETION,
+					new CompletionRegistrationOptions(
+							Arrays.asList(".", "%", "=", "$", "{", ":" /* triggered characters for properties file */),
+							true),
+					MicroProfileLanguageIds.MICROPROFILE_PROPERTIES);
+
+			registerCapability(COMPLETION_ID_FOR_JAVA, TEXT_DOCUMENT_COMPLETION,
+					new CompletionRegistrationOptions(
+							Arrays.asList("@" /* triggered characters for java snippets annotation */,
+									"\"" /* trigger characters for annotation property value completion */),
+							false),
+					MicroProfileLanguageIds.JAVA);
 		}
 		if (this.getClientCapabilities().isHoverDynamicRegistered()) {
 			registerCapability(HOVER_ID, TEXT_DOCUMENT_HOVER);
 		}
 		if (this.getClientCapabilities().isDocumentSymbolDynamicRegistrationSupported()) {
-			registerCapability(DOCUMENT_SYMBOL_ID, TEXT_DOCUMENT_DOCUMENT_SYMBOL);
+			registerCapability(DOCUMENT_SYMBOL_ID, TEXT_DOCUMENT_DOCUMENT_SYMBOL,
+					new DocumentSymbolRegistrationOptions(), MicroProfileLanguageIds.MICROPROFILE_PROPERTIES);
 		}
 		if (this.getClientCapabilities().isDefinitionDynamicRegistered()) {
 			registerCapability(DEFINITION_ID, TEXT_DOCUMENT_DEFINITION);
@@ -111,27 +132,24 @@ public class MicroProfileCapabilityManager {
 			 * }
 			 * </pre>
 			 */
-			registerCapability(FORMATTING_ID, TEXT_DOCUMENT_FORMATTING, getFormattingRegistrationOptions());
+			registerCapability(FORMATTING_ID, TEXT_DOCUMENT_FORMATTING, new DocumentFormattingRegistrationOptions(),
+					MicroProfileLanguageIds.MICROPROFILE_PROPERTIES);
 		}
 		if (this.getClientCapabilities().isRangeFormattingDynamicRegistered()) {
-			registerCapability(RANGE_FORMATTING_ID, TEXT_DOCUMENT_RANGE_FORMATTING, getFormattingRegistrationOptions());
+			registerCapability(RANGE_FORMATTING_ID, TEXT_DOCUMENT_RANGE_FORMATTING,
+					new DocumentRangeFormattingRegistrationOptions(), MicroProfileLanguageIds.MICROPROFILE_PROPERTIES);
 		}
 		if (this.getClientCapabilities().isDocumentHighlightSupported()) {
 			registerCapability(DOCUMENT_HIGHLIGHT_ID, TEXT_DOCUMENT_DOCUMENT_HIGHLIGHT,
-					getFormattingRegistrationOptions());
+					new DocumentHighlightRegistrationOptions(), MicroProfileLanguageIds.MICROPROFILE_PROPERTIES);
 		}
 		if (this.getClientCapabilities().isInlayHintDynamicRegistered()) {
-			registerCapability(INLAY_HINT_ID, TEXT_DOCUMENT_INLAY_HINT);
+			registerCapability(INLAY_HINT_ID, TEXT_DOCUMENT_INLAY_HINT, new InlayHintRegistrationOptions(),
+					MicroProfileLanguageIds.MICROPROFILE_PROPERTIES);
 		}
 		if (this.getClientCapabilities().isWorkspaceSymbolDynamicRegistered()) {
 			registerCapability(WORKSPACE_SYMBOL_ID, WORKSPACE_SYMBOLS, DEFAULT_WORKSPACE_SYMBOL_OPTIONS);
 		}
-	}
-
-	private TextDocumentRegistrationOptions getFormattingRegistrationOptions() {
-		List<DocumentFilter> documentSelector = new ArrayList<>();
-		documentSelector.add(new DocumentFilter("microprofile-properties", null, null));
-		return new TextDocumentRegistrationOptions(documentSelector);
 	}
 
 	public void setClientCapabilities(ClientCapabilities clientCapabilities,
@@ -155,12 +173,23 @@ public class MicroProfileCapabilityManager {
 	}
 
 	private void registerCapability(String id, String method, Object options) {
+		registerCapability(id, method, options, null);
+	}
+
+	private void registerCapability(String id, String method, Object options, String languageId) {
 		if (registeredCapabilities.add(id)) {
+			if (languageId != null) {
+				List<DocumentFilter> documentSelector = new ArrayList<>();
+				documentSelector.add(new DocumentFilter(languageId, null, null));
+				((TextDocumentRegistrationOptions) options).setDocumentSelector(documentSelector);
+			}
 			Registration registration = new Registration(id, method, options);
 			RegistrationParams registrationParams = new RegistrationParams(Collections.singletonList(registration));
-			getRegistrationConfigurations().forEach(config -> {
-				config.configure(registration);
-			});
+			if (MicroProfileLanguageIds.MICROPROFILE_PROPERTIES.equals(languageId)) {
+				getRegistrationConfigurations().forEach(config -> {
+					config.configure(registration);
+				});
+			}
 			languageClient.registerCapability(registrationParams);
 		}
 	}
