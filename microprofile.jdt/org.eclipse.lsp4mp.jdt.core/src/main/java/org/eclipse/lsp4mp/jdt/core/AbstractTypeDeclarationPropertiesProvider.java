@@ -54,6 +54,11 @@ public abstract class AbstractTypeDeclarationPropertiesProvider extends Abstract
 			for (String name : names) {
 				if (name.equals(className)) {
 					try {
+						// The provider matches the annotation based
+						if (isAlreadyProcessed(type, context)) {
+							// The processAnnotation has already been done for the Java type
+							return;
+						}
 						// Collect properties from the class name and stop the loop.
 						processClass(type, className, context, monitor);
 						break;

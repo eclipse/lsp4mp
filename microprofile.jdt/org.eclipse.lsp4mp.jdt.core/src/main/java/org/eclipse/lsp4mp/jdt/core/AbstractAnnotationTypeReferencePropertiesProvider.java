@@ -38,6 +38,51 @@ public abstract class AbstractAnnotationTypeReferencePropertiesProvider extends 
 	private static final Logger LOGGER = Logger
 			.getLogger(AbstractAnnotationTypeReferencePropertiesProvider.class.getName());
 
+	private static class ElementAndAnnotationKey {
+	
+		private final IJavaElement javaElement;
+		private final String annotationName;
+		
+		public ElementAndAnnotationKey(IJavaElement javaElement, String annotationName) {
+			super();
+			this.javaElement = javaElement;
+			this.annotationName = annotationName;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((annotationName == null) ? 0 : annotationName.hashCode());
+			result = prime * result + ((javaElement == null) ? 0 : javaElement.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			ElementAndAnnotationKey other = (ElementAndAnnotationKey) obj;
+			if (annotationName == null) {
+				if (other.annotationName != null)
+					return false;
+			} else if (!annotationName.equals(other.annotationName))
+				return false;
+			if (javaElement == null) {
+				if (other.javaElement != null)
+					return false;
+			} else if (!javaElement.equals(other.javaElement))
+				return false;
+			return true;
+		}
+		
+		
+	}
+	
 	@Override
 	protected String[] getPatterns() {
 		return getAnnotationNames();
@@ -60,7 +105,6 @@ public abstract class AbstractAnnotationTypeReferencePropertiesProvider extends 
 		IJavaElement javaElement = null;
 		try {
 			Object element = getMatchedElement(match);
-
 			if (element instanceof IAnnotation) {
 				// ex : for Local variable
 				IAnnotation annotation = ((IAnnotation) element);
@@ -81,6 +125,7 @@ public abstract class AbstractAnnotationTypeReferencePropertiesProvider extends 
 		}
 	}
 
+
 	/**
 	 * Return the element associated with the
 	 * given <code>match</code> and null otherwise
@@ -90,7 +135,6 @@ public abstract class AbstractAnnotationTypeReferencePropertiesProvider extends 
 	 */
 	private static Object getMatchedElement(SearchMatch match) {
 		if (match instanceof TypeReferenceMatch) {
-
 			// localElement exists if matched element is a
 			// local variable (constructor/method parameter)
 			Object localElement = ((TypeReferenceMatch) match).getLocalElement();
@@ -131,6 +175,11 @@ public abstract class AbstractAnnotationTypeReferencePropertiesProvider extends 
 		String[] names = getAnnotationNames();
 		for (String annotationName : names) {
 			if (isMatchAnnotation(annotation, annotationName)) {
+				// The provider matches the annotation based
+				if (isAlreadyProcessed(new ElementAndAnnotationKey(javaElement, annotationName), context)) {
+					// The processAnnotation has already been done for the Java element and the annotation
+					return;
+				}				
 				processAnnotation(javaElement, annotation, annotationName, context, monitor);
 				break;
 			}
