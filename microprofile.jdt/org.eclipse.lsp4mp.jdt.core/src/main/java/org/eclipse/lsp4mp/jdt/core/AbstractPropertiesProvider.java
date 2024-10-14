@@ -15,6 +15,9 @@ package org.eclipse.lsp4mp.jdt.core;
 
 import static org.eclipse.lsp4mp.jdt.core.utils.JDTTypeUtils.getPropertyType;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
@@ -180,6 +183,31 @@ public abstract class AbstractPropertiesProvider implements IPropertiesProvider 
 			return hint;
 		}
 		return null;
+	}
+	
+	/**
+	 * Returns true if the given Java element has already generated MicroProfile
+	 * properties for this provider and false otherwise.
+	 * 
+	 * This check allows to prevent from duplicate properties.
+	 * 
+	 * @param element the Java element collected by the search engine to generate
+	 *                some MicroProfile properties.
+	 * @param context the search context.
+	 * @return true if the given Java element has already generated MicroProfile
+	 *         properties for this provider and false otherwise.
+	 */
+	protected boolean isAlreadyProcessed(Object element, SearchContext context) {
+		if (element == null) {
+			return true;
+		}
+		String key = this.getClass().getName();
+		Set<Object> elements = (Set<Object>) context.get(key);
+		if (elements == null) {
+			elements = new HashSet<>();
+			context.put(key, elements);
+		}
+		return !elements.add(element);
 	}
 
 }
