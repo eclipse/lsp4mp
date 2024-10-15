@@ -19,12 +19,14 @@ import java.util.regex.Pattern;
 import org.eclipse.jdt.core.IAnnotatable;
 import org.eclipse.jdt.core.IAnnotation;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IImportContainer;
 import org.eclipse.jdt.core.IImportDeclaration;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMemberValuePair;
 import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.ISourceReference;
+import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.Annotation;
@@ -281,7 +283,68 @@ public class AnnotationUtils {
 	public static String getAnnotationMemberValue(IAnnotation annotation, String memberName) throws JavaModelException {
 		for (IMemberValuePair pair : annotation.getMemberValuePairs()) {
 			if (memberName.equals(pair.getMemberName())) {
-				return pair.getValue() != null ? pair.getValue().toString() : null;
+				String memberValue = pair.getValue() != null ? pair.getValue().toString() : null;
+				if (memberValue != null) {
+					switch (pair.getValueKind()) {
+					case IMemberValuePair.K_STRING:
+						// ex : @Path("foo") --> returns foo
+						return memberValue;
+					case IMemberValuePair.K_SIMPLE_NAME: {
+						// ex : private static final String PATH = "foo";
+						// @Path(PATH) --> returns foo
+						IType type = ((IType) annotation.getAncestor(IJavaElement.TYPE));
+						if (type != null) {
+							String fieldValue = getFieldValue(type, memberValue);
+							if (fieldValue != null) {
+								return fieldValue;
+							}
+						}
+						return memberValue;
+					}
+					case IMemberValuePair.K_QUALIFIED_NAME: {
+						// ex : class SomePage {
+						// private static final String PATH = "foo";
+						// @Path(SomePage.PATH) --> returns foo
+						IType type = ((IType) annotation.getAncestor(IJavaElement.TYPE));
+						if (type != null) {							
+							int index = memberValue.lastIndexOf(".");
+							String fieldName = memberValue.substring(index + 1);
+							String valueClass = memberValue.substring(0, index);
+							String[][] resolvedTypes = type.resolveType(valueClass);
+							if (resolvedTypes != null && resolvedTypes.length > 0) {
+								IType valueType = annotation.getJavaProject()
+										.findType(resolvedTypes[0][0] + "." + resolvedTypes[0][1]);
+								if (valueType != null) {
+									String fieldValue = getFieldValue(valueType, fieldName);
+									if (fieldValue != null) {
+										return fieldValue;
+									}
+								}
+							}
+						}
+						return memberValue;
+					}
+					default:
+						return memberValue;
+					}
+				}
+				return null;
+			}
+		}
+		return null;
+	}
+
+	private static String getFieldValue(IType valueType, String fieldName) throws JavaModelException {
+		IField valueField = valueType.getField(fieldName);
+		if(valueField != null && valueField.exists()) {
+			Object constantField = valueField.getConstant();
+			if (constantField != null) {
+				String constantValue = constantField.toString();
+				// Remove double quote if needed.
+				if (constantValue.length() > 1 && constantValue.charAt(0) == '"' && constantValue.charAt(constantValue.length() - 1) == '"') {
+					constantValue = constantValue.substring(1, constantValue.length() - 1);
+				}
+				return constantValue;
 			}
 		}
 		return null;

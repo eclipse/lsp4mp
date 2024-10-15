@@ -76,9 +76,7 @@ public class FruitResource {
 
     @DELETE
     @Transactional
-    @Path(
-        "{id}"
-        )
+    @Path("{id}")
     public
     Response
     delete(@PathParam Integer id) {
@@ -103,6 +101,27 @@ public class FruitResource {
                     .entity(Json.createObjectBuilder().add("error", exception.getMessage()).add("code", code).build())
                     .build();
         }
-
+    }
+    
+    public static final String PATH = "path_with_java_constant";
+    
+    @GET
+    @Path(PATH)
+    public Fruit getSingle2(@PathParam Integer id) {
+        Fruit entity = entityManager.find(Fruit.class, id);
+        if (entity == null) {
+            throw new WebApplicationException("Fruit with id of " + id + " does not exist.", 404);
+        }
+        return entity;
+    }
+    
+    @GET
+    @Path(FruitResource.PATH)
+    public Fruit getSingle3(@PathParam Integer id) {
+        Fruit entity = entityManager.find(Fruit.class, id);
+        if (entity == null) {
+            throw new WebApplicationException("Fruit with id of " + id + " does not exist.", 404);
+        }
+        return entity;
     }
 }
