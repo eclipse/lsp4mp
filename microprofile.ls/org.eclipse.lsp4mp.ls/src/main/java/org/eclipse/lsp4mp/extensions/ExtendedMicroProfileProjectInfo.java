@@ -21,6 +21,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.metadata.ItemBase;
 import org.eclipse.lsp4mp.commons.metadata.ItemHint;
@@ -206,6 +207,11 @@ public class ExtendedMicroProfileProjectInfo extends MicroProfileProjectInfo {
 					List<ItemMetadata> oldProperties = provider.getProperties();
 					if (oldProperties != null) {
 						oldProperties = new ArrayList<>(oldProperties);
+					}
+					// Check that document is not out of date
+					CancelChecker cancelChecker = document != null ? document.getCancelChecker() : null;
+					if (cancelChecker != null) {
+						cancelChecker.checkCanceled();
 					}
 					provider.update(document);
 					List<ItemMetadata> newProperties = provider.getProperties();

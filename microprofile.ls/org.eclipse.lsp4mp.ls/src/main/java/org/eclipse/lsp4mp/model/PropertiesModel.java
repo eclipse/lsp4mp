@@ -233,13 +233,15 @@ public class PropertiesModel extends Node implements IConfigSourcePropertiesProv
 	public String getText(int start, int end, boolean skipMultiLine) {
 		String text = document.getText();
 		if (!skipMultiLine) {
+			cancelChecker.checkCanceled();
 			return text.substring(start, end);
 		}
-
+		
 		StringBuilder sb = new StringBuilder();
 		int i = start;
 		boolean trimLeading = false;
 		while (i < end) {
+			cancelChecker.checkCanceled();
 			char curr = text.charAt(i);
 			if (curr == '\\') {
 				if (i < end - 1 && text.charAt(i + 1) == '\n') {
