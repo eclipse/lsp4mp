@@ -82,13 +82,15 @@ public class JaxRsCodeLensTest extends BasePropertiesManagerTest {
 				cl("http://localhost:8080/myPath", "", r(7, 18, 26)));
 	}
 
-	private static void assertCodeLenses(int port, MicroProfileJavaCodeLensParams params, IJDTUtils utils) throws JavaModelException {
+	private static void assertCodeLenses(int port, MicroProfileJavaCodeLensParams params, IJDTUtils utils)
+			throws JavaModelException {
 		assertCodeLens(params, utils, //
 				cl("http://localhost:" + port + "/fruits", "", r(31, 8, 8)), //
 				cl("http://localhost:" + port + "/fruits/{id}", "", r(38, 17, 17)), //
 				cl("http://localhost:" + port + "/fruits", "", r(48, 18, 18)), //
 				cl("http://localhost:" + port + "/fruits/{id}", "", r(60, 18, 18)), //
-				cl("http://localhost:" + port + "/fruits/{id}", "", r(81, 9, 9)));
+				cl("http://localhost:" + port + "/fruits/{id}", "", r(79, 17, 17)), //
+				cl("http://localhost:" + port + "/fruits/path_with_java_constant", "", r(109, 15, 15)), //
+				cl("http://localhost:" + port + "/fruits/path_with_java_constant", "", r(119, 29, 29)));
 	}
-
 }
