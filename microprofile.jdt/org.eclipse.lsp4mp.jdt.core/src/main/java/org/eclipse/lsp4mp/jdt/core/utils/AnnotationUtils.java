@@ -306,19 +306,15 @@ public class AnnotationUtils {
 						// private static final String PATH = "foo";
 						// @Path(SomePage.PATH) --> returns foo
 						IType type = ((IType) annotation.getAncestor(IJavaElement.TYPE));
-						if (type != null) {							
+						if (type != null) {
 							int index = memberValue.lastIndexOf(".");
 							String fieldName = memberValue.substring(index + 1);
 							String valueClass = memberValue.substring(0, index);
-							String[][] resolvedTypes = type.resolveType(valueClass);
-							if (resolvedTypes != null && resolvedTypes.length > 0) {
-								IType valueType = annotation.getJavaProject()
-										.findType(resolvedTypes[0][0] + "." + resolvedTypes[0][1]);
-								if (valueType != null) {
-									String fieldValue = getFieldValue(valueType, fieldName);
-									if (fieldValue != null) {
-										return fieldValue;
-									}
+							IType valueType = getResolvedType(valueClass, type);
+							if (valueType != null) {
+								String fieldValue = getFieldValue(valueType, fieldName);
+								if (fieldValue != null) {
+									return fieldValue;
 								}
 							}
 						}
@@ -334,14 +330,27 @@ public class AnnotationUtils {
 		return null;
 	}
 
+	private static IType getResolvedType(String valueClass, IType type) throws JavaModelException {
+		String[][] resolvedTypes = type.resolveType(valueClass);
+		if (resolvedTypes != null && resolvedTypes.length > 0) {
+			// It is a Class and not an enum which returns resolvedTypes as null 
+			valueClass = resolvedTypes[0][0] + "." + resolvedTypes[0][1];
+		}
+		return type.getJavaProject().findType(valueClass);
+	}
+
 	private static String getFieldValue(IType valueType, String fieldName) throws JavaModelException {
 		IField valueField = valueType.getField(fieldName);
-		if(valueField != null && valueField.exists()) {
+		if (valueField != null && valueField.exists()) {
+			if (valueType.isEnum()) {
+				return valueField.getElementName(); 
+			}
 			Object constantField = valueField.getConstant();
 			if (constantField != null) {
 				String constantValue = constantField.toString();
 				// Remove double quote if needed.
-				if (constantValue.length() > 1 && constantValue.charAt(0) == '"' && constantValue.charAt(constantValue.length() - 1) == '"') {
+				if (constantValue.length() > 1 && constantValue.charAt(0) == '"'
+						&& constantValue.charAt(constantValue.length() - 1) == '"') {
 					constantValue = constantValue.substring(1, constantValue.length() - 1);
 				}
 				return constantValue;
