@@ -1,5 +1,18 @@
 # MicroProfile Language Server Changelog
 
+## [0.13.0](https://github.com/eclipse/lsp4mp/milestone/14?closed=1) (October 17, 2024)
+
+### Enhancements
+
+- feat: Provide property validator extension API. See [#460](https://github.com/eclipse/lsp4mp/pull/460).
+
+### Bug Fixes
+
+- REST endpoint codelens is not resolving a `public static final` parameter. See [#467](https://github.com/eclipse/lsp4mp/pull/467).
+- fix: prevent from duplicate properties. See [#465](https://github.com/eclipse/lsp4mp/pull/465).
+- fix: split register completion options for Java / Properties. See [#464](https://github.com/eclipse/lsp4mp/pull/464).
+- fix: prevent from empty name symbol. See [#462](https://github.com/eclipse/lsp4mp/pull/462).
+
 ## [0.12.0](https://github.com/eclipse/lsp4mp/milestone/13?closed=1) (August 26, 2024)
 
 ### Enhancements
