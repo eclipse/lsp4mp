@@ -2,7 +2,17 @@
 <?pde version="3.8"?>
 <target name="LSP4MP Target Platform">
 	<locations>
-		<!--<location type="Target" uri="https://raw.githubusercontent.com/eclipse/eclipse.jdt.ls/master/org.eclipse.jdt.ls.target/org.eclipse.jdt.ls.tp.target"/>-->
+        <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+            <unit id="org.eclipse.platform.feature.group" version="0.0.0"/>
+            <repository location="https://download.eclipse.org/eclipse/updates/4.34-I-builds/"/>
+        </location>
+        <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+            <unit id="org.eclipse.jdt.ls.core" version="0.0.0"/>
+            <unit id="org.eclipse.m2e.jdt" version="0.0.0"/>
+            <unit id="org.eclipse.buildship.core" version="0.0.0"/>
+            <unit id="org.apache.commons.commons-io" version="0.0.0"/>
+            <repository location="https://download.eclipse.org/jdtls/snapshots/repository/latest"/>
+        </location>
 		<location includeDependencyDepth="infinite" includeDependencyScopes="compile" includeSource="true" missingManifest="generate" type="Maven">
 			<dependencies>
 				<dependency>
