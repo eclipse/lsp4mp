@@ -103,6 +103,11 @@
             <forkedProcessTimeoutInSeconds>${surefire.timeout}</forkedProcessTimeoutInSeconds>
           </configuration>
         </plugin>
+        <plugin>
+          <groupId>org.eclipse.tycho</groupId>
+          <artifactId>tycho-versions-plugin</artifactId>
+          <version>4.0.8</version>
+        </plugin>
       </plugins>
     </pluginManagement>
   </build>
