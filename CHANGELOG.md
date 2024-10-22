@@ -1,6 +1,6 @@
 # MicroProfile Language Server Changelog
 
-## [0.13.0](https://github.com/eclipse/lsp4mp/milestone/14?closed=1) (October 21, 2024)
+## [0.13.0](https://github.com/eclipse/lsp4mp/milestone/14?closed=1) (October 22, 2024)
 
 ### Enhancements
 
