@@ -16,10 +16,13 @@ package org.eclipse.lsp4mp.jdt.core.snippets;
 import static org.junit.Assert.assertEquals;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 
+import org.apache.commons.io.FileUtils;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
@@ -28,6 +31,7 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4mp.commons.JavaCursorContextKind;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCompletionParams;
 import org.eclipse.lsp4mp.jdt.core.BasePropertiesManagerTest;
+import org.eclipse.lsp4mp.jdt.core.JavaUtils;
 import org.eclipse.lsp4mp.jdt.core.PropertiesManagerForJava;
 import org.junit.After;
 import org.junit.Test;
@@ -42,11 +46,10 @@ public class JavaFileCursorContextTest extends BasePropertiesManagerTest {
 
 	@After
 	public void cleanUp() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.config_hover);
-		IProject project = javaProject.getProject();
-		IFile javaFile = project.getFile(new Path("src/main/java/org/acme/config/Empty.java"));
-		javaFile.refreshLocal(IResource.DEPTH_ZERO, null);
-		javaFile.setContents(new ByteArrayInputStream("".getBytes()), 0, MONITOR);
+		File to = new File(JavaUtils.getWorkingProjectDirectory(),
+				java.nio.file.Paths.get("maven", MicroProfileMavenProjectName.config_hover).toString());
+		FileUtils.forceDelete(to);
+		ResourcesPlugin.getWorkspace().getRoot().getProject(MicroProfileMavenProjectName.config_hover).delete(true, null);
 	}
 
 	// context kind tests
