@@ -17,6 +17,8 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +45,12 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.ls.core.internal.JavaLanguageServerPlugin;
+import org.eclipse.jdt.ls.core.internal.managers.StandardProjectsManager;
+import org.eclipse.jdt.ls.core.internal.preferences.StandardPreferenceManager;
 import org.eclipse.lsp4j.ClientCapabilities;
+import org.eclipse.lsp4j.ResourceOperationKind;
+import org.eclipse.lsp4j.WorkspaceClientCapabilities;
+import org.eclipse.lsp4j.WorkspaceEditCapabilities;
 import org.eclipse.lsp4mp.commons.ClasspathKind;
 import org.eclipse.lsp4mp.commons.DocumentFormat;
 import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
@@ -138,38 +145,41 @@ public class BasePropertiesManagerTest {
 
 	public static IJavaProject loadMavenProject(String mavenProject) throws CoreException, Exception {
 		// Load existing "hibernate-orm-resteasy" maven project
-		return loadJavaProject(mavenProject, "maven");
+		return loadJavaProjects(new String [] { "maven/" + mavenProject})[0];
 	}
 
 	public static IJavaProject loadGradleProject(String gradleProject) throws CoreException, Exception {
-		var gradleJavaProject = loadJavaProject(gradleProject, "gradle");
+		var gradleJavaProject = loadJavaProjects(new String [] { "gradle/" + gradleProject})[0];
 		Job.getJobManager().join(CorePlugin.GRADLE_JOB_FAMILY, new NullProgressMonitor());
 		return gradleJavaProject;
 	}
 
 	public static IJavaProject loadMavenProjectFromSubFolder(String mavenProject, String subFolder) throws Exception {
-		return loadJavaProject(mavenProject, java.nio.file.Paths.get("maven", subFolder).toString());
+		return loadJavaProjects(new String [] {"maven/" + subFolder + "/" + mavenProject})[0];
 	}
 
-	private static IJavaProject loadJavaProject(String projectName, String parentDirName)
+	public static IJavaProject [] loadJavaProjects(String [] parentSlashName)
 			throws CoreException, Exception {
-		// Move project to working directory
-		File projectFolder = copyProjectToWorkingDirectory(projectName, parentDirName);
 
-		IPath path = new Path(new File(projectFolder, "/.project").getAbsolutePath());
-		IProjectDescription description = ResourcesPlugin.getWorkspace().loadProjectDescription(path);
-		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(description.getName());
+		List<IPath> paths = new ArrayList<>();
+		for (String parentSlashNameEntry : parentSlashName) {
+			String parentDirName = parentSlashNameEntry.substring(0, parentSlashNameEntry.lastIndexOf('/'));
+			String projectName = parentSlashNameEntry.substring(parentSlashNameEntry.lastIndexOf('/') + 1);
 
-		if (!project.exists()) {
-			project.create(description, null);
-			project.open(null);
-			// We need to call waitForBackgroundJobs with a Job which does nothing to have a
-			// resolved classpath (IJavaProject#getResolvedClasspath) when search is done.
-			IWorkspaceRunnable runnable = monitor -> monitor.done();
-			IProgressMonitor monitor = new NullProgressMonitor();
-			JavaCore.run(runnable, null, monitor);
-			waitForBackgroundJobs(monitor);
+			// Move project to working directory
+			File projectFolder = copyProjectToWorkingDirectory(projectName, parentDirName);
+			IPath path = new Path(new File(projectFolder, "/.project").getAbsolutePath());
+			paths.add(path);
 		}
+
+		JavaLanguageServerPlugin.getPreferencesManager().initialize();
+		JavaLanguageServerPlugin.getPreferencesManager().updateClientPrefences(new ClientCapabilities(), new HashMap<>());
+		JavaLanguageServerPlugin.getProjectsManager().initializeProjects(paths.stream().map(p -> p.removeLastSegments(1)).toList(), null);
+
+		IProgressMonitor monitor = new NullProgressMonitor();
+		waitForBackgroundJobs(monitor);
+		org.eclipse.jdt.ls.core.internal.JobHelpers.waitUntilIndexesReady();
+
 		// Collect Quarkus properties from the "hibernate-orm-resteasy" project. It
 		// should collect Quarkus properties from given JAR:
 
@@ -185,7 +195,13 @@ public class BasePropertiesManagerTest {
 		// property:
 		// deployment-artifact=io.quarkus\:quarkus-hibernate-orm-deployment\:0.21.1
 
-		return JavaModelManager.getJavaModelManager().getJavaModel().getJavaProject(description.getName());
+		List<IJavaProject> javaProjects = new ArrayList<>();
+		for (IPath path : paths) {
+			IProjectDescription description = ResourcesPlugin.getWorkspace().loadProjectDescription(path);
+			IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(description.getName());
+			javaProjects.add(JavaCore.create(project));
+		}
+		return javaProjects.toArray(new IJavaProject[0]);
 	}
 
 	private static File copyProjectToWorkingDirectory(String projectName, String parentDirName) throws IOException {

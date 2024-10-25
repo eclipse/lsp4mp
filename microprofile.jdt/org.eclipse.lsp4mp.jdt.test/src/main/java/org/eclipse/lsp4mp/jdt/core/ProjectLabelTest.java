@@ -67,49 +67,56 @@ public class ProjectLabelTest {
 
 	@Test
 	public void getProjectLabelMultipleProjects() throws Exception {
-		IJavaProject quarkusMaven = BasePropertiesManagerTest.loadMavenProject(MicroProfileMavenProjectName.using_vertx);
-		IJavaProject quarkusGradle = BasePropertiesManagerTest
-				.loadGradleProject(GradleProjectName.quarkus_gradle_project);
-		IJavaProject maven = BasePropertiesManagerTest.loadMavenProject(MicroProfileMavenProjectName.empty_maven_project);
-		IJavaProject gradle = BasePropertiesManagerTest.loadGradleProject(GradleProjectName.empty_gradle_project);
+		IJavaProject [] projects = BasePropertiesManagerTest.loadJavaProjects(new String [] {
+				"maven/" + MicroProfileMavenProjectName.using_vertx,
+				"gradle/" + GradleProjectName.quarkus_gradle_project,
+				"maven/" + MicroProfileMavenProjectName.empty_maven_project,
+				"gradle/" + GradleProjectName.empty_gradle_project
+				});
 		List<ProjectLabelInfoEntry> projectLabelEntries = ProjectLabelManager.getInstance().getProjectLabelInfo();
 
-		assertProjectLabelInfoContainsProject(projectLabelEntries, quarkusMaven, quarkusGradle, maven, gradle);
-		assertLabels(projectLabelEntries, quarkusMaven, "microprofile", "maven");
-		assertLabels(projectLabelEntries, quarkusGradle, "microprofile", "gradle");
-		assertLabels(projectLabelEntries, maven, "maven");
-		assertLabels(projectLabelEntries, gradle, "gradle");
+		assertProjectLabelInfoContainsProject(projectLabelEntries, projects[0], projects[1], projects[2], projects[3]);
+		assertLabels(projectLabelEntries, projects[0], "microprofile", "maven");
+		assertLabels(projectLabelEntries, projects[1], "microprofile", "gradle");
+		assertLabels(projectLabelEntries, projects[2], "maven");
+		assertLabels(projectLabelEntries, projects[3], "gradle");
 	}
 
 	@Test
 	public void projectNameMaven() throws Exception {
-		IJavaProject quarkusMaven = BasePropertiesManagerTest.loadMavenProject(MicroProfileMavenProjectName.using_vertx);
-		IJavaProject maven = BasePropertiesManagerTest.loadMavenProject(MicroProfileMavenProjectName.empty_maven_project);
-		IJavaProject folderNameDifferent = BasePropertiesManagerTest.loadMavenProject(MicroProfileMavenProjectName.folder_name_different_maven);
+		IJavaProject[] projects = BasePropertiesManagerTest.loadJavaProjects(new String [] {
+				"maven/" + MicroProfileMavenProjectName.using_vertx,
+				"maven/" + MicroProfileMavenProjectName.empty_maven_project,
+				"maven/" + MicroProfileMavenProjectName.folder_name_different_maven
+		});
 		List<ProjectLabelInfoEntry> projectLabelEntries = ProjectLabelManager.getInstance().getProjectLabelInfo();
-		assertName(projectLabelEntries, quarkusMaven, "using-vertx");
-		assertName(projectLabelEntries, maven, "empty-maven-project");
-		assertName(projectLabelEntries, folderNameDifferent, "mostly.empty");
+		assertName(projectLabelEntries, projects[0], "using-vertx");
+		assertName(projectLabelEntries, projects[1], "empty-maven-project");
+		assertName(projectLabelEntries, projects[2], "mostly.empty");
 	}
 
 	@Test
 	public void projectNameSameFolderName() throws Exception {
-		IJavaProject empty1 = BasePropertiesManagerTest.loadMavenProject(MicroProfileMavenProjectName.empty_maven_project);
-		IJavaProject empty2 = BasePropertiesManagerTest.loadMavenProjectFromSubFolder(MicroProfileMavenProjectName.other_empty_maven_project, "folder");
+		IJavaProject [] empties = BasePropertiesManagerTest.loadJavaProjects(new String [] {
+				"maven/" + MicroProfileMavenProjectName.empty_maven_project,
+				"maven/" + "folder/" + MicroProfileMavenProjectName.other_empty_maven_project});
 		List<ProjectLabelInfoEntry> projectLabelEntries = ProjectLabelManager.getInstance().getProjectLabelInfo();
-		assertName(projectLabelEntries, empty1, "empty-maven-project");
-		assertName(projectLabelEntries, empty2, "other-empty-maven-project");
+		assertName(projectLabelEntries, empties[0], "empty-maven-project");
+		assertName(projectLabelEntries, empties[1], "other-empty-maven-project");
 	}
 
 	@Test
 	public void projectNameGradle() throws Exception {
-		IJavaProject quarkusGradle = BasePropertiesManagerTest.loadGradleProject(GradleProjectName.quarkus_gradle_project);
-		IJavaProject gradle = BasePropertiesManagerTest.loadGradleProject(GradleProjectName.empty_gradle_project);
-		IJavaProject renamedGradle = BasePropertiesManagerTest.loadGradleProject(GradleProjectName.renamed_quarkus_gradle_project);
+		IJavaProject [] projects = BasePropertiesManagerTest.loadJavaProjects(new String [] {
+				"gradle/" + GradleProjectName.quarkus_gradle_project,
+				"gradle/" + GradleProjectName.empty_gradle_project,
+				"gradle/" + GradleProjectName.renamed_quarkus_gradle_project
+		});
 		List<ProjectLabelInfoEntry> projectLabelEntries = ProjectLabelManager.getInstance().getProjectLabelInfo();
-		assertName(projectLabelEntries, quarkusGradle, "quarkus-gradle-project");
-		assertName(projectLabelEntries, gradle, "empty-gradle-project");
-		assertName(projectLabelEntries, renamedGradle, "my-gradle-project");
+		assertName(projectLabelEntries, projects[0], "quarkus-gradle-project");
+		assertName(projectLabelEntries, projects[1], "empty-gradle-project");
+		// See https://github.com/eclipse-jdtls/eclipse.jdt.ls/issues/1743
+		assertName(projectLabelEntries, projects[2], "my-gradle-project-renamed-gradle");
 	}
 
 	private static void assertProjectLabelInfoContainsProject(List<ProjectLabelInfoEntry> projectLabelEntries,
