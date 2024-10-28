@@ -16,24 +16,21 @@ package org.eclipse.lsp4mp.jdt.core.snippets;
 import static org.junit.Assert.assertEquals;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 
-import org.apache.commons.io.FileUtils;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.ls.core.internal.ProjectUtils;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4mp.commons.JavaCursorContextKind;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCompletionParams;
 import org.eclipse.lsp4mp.jdt.core.BasePropertiesManagerTest;
-import org.eclipse.lsp4mp.jdt.core.JavaUtils;
 import org.eclipse.lsp4mp.jdt.core.PropertiesManagerForJava;
 import org.junit.After;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -44,20 +41,24 @@ public class JavaFileCursorContextTest extends BasePropertiesManagerTest {
 
 	private static final IProgressMonitor MONITOR = new NullProgressMonitor();
 
+	@BeforeClass
+	public static void setupProject() throws Exception {
+		loadMavenProject(MicroProfileMavenProjectName.config_hover);
+	}
+
 	@After
 	public void cleanUp() throws Exception {
-		File to = new File(JavaUtils.getWorkingProjectDirectory(),
-				java.nio.file.Paths.get("maven", MicroProfileMavenProjectName.config_hover).toString());
-		FileUtils.forceDelete(to);
-		ResourcesPlugin.getWorkspace().getRoot().getProject(MicroProfileMavenProjectName.config_hover).delete(true, null);
+		IProject project = ProjectUtils.getProject(MicroProfileMavenProjectName.config_hover);
+		IFile javaFile = project.getFile(new Path("src/main/java/org/acme/config/Empty.java"));
+		javaFile.refreshLocal(IResource.DEPTH_ZERO, null);
+		javaFile.setContents(new ByteArrayInputStream("".getBytes()), 0, MONITOR);
 	}
 
 	// context kind tests
 
 	@Test
 	public void testEmptyFileContext() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.config_hover);
-		IProject project = javaProject.getProject();
+		IProject project = ProjectUtils.getProject(MicroProfileMavenProjectName.config_hover);
 		IFile javaFile = project.getFile(new Path("src/main/java/org/acme/config/Empty.java"));
 		String javaFileUri = javaFile.getLocation().toFile().toURI().toString();
 
@@ -69,8 +70,7 @@ public class JavaFileCursorContextTest extends BasePropertiesManagerTest {
 
 	@Test
 	public void testJustSnippetFileContext() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.config_hover);
-		IProject project = javaProject.getProject();
+		IProject project = ProjectUtils.getProject(MicroProfileMavenProjectName.config_hover);
 		IFile javaFile = project.getFile(new Path("src/main/java/org/acme/config/Empty.java"));
 		String javaFileUri = javaFile.getLocation().toFile().toURI().toString();
 		javaFile.refreshLocal(IResource.DEPTH_ZERO, null);
@@ -95,8 +95,7 @@ public class JavaFileCursorContextTest extends BasePropertiesManagerTest {
 
 	@Test
 	public void testBeforeFieldContext() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.config_hover);
-		IProject project = javaProject.getProject();
+		IProject project = ProjectUtils.getProject(MicroProfileMavenProjectName.config_hover);
 		IFile javaFile = project.getFile(new Path("src/main/java/org/acme/config/GreetingResource.java"));
 		String javaFileUri = javaFile.getLocation().toFile().toURI().toString();
 
@@ -120,8 +119,7 @@ public class JavaFileCursorContextTest extends BasePropertiesManagerTest {
 
 	@Test
 	public void testBeforeMethodContext() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.config_hover);
-		IProject project = javaProject.getProject();
+		IProject project = ProjectUtils.getProject(MicroProfileMavenProjectName.config_hover);;
 		IFile javaFile = project.getFile(new Path("src/main/java/org/acme/config/GreetingResource.java"));
 		String javaFileUri = javaFile.getLocation().toFile().toURI().toString();
 
@@ -147,8 +145,7 @@ public class JavaFileCursorContextTest extends BasePropertiesManagerTest {
 
 	@Test
 	public void testInMethodContext() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.config_hover);
-		IProject project = javaProject.getProject();
+		IProject project = ProjectUtils.getProject(MicroProfileMavenProjectName.config_hover);;
 		IFile javaFile = project.getFile(new Path("src/main/java/org/acme/config/GreetingResource.java"));
 		String javaFileUri = javaFile.getLocation().toFile().toURI().toString();
 
@@ -178,8 +175,7 @@ public class JavaFileCursorContextTest extends BasePropertiesManagerTest {
 
 	@Test
 	public void testInClassContext() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.config_hover);
-		IProject project = javaProject.getProject();
+		IProject project = ProjectUtils.getProject(MicroProfileMavenProjectName.config_hover);;
 		IFile javaFile = project.getFile(new Path("src/main/java/org/acme/config/GreetingResource.java"));
 		String javaFileUri = javaFile.getLocation().toFile().toURI().toString();
 
@@ -196,8 +192,7 @@ public class JavaFileCursorContextTest extends BasePropertiesManagerTest {
 
 	@Test
 	public void testAfterClassContext() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.config_hover);
-		IProject project = javaProject.getProject();
+		IProject project = ProjectUtils.getProject(MicroProfileMavenProjectName.config_hover);;
 		IFile javaFile = project.getFile(new Path("src/main/java/org/acme/config/GreetingResource.java"));
 		String javaFileUri = javaFile.getLocation().toFile().toURI().toString();
 
@@ -215,8 +210,7 @@ public class JavaFileCursorContextTest extends BasePropertiesManagerTest {
 
 	@Test
 	public void testClassContextUsingInterface() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.config_hover);
-		IProject project = javaProject.getProject();
+		IProject project = ProjectUtils.getProject(MicroProfileMavenProjectName.config_hover);;
 		IFile javaFile = project.getFile(new Path("src/main/java/org/acme/config/MyInterface.java"));
 		String javaFileUri = javaFile.getLocation().toFile().toURI().toString();
 
@@ -241,8 +235,7 @@ public class JavaFileCursorContextTest extends BasePropertiesManagerTest {
 
 	@Test
 	public void testClassContextUsingEnum() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.config_hover);
-		IProject project = javaProject.getProject();
+		IProject project = ProjectUtils.getProject(MicroProfileMavenProjectName.config_hover);;
 		IFile javaFile = project.getFile(new Path("src/main/java/org/acme/config/MyEnum.java"));
 		String javaFileUri = javaFile.getLocation().toFile().toURI().toString();
 
@@ -278,8 +271,7 @@ public class JavaFileCursorContextTest extends BasePropertiesManagerTest {
 
 	@Test
 	public void testClassContextUsingAnnotation() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.config_hover);
-		IProject project = javaProject.getProject();
+		IProject project = ProjectUtils.getProject(MicroProfileMavenProjectName.config_hover);;
 		IFile javaFile = project.getFile(new Path("src/main/java/org/acme/config/MyAnnotation.java"));
 		String javaFileUri = javaFile.getLocation().toFile().toURI().toString();
 
@@ -315,8 +307,7 @@ public class JavaFileCursorContextTest extends BasePropertiesManagerTest {
 
 	@Test
 	public void testBeforeClassContext() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.config_hover);
-		IProject project = javaProject.getProject();
+		IProject project = ProjectUtils.getProject(MicroProfileMavenProjectName.config_hover);;
 		IFile javaFile = project.getFile(new Path("src/main/java/org/acme/config/MyNestedClass.java"));
 		String javaFileUri = javaFile.getLocation().toFile().toURI().toString();
 
@@ -375,8 +366,7 @@ public class JavaFileCursorContextTest extends BasePropertiesManagerTest {
 
 	@Test
 	public void testAtBeginningOfFile() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.config_hover);
-		IProject project = javaProject.getProject();
+		IProject project = ProjectUtils.getProject(MicroProfileMavenProjectName.config_hover);;
 		IFile javaFile = project.getFile(new Path("src/main/java/org/acme/config/Empty.java"));
 		String javaFileUri = javaFile.getLocation().toFile().toURI().toString();
 
@@ -387,8 +377,7 @@ public class JavaFileCursorContextTest extends BasePropertiesManagerTest {
 
 	@Test
 	public void testOneWord() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.config_hover);
-		IProject project = javaProject.getProject();
+		IProject project = ProjectUtils.getProject(MicroProfileMavenProjectName.config_hover);;
 		IFile javaFile = project.getFile(new Path("src/main/java/org/acme/config/Empty.java"));
 		String javaFileUri = javaFile.getLocation().toFile().toURI().toString();
 		javaFile.refreshLocal(IResource.DEPTH_ZERO, null);
@@ -410,8 +399,7 @@ public class JavaFileCursorContextTest extends BasePropertiesManagerTest {
 
 	@Test
 	public void testTwoWords() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.config_hover);
-		IProject project = javaProject.getProject();
+		IProject project = ProjectUtils.getProject(MicroProfileMavenProjectName.config_hover);;
 		IFile javaFile = project.getFile(new Path("src/main/java/org/acme/config/Empty.java"));
 		String javaFileUri = javaFile.getLocation().toFile().toURI().toString();
 		javaFile.refreshLocal(IResource.DEPTH_ZERO, null);
@@ -428,8 +416,7 @@ public class JavaFileCursorContextTest extends BasePropertiesManagerTest {
 
 	@Test
 	public void testLombok() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.config_hover);
-		IProject project = javaProject.getProject();
+		IProject project = ProjectUtils.getProject(MicroProfileMavenProjectName.config_hover);;
 		IFile javaFile = project.getFile(new Path("src/main/java/org/acme/config/WithLombok.java"));
 		String javaFileUri = javaFile.getLocation().toFile().toURI().toString();
 
