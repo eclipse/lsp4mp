@@ -21,11 +21,13 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.ls.core.internal.ProjectUtils;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4mp.jdt.core.BasePropertiesManagerTest;
 import org.eclipse.lsp4mp.jdt.core.TestConfigSourceProvider;
 import org.eclipse.lsp4mp.jdt.internal.core.providers.MicroProfileConfigSourceProvider;
 import org.junit.After;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -37,6 +39,13 @@ public class MicroProfileConfigJavaHoverTest extends BasePropertiesManagerTest {
 
 	private static IJavaProject javaProject;
 
+	@BeforeClass
+	public static void setupProject() throws Exception {
+		loadJavaProjects(new String[] {
+				"maven/" + MicroProfileMavenProjectName.config_hover,
+				"maven/" + MicroProfileMavenProjectName.config_quickstart });
+	}
+
 	@After
 	public void cleanup() throws Exception {
 		deleteFile(MicroProfileConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE, javaProject);
@@ -47,7 +56,7 @@ public class MicroProfileConfigJavaHoverTest extends BasePropertiesManagerTest {
 	@Test
 	public void configPropertyNameHover() throws Exception {
 
-		javaProject = loadMavenProject(MicroProfileMavenProjectName.config_hover);
+		javaProject = ProjectUtils.getJavaProject(MicroProfileMavenProjectName.config_hover);
 		IProject project = javaProject.getProject();
 		IFile javaFile = project.getFile(new Path("src/main/java/org/acme/config/GreetingResource.java"));
 		String javaFileUri = fixURI(javaFile.getLocation().toFile().toURI());
@@ -111,7 +120,7 @@ public class MicroProfileConfigJavaHoverTest extends BasePropertiesManagerTest {
 	@Test
 	public void configPropertyNameHoverWithProfiles() throws Exception {
 
-		javaProject = loadMavenProject(MicroProfileMavenProjectName.config_hover);
+		javaProject = ProjectUtils.getJavaProject(MicroProfileMavenProjectName.config_hover);
 		IProject project = javaProject.getProject();
 		IFile javaFile = project.getFile(new Path("src/main/java/org/acme/config/GreetingResource.java"));
 		String javaFileUri = fixURI(javaFile.getLocation().toFile().toURI());
@@ -158,7 +167,7 @@ public class MicroProfileConfigJavaHoverTest extends BasePropertiesManagerTest {
 	@Test
 	public void configPropertyNameMethod() throws Exception {
 
-		javaProject = loadMavenProject(MicroProfileMavenProjectName.config_quickstart);
+		javaProject = ProjectUtils.getJavaProject(MicroProfileMavenProjectName.config_quickstart);
 		IProject project = javaProject.getProject();
 		IFile javaFile = project.getFile(new Path("src/main/java/org/acme/config/GreetingMethodResource.java"));
 		String javaFileUri = fixURI(javaFile.getLocation().toFile().toURI());
@@ -188,7 +197,7 @@ public class MicroProfileConfigJavaHoverTest extends BasePropertiesManagerTest {
 	@Test
 	public void configPropertyNameConstructor() throws Exception {
 
-		javaProject = loadMavenProject(MicroProfileMavenProjectName.config_quickstart);
+		javaProject = ProjectUtils.getJavaProject(MicroProfileMavenProjectName.config_quickstart);
 		IProject project = javaProject.getProject();
 		IFile javaFile = project.getFile(new Path("src/main/java/org/acme/config/GreetingConstructorResource.java"));
 		String javaFileUri = fixURI(javaFile.getLocation().toFile().toURI());
@@ -219,7 +228,7 @@ public class MicroProfileConfigJavaHoverTest extends BasePropertiesManagerTest {
 	@Test
 	public void configPropertyNamePrecedence() throws Exception {
 
-		javaProject = loadMavenProject(MicroProfileMavenProjectName.config_hover);
+		javaProject = ProjectUtils.getJavaProject(MicroProfileMavenProjectName.config_hover);
 		IProject project = javaProject.getProject();
 		IFile javaFile = project.getFile(new Path("src/main/java/org/acme/config/GreetingResource.java"));
 		String javaFileUri = fixURI(javaFile.getLocation().toFile().toURI());
@@ -251,7 +260,7 @@ public class MicroProfileConfigJavaHoverTest extends BasePropertiesManagerTest {
 	@Test
 	public void configPropertyNameProfile() throws Exception {
 
-		javaProject = loadMavenProject(MicroProfileMavenProjectName.config_hover);
+		javaProject = ProjectUtils.getJavaProject(MicroProfileMavenProjectName.config_hover);
 		IProject project = javaProject.getProject();
 		IFile javaFile = project.getFile(new Path("src/main/java/org/acme/config/GreetingResource.java"));
 		String javaFileUri = fixURI(javaFile.getLocation().toFile().toURI());
@@ -285,7 +294,7 @@ public class MicroProfileConfigJavaHoverTest extends BasePropertiesManagerTest {
 
 	@Test
 	public void configPropertyNameResolveExpression() throws Exception {
-		javaProject = loadMavenProject(MicroProfileMavenProjectName.config_hover);
+		javaProject = ProjectUtils.getJavaProject(MicroProfileMavenProjectName.config_hover);
 		IProject project = javaProject.getProject();
 		IFile javaFile = project.getFile(new Path("src/main/java/org/acme/config/GreetingResource.java"));
 		String javaFileUri = fixURI(javaFile.getLocation().toFile().toURI());
