@@ -27,7 +27,7 @@ pipeline {
                 ./mvnw clean deploy -B -Peclipse-sign -Dcbi.jarsigner.skip=false
 
                 cd ../../microprofile.jdt
-                ./mvnw -Dtycho.mode=maven org.eclipse.tycho:tycho-versions-plugin:4.0.8:set-version -DnewVersion=$VERSION-SNAPSHOT
+                ./mvnw org.eclipse.tycho:tycho-versions-plugin:set-version -DnewVersion=$VERSION-SNAPSHOT
                 ./mvnw versions:set-scm-tag -DnewTag=$VERSION
                 ./mvnw clean verify -B  -Peclipse-sign -DskipTests
                 cd ..
