@@ -98,10 +98,10 @@ public class SnippetContextForJava implements ISnippetContext<JavaSnippetComplet
 			return kind == JavaCursorContextKind.IN_EMPTY_FILE;
 		case METHOD:
 			return kind == JavaCursorContextKind.BEFORE_FIELD || kind == JavaCursorContextKind.BEFORE_METHOD
-					|| kind == JavaCursorContextKind.BEFORE_CLASS || kind == JavaCursorContextKind.IN_CLASS;
+					|| kind == JavaCursorContextKind.IN_CLASS;
 		case FIELD:
 			return kind == JavaCursorContextKind.BEFORE_FIELD || kind == JavaCursorContextKind.BEFORE_METHOD
-					|| kind == JavaCursorContextKind.BEFORE_CLASS || kind == JavaCursorContextKind.IN_CLASS;
+					|| kind == JavaCursorContextKind.IN_CLASS;
 		default:
 			return false;
 		}
