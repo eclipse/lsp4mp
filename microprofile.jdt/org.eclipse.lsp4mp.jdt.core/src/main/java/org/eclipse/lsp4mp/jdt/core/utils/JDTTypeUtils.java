@@ -18,6 +18,8 @@ import static org.eclipse.jdt.core.Signature.SIG_VOID;
 import java.util.Arrays;
 import java.util.List;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJarEntryResource;
 import org.eclipse.jdt.core.IJavaElement;
@@ -44,7 +46,7 @@ public class JDTTypeUtils {
 
 	public static IType findType(IJavaProject project, String name) {
 		try {
-			return project.findType(name);
+			return project.findType(name, new NullProgressMonitor());
 		} catch (JavaModelException e) {
 			return null;
 		}
