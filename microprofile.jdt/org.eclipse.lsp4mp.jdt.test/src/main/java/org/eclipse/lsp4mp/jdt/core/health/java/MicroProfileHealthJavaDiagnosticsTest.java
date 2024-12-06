@@ -25,6 +25,7 @@ import java.util.Arrays;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.ls.core.internal.ProjectUtils;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4mp.commons.DocumentFormat;
@@ -32,9 +33,11 @@ import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeActionParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaDiagnosticsParams;
 import org.eclipse.lsp4mp.commons.codeaction.MicroProfileCodeActionId;
 import org.eclipse.lsp4mp.jdt.core.BasePropertiesManagerTest;
+import org.eclipse.lsp4mp.jdt.core.BasePropertiesManagerTest.MicroProfileMavenProjectName;
 import org.eclipse.lsp4mp.jdt.core.utils.IJDTUtils;
 import org.eclipse.lsp4mp.jdt.internal.health.MicroProfileHealthConstants;
 import org.eclipse.lsp4mp.jdt.internal.health.java.MicroProfileHealthErrorCode;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -45,9 +48,17 @@ import org.junit.Test;
  */
 public class MicroProfileHealthJavaDiagnosticsTest extends BasePropertiesManagerTest {
 
+	@BeforeClass
+	public static void setupTests() throws Exception {
+		BasePropertiesManagerTest.loadJavaProjects(new String [] {
+				"maven/" + MicroProfileMavenProjectName.microprofile_health_quickstart,
+				"maven/" + MicroProfileMavenProjectName.microprofile_health_3
+				});
+	}
+
 	@Test
 	public void ImplementHealthCheck() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.microprofile_health_quickstart);
+		IJavaProject javaProject = ProjectUtils.getJavaProject(MicroProfileMavenProjectName.microprofile_health_quickstart);
 		IJDTUtils utils = JDT_UTILS;
 
 		MicroProfileJavaDiagnosticsParams diagnosticsParams = new MicroProfileJavaDiagnosticsParams();
@@ -80,7 +91,7 @@ public class MicroProfileHealthJavaDiagnosticsTest extends BasePropertiesManager
 
 	@Test
 	public void HealthAnnotationMissing() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.microprofile_health_quickstart);
+		IJavaProject javaProject = ProjectUtils.getJavaProject(MicroProfileMavenProjectName.microprofile_health_quickstart);
 		IJDTUtils utils = JDT_UTILS;
 
 		MicroProfileJavaDiagnosticsParams diagnosticsParams = new MicroProfileJavaDiagnosticsParams();
@@ -117,7 +128,7 @@ public class MicroProfileHealthJavaDiagnosticsTest extends BasePropertiesManager
 
 	@Test
 	public void healthAnnotationMissingv3() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.microprofile_health_3);
+		IJavaProject javaProject = ProjectUtils.getJavaProject(MicroProfileMavenProjectName.microprofile_health_3);
 		IJDTUtils utils = JDT_UTILS;
 
 		MicroProfileJavaDiagnosticsParams diagnosticsParams = new MicroProfileJavaDiagnosticsParams();

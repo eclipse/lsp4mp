@@ -25,6 +25,7 @@ import java.util.Arrays;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.ls.core.internal.ProjectUtils;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4mp.commons.DocumentFormat;
@@ -32,9 +33,11 @@ import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeActionParams;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaDiagnosticsParams;
 import org.eclipse.lsp4mp.commons.codeaction.MicroProfileCodeActionId;
 import org.eclipse.lsp4mp.jdt.core.BasePropertiesManagerTest;
+import org.eclipse.lsp4mp.jdt.core.BasePropertiesManagerTest.MicroProfileMavenProjectName;
 import org.eclipse.lsp4mp.jdt.core.utils.IJDTUtils;
 import org.eclipse.lsp4mp.jdt.internal.restclient.MicroProfileRestClientConstants;
 import org.eclipse.lsp4mp.jdt.internal.restclient.MicroProfileRestClientErrorCode;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -45,9 +48,17 @@ import org.junit.Test;
  */
 public class MicroProfileRestClientJavaDiagnosticsTest extends BasePropertiesManagerTest {
 
+	@BeforeClass
+	public static void setupTests() throws Exception {
+		BasePropertiesManagerTest.loadJavaProjects(new String [] {
+				"maven/" + MicroProfileMavenProjectName.rest_client_quickstart,
+				"maven/" + MicroProfileMavenProjectName.open_liberty
+				});
+	}
+
 	@Test
 	public void restClientAnnotationMissingForFields() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.rest_client_quickstart);
+		IJavaProject javaProject = ProjectUtils.getJavaProject(MicroProfileMavenProjectName.rest_client_quickstart);
 		IJDTUtils utils = JDT_UTILS;
 
 		MicroProfileJavaDiagnosticsParams params = new MicroProfileJavaDiagnosticsParams();
@@ -102,7 +113,7 @@ public class MicroProfileRestClientJavaDiagnosticsTest extends BasePropertiesMan
 
 	@Test
 	public void restClientAnnotationMissingForFieldsJakarta() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.open_liberty);
+		IJavaProject javaProject = ProjectUtils.getJavaProject(MicroProfileMavenProjectName.open_liberty);
 		IJDTUtils utils = JDT_UTILS;
 
 		MicroProfileJavaDiagnosticsParams params = new MicroProfileJavaDiagnosticsParams();
@@ -148,7 +159,7 @@ public class MicroProfileRestClientJavaDiagnosticsTest extends BasePropertiesMan
 
 	@Test
 	public void restClientAnnotationMissingForInterface() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.rest_client_quickstart);
+		IJavaProject javaProject = ProjectUtils.getJavaProject(MicroProfileMavenProjectName.rest_client_quickstart);
 		IJDTUtils utils = JDT_UTILS;
 
 		MicroProfileJavaDiagnosticsParams params = new MicroProfileJavaDiagnosticsParams();
@@ -174,7 +185,7 @@ public class MicroProfileRestClientJavaDiagnosticsTest extends BasePropertiesMan
 
 	@Test
 	public void restClientAnnotationMissingForInterfaceJakarta() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.open_liberty);
+		IJavaProject javaProject = ProjectUtils.getJavaProject(MicroProfileMavenProjectName.open_liberty);
 		IJDTUtils utils = JDT_UTILS;
 
 		MicroProfileJavaDiagnosticsParams params = new MicroProfileJavaDiagnosticsParams();

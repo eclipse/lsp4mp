@@ -26,6 +26,7 @@ import java.util.Arrays;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.ls.core.internal.ProjectUtils;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4mp.commons.DocumentFormat;
@@ -36,16 +37,27 @@ import org.eclipse.lsp4mp.commons.codeaction.MicroProfileCodeActionFactory;
 import org.eclipse.lsp4mp.commons.codeaction.MicroProfileCodeActionId;
 import org.eclipse.lsp4mp.jdt.core.BasePropertiesManagerTest;
 import org.eclipse.lsp4mp.jdt.core.MicroProfileConfigConstants;
+import org.eclipse.lsp4mp.jdt.core.BasePropertiesManagerTest.MicroProfileMavenProjectName;
 import org.eclipse.lsp4mp.jdt.core.utils.IJDTUtils;
 import org.eclipse.lsp4mp.jdt.internal.config.java.MicroProfileConfigErrorCode;
+import org.eclipse.lsp4mp.jdt.internal.core.java.validators.JavaASTValidatorRegistry;
 import org.eclipse.lsp4mp.jdt.internal.core.providers.MicroProfileConfigSourceProvider;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class MicroProfileConfigJavaDiagnosticsTest extends BasePropertiesManagerTest {
 
+	@BeforeClass
+	public static void setupTests() throws Exception {
+		BasePropertiesManagerTest.loadJavaProjects(new String [] {
+				"maven/" + MicroProfileMavenProjectName.config_quickstart,
+				"maven/" + MicroProfileMavenProjectName.microprofile_configproperties
+				});
+	}
+
 	@Test
 	public void improperDefaultValues() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.config_quickstart);
+		IJavaProject javaProject = ProjectUtils.getJavaProject(MicroProfileMavenProjectName.config_quickstart);
 		IJDTUtils utils = JDT_UTILS;
 
 		MicroProfileJavaDiagnosticsParams diagnosticsParams = new MicroProfileJavaDiagnosticsParams();
@@ -81,7 +93,7 @@ public class MicroProfileConfigJavaDiagnosticsTest extends BasePropertiesManager
 
 	@Test
 	public void improperDefaultValuesList() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.config_quickstart);
+		IJavaProject javaProject = ProjectUtils.getJavaProject(MicroProfileMavenProjectName.config_quickstart);
 		IJDTUtils utils = JDT_UTILS;
 
 		MicroProfileJavaDiagnosticsParams diagnosticsParams = new MicroProfileJavaDiagnosticsParams();
@@ -116,7 +128,7 @@ public class MicroProfileConfigJavaDiagnosticsTest extends BasePropertiesManager
 
 	@Test
 	public void noValueAssignedWithIgnore() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.config_quickstart);
+		IJavaProject javaProject = ProjectUtils.getJavaProject(MicroProfileMavenProjectName.config_quickstart);
 		IJDTUtils utils = JDT_UTILS;
 
 		MicroProfileJavaDiagnosticsParams diagnosticsParams = new MicroProfileJavaDiagnosticsParams();
@@ -148,7 +160,7 @@ public class MicroProfileConfigJavaDiagnosticsTest extends BasePropertiesManager
 
 	@Test
 	public void unassignedWithConfigProperties() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.microprofile_configproperties);
+		IJavaProject javaProject = ProjectUtils.getJavaProject(MicroProfileMavenProjectName.microprofile_configproperties);
 		IJDTUtils utils = JDT_UTILS;
 
 		MicroProfileJavaDiagnosticsParams diagnosticsParams = new MicroProfileJavaDiagnosticsParams();
@@ -167,7 +179,7 @@ public class MicroProfileConfigJavaDiagnosticsTest extends BasePropertiesManager
 
 	@Test
 	public void codeActionForUnassigned() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.config_quickstart);
+		IJavaProject javaProject = ProjectUtils.getJavaProject(MicroProfileMavenProjectName.config_quickstart);
 		IJDTUtils utils = JDT_UTILS;
 
 		saveFile(MicroProfileConfigSourceProvider.MICROPROFILE_CONFIG_PROPERTIES_FILE, "", javaProject);
@@ -246,7 +258,7 @@ public class MicroProfileConfigJavaDiagnosticsTest extends BasePropertiesManager
 
 	@Test
 	public void emptyNameKeyValue() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.microprofile_configproperties);
+		IJavaProject javaProject = ProjectUtils.getJavaProject(MicroProfileMavenProjectName.microprofile_configproperties);
 		IJDTUtils utils = JDT_UTILS;
 
 		MicroProfileJavaDiagnosticsParams diagnosticsParams = new MicroProfileJavaDiagnosticsParams();

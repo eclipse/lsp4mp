@@ -18,12 +18,17 @@ import static org.eclipse.lsp4mp.jdt.core.MicroProfileForJavaAssert.cl;
 import static org.eclipse.lsp4mp.jdt.core.MicroProfileForJavaAssert.r;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.ls.core.internal.ProjectUtils;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeLensParams;
 import org.eclipse.lsp4mp.jdt.core.BasePropertiesManagerTest;
+import org.eclipse.lsp4mp.jdt.core.BasePropertiesManagerTest.GradleProjectName;
+import org.eclipse.lsp4mp.jdt.core.BasePropertiesManagerTest.MicroProfileMavenProjectName;
 import org.eclipse.lsp4mp.jdt.core.utils.IJDTUtils;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -32,9 +37,17 @@ import org.junit.Test;
  */
 public class JaxRsApplicationPathCodeLensTest extends BasePropertiesManagerTest {
 
+	@BeforeClass
+	public static void setupTests() throws Exception {
+		BasePropertiesManagerTest.loadJavaProjects(new String [] {
+				"maven/" + MicroProfileMavenProjectName.microprofile_applicationpath,
+				"maven/" + MicroProfileMavenProjectName.open_liberty
+				});
+	}
+
 	@Test
 	public void urlCodeLensApplicationPath() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.microprofile_applicationpath);
+		IJavaProject javaProject = ProjectUtils.getJavaProject(MicroProfileMavenProjectName.microprofile_applicationpath);
 		IJDTUtils utils = JDT_UTILS;
 
 		MicroProfileJavaCodeLensParams params = new MicroProfileJavaCodeLensParams();
@@ -56,7 +69,7 @@ public class JaxRsApplicationPathCodeLensTest extends BasePropertiesManagerTest 
 
 	@Test
 	public void urlCodeLensApplicationPathNoSlash() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.microprofile_applicationpath);
+		IJavaProject javaProject = ProjectUtils.getJavaProject(MicroProfileMavenProjectName.microprofile_applicationpath);
 		IJDTUtils utils = JDT_UTILS;
 
 		MicroProfileJavaCodeLensParams params = new MicroProfileJavaCodeLensParams();
@@ -78,7 +91,7 @@ public class JaxRsApplicationPathCodeLensTest extends BasePropertiesManagerTest 
 
 	@Test
 	public void urlCodeLensApplicationPathChange() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.microprofile_applicationpath);
+		IJavaProject javaProject = ProjectUtils.getJavaProject(MicroProfileMavenProjectName.microprofile_applicationpath);
 		IJDTUtils utils = JDT_UTILS;
 
 		MicroProfileJavaCodeLensParams params = new MicroProfileJavaCodeLensParams();
@@ -108,7 +121,7 @@ public class JaxRsApplicationPathCodeLensTest extends BasePropertiesManagerTest 
 
 	@Test
 	public void openLibertyJakarta() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.open_liberty);
+		IJavaProject javaProject = ProjectUtils.getJavaProject(MicroProfileMavenProjectName.open_liberty);
 		IJDTUtils utils = JDT_UTILS;
 
 		MicroProfileJavaCodeLensParams params = new MicroProfileJavaCodeLensParams();
