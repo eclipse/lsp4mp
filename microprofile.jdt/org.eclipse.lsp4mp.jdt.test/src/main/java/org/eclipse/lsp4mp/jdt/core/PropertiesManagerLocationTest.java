@@ -15,8 +15,11 @@ package org.eclipse.lsp4mp.jdt.core;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.ls.core.internal.ProjectUtils;
 import org.eclipse.lsp4j.Location;
+import org.eclipse.lsp4mp.jdt.core.BasePropertiesManagerTest.MicroProfileMavenProjectName;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -27,9 +30,18 @@ import org.junit.Test;
  */
 public class PropertiesManagerLocationTest extends BasePropertiesManagerTest {
 
+	@BeforeClass
+	public static void setupTests() throws Exception {
+		BasePropertiesManagerTest.loadJavaProjects(new String [] {
+				"maven/" + MicroProfileMavenProjectName.using_vertx,
+				"maven/" + MicroProfileMavenProjectName.config_properties,
+				"maven/" + MicroProfileMavenProjectName.config_quickstart
+				});
+	}
+
 	@Test
 	public void usingVertxTest() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.using_vertx);
+		IJavaProject javaProject = ProjectUtils.getJavaProject(MicroProfileMavenProjectName.using_vertx);
 
 		// Test with Java sources
 		// myapp.schema.create
@@ -40,7 +52,7 @@ public class PropertiesManagerLocationTest extends BasePropertiesManagerTest {
 
 	@Test
 	public void configPropertiesTest() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.config_properties);
+		IJavaProject javaProject = ProjectUtils.getJavaProject(MicroProfileMavenProjectName.config_properties);
 
 		// Test with method
 		// greetingInterface.name
@@ -53,7 +65,7 @@ public class PropertiesManagerLocationTest extends BasePropertiesManagerTest {
 
 	@Test
 	public void configPropertiesMethodTest() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.config_quickstart);
+		IJavaProject javaProject = ProjectUtils.getJavaProject(MicroProfileMavenProjectName.config_quickstart);
 
 		// Test with method with parameters
 		// greeting.constructor.message
@@ -66,7 +78,7 @@ public class PropertiesManagerLocationTest extends BasePropertiesManagerTest {
 
 	@Test
 	public void configPropertiesConstructorTest() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.config_quickstart);
+		IJavaProject javaProject = ProjectUtils.getJavaProject(MicroProfileMavenProjectName.config_quickstart);
 
 		// Test with constructor with parameters
 		// greeting.constructor.message
@@ -96,7 +108,7 @@ public class PropertiesManagerLocationTest extends BasePropertiesManagerTest {
 		// When we attempt to locate the enum value `Banana`, it returns a handle to a
 		// non-existent field, which we must ignore.
 
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.using_vertx);
+		IJavaProject javaProject = ProjectUtils.getJavaProject(MicroProfileMavenProjectName.using_vertx);
 
 		Location location = PropertiesManager.getInstance().findPropertyLocation(javaProject, "org.acme.vertx.Fruit",
 				"Banana", null, JDT_UTILS, new NullProgressMonitor());

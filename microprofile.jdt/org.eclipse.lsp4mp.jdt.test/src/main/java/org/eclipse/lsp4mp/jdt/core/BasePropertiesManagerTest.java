@@ -49,6 +49,7 @@ import org.eclipse.lsp4mp.commons.MicroProfileProjectInfo;
 import org.eclipse.lsp4mp.commons.MicroProfilePropertiesScope;
 import org.eclipse.lsp4mp.jdt.core.utils.IJDTUtils;
 import org.eclipse.lsp4mp.jdt.internal.core.JobHelpers;
+import org.eclipse.lsp4mp.jdt.internal.core.java.validators.JavaASTValidatorRegistry;
 import org.eclipse.lsp4mp.jdt.internal.core.ls.JDTUtilsLSImpl;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -111,6 +112,8 @@ public class BasePropertiesManagerTest {
 		oldLevel = LOGGER.getLevel();
 		LOGGER.setLevel(Level.INFO);
 		enableClassFileContentsSupport();
+		// Register the Java AST Validators
+		JavaASTValidatorRegistry.getInstance().getRules();
 	}
 
 	@AfterClass

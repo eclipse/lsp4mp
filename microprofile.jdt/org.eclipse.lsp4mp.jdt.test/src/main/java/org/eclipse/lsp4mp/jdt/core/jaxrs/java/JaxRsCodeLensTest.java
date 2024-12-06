@@ -21,9 +21,12 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.ls.core.internal.ProjectUtils;
 import org.eclipse.lsp4mp.commons.MicroProfileJavaCodeLensParams;
 import org.eclipse.lsp4mp.jdt.core.BasePropertiesManagerTest;
+import org.eclipse.lsp4mp.jdt.core.BasePropertiesManagerTest.MicroProfileMavenProjectName;
 import org.eclipse.lsp4mp.jdt.core.utils.IJDTUtils;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -34,9 +37,17 @@ import org.junit.Test;
  */
 public class JaxRsCodeLensTest extends BasePropertiesManagerTest {
 
+	@BeforeClass
+	public static void setupTests() throws Exception {
+		BasePropertiesManagerTest.loadJavaProjects(new String [] {
+				"maven/" + MicroProfileMavenProjectName.hibernate_orm_resteasy,
+				"maven/" + MicroProfileMavenProjectName.hibernate_orm_resteasy_yaml
+				});
+	}
+
 	@Test
 	public void urlCodeLensProperties() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.hibernate_orm_resteasy);
+		IJavaProject javaProject = ProjectUtils.getJavaProject(MicroProfileMavenProjectName.hibernate_orm_resteasy);
 		IJDTUtils utils = JDT_UTILS;
 
 		MicroProfileJavaCodeLensParams params = new MicroProfileJavaCodeLensParams();
@@ -52,7 +63,7 @@ public class JaxRsCodeLensTest extends BasePropertiesManagerTest {
 
 	@Test
 	public void urlCodeLensYaml() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.hibernate_orm_resteasy_yaml);
+		IJavaProject javaProject = ProjectUtils.getJavaProject(MicroProfileMavenProjectName.hibernate_orm_resteasy_yaml);
 		IJDTUtils utils = JDT_UTILS;
 
 		MicroProfileJavaCodeLensParams params = new MicroProfileJavaCodeLensParams();
@@ -68,7 +79,7 @@ public class JaxRsCodeLensTest extends BasePropertiesManagerTest {
 
 	@Test
 	public void customJaxRsInfoProvider() throws Exception {
-		IJavaProject javaProject = loadMavenProject(MicroProfileMavenProjectName.hibernate_orm_resteasy);
+		IJavaProject javaProject = ProjectUtils.getJavaProject(MicroProfileMavenProjectName.hibernate_orm_resteasy);
 		IJDTUtils utils = JDT_UTILS;
 
 		MicroProfileJavaCodeLensParams params = new MicroProfileJavaCodeLensParams();
